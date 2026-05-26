@@ -15,6 +15,8 @@ jobs:
       pull-requests: write
       issues: write
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      GITHUB_TOKEN: ${{ github.token }}
       SITE_URL: ${{ secrets.SITE_URL }}
       API_URL: ${{ secrets.API_URL }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -25,7 +27,7 @@ jobs:
       RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -43,14 +45,14 @@ jobs:
           python -m agents.devbareun_ops_engine.run_all_agents --root . --out agent_reports
 
       - name: Upload AgentOps reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: devbareun-agentops-report
           path: agent_reports/
 
       - name: Add PR report comment
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
