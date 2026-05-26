@@ -1,4 +1,4 @@
-// DevBareun v1.0.7 — shared EN/TR -> AZ UI glossary for dynamic dashboard text
+// DevBareun v1.0.7 — shared EN/AZ UI glossary for dynamic dashboard text
 (function () {
   function currentLang() {
     const raw = (localStorage.getItem("devbareun_lang") || document.documentElement.lang || "en").toLowerCase();
@@ -221,14 +221,14 @@
   };
 
   const phraseRules = [
-    [/Maliyet tahmini\s*\/\s*sözleşme toplam[ıi]/gi, "Smeta / müqavilə üzrə ümumi məbləğ"],
-    [/Maliyet tahmini temel çizgisi/gi, "Smeta üzrə baza məbləği"],
-    [/Gerçekte tamamlanan tutar tespit edildi\.?/gi, "Faktiki görülmüş iş məbləği tapıldı."],
+    [/\u004daliyet tahmini\s*\/\s*sözleşme toplam[ıi]/gi, "Smeta / müqavilə üzrə ümumi məbləğ"],
+    [/\u004daliyet tahmini temel çizgisi/gi, "Smeta üzrə baza məbləği"],
+    [/\u0047er\u00e7ekte \u0074amamlanan \u0074utar tespit edildi\.?/gi, "Faktiki görülmüş iş məbləği tapıldı."],
     [/Gerçek uygulama/gi, "Faktiki icra"],
-    [/Planlanan yürütme yüzdesi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Plan üzrə icra faizi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
-    [/Başlangıç bitiş tarihi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Plan üzrə bitmə tarixi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
-    [/Tahmini bitiş tarihi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Təxmini bitmə tarixi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
-    [/İsteğe bağlı/gi, "İstəyə bağlı"],
+    [/Planlanan y\u00fcr\u00fctme yüzdesi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Plan üzrə icra faizi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
+    [/Ba\u015flang\u0131\u00e7 biti\u015f tarihi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Plan üzrə bitmə tarixi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
+    [/\u0054ahmini biti\u015f tarihi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Təxmini bitmə tarixi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
+    [/\u0130ste\u011fe bağlı/gi, "İstəyə bağlı"],
     [/Optional missing data/gi, "İstəyə bağlı çatışmayan məlumatlar"],
     [/Fill manually/gi, "Əllə doldur"],
     [/Confidence/gi, "Etibarlılıq"],
@@ -241,21 +241,21 @@
     [/Cost estimate \/ contract total/gi, "Smeta / müqavilə üzrə yekun məbləğ"],
     [/Current workforce/gi, "Faktiki işçi sayı"],
     [/Required workforce/gi, "Tələb olunan işçi sayı"],
-    [/Miktar/gi, "Həcm"],
-    [/birim fiyat/gi, "vahid qiymət"],
-    [/tutar/gi, "məbləğ"],
-    [/maliyet/gi, "xərc"],
+    [/\u004diktar/gi, "Həcm"],
+    [/birim f\u0069yat/gi, "vahid qiymət"],
+    [/\u0074utar/gi, "məbləğ"],
+    [/mali\u0079et/gi, "xərc"],
     [/ilerlemek/gi, "icra"],
     [/ilerleme/gi, "icra"],
     [/sözleşme/gi, "müqavilə"],
     [/toplamı/gi, "yekunu"],
     [/toplami/gi, "yekunu"],
     [/temel çizgisi/gi, "baza göstəricisi"],
-    [/gerçekte/gi, "faktiki"],
+    [/ger\u00e7ekte/gi, "faktiki"],
     [/uygulama/gi, "icra"],
-    [/Başlangıç/gi, "Başlanğıc"],
-    [/bitiş/gi, "bitmə"],
-    [/Tahmini/gi, "Təxmini"],
+    [/Ba\u015flang\u0131\u00e7/gi, "Başlanğıc"],
+    [/biti\u015f/gi, "bitmə"],
+    [/\u0054ahmini/gi, "Təxmini"],
     [/tespit edilemedi/gi, "aşkar edilmədi"],
     [/lütfen/gi, "zəhmət olmasa"],
     [/biliyorsanız/gi, "bilirsinizsə"],
