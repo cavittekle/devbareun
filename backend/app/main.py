@@ -342,6 +342,8 @@ def _missing_fields_for_analysis(analysis_type: str, parsed: Any) -> List[str]:
         "progress": ["total_cost", "actual_execution"],
         "schedule": ["planned_execution", "actual_execution", "baseline_finish", "estimated_finish"],
         "workforce": ["workforce_current", "workforce_required"],
+        "material": [],
+        "risk": [],
         "all": ["total_cost", "actual_execution", "planned_execution", "baseline_finish", "workforce_current"],
     }.get(analysis_type, ["total_cost", "actual_execution"])
     missing: List[str] = []
@@ -361,6 +363,8 @@ def _preflight_confidence(parsed: Any, analysis_type: str) -> int:
     if analysis_type in {"progress", "all"} and parsed.actual_execution is not None: score += 15
     if analysis_type == "schedule" and (parsed.baseline_finish or parsed.planned_execution is not None): score += 20
     if analysis_type == "workforce" and parsed.workforce_current is not None: score += 20
+    if analysis_type == "material" and any(getattr(sheet, "detected_type", "") in {"procurement", "material"} for sheet in parsed.sheets): score += 20
+    if analysis_type == "risk" and (parsed.warnings or parsed.sheets): score += 20
     return max(0, min(100, score))
 
 

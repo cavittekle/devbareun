@@ -507,6 +507,8 @@ class ConstructionFileParser:
             "progress": {"types": {"progress", "cost"}, "columns": {"planned_execution", "actual_execution", "actual_cost", "amount"}},
             "schedule": {"types": {"schedule"}, "columns": {"baseline_finish", "estimated_finish", "planned_execution", "actual_execution"}},
             "workforce": {"types": {"workforce"}, "columns": {"workforce_current", "workforce_required"}},
+            "material": {"types": {"procurement"}, "columns": {"quantity", "amount", "unit_price"}},
+            "risk": {"types": {"report", "procurement", "schedule", "cost", "progress", "workforce"}, "columns": {"delay_days", "cost_variance_percent", "planned_execution", "actual_execution", "workforce_current", "workforce_required"}},
         }
         rule = rules.get(focus)
         if not rule:
@@ -519,6 +521,12 @@ class ConstructionFileParser:
             confidence = min(98, confidence + 10)
         if focus == "progress" and any(t in norm_sheet for t in ("f 2", "f-2", "forma", "progress", "icra")):
             detected = "progress"
+            confidence = min(98, confidence + 10)
+        if focus == "material" and any(t in norm_sheet for t in ("material", "procurement", "supplier", "delivery", "anbar", "stock", "təchizat", "techizat")):
+            detected = "procurement"
+            confidence = min(98, confidence + 10)
+        if focus == "risk" and any(t in norm_sheet for t in ("risk", "qerar", "decision", "issue", "action", "tovsiye", "tövsiyə")):
+            detected = "report"
             confidence = min(98, confidence + 10)
         return detected, confidence, signals
 

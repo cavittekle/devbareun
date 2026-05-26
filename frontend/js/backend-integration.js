@@ -11,24 +11,24 @@
   const analysisMeta = {
     en: {
       all: {
-        title: "Full Dashboard",
-        text: "Premium project-control dashboard combining Schedule Recovery, Cost & Payment Control, risk register, executive summary and PDF/Excel reporting.",
+        title: "Full Project Control",
+        text: "Complete project-control package combining Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions and PDF/Excel reporting.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "cost, F-2/payment, schedule, workforce, risk and management reporting",
-        reqTitle: "Full Dashboard requires all core project-control datasets",
-        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Planned workforce or target productivity values"],
-        actual: ["Progress payment / interim payment (F-2) or actual cost", "Actual progress / actual finish / forecast update", "Actual workforce or site records"],
-        guardrail: "Full Dashboard consolidates schedule recovery, cost/payment control and executive risk. Missing actual data is shown as missing; comparison values are not invented."
+        focus: "schedule, workforce, cost, progress payment, material continuity, risk and management reporting",
+        reqTitle: "Full Project Control requires all core project-control datasets",
+        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Material/procurement baseline if available"],
+        actual: ["Progress payment or actual cost", "Actual progress / actual finish / forecast update", "Actual workforce, material, site notes or risk records"],
+        guardrail: "Full Project Control consolidates schedule recovery, cost/payment control, material continuity and executive risk. Missing actual data is shown as missing; comparison values are not invented."
       },
       cost: {
         title: "Cost & Payment Control",
-        text: "Upload cost estimate / smeta baseline plus F-2, interim payment or actual cost data. DevBareun compares approved budget, completed amount, remaining value and payment risk.",
+        text: "Upload cost estimate / smeta baseline plus progress payment or actual cost data. DevBareun compares approved budget, completed amount, remaining value and payment risk.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "cost estimate, BOQ, F-2, payment certificates, paid amount, remaining works, actual completed amount and total cost",
-        reqTitle: "Cost & Payment Control requires cost baseline and payment / F-2 evidence",
+        focus: "cost estimate, BOQ, progress payment records, paid amount, remaining works, actual completed amount and total cost",
+        reqTitle: "Cost & Payment Control requires cost baseline and progress payment evidence",
         baseline: ["Cost Estimate / Smeta / BOQ", "Contract amount or approved budget", "Work package totals, VAT and approved variations if available"],
-        actual: ["Progress Payment / Interim Payment (F-2)", "Actual completed amount or paid amount", "Remaining value, advance offset or current/cumulative payment split"],
-        guardrail: "Cost variance, completed amount and payment risk are calculated only when actual cost or F-2 data is detected or confirmed."
+        actual: ["Progress Payment", "Actual completed amount or paid amount", "Remaining value, advance offset or current/cumulative payment split"],
+        guardrail: "Cost variance, completed amount and payment risk are calculated only when actual cost or progress payment data is detected or confirmed."
       },
       schedule: {
         title: "Schedule Recovery",
@@ -37,44 +37,83 @@
         focus: "baseline schedule, actual progress, delay, workforce gap, productivity and recovery action",
         reqTitle: "Schedule Recovery requires schedule status and workforce evidence",
         baseline: ["Activity ID, WBS or activity name", "Planned start / planned finish / baseline duration", "Planned workforce or target productivity assumptions"],
-        actual: ["Actual progress %, completed quantity or forecast finish", "Actual worker count / crew records", "Site status update or report date"],
+        actual: ["Actual progress %", "completed quantity or forecast finish", "Actual worker count / crew records", "Site status update or report date"],
         guardrail: "Recovery logic connects delay and workforce gap. If actual progress or manpower is missing, DevBareun generates a review note instead of inventing a recovery plan."
+      },
+      material: {
+        title: "Material Continuity",
+        text: "Upload material stock, delivery, procurement or consumption data. DevBareun highlights shortages, delivery risks and continuity actions.",
+        template: "templates/devbareun-professional-upload-template-v2.xlsx",
+        focus: "material stock, procurement, supplier delivery, long-lead items, shortages and continuity actions",
+        reqTitle: "Material Continuity requires stock, delivery and consumption evidence",
+        baseline: ["Material list / BOQ material baseline", "Planned procurement dates", "Minimum stock or delivery targets"],
+        actual: ["Current stock or warehouse records", "Supplier delivery status", "Site consumption / shortage notes"],
+        guardrail: "Continuity risk is shown only from detected stock, delivery or procurement evidence; missing data is shown as a confirmation need."
+      },
+      risk: {
+        title: "Risk & Decisions",
+        text: "Upload risk logs, site notes, cost/schedule/material signals or decision records. DevBareun creates a decision-focused risk dashboard.",
+        template: "templates/devbareun-professional-upload-template-v2.xlsx",
+        focus: "risk register, decision prompts, open issues, owner actions and management priorities",
+        reqTitle: "Risk & Decisions requires confirmed project risk signals",
+        baseline: ["Risk categories or decision topics", "Approved baseline assumptions", "Management thresholds"],
+        actual: ["Open issues and site notes", "Cost, schedule, material or workforce risk evidence", "Owner/contractor decisions and required actions"],
+        guardrail: "Decision prompts are generated from detected evidence and missing data is flagged instead of being invented."
       }
     },
     az: {
       all: {
-        title: "Tam dashboard",
-        text: "Schedule Recovery, Cost & Payment Control, risk reyestri, rəhbərlik xülasəsi və PDF/Excel hesabatlarını birləşdirən premium layihə nəzarət paneli.",
+        title: "Tam layihə nəzarəti",
+        text: "Qrafik bərpası, xərc və F-2 nəzarəti, material davamlılığı, risk və qərarlar, rəhbərlik xülasəsi və PDF/Excel hesabatlarını birləşdirən tam layihə nəzarət paneli.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "xərc, F-2/ödəniş, qrafik, işçi qüvvəsi, risk və rəhbərlik hesabatı",
-        reqTitle: "Tam dashboard üçün bütün əsas layihə nəzarət məlumatları lazımdır",
-        baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Plan işçi sayı və ya məhsuldarlıq hədəfləri"],
-        actual: ["F-2 / ara ödəniş və ya faktiki xərc", "Faktiki icra / faktiki bitmə / proqnoz yeniləməsi", "Faktiki işçi sayı və ya sahə qeydləri"],
-        guardrail: "Tam dashboard Schedule Recovery, Cost & Payment Control və rəhbərlik risk xülasəsini birləşdirir. Faktiki məlumat yoxdursa, müqayisə uydurulmur."
+        focus: "qrafik, işçi qüvvəsi, xərc, F-2, material davamlılığı, risk və rəhbərlik hesabatı",
+        reqTitle: "Tam layihə nəzarəti üçün bütün əsas layihə nəzarət məlumatları lazımdır",
+        baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Material / təchizat bazası varsa"],
+        actual: ["F-2 / faktiki xərc", "Faktiki icra / faktiki bitmə / proqnoz yeniləməsi", "Faktiki işçi sayı, material, sahə qeydi və ya risk qeydləri"],
+        guardrail: "Tam layihə nəzarəti qrafik bərpası, xərc və F-2 nəzarəti, material davamlılığı və rəhbərlik risk xülasəsini birləşdirir. Faktiki məlumat yoxdursa, müqayisə uydurulmur."
       },
       cost: {
-        title: "Cost & Payment Control",
-        text: "Smeta bazasını, F-2 / ara ödəniş və ya faktiki xərc məlumatlarını yükləyin. DevBareun büdcə, görülmüş iş, qalıq dəyər və ödəniş riskini müqayisə edir.",
+        title: "Xərc və F-2 nəzarəti",
+        text: "Smeta bazasını, F-2 və ya faktiki xərc məlumatlarını yükləyin. DevBareun büdcə, görülmüş iş, qalıq dəyər və ödəniş riskini müqayisə edir.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
         focus: "smeta, BOQ, F-2, ödəniş aktları, ödənilmiş məbləğ, qalıq işlər, faktiki görülmüş iş məbləği və ümumi xərc",
-        reqTitle: "Cost & Payment Control üçün smeta bazası və F-2 / ödəniş sübutu lazımdır",
+        reqTitle: "Xərc və F-2 nəzarəti üçün smeta bazası və F-2 sübutu lazımdır",
         baseline: ["Smeta / BOQ / xərc hesablaması", "Müqavilə dəyəri və ya təsdiqlənmiş büdcə", "İş bölmələri üzrə yekunlar, ƏDV və təsdiqlənmiş dəyişikliklər varsa"],
-        actual: ["F-2 / ara ödəniş / smeta üzrə icra", "Faktiki görülmüş işin məbləği və ya ödənilmiş məbləğ", "Qalıq dəyər, avans azaldılması və ya cari/yığılmış ödəniş bölgüsü"],
+        actual: ["F-2 / smeta üzrə icra", "Faktiki görülmüş işin məbləği və ya ödənilmiş məbləğ", "Qalıq dəyər, avans azaldılması və ya cari/yığılmış ödəniş bölgüsü"],
         guardrail: "Xərc fərqi, görülmüş iş məbləği və ödəniş riski yalnız faktiki xərc və ya F-2 məlumatı tapıldıqda və ya təsdiqləndikdə hesablanır."
       },
       schedule: {
-        title: "Schedule Recovery",
+        title: "Qrafik bərpası",
         text: "Plan qrafiki, faktiki icra və işçi sayı məlumatlarını yükləyin. DevBareun gecikmə, resurs fərqi və bərpa tədbirlərini bir dashboardda birləşdirir.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
         focus: "plan qrafiki, faktiki icra, gecikmə, işçi sayı fərqi, məhsuldarlıq və bərpa tədbiri",
-        reqTitle: "Schedule Recovery üçün qrafik vəziyyəti və işçi sayı məlumatı lazımdır",
+        reqTitle: "Qrafik bərpası üçün qrafik vəziyyəti və işçi sayı məlumatı lazımdır",
         baseline: ["Activity ID, WBS və ya iş adı", "Plan başlanğıc / plan bitmə / plan müddəti", "Plan işçi sayı və ya məhsuldarlıq hədəfi"],
-        actual: ["Faktiki icra %, tamamlanmış həcm və ya proqnoz bitmə", "Faktiki işçi sayı / briqada qeydləri", "Sahə statusu və ya hesabat tarixi"],
+        actual: ["Faktiki icra %", "tamamlanmış həcm və ya proqnoz bitmə", "Faktiki işçi sayı / briqada qeydləri", "Sahə statusu və ya hesabat tarixi"],
         guardrail: "Bərpa məntiqi gecikmə və işçi qüvvəsi fərqini birləşdirir. Faktiki icra və ya işçi sayı yoxdursa, DevBareun uydurma bərpa planı yaratmır, yoxlama qeydi göstərir."
+      },
+      material: {
+        title: "Material davamlılığı",
+        text: "Material qalığı, çatdırılma, satınalma və ya sərfiyyat məlumatlarını yükləyin. DevBareun çatışmazlığı, tədarük riskini və davamlılıq tədbirlərini göstərir.",
+        template: "templates/devbareun-professional-upload-template-v2.xlsx",
+        focus: "material qalığı, satınalma, təchizatçı çatdırılması, uzunmüddətli sifarişlər, çatışmazlıq və davamlılıq tədbirləri",
+        reqTitle: "Material davamlılığı üçün qalıq, çatdırılma və sərfiyyat sübutu lazımdır",
+        baseline: ["Material siyahısı / BOQ material bazası", "Planlaşdırılmış tədarük tarixləri", "Minimum qalıq və ya çatdırılma hədəfləri"],
+        actual: ["Cari qalıq və ya anbar qeydləri", "Təchizatçı çatdırılma statusu", "Sahə sərfiyyatı və çatışmazlıq qeydləri"],
+        guardrail: "Davamlılıq riski yalnız qalıq, çatdırılma və ya satınalma sübutu əsasında göstərilir; çatışmayan məlumat təsdiq tələbi kimi göstərilir."
+      },
+      risk: {
+        title: "Risk və qərarlar",
+        text: "Risk qeydləri, sahə qeydləri, xərc/qrafik/material siqnalları və qərar məlumatlarını yükləyin. DevBareun qərar yönümlü risk paneli yaradır.",
+        template: "templates/devbareun-professional-upload-template-v2.xlsx",
+        focus: "risk reyestri, qərar siqnalları, açıq məsələlər, sifarişçi tədbirləri və idarəetmə prioritetləri",
+        reqTitle: "Risk və qərarlar üçün təsdiqlənmiş layihə risk siqnalları lazımdır",
+        baseline: ["Risk kateqoriyaları və ya qərar mövzuları", "Təsdiqlənmiş baza fərziyyələri", "Rəhbərlik hədləri"],
+        actual: ["Açıq məsələlər və sahə qeydləri", "Xərc, qrafik, material və ya işçi qüvvəsi risk sübutları", "Sifarişçi/podratçı qərarları və tələb olunan tədbirlər"],
+        guardrail: "Qərar siqnalları tapılmış sübutlara əsasən yaradılır, çatışmayan məlumat isə uydurulmadan göstərilir."
       }
     }
   };
-
 
   const fieldLabels = {
     en: {
@@ -151,8 +190,8 @@
       actualRequiredText: "{label} is needed before DevBareun can calculate a reliable comparison. You can still continue with a baseline-only view, but actual variance and execution will stay unavailable.",
       uploadLimit: "Upload limit: {maxFiles} files · {maxFileSizeMb}MB per file · {maxTotalSizeMb}MB total.",
       addActualFiles: "Add actual data files",
-      actualCostFile: "F-2 / Progress Payment / actual cost file",
-      actualProgressFile: "F-2 / progress payment file",
+      actualCostFile: "Progress Payment / actual cost file",
+      actualProgressFile: "Progress payment file",
       actualScheduleFile: "actual progress / forecast update file",
       actualWorkforceFile: "actual workforce / site manpower file",
       actualGeneralFile: "actual progress, payment or site record file",

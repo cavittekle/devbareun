@@ -119,7 +119,7 @@ def apply_baseline_actual_guardrails(parsed: ParsedProjectData, analysis_type: s
                 parsed.actual_execution = None
             parsed.cost_variance_percent = None
             parsed.evidence["cost_actual_data_missing"] = True
-            msg = "Actual cost / F-2 / progress payment data was not found. Cost variance and actual execution require confirmed actual data."
+            msg = "Actual cost / progress payment data was not found. Cost variance and actual execution require confirmed actual data."
             if msg not in warnings:
                 warnings.append(msg)
 
@@ -207,8 +207,45 @@ def confidence_score(parsed: ParsedProjectData, risk: Dict[str, Any]) -> int:
     return max(0, min(100, score))
 
 
-def build_summary(parsed: ParsedProjectData, risk: Dict[str, Any], confidence: int) -> str:
+def build_summary(parsed: ParsedProjectData, risk: Dict[str, Any], confidence: int, analysis_type: str | None = "all") -> str:
     parts: List[str] = []
+    t = _clean_analysis_type(analysis_type)
+    if t == "material":
+        material_count = _available_sheet_count(parsed, "procurement") + _available_sheet_count(parsed, "material")
+        if material_count:
+            parts.append(f"Material/procurement evidence was detected in {material_count} sheet(s).")
+        else:
+            parts.append("Material continuity data was not clearly detected from the uploaded files.")
+        parts.append("Confirm stock levels, supplier delivery dates, critical materials and alternative procurement actions before using continuity conclusions.")
+        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
+        return " ".join(parts)
+    if t == "risk":
+        register = build_risk_register(parsed, risk)
+        if risk.get("score") is not None:
+            parts.append(f"Combined risk score is {risk.get('score')}/100 with {risk.get('level')} status.")
+        parts.append(f"Risk & Decisions dashboard prepared {len(register)} risk/decision item(s) from available evidence.")
+        parts.append("Use the recommended actions as management prompts and confirm unclear source data before final decisions.")
+        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
+        return " ".join(parts)
+
+    if t == "cost":
+        baseline = _cost_baseline(parsed)
+        remaining = _remaining_cost(parsed)
+        if baseline is not None:
+            parts.append(f"Cost Estimate / Smeta baseline is {baseline:,.2f} {parsed.currency or ''}.")
+        if parsed.actual_cost is not None and not _actual_cost_needs_confirmation(parsed):
+            parts.append(f"Confirmed progress payment / actual cost is {float(parsed.actual_cost):,.2f} {parsed.currency or ''}.")
+        elif _actual_cost_needs_confirmation(parsed):
+            parts.append("Detected progress payment / actual cost requires confirmation before commercial use.")
+        else:
+            parts.append("Confirmed progress payment / actual cost data was not clearly detected.")
+        if remaining is not None:
+            parts.append(f"Remaining value is {remaining:,.2f} {parsed.currency or ''}.")
+        if parsed.cost_variance_percent is not None:
+            direction = "above" if parsed.cost_variance_percent > 0 else "below" if parsed.cost_variance_percent < 0 else "equal to"
+            parts.append(f"Cost variance is {abs(parsed.cost_variance_percent):g}% {direction} the smeta baseline.")
+        parts.append(f"Dashboard confidence is {confidence}/100 based on detected cost, progress payment and mapped KPI evidence.")
+        return " ".join(parts)
     productivity_summary = _workforce_productivity_summary(parsed)
     workforce_only = bool(productivity_summary.get("activities_checked")) and parsed.total_cost is None and parsed.planned_execution is None and parsed.actual_execution is None
 
@@ -236,7 +273,7 @@ def build_summary(parsed: ParsedProjectData, risk: Dict[str, Any], confidence: i
     elif parsed.total_cost is not None:
         parts.append(f"The detected smeta/contract baseline is approximately {parsed.total_cost:,.2f} {parsed.currency or ''}.")
         if parsed.evidence.get("cost_actual_data_missing"):
-            parts.append("Actual cost, F-2 or progress payment data was not confirmed, so cost variance and actual execution are not calculated.")
+            parts.append("Actual cost or progress payment data was not confirmed, so cost variance and actual execution are not calculated.")
 
     if parsed.evidence.get("schedule_actual_data_missing"):
         parts.append("Baseline schedule data was detected, but actual progress or forecast data is missing; schedule comparison is held until actual data is provided.")
@@ -288,7 +325,7 @@ def build_risk_register(parsed: ParsedProjectData, risk: Dict[str, Any]) -> List
             "risk": "Commercial data confirmation",
             "level": "High",
             "reason": reason,
-            "action": "Confirm the correct F-2 cumulative total, VAT treatment, duplicate totals or approved variation before using this value commercially.",
+            "action": "Confirm the correct progress payment cumulative total, VAT treatment, duplicate totals or approved variation before using this value commercially.",
         })
     if parsed.workforce_current is not None and parsed.workforce_required and parsed.workforce_current < parsed.workforce_required:
         rows.append({
@@ -301,8 +338,8 @@ def build_risk_register(parsed: ParsedProjectData, risk: Dict[str, Any]) -> List
         rows.append({
             "risk": "Actual cost data missing",
             "level": "Medium",
-            "reason": "Cost estimate / smeta data was detected, but no confirmed actual cost, F-2 or progress payment source was found.",
-            "action": "Upload F-2, interim payment, invoice or confirmed actual cost data before calculating cost variance or actual execution.",
+            "reason": "Cost estimate / smeta data was detected, but no confirmed actual cost or progress payment source was found.",
+            "action": "Upload progress payment, invoice or confirmed actual cost data before calculating cost variance or actual execution.",
         })
     if parsed.evidence.get("schedule_actual_data_missing"):
         rows.append({
@@ -362,7 +399,7 @@ def build_actions(parsed: ParsedProjectData, risk: Dict[str, Any]) -> List[str]:
     if parsed.cost_variance_percent is not None:
         actions.append("Review cost variance by work package and separate approved changes from uncontrolled overruns.")
     if parsed.evidence.get("cost_actual_data_missing"):
-        actions.append("Upload F-2, interim payment, invoice or confirmed actual cost data before calculating cost variance.")
+        actions.append("Upload progress payment, invoice or confirmed actual cost data before calculating cost variance.")
     if parsed.evidence.get("schedule_actual_data_missing"):
         actions.append("Upload actual progress or forecast finish data before calculating schedule delay and plan/fact progress gap.")
     if parsed.workforce_current is not None and parsed.workforce_required and parsed.workforce_current < parsed.workforce_required:
@@ -393,19 +430,25 @@ def _clean_analysis_type(analysis_type: str | None) -> str:
         "labor": "workforce",
         "isci": "workforce",
         "progress_report": "progress",
+        "material_continuity": "material",
+        "procurement": "material",
+        "materials": "material",
+        "decision": "risk",
+        "decisions": "risk",
+        "risk_decisions": "risk",
         "f2": "progress",
         "f_2": "progress",
         "forma2": "progress",
     }
     value = aliases.get(value, value)
-    return value if value in {"all", "cost", "schedule", "workforce", "progress"} else "all"
+    return value if value in {"all", "cost", "schedule", "workforce", "progress", "material", "risk"} else "all"
 
 
 def _dashboard_label(analysis_type: str) -> tuple[str, str]:
     labels = {
         "cost": (
             "Cost & Payment Control Dashboard",
-            "Smeta baseline, F-2/progress payment evidence, actual completed cost, remaining value and payment risk are prioritized.",
+            "Smeta baseline, progress payment evidence, actual completed cost, remaining value and payment risk are prioritized.",
         ),
         "schedule": (
             "Schedule Recovery Dashboard",
@@ -416,12 +459,20 @@ def _dashboard_label(analysis_type: str) -> tuple[str, str]:
             "Current manpower, required manpower, workforce gap and site mobilization risk are prioritized.",
         ),
         "progress": (
-            "Progress / F-2 Dashboard",
-            "F-2 certificates, completed amount, actual execution percentage and remaining progress are prioritized.",
+            "Progress Payment Dashboard",
+            "Progress payment records, completed amount, actual execution percentage and remaining progress are prioritized.",
+        ),
+        "material": (
+            "Material Continuity Dashboard",
+            "Material stock, procurement status, delivery risk and continuity actions are prioritized.",
+        ),
+        "risk": (
+            "Risk & Decisions Dashboard",
+            "Risk register, decision prompts, open issues and recommended management actions are prioritized.",
         ),
         "all": (
             "Full Project Control Dashboard",
-            "Schedule Recovery, Cost & Payment Control, workforce, risk and data quality are consolidated for management review.",
+            "Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions and data quality are consolidated for management review.",
         ),
     }
     return labels.get(analysis_type, labels["all"])
@@ -449,14 +500,90 @@ def _actual_cost_note(parsed: ParsedProjectData) -> str:
     info = parsed.evidence.get("needs_confirmation_actual_cost") or {}
     ratio = info.get("ratio_percent")
     if ratio:
-        return f"Detected amount is {ratio:g}% of smeta; confirm F-2 total or approved variation."
-    return "Confirm F-2 total, VAT treatment or approved variation before commercial use."
+        return f"Detected amount is {ratio:g}% of smeta; confirm progress payment total or approved variation."
+    return "Confirm progress payment total, VAT treatment or approved variation before commercial use."
+
+
+def _cost_baseline(parsed: ParsedProjectData) -> Optional[float]:
+    """Return the commercial baseline used for Cost & Payment Control.
+
+    The uploaded smeta/cost-estimate value can arrive as either total_cost or
+    planned_cost depending on the parser path. Cost dashboards must use one
+    authoritative baseline consistently for remaining value and variance.
+    """
+    if parsed.total_cost is not None:
+        return float(parsed.total_cost)
+    if parsed.planned_cost is not None:
+        return float(parsed.planned_cost)
+    return None
 
 
 def _remaining_cost(parsed: ParsedProjectData) -> Optional[float]:
-    if parsed.total_cost is None or parsed.actual_cost is None:
+    baseline = _cost_baseline(parsed)
+    if baseline is None or parsed.actual_cost is None:
         return None
-    return round(max(0.0, float(parsed.total_cost) - float(parsed.actual_cost)), 2)
+    return round(max(0.0, baseline - float(parsed.actual_cost)), 2)
+
+
+def _cost_variance_value(parsed: ParsedProjectData) -> Optional[float]:
+    baseline = _cost_baseline(parsed)
+    if baseline is None or parsed.actual_cost is None:
+        return None
+    return round(float(parsed.actual_cost) - baseline, 2)
+
+
+def _cost_control_rows(parsed: ParsedProjectData) -> List[Dict[str, Any]]:
+    """Build clean Cost Estimate + Progress Payment control rows for result dashboard tables.
+
+    These rows use explicit planned/actual/remaining/variance fields so the
+    frontend does not have to infer table columns from generic metric rows.
+    """
+    baseline = _cost_baseline(parsed)
+    actual = None if _actual_cost_needs_confirmation(parsed) else parsed.actual_cost
+    remaining = _remaining_cost(parsed)
+    variance_value = _cost_variance_value(parsed)
+    variance_percent = parsed.cost_variance_percent
+    has_actual = actual is not None
+    rows: List[Dict[str, Any]] = [
+        {
+            "work_package": "Cost Estimate / Smeta baseline",
+            "planned": baseline,
+            "actual": None,
+            "remaining": None,
+            "variance": None,
+            "status": "Baseline",
+            "note": "Approved smeta / contract baseline used for comparison.",
+        },
+        {
+            "work_package": "Progress Payment / actual confirmed cost",
+            "planned": None,
+            "actual": _actual_cost_display(parsed),
+            "remaining": None,
+            "variance": None,
+            "status": "Confirmed" if has_actual else ("Needs confirmation" if _actual_cost_needs_confirmation(parsed) else "Actual data required"),
+            "note": _actual_cost_note(parsed) or "Cumulative progress payment value detected from uploaded files.",
+        },
+        {
+            "work_package": "Cost & Payment summary",
+            "planned": baseline,
+            "actual": actual,
+            "remaining": remaining,
+            "variance": variance_percent,
+            "variance_value": variance_value,
+            "status": "Controlled" if has_actual and variance_percent is not None and variance_percent <= 0 else ("Review" if has_actual else "Actual data required"),
+            "note": "Remaining value = smeta baseline minus confirmed progress payment / actual cost.",
+        },
+        {
+            "work_package": "Payment evidence",
+            "planned": None,
+            "actual": "Progress payment records" if _has_progress_payment_source(parsed) else "Not detected",
+            "remaining": None,
+            "variance": None,
+            "status": "Confirmed" if _has_progress_payment_source(parsed) else "Required",
+            "note": "Use confirmed progress payment data for commercial decisions.",
+        },
+    ]
+    return rows
 
 
 def _workforce_gap(parsed: ParsedProjectData) -> Optional[int]:
@@ -509,26 +636,45 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
         }
     ]
 
+    if t == "material":
+        material_count = _available_sheet_count(parsed, "procurement") + _available_sheet_count(parsed, "material")
+        if material_count:
+            parts.append(f"Material/procurement evidence was detected in {material_count} sheet(s).")
+        else:
+            parts.append("Material continuity data was not clearly detected from the uploaded files.")
+        parts.append("Confirm stock levels, supplier delivery dates, critical materials and alternative procurement actions before using continuity conclusions.")
+        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
+        return " ".join(parts)
+    if t == "risk":
+        register = build_risk_register(parsed, risk)
+        if risk.get("score") is not None:
+            parts.append(f"Combined risk score is {risk.get('score')}/100 with {risk.get('level')} status.")
+        parts.append(f"Risk & Decisions dashboard prepared {len(register)} risk/decision item(s) from available evidence.")
+        parts.append("Use the recommended actions as management prompts and confirm unclear source data before final decisions.")
+        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
+        return " ".join(parts)
+
     if t == "cost":
+        baseline = _cost_baseline(parsed)
+        variance_value = _cost_variance_value(parsed)
         primary = [
-            _metric("Smeta / contract total", parsed.total_cost, currency, "primary"),
-            _metric("Actual completed cost", _actual_cost_display(parsed), currency if not _actual_cost_needs_confirmation(parsed) else "", _actual_cost_status(parsed), _actual_cost_note(parsed)),
-            _metric("Remaining value", remaining, currency),
-            _metric("Cost variance", parsed.cost_variance_percent, "%", "risk" if parsed.cost_variance_percent else "neutral"),
+            _metric("Cost Estimate / Smeta", baseline, currency, "primary", "Approved baseline / cost estimate"),
+            _metric("Actual confirmed Progress Payment", _actual_cost_display(parsed), currency if not _actual_cost_needs_confirmation(parsed) else "", _actual_cost_status(parsed), _actual_cost_note(parsed) or "Confirmed actual / progress payment value"),
+            _metric("Remaining value", remaining, currency, "neutral", "Baseline minus confirmed progress payment"),
+            _metric("Cost variance", parsed.cost_variance_percent, "%", "risk" if parsed.cost_variance_percent and parsed.cost_variance_percent > 0 else "neutral", "Against smeta baseline"),
+            _metric("Variance amount", variance_value, currency, "risk" if variance_value and variance_value > 0 else "neutral", "Actual progress payment minus baseline"),
+            _metric("Commercial risk", risk.get("level"), "", "risk" if risk.get("score") and risk.get("score") >= 40 else "neutral", "Cost guardrails and mapping confidence"),
         ]
         panels = [
             {
-                "title": "Commercial baseline",
-                "rows": [
-                    _metric("Planned cost", parsed.planned_cost, currency),
-                    _metric("Total cost / smeta", parsed.total_cost, currency),
-                    _metric("Actual cost source", "Missing actual data" if parsed.evidence.get("cost_actual_data_missing") else ("Needs confirmation" if _actual_cost_needs_confirmation(parsed) else ("F-2 / progress certificates" if progress_sheets else "Not detected"))),
-                ],
+                "title": "Cost & Progress Payment summary",
+                "rows": _cost_control_rows(parsed),
             },
             {
                 "title": "Cost control notes",
                 "rows": [
                     _metric("Variance available", "Yes" if parsed.cost_variance_percent is not None else "No"),
+                    _metric("Remaining value formula", "Cost Estimate / Smeta - Actual confirmed Progress Payment"),
                     _metric("Recommended check", "Separate approved changes from uncontrolled overruns"),
                 ],
             },
@@ -611,6 +757,41 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
                 ],
             },
         ] + common_panels
+    elif t == "material":
+        material_sheets = _available_sheet_count(parsed, "procurement") + _available_sheet_count(parsed, "material")
+        primary = [
+            _metric("Procurement sheets", material_sheets, "sheets", "primary" if material_sheets else "neutral"),
+            _metric("Material continuity risk", risk.get("components", {}).get("procurement") if isinstance(risk.get("components"), dict) else risk.get("score"), "/100", "risk" if material_sheets else "neutral"),
+            _metric("Delivery confirmation", "Required" if material_sheets else "Not detected", "", "risk" if material_sheets else "neutral"),
+            _metric("Recommended action", "Confirm stock, delivery dates and long-lead materials"),
+        ]
+        panels = [
+            {
+                "title": "Material continuity evidence",
+                "rows": [
+                    _metric("Procurement sheets", material_sheets),
+                    _metric("Supplier / delivery data", "Detected" if material_sheets else "Not detected"),
+                    _metric("Continuity check", "Confirm critical materials, delivery dates and alternatives"),
+                    _metric("Decision need", "Escalate shortages affecting critical path"),
+                ],
+            }
+        ] + common_panels
+    elif t == "risk":
+        register = build_risk_register(parsed, risk)
+        primary = [
+            _metric("Risk score", risk.get("score"), "/100", "risk"),
+            _metric("Risk level", risk.get("level"), "", "risk" if risk.get("score") and risk.get("score") >= 40 else "neutral"),
+            _metric("Open risks", len(register), "risks", "primary"),
+            _metric("Decision focus", "Management actions", "", "primary"),
+        ]
+        panels = [
+            {
+                "title": "Risk and decision register",
+                "rows": [
+                    _metric(item.get("risk"), item.get("level"), "", "risk", item.get("action")) for item in register[:8]
+                ] or [_metric("Data review required", "Upload cost, schedule, material or site records")],
+            }
+        ] + common_panels
     elif t == "progress":
         primary = [
             _metric("Actual execution", parsed.actual_execution, "%", "primary"),
@@ -620,9 +801,9 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
         ]
         panels = [
             {
-                "title": "F-2 / progress basis",
+                "title": "Progress payment basis",
                 "rows": [
-                    _metric("F-2 sheets detected", progress_sheets),
+                    _metric("Progress payment sheets detected", progress_sheets),
                     _metric("Progress calculation", "completed amount / smeta baseline"),
                     _metric("Planned progress", parsed.planned_execution, "%"),
                     _metric("Progress gap", progress_gap, "%"),
@@ -657,6 +838,7 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
         "description": description,
         "primary_kpis": primary,
         "panels": panels,
+        "cost_rows": _cost_control_rows(parsed) if t == "cost" else [],
         "pdf_logic": "The PDF report is generated from the same analysis-specific dashboard payload shown on the result page.",
     }
 
@@ -691,6 +873,8 @@ def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: s
             "total_cost": _round(parsed.total_cost, 2),
             "planned_cost": _round(parsed.planned_cost, 2),
             "actual_cost": _round(parsed.actual_cost, 2),
+            "remaining_cost": _round(_remaining_cost(parsed), 2),
+            "cost_variance_amount": _round(_cost_variance_value(parsed), 2),
             "cost_variance_percent": _round(parsed.cost_variance_percent),
             "workforce_current": parsed.workforce_current,
             "workforce_required": parsed.workforce_required,
@@ -705,7 +889,7 @@ def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: s
         },
         "risk_components": risk["components"],
         "dashboard_sections": dashboard_sections,
-        "executive_summary": build_summary(parsed, risk, confidence),
+        "executive_summary": build_summary(parsed, risk, confidence, analysis_type),
         "risk_register": build_risk_register(parsed, risk),
         "recommended_actions": build_actions(parsed, risk),
         "data_quality": {

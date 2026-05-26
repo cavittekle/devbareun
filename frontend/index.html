@@ -35,6 +35,13 @@
       </div>
 
       <div aria-label="Select control package" class="analysis-type-grid wizard-card-row package-card-row" id="analysisTypeGrid" role="radiogroup">
+        <button aria-pressed="true" class="analysis-type-card package-card package-premium active" data-analysis-type="all" type="button">
+          <i class="analysis-icon">▦</i>
+          <small class="package-kicker" data-i18n-ext="packageFullKicker">All modules</small>
+          <b data-i18n-ext="analysisAllTitle">Full Project Control</b>
+          <span data-i18n-ext="analysisAllDescLong">Complete control across schedule, cost, payment, material, risk and decisions</span>
+          <em data-i18n-ext="analysisAllBadge">Recommended</em>
+        </button>
         <button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="schedule" type="button">
           <i class="analysis-icon blue">▟</i>
           <small class="package-kicker" data-i18n-ext="packageScheduleKicker">Schedule + Workforce</small>
@@ -44,17 +51,24 @@
         </button>
         <button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="cost" type="button">
           <i class="analysis-icon purple">▦</i>
-          <small class="package-kicker" data-i18n-ext="packageCostKicker">Cost Estimate + F-2</small>
+          <small class="package-kicker" data-i18n-ext="packageCostKicker">Cost Estimate + Progress Payment</small>
           <b data-i18n-ext="analysisCostTitle">Cost & Payment Control</b>
-          <span data-i18n-ext="analysisCostDesc">Smeta, actual cost, F-2 and payment control</span>
+          <span data-i18n-ext="analysisCostDesc">Cost estimate, actual cost and progress payment control</span>
           <em data-i18n-ext="analysisCostBadge">Commercial control</em>
         </button>
-        <button aria-pressed="true" class="analysis-type-card package-card package-premium active" data-analysis-type="all" type="button">
-          <i class="analysis-icon">▦</i>
-          <small class="package-kicker" data-i18n-ext="packageFullKicker">All modules</small>
-          <b data-i18n-ext="analysisAllTitle">Full Dashboard</b>
-          <span data-i18n-ext="analysisAllDescLong">Premium dashboard combining schedule, workforce, cost, F-2, risk and reports</span>
-          <em data-i18n-ext="analysisAllBadge">Recommended</em>
+        <button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="material" type="button">
+          <i class="analysis-icon cyan">▣</i>
+          <small class="package-kicker" data-i18n-ext="packageMaterialKicker">Material + Procurement</small>
+          <b data-i18n-ext="analysisMaterialTitle">Material Continuity</b>
+          <span data-i18n-ext="analysisMaterialDesc">Stock, delivery risk and procurement continuity</span>
+          <em data-i18n-ext="analysisMaterialBadge">Supply chain</em>
+        </button>
+        <button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="risk" type="button">
+          <i class="analysis-icon purple">⚠</i>
+          <small class="package-kicker" data-i18n-ext="packageRiskKicker">Risk + Decisions</small>
+          <b data-i18n-ext="analysisRiskTitle">Risk & Decisions</b>
+          <span data-i18n-ext="analysisRiskDesc">Risk register, decision prompts and management actions</span>
+          <em data-i18n-ext="analysisRiskBadge">Executive focus</em>
         </button>
       </div>
 
@@ -107,7 +121,7 @@
             </div>
             <div class="requirement-card actual">
               <small data-i18n-ext="actualDataLabel">Actual / factual data</small>
-              <ul id="actualRequirements"><li>Progress payment / F-2</li><li>Actual progress</li></ul>
+              <ul id="actualRequirements"><li>Progress payment</li><li>Actual progress</li></ul>
             </div>
           </div>
           <p class="requirements-guardrail" data-i18n-ext="noActualGuardrail" id="requirementsGuardrail">No actual data → no comparison result. Unclear actual data → needs confirmation.</p>

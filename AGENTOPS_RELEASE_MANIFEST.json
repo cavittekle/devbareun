@@ -1,14 +1,19 @@
 {
-  "package": "devbareun_agentops_v118_control_packages",
-  "version": "1.1.8-control-packages",
-  "based_on": "devbareun_agentops_v117_approved_upload_wizard_full.zip",
+  "package": "devbareun_agentops_v120_control_packages_light_f2",
+  "version": "1.2.0-control-packages-light-f2",
+  "based_on": "devbareun_agentops_v119_cost_f2_final_polish_full.zip",
   "created": "2026-05-26",
-  "primary_change": "Reduced public analysis choices to three professional construction control packages.",
+  "primary_change": "Five professional construction control packages, light-mode readability hardening and AZ/EN F-2 terminology standardization.",
   "control_packages": {
+    "Full Project Control": "Complete control across schedule, workforce, cost, F-2/progress payment, material continuity, risks and decisions.",
     "Schedule Recovery": "Schedule / Delay + Workforce: delay analysis, manpower gap and recovery plan.",
-    "Cost & Payment Control": "Cost Estimate + Progress Payment / F-2: smeta, actual cost, F-2 and payment risk.",
-    "Full Dashboard": "Premium combined dashboard: schedule, workforce, cost, F-2, risk and PDF/Excel reports."
+    "Cost & Payment Control": "Cost Estimate + Progress Payment: EN uses Progress Payment, AZ uses F-2.",
+    "Material Continuity": "Material stock, delivery, procurement continuity and shortage risk.",
+    "Risk & Decisions": "Risk register, decision prompts and recommended management actions."
   },
   "safe_model": "Agents report and prepare decisions; production changes require manual approval.",
-  "github_auto_upload": true
+  "github_auto_upload": true,
+  "release_name": "DevBareun Five Control Packages + Light Mode + F-2 Terminology",
+  "date": "2026-05-26",
+  "summary": "Adds Full Project Control, Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions; improves light mode readability; applies AZ=F-2 and EN=Progress Payment naming."
 }
