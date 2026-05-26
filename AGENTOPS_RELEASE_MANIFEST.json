@@ -1,6 +1,6 @@
 {
   "package": "devbareun_agentops_v120_control_packages_light_f2",
-  "version": "1.2.0-control-packages-light-f2",
+  "version": "1.2.1-selected-upload-layout",
   "based_on": "devbareun_agentops_v119_cost_f2_final_polish_full.zip",
   "created": "2026-05-26",
   "primary_change": "Five professional construction control packages, light-mode readability hardening and AZ/EN F-2 terminology standardization.",
