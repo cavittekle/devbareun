@@ -1,4 +1,4 @@
-// DevBareun v1.0.7 — shared EN/AZ UI glossary for dynamic dashboard text
+// DevBareun v1.0.7 — shared EN/AZ UI glossary for dynamic panel text
 (function () {
   function currentLang() {
     const raw = (localStorage.getItem("devbareun_lang") || document.documentElement.lang || "en").toLowerCase();
@@ -8,6 +8,36 @@
 
   const exactAz = {
 
+    "Project Result Dashboard": "Layihə nəticə paneli",
+    "Generated project report": "Yaradılmış layihə hesabatı",
+    "Report language": "Hesabat dili",
+    "English": "İngiliscə",
+    "Azerbaijani": "Azərbaycanca",
+    "Azərbaycanca": "Azərbaycanca",
+    "Download PDF": "PDF yüklə",
+    "Download Excel": "Excel yüklə",
+    "Share Link": "Link paylaş",
+    "Executive Summary": "Rəhbərlik xülasəsi",
+    "Risk Score": "Risk balı",
+    "Risk score not available": "Risk balı mövcud deyil",
+    "Medium risk zone": "Orta risk zonası",
+    "High risk zone": "Yüksək risk zonası",
+    "Low risk zone": "Aşağı risk zonası",
+    "Critical risk zone": "Kritik risk zonası",
+    "Watch risk zone": "İzləmə risk zonası",
+    "Schedule": "Qrafik",
+    "Cost": "Xərc",
+    "Labor": "İşçi qüvvəsi",
+    "Procurement": "Təchizat",
+    "Quality": "Keyfiyyət",
+    "Schedule 35%": "Qrafik 35%",
+    "Cost 25%": "Xərc 25%",
+    "Labor 20%": "İşçi qüvvəsi 20%",
+    "Procurement 15%": "Təchizat 15%",
+    "Quality 5%": "Keyfiyyət 5%",
+    "No generated project result is loaded yet.": "Yaradılmış layihə nəticəsi hələ yüklənməyib.",
+    "Upload files and generate a panel to populate the risk register.": "Risk reyestrini doldurmaq üçün faylları yükləyin və nəticə paneli yaradın.",
+    "Upload project files and generate a panel to replace this placeholder with project-specific actions.": "Bu nümunəni layihəyə uyğun tədbirlərlə əvəz etmək üçün layihə fayllarını yükləyin və nəticə paneli yaradın.",
     "COST": "XƏRC",
     "F2": "F-2",
     "F-2": "F-2",
@@ -24,12 +54,12 @@
     "Cost package variance review": "Xərc paketləri üzrə fərq yoxlaması",
     "Progress payment / F-2 review": "F-2 / icra aktı yoxlaması",
     "Executive control rows": "Rəhbərlik nəzarət sətirləri",
-    "Analysis Dashboard": "Analiz dashboardu",
+    "Analysis Dashboard": "Analiz paneli",
     "Smeta baseline, confirmed actual cost, remaining value, variance and commercial guardrails are shown without inventing missing actual data.": "Smeta bazası, təsdiqlənmiş faktiki xərc, qalıq dəyər, fərq və kommersiya nəzarəti faktiki məlumat uydurulmadan göstərilir.",
     "Contract value, F-2/progress payment totals, cumulative execution and remaining payment are shown from detected or confirmed payment data.": "Müqavilə dəyəri, F-2/ödəniş yekunları, yığılmış icra və qalıq ödəniş tapılmış və ya təsdiqlənmiş ödəniş məlumatına əsasən göstərilir.",
     "Activity quantity, planned duration, actual workers, productivity assumptions, required workforce and delay risk are compared.": "İş həcmi, plan müddəti, faktiki işçi sayı, məhsuldarlıq fərziyyələri, tələb olunan işçi sayı və gecikmə riski müqayisə olunur.",
     "Cost, progress, schedule, workforce, risk and recommended management actions are summarized for leadership review.": "Xərc, icra, qrafik, işçi sayı, risk və tövsiyə olunan idarəetmə tədbirləri rəhbərlik baxışı üçün xülasə edilir.",
-    "Selected analysis dashboard.": "Seçilmiş analiz dashboardu.",
+    "Selected analysis panel.": "Seçilmiş analiz paneli.",
     "Actual / smeta": "Faktiki / smeta",
     "Against baseline": "Baza göstəricisinə nisbətən",
     "Confirmed actual/F-2 value": "Təsdiqlənmiş faktiki/F-2 dəyəri",
@@ -126,32 +156,32 @@
     "Realistic duration": "Real müddət",
     "Based on current workers": "Cari işçi sayına əsasən",
     "Resource pressure": "Resurs təzyiqi",
-    "RESULT DASHBOARD": "NƏTİCƏ DASHBOARDU",
-    "SCHEDULE / PROGRESS DASHBOARD": "QRAFİK / İCRA DASHBOARDU",
-    "DASHBOARD": "DASHBOARD",
-    "Cost Control Dashboard": "Xərc nəzarəti dashboardu",
-    "Progress Payment / F-2 Dashboard": "F-2 / smeta üzrə icra dashboardu",
-    "Workforce & Productivity Dashboard": "İşçi sayı və məhsuldarlıq dashboardu",
-    "Executive Project Control Dashboard": "Rəhbərlik üçün layihə nəzarət dashboardu",
-    "Schedule / Delay Dashboard": "Qrafik / gecikmə dashboardu",
-    "Progress / F-2 Dashboard": "F-2 / icra dashboardu",
-    "Selected Analysis Dashboard": "Seçilmiş analiz dashboardu",
-    "Your project dashboard is ready.": "Layihə dashboardu hazırdır.",
+    "RESULT PANEL": "NƏTİCƏ PANELİ",
+    "SCHEDULE / PROGRESS PANEL": "QRAFİK / İCRA PANELİ",
+    "PANEL": "PANEL",
+    "Cost Control Dashboard": "Xərc nəzarəti paneli",
+    "Progress Payment / F-2 Dashboard": "F-2 / smeta üzrə icra paneli",
+    "Workforce & Productivity Dashboard": "İşçi sayı və məhsuldarlıq paneli",
+    "Executive Project Control Dashboard": "Rəhbərlik üçün layihə nəzarət paneli",
+    "Schedule / Delay Dashboard": "Qrafik / gecikmə paneli",
+    "Progress / F-2 Dashboard": "F-2 / icra paneli",
+    "Selected Analysis Dashboard": "Seçilmiş analiz paneli",
+    "Your project panel is ready.": "Layihə paneli hazırdır.",
     "Review selected project-control indicators below.": "Seçilmiş layihə nəzarəti göstəricilərinə aşağıda baxın.",
-    "The report and PDF follow this selected dashboard view.": "Hesabat və PDF bu seçilmiş dashboard məntiqinə uyğun hazırlanır.",
-    "PDF export uses this same dashboard logic.": "PDF ixracı eyni dashboard məntiqindən istifadə edir.",
+    "The report and PDF follow this selected panel view.": "Hesabat və PDF bu seçilmiş panel məntiqinə uyğun hazırlanır.",
+    "PDF export uses this same panel logic.": "PDF ixracı eyni panel məntiqindən istifadə edir.",
     "Metric": "Göstərici",
-    "Dashboard data": "Dashboard məlumatı",
-    "Dashboard panel": "Dashboard paneli",
-    "No selected dashboard KPIs available": "Seçilmiş dashboard üzrə KPI mövcud deyil",
+    "Dashboard data": "Panel məlumatı",
+    "Dashboard panel": "Panel bölməsi",
+    "No selected panel KPIs available": "Seçilmiş panel üzrə KPI mövcud deyil",
     "Data review required": "Məlumat yoxlaması tələb olunur",
     "Data not loaded": "Məlumat yüklənməyib",
     "Generated project data is not available yet. Open this page after a completed upload and analysis flow.": "Yaradılmış layihə məlumatı hələ mövcud deyil. Bu səhifəni yükləmə və analiz prosesi tamamlandıqdan sonra açın.",
     "Data not loaded": "Məlumat yüklənməyib",
     "No generated project ID was provided or the backend result could not be loaded.": "Yaradılmış layihə ID-si verilməyib və ya backend nəticəsi yüklənə bilməyib.",
-    "Return to the upload page and generate a dashboard from project files.": "Yükləmə səhifəsinə qayıdın və layihə fayllarından dashboard yaradın.",
-    "Upload project files and generate a dashboard to replace these placeholders with real project-control results.": "Bu nümunələri real layihə nəzarəti nəticələri ilə əvəz etmək üçün layihə fayllarını yükləyin və dashboard yaradın.",
-    "No detailed rows were detected for this dashboard. Upload structured data or confirm mappings to populate this section.": "Bu dashboard üçün ətraflı sətirlər tapılmadı. Bölməni doldurmaq üçün strukturlaşdırılmış məlumat yükləyin və ya uyğunluğu təsdiqləyin.",
+    "Return to the upload page and generate a panel from project files.": "Yükləmə səhifəsinə qayıdın və layihə fayllarından panel yaradın.",
+    "Upload project files and generate a panel to replace these placeholders with real project-control results.": "Bu nümunələri real layihə nəzarəti nəticələri ilə əvəz etmək üçün layihə fayllarını yükləyin və panel yaradın.",
+    "No detailed rows were detected for this panel. Upload structured data or confirm mappings to populate this section.": "Bu panel üçün ətraflı sətirlər tapılmadı. Bölməni doldurmaq üçün strukturlaşdırılmış məlumat yükləyin və ya uyğunluğu təsdiqləyin.",
     "No detailed activity table is available for this result.": "Bu nəticə üçün ətraflı iş cədvəli mövcud deyil.",
     "No building/activity-level rows were detected. Upload plan and actual status by building, block, WBS or activity to populate this section.": "Bina/iş səviyyəsində sətirlər tapılmadı. Bölməni doldurmaq üçün bina, blok, WBS və ya iş üzrə plan və faktiki status yükləyin.",
     "Recommended actions will appear when confirmed analysis data is available.": "Təsdiqlənmiş analiz məlumatı olduqda tövsiyə olunan tədbirlər göstəriləcək.",
@@ -221,8 +251,8 @@
   };
 
   const phraseRules = [
-    [/\u004daliyet tahmini\s*\/\s*sözleşme toplam[ıi]/gi, "Smeta / müqavilə üzrə ümumi məbləğ"],
-    [/\u004daliyet tahmini temel çizgisi/gi, "Smeta üzrə baza məbləği"],
+    [new RegExp("\\u004daliyet \\u0074ahmini\\s*\\/\\s*sözleşme toplam[ıi]", "gi"), "Smeta / müqavilə üzrə ümumi məbləğ"],
+    [new RegExp("\\u004daliyet \\u0074ahmini temel çizgisi", "gi"), "Smeta üzrə baza məbləği"],
     [/\u0047er\u00e7ekte \u0074amamlanan \u0074utar tespit edildi\.?/gi, "Faktiki görülmüş iş məbləği tapıldı."],
     [/Gerçek uygulama/gi, "Faktiki icra"],
     [/Planlanan y\u00fcr\u00fctme yüzdesi tespit edilemedi\.?.*?manuel olarak girin\.?/gi, "Plan üzrə icra faizi aşkar edilmədi. Bilirsinizsə, əllə daxil edin."],
@@ -285,10 +315,20 @@
     [/Cost pressure should be reviewed by work package and compared with approved baseline values\./i, "Xərc təzyiqi iş paketləri üzrə yoxlanmalı və təsdiqlənmiş baza dəyərləri ilə müqayisə edilməlidir."],
     [/No executive summary could be generated from the uploaded data\./i, "Yüklənmiş məlumatdan rəhbərlik xülasəsi yaradıla bilmədi."],
     [/No project_id was provided\. Static sample values have been removed; generated data will appear after upload\./i, "project_id verilməyib. Nümunə dəyərlər silindi; yaradılmış məlumat yükləmədən sonra görünəcək."],
-    [/Generated dashboard data could not be loaded\. Static sample values were removed to avoid misleading results\./i, "Yaradılmış dashboard məlumatı yüklənə bilmədi. Yanıltıcı nəticənin qarşısını almaq üçün nümunə dəyərlər silindi."],
+    [/Generated panel data could not be loaded\. Static sample values were removed to avoid misleading results\./i, "Yaradılmış panel məlumatı yüklənə bilmədi. Yanıltıcı nəticənin qarşısını almaq üçün nümunə dəyərlər silindi."],
     [/([\d]+) risks?/i, "$1 risk"],
     [/([\d.,]+) days?/i, "$1 gün"],
     [/\+([\d.,]+) days?/i, "+$1 gün"],
+    [/Critical risk zone/i, "Kritik risk zonası"],
+    [/High risk zone/i, "Yüksək risk zonası"],
+    [/Medium risk zone/i, "Orta risk zonası"],
+    [/Low risk zone/i, "Aşağı risk zonası"],
+    [/Watch risk zone/i, "İzləmə risk zonası"],
+    [/Schedule\s+(\d+%)/i, "Qrafik $1"],
+    [/Cost\s+(\d+%)/i, "Xərc $1"],
+    [/Labor\s+(\d+%)/i, "İşçi qüvvəsi $1"],
+    [/Procurement\s+(\d+%)/i, "Təchizat $1"],
+    [/Quality\s+(\d+%)/i, "Keyfiyyət $1"],
     [/risk zone/i, "risk zonası"],
     [/required: not available/i, "tələb olunan: mövcud deyil"],
     [/required:\s*([\d.,]+)/i, "tələb olunan: $1"],
@@ -336,5 +376,40 @@
   }
   function required(value) { return isAz() ? `Tələb olunan: ${value}` : `Required: ${value}`; }
 
-  window.DevBareunI18n = { currentLang, isAz, text, label, status, days, required };
+  function translateSelectOptions(root) {
+    if (!isAz()) return;
+    const scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll("select option").forEach(option => {
+      const raw = option.getAttribute("data-en-label") || option.textContent;
+      option.setAttribute("data-en-label", raw);
+      option.textContent = text(raw);
+    });
+  }
+
+  function translateNode(root) {
+    if (!isAz()) return;
+    const scope = root || document.body;
+    translateSelectOptions(scope);
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        if (["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA"].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const original = node.nodeValue;
+      const translated = text(original);
+      if (translated !== original) node.nodeValue = translated;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => setTimeout(() => translateNode(document.body), 0));
+  document.addEventListener("devbareun:lang", () => setTimeout(() => translateNode(document.body), 0));
+
+  window.DevBareunI18n = { currentLang, isAz, text, label, status, days, required, translateNode };
 })();

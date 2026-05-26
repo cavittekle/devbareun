@@ -2,7 +2,7 @@
   const dict = {
     en: {
       resultEyebrow:'Generated project report',
-      resultTitle:'Your project dashboard is ready.',
+      resultTitle:'Your project panel is ready.',
       resultLead:'Review the key project indicators, risk register and recommended management actions below.', paidResult:'Paid result', forecastTitle:'Estimated completion date', forecastText:'Based on the current delay, the projected completion date moves 24 days beyond the baseline target.', baselineFinish:'Baseline finish', delayImpact:'Delay impact', trendDelay:'worse than baseline', howCalculated:'How calculated?', scoreMethodText:'Risk score combines schedule gap, cost variance, workforce gap, procurement pressure and quality signals. Higher score means higher management attention is required.',
       projectLabel:'Project',
       reportIdLabel:'Report ID',
@@ -60,7 +60,7 @@
     },
     az: {
       resultEyebrow:'Yaradılmış layihə hesabatı',
-      resultTitle:'Layihə nəticə dashboardunuz hazırdır.',
+      resultTitle:'Layihə nəticə panelinuz hazırdır.',
       resultLead:'Əsas layihə göstəricilərinə, risk reyestrinə və tövsiyə olunan idarəetmə tədbirlərinə aşağıda baxın.', paidResult:'Ödənişli nəticə', forecastTitle:'Təxmini tamamlanma tarixi', forecastText:'Cari gecikmə əsasında proqnozlaşdırılan tamamlanma tarixi plan hədəfindən 24 gün sonraya keçir.', baselineFinish:'Plan üzrə bitmə tarixi', delayImpact:'Gecikmə təsiri', trendDelay:'plan göstəricisindən pisdir', howCalculated:'Necə hesablanır?', scoreMethodText:'Risk balı qrafik fərqi, xərc fərqi, işçi sayı çatışmazlığı, təchizat təzyiqi və keyfiyyət siqnallarını birləşdirir. Bal yüksəldikcə idarəetmə diqqəti artırılmalıdır.',
       projectLabel:'Layihə',
       reportIdLabel:'Hesabat ID',
@@ -124,6 +124,9 @@
       const key = el.getAttribute('data-r-i18n');
       if(el.dataset.dbDynamic === 'true' || el.closest('[data-db-dynamic="true"]')) return; if(dict[lang] && dict[lang][key]) el.textContent = dict[lang][key];
     });
+    if (lang === 'az' && window.DevBareunI18n && typeof window.DevBareunI18n.translateNode === 'function') {
+      window.DevBareunI18n.translateNode(document.body);
+    }
   }
 
   applyResultLang();
