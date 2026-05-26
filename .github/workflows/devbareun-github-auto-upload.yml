@@ -1,0 +1,48 @@
+name: DevBareun GitHub Auto Upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Upload mode: pr or direct-main'
+        required: true
+        default: 'pr'
+        type: choice
+        options:
+          - pr
+          - direct-main
+      clean:
+        description: 'Delete old files in target repos that are not present in the current package'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  github-auto-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dry-run upload plan
+        run: |
+          CLEAN_FLAG=""
+          if [ "${{ github.event.inputs.clean }}" = "true" ]; then CLEAN_FLAG="--clean"; fi
+          python tools/github_auto_upload.py --root . --dry-run $CLEAN_FLAG
+      - name: Upload frontend/backend to GitHub repositories
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_SYNC_TOKEN }}
+        run: |
+          CLEAN_FLAG=""
+          if [ "${{ github.event.inputs.clean }}" = "true" ]; then CLEAN_FLAG="--clean"; fi
+          if [ "${{ github.event.inputs.mode }}" = "direct-main" ]; then
+            python tools/github_auto_upload.py --root . --direct-main $CLEAN_FLAG
+          else
+            python tools/github_auto_upload.py --root . $CLEAN_FLAG
+          fi
+      - name: Upload sync report
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-auto-upload-report
+          path: agent_reports/github_auto_upload_report.json

@@ -1,0 +1,289 @@
+[
+  {
+    "activity_code": "plaster",
+    "activity_name_az": "Alçı işi",
+    "activity_name_en": "Plaster works",
+    "unit": "m²",
+    "keywords": [
+      "alci",
+      "alci is",
+      "plaster",
+      "gypsum plaster",
+      "alcı",
+      "alçı"
+    ],
+    "labor": [
+      "Alçı ustası",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "hand tools",
+      "scaffold"
+    ]
+  },
+  {
+    "activity_code": "paint",
+    "activity_name_az": "Boya işi",
+    "activity_name_en": "Painting works",
+    "unit": "m²",
+    "keywords": [
+      "boya",
+      "malyar",
+      "paint",
+      "painting",
+      "astar"
+    ],
+    "labor": [
+      "Malyar"
+    ],
+    "equipment": [
+      "roller",
+      "spray",
+      "scaffold"
+    ]
+  },
+  {
+    "activity_code": "tile",
+    "activity_name_az": "Kafel / metlax işi",
+    "activity_name_en": "Tile works",
+    "unit": "m²",
+    "keywords": [
+      "kafel",
+      "metlax",
+      "tile",
+      "ceramic",
+      "keramik"
+    ],
+    "labor": [
+      "Kafel ustası",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "tile cutter",
+      "hand tools"
+    ]
+  },
+  {
+    "activity_code": "masonry",
+    "activity_name_az": "Hörgü işi",
+    "activity_name_en": "Masonry works",
+    "unit": "m²",
+    "keywords": [
+      "horgu",
+      "horgu is",
+      "kərpic",
+      "kerpic",
+      "blok",
+      "misar das",
+      "masonry",
+      "brick",
+      "block"
+    ],
+    "labor": [
+      "Hörgü ustası",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "hand tools",
+      "scaffold"
+    ]
+  },
+  {
+    "activity_code": "screed",
+    "activity_name_az": "Şap işi",
+    "activity_name_en": "Screed works",
+    "unit": "m²",
+    "keywords": [
+      "sap",
+      "şap",
+      "screed",
+      "floor screed"
+    ],
+    "labor": [
+      "Şap ustası",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "mixer",
+      "laser level"
+    ]
+  },
+  {
+    "activity_code": "formwork",
+    "activity_name_az": "Qəlib işi",
+    "activity_name_en": "Formwork",
+    "unit": "m²",
+    "keywords": [
+      "qelib",
+      "kalip",
+      "formwork",
+      "shuttering"
+    ],
+    "labor": [
+      "Qəlibçi",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "formwork system",
+      "crane",
+      "hand tools"
+    ]
+  },
+  {
+    "activity_code": "rebar",
+    "activity_name_az": "Armatur işi",
+    "activity_name_en": "Rebar fixing",
+    "unit": "ton",
+    "keywords": [
+      "armatur",
+      "demir",
+      "dəmir",
+      "rebar",
+      "reinforcement"
+    ],
+    "labor": [
+      "Dəmirçi",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "rebar cutter",
+      "rebar bender",
+      "crane"
+    ]
+  },
+  {
+    "activity_code": "concrete",
+    "activity_name_az": "Beton işi",
+    "activity_name_en": "Concrete pouring",
+    "unit": "m³",
+    "keywords": [
+      "beton",
+      "concrete",
+      "pouring",
+      "tokulme",
+      "tökülmə"
+    ],
+    "labor": [
+      "Betonçu",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "concrete pump",
+      "mixer truck",
+      "vibrator"
+    ]
+  },
+  {
+    "activity_code": "facade",
+    "activity_name_az": "Fasad işi",
+    "activity_name_en": "Facade works",
+    "unit": "m²",
+    "keywords": [
+      "fasad",
+      "facade",
+      "kompozit",
+      "vitrage",
+      "vitray",
+      "cladding"
+    ],
+    "labor": [
+      "Fasad ustası",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "scaffold",
+      "manlift",
+      "hand tools"
+    ]
+  },
+  {
+    "activity_code": "stone_floor",
+    "activity_name_az": "Daş/granit döşəmə",
+    "activity_name_en": "Stone/granite flooring",
+    "unit": "m²",
+    "keywords": [
+      "granit",
+      "mermer",
+      "mərmər",
+      "susa das",
+      "şuşa daşı",
+      "stone",
+      "granite",
+      "marble"
+    ],
+    "labor": [
+      "Daş ustası",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "stone cutter",
+      "vibroplate",
+      "forklift"
+    ]
+  },
+  {
+    "activity_code": "electrical_cable",
+    "activity_name_az": "Elektrik kabel işi",
+    "activity_name_en": "Electrical cable works",
+    "unit": "m",
+    "keywords": [
+      "kabel",
+      "elektrik",
+      "cable",
+      "conduit",
+      "lotok"
+    ],
+    "labor": [
+      "Elektrik",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "cable tools",
+      "lift"
+    ]
+  },
+  {
+    "activity_code": "plumbing_pipe",
+    "activity_name_az": "Santexnika boru işi",
+    "activity_name_en": "Plumbing pipe works",
+    "unit": "m",
+    "keywords": [
+      "santex",
+      "boru",
+      "su xetti",
+      "kanalizasiya",
+      "pipe",
+      "plumbing"
+    ],
+    "labor": [
+      "Santexnik",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "press/welding tools",
+      "hand tools"
+    ]
+  },
+  {
+    "activity_code": "excavation",
+    "activity_name_az": "Qazıntı işi",
+    "activity_name_en": "Excavation",
+    "unit": "m³",
+    "keywords": [
+      "qazinti",
+      "qazıntı",
+      "torpaq",
+      "excavation",
+      "earthwork",
+      "trench"
+    ],
+    "labor": [
+      "Operator",
+      "Fəhlə"
+    ],
+    "equipment": [
+      "excavator",
+      "dump truck"
+    ]
+  }
+]

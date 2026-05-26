@@ -1,0 +1,66 @@
+name: DevBareun AgentOps
+
+on:
+  push:
+    branches: [ main, dev, "agent/**" ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  agentops:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    env:
+      SITE_URL: ${{ secrets.SITE_URL }}
+      API_URL: ${{ secrets.API_URL }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend requirements if available
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run DevBareun Ops Engine
+        run: |
+          python -m agents.devbareun_ops_engine.run_all_agents --root . --out agent_reports
+
+      - name: Upload AgentOps reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: devbareun-agentops-report
+          path: agent_reports/
+
+      - name: Add PR report comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'agent_reports/agentops_supervisor_report.md';
+            if (fs.existsSync(path)) {
+              const body = fs.readFileSync(path, 'utf8').slice(0, 60000);
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
