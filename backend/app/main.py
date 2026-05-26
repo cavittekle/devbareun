@@ -14,7 +14,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, FileResponse
 from pydantic import BaseModel, Field
 
 from .analyzer import build_dashboard, apply_baseline_actual_guardrails
@@ -28,6 +28,41 @@ DATA_DIR = BASE_DIR / "data" / "projects"
 UPLOAD_DIR = BASE_DIR / "storage" / "uploads"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+TEMPLATE_MANIFEST = {
+    "all": {
+        "title": "Full Project Control Template",
+        "file": "devbareun-full-project-control-template.xlsx",
+        "required_sheets": ["Project_Info", "Cost_Estimate", "F2_Progress_Payment", "Baseline_Schedule", "Actual_Progress", "Workforce", "Material_Stock", "Risk_Register"],
+        "purpose": "Complete project-control template for schedule, workforce, cost, payment, material and risk data.",
+    },
+    "schedule": {
+        "title": "Schedule Recovery Template",
+        "file": "devbareun-schedule-recovery-template.xlsx",
+        "required_sheets": ["Baseline_Schedule", "Actual_Progress", "Workforce", "Recovery_Target"],
+        "purpose": "Delay, workforce gap and recovery planning template.",
+    },
+    "cost": {
+        "title": "Cost & Payment Control Template",
+        "file": "devbareun-cost-payment-control-template.xlsx",
+        "required_sheets": ["Cost_Estimate", "F2_Progress_Payment", "Actual_Cost", "Variation_Orders"],
+        "purpose": "Cost estimate, F-2 / Progress Payment and commercial control template.",
+    },
+    "material": {
+        "title": "Material Continuity Template",
+        "file": "devbareun-material-continuity-template.xlsx",
+        "required_sheets": ["Material_Stock", "Delivery_Schedule", "Consumption_Rate", "Critical_Materials"],
+        "purpose": "Stock, delivery, consumption and procurement continuity template.",
+    },
+    "risk": {
+        "title": "Risk & Decisions Template",
+        "file": "devbareun-risk-decisions-template.xlsx",
+        "required_sheets": ["Risk_Register", "Decision_Log", "Open_Issues", "Management_Actions"],
+        "purpose": "Risk register, decision log and management action template.",
+    },
+}
+
 
 
 def _allowed_origins() -> List[str]:
@@ -98,6 +133,35 @@ def health_public() -> Dict[str, str]:
 @app.get("/api/health")
 def health() -> Dict[str, str]:
     return _health_payload()
+
+
+
+
+@app.get("/api/templates")
+def list_templates() -> Dict[str, Any]:
+    base = "templates"
+    return {
+        "version": APP_VERSION,
+        "templates": {
+            key: {**value, "download_path": f"/{base}/{value['file']}", "api_download_path": f"/api/templates/{key}/download"}
+            for key, value in TEMPLATE_MANIFEST.items()
+        },
+    }
+
+
+@app.get("/api/templates/{analysis_type}/download")
+def download_template(analysis_type: str) -> FileResponse:
+    key = (analysis_type or "all").strip().lower()
+    if key not in TEMPLATE_MANIFEST:
+        key = "all"
+    template_file = BASE_DIR.parent / "frontend" / "templates" / TEMPLATE_MANIFEST[key]["file"]
+    if not template_file.exists():
+        raise HTTPException(status_code=404, detail="Template file was not found.")
+    return FileResponse(
+        template_file,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename=TEMPLATE_MANIFEST[key]["file"],
+    )
 
 
 @app.post("/api/projects")
@@ -249,6 +313,8 @@ def preflight_project(project_id: str, payload: AnalysisRequest | None = None) -
             "workforce_productivity": (parsed.evidence.get("workforce_productivity") or {}).get("summary"),
         },
         "warnings": parsed.warnings,
+        "mapping_wizard": _mapping_wizard_for_preflight(parsed, analysis_type, confidence, missing),
+        "template_manifest": TEMPLATE_MANIFEST.get((analysis_type or "all").lower(), TEMPLATE_MANIFEST["all"]),
         "assisted_mapping": assisted_mapping or {"enabled": False, "reason": "Rule-based confidence was sufficient or OpenAI mapping is disabled."},
         "evidence": {
             "actual_execution_source": parsed.evidence.get("actual_execution_source"),
@@ -335,6 +401,69 @@ def get_excel_report(project_id: str, lang: str = "en") -> Response:
 
 
 
+
+def _mapping_wizard_for_preflight(parsed: Any, analysis_type: str, confidence: int, missing: List[str]) -> Dict[str, Any]:
+    profiles = [s.to_dict() for s in parsed.sheets]
+    strong = [p for p in profiles if int(p.get("confidence") or 0) >= 75]
+    weak = [p for p in profiles if int(p.get("confidence") or 0) < 60]
+    field_sources: Dict[str, Any] = {}
+    for p in profiles:
+        for canonical, column_name in (p.get("mapped_columns") or {}).items():
+            field_sources.setdefault(canonical, []).append({
+                "file": p.get("file_name"),
+                "sheet": p.get("sheet_name"),
+                "column": column_name,
+                "detected_type": p.get("detected_type"),
+                "confidence": p.get("confidence"),
+            })
+    required = _required_fields_for_mapping(analysis_type)
+    def has_confirmed_value(field: str) -> bool:
+        if hasattr(parsed, field):
+            value = getattr(parsed, field, None)
+            return value not in (None, "")
+        # For higher-level package requirements such as material_stock or risk_register,
+        # there may be no direct ParsedProjectData attribute. In those cases, a mapped
+        # source is still useful as evidence for the wizard.
+        return field in field_sources
+
+    detected_required = [field for field in required if has_confirmed_value(field)]
+    mapped_required = [field for field in required if field in field_sources]
+    missing_required = [field for field in required if field not in detected_required]
+    readiness = max(0, min(100, int(confidence * 0.65 + (len(detected_required) / max(1, len(required))) * 35)))
+    return {
+        "readiness_score": readiness,
+        "template": TEMPLATE_MANIFEST.get((analysis_type or "all").lower(), TEMPLATE_MANIFEST["all"]),
+        "required_fields": required,
+        "detected_required_fields": detected_required,
+        "mapped_required_fields": mapped_required,
+        "missing_required_fields": list(dict.fromkeys(missing_required + list(missing or [])))[:10],
+        "field_sources": field_sources,
+        "sheet_summary": {
+            "total": len(profiles),
+            "strong": len(strong),
+            "weak": len(weak),
+            "strong_sheets": strong[:6],
+            "weak_sheets": weak[:6],
+        },
+        "instructions": [
+            "Review detected sheets and mapped columns before generating the dashboard.",
+            "Fill missing fields manually only if they are confirmed from project documents.",
+            "Download the package-specific template when source files do not have clear headers.",
+        ],
+    }
+
+
+def _required_fields_for_mapping(analysis_type: str) -> List[str]:
+    analysis_type = (analysis_type or "all").lower()
+    return {
+        "cost": ["total_cost", "actual_cost"],
+        "schedule": ["planned_execution", "actual_execution", "baseline_finish", "estimated_finish", "workforce_current", "workforce_required"],
+        "material": ["material_stock", "delivery_status", "daily_consumption"],
+        "risk": ["risk_register", "decision_required", "owner", "deadline"],
+        "all": ["total_cost", "actual_cost", "planned_execution", "actual_execution", "workforce_current", "material_stock", "risk_register"],
+    }.get(analysis_type, ["total_cost", "actual_execution"])
+
+
 def _missing_fields_for_analysis(analysis_type: str, parsed: Any) -> List[str]:
     analysis_type = (analysis_type or "all").lower()
     required = {
@@ -342,6 +471,8 @@ def _missing_fields_for_analysis(analysis_type: str, parsed: Any) -> List[str]:
         "progress": ["total_cost", "actual_execution"],
         "schedule": ["planned_execution", "actual_execution", "baseline_finish", "estimated_finish"],
         "workforce": ["workforce_current", "workforce_required"],
+        "material": [],
+        "risk": [],
         "all": ["total_cost", "actual_execution", "planned_execution", "baseline_finish", "workforce_current"],
     }.get(analysis_type, ["total_cost", "actual_execution"])
     missing: List[str] = []
@@ -361,6 +492,8 @@ def _preflight_confidence(parsed: Any, analysis_type: str) -> int:
     if analysis_type in {"progress", "all"} and parsed.actual_execution is not None: score += 15
     if analysis_type == "schedule" and (parsed.baseline_finish or parsed.planned_execution is not None): score += 20
     if analysis_type == "workforce" and parsed.workforce_current is not None: score += 20
+    if analysis_type == "material" and any(getattr(sheet, "detected_type", "") in {"procurement", "material"} for sheet in parsed.sheets): score += 20
+    if analysis_type == "risk" and (parsed.warnings or parsed.sheets): score += 20
     return max(0, min(100, score))
 
 

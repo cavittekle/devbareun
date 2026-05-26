@@ -139,7 +139,8 @@ class ConstructionFileParser:
         self._extract_metrics(parsed, all_rows, joined)
         self._apply_az_f2_special_results(parsed)
         self._apply_dashboard_input_evidence(parsed)
-        if self.analysis_type in {"all", "workforce"}:
+        if self.analysis_type in {"all", "workforce", "schedule"}:
+            # v1.1.8: Schedule Recovery combines schedule delay with workforce/recovery logic.
             self._extract_workforce_productivity(parsed, all_rows)
         self._post_process(parsed)
         return parsed
@@ -506,6 +507,8 @@ class ConstructionFileParser:
             "progress": {"types": {"progress", "cost"}, "columns": {"planned_execution", "actual_execution", "actual_cost", "amount"}},
             "schedule": {"types": {"schedule"}, "columns": {"baseline_finish", "estimated_finish", "planned_execution", "actual_execution"}},
             "workforce": {"types": {"workforce"}, "columns": {"workforce_current", "workforce_required"}},
+            "material": {"types": {"procurement"}, "columns": {"quantity", "amount", "unit_price"}},
+            "risk": {"types": {"report", "procurement", "schedule", "cost", "progress", "workforce"}, "columns": {"delay_days", "cost_variance_percent", "planned_execution", "actual_execution", "workforce_current", "workforce_required"}},
         }
         rule = rules.get(focus)
         if not rule:
@@ -518,6 +521,12 @@ class ConstructionFileParser:
             confidence = min(98, confidence + 10)
         if focus == "progress" and any(t in norm_sheet for t in ("f 2", "f-2", "forma", "progress", "icra")):
             detected = "progress"
+            confidence = min(98, confidence + 10)
+        if focus == "material" and any(t in norm_sheet for t in ("material", "procurement", "supplier", "delivery", "anbar", "stock", "təchizat", "techizat")):
+            detected = "procurement"
+            confidence = min(98, confidence + 10)
+        if focus == "risk" and any(t in norm_sheet for t in ("risk", "qerar", "decision", "issue", "action", "tovsiye", "tövsiyə")):
+            detected = "report"
             confidence = min(98, confidence + 10)
         return detected, confidence, signals
 

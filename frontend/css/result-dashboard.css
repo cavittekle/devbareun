@@ -710,3 +710,131 @@ html[data-theme="light"] .report-lang-control select{
   color:#0f172a !important;
   border-color:rgba(15,23,42,.18) !important;
 }
+
+/* v1.1.5 — readable report-language dropdown in dark/light themes */
+.report-lang-control select,
+.report-lang-control select option{
+  background:#111827 !important;
+  color:#f8fafc !important;
+}
+.report-lang-control select option:checked{
+  background:#93c5fd !important;
+  color:#07111f !important;
+}
+html[data-theme="light"] .report-lang-control select,
+html[data-theme="light"] .report-lang-control select option{
+  background:#ffffff !important;
+  color:#0f172a !important;
+}
+html[data-theme="light"] .report-lang-control select option:checked{
+  background:#bfdbfe !important;
+  color:#0f172a !important;
+}
+
+/* DevBareun v1.1.6 - print/export should keep the dashboard visual theme, not switch to a white page */
+@media print{
+  html,
+  body,
+  body.result-page{
+    background:#020817!important;
+    color:#e5f0ff!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  .site-header,
+  .result-header,
+  .result-page .site-header{
+    background:#07111f!important;
+    color:#e5f0ff!important;
+    border-bottom:1px solid rgba(148,163,184,.20)!important;
+  }
+  .result-page,
+  .result-main,
+  .page-shell,
+  .result-status-card,
+  .analysis-dashboard-view,
+  .analysis-specific-dashboard,
+  .schedule-progress-dashboard{
+    background:
+      radial-gradient(circle at 12% 0%, rgba(34,211,238,.16), transparent 28%),
+      radial-gradient(circle at 88% 4%, rgba(139,92,246,.12), transparent 24%),
+      #020817!important;
+    color:#e5f0ff!important;
+  }
+  .result-status-card,
+  .status-score,
+  .result-kpi,
+  .result-panel,
+  .forecast-strip>div,
+  .analysis-dashboard-view,
+  .analysis-kpi,
+  .analysis-panel,
+  .asd-panel,
+  .spd-panel,
+  .spd-building,
+  .spd-action,
+  .asd-action,
+  .workforce-meter div,
+  .result-meta span{
+    background:linear-gradient(180deg, rgba(15,23,42,.96), rgba(8,47,73,.64))!important;
+    border-color:rgba(148,163,184,.25)!important;
+    color:#e5f0ff!important;
+    box-shadow:none!important;
+  }
+  .result-status-card{
+    background:linear-gradient(135deg, rgba(34,211,238,.13), rgba(139,92,246,.16))!important;
+  }
+  .status-score{
+    background:rgba(255,255,255,.055)!important;
+  }
+  .result-page h1,
+  .result-page h2,
+  .result-page h3,
+  .result-page strong,
+  .result-page b,
+  .result-page th,
+  .result-page td,
+  .result-page p,
+  .result-page span,
+  .result-page small,
+  .result-page li,
+  .result-page em{
+    color:inherit!important;
+  }
+  .result-page .muted,
+  .result-page small,
+  .result-page p,
+  .result-table th,
+  .spd-table th,
+  .asd-table th,
+  .result-meta span{
+    color:#b6c7de!important;
+  }
+  .result-table th,.result-table td,
+  .spd-table th,.spd-table td,
+  .asd-table th,.asd-table td{
+    border-color:rgba(148,163,184,.22)!important;
+  }
+  .result-table,
+  .spd-table,
+  .asd-table{
+    background:rgba(15,23,42,.92)!important;
+  }
+  .btn,
+  .btn-primary,
+  .report-lang-control select{
+    color:#020817!important;
+    background:#67e8f9!important;
+    border-color:#67e8f9!important;
+  }
+  .btn-muted,
+  .btn-ghost{
+    color:#e5f0ff!important;
+    background:rgba(15,23,42,.92)!important;
+    border-color:rgba(148,163,184,.25)!important;
+  }
+}

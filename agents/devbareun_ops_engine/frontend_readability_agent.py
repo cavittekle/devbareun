@@ -25,7 +25,7 @@ class FrontendReadabilityAgent(BaseAgent):
         text = self.read(css)
         for snippet in self.REQUIRED_CSS_SNIPPETS:
             if snippet not in text:
-                self.add("warning", f"Readability guard missing: {snippet}", css, recommendation="Keep upload step-label and card contrast overrides in styles.css.")
+                self.add("warning", f"Readability guard missing: {snippet}", css, recommendation="Keep upload wizard, package-card and card contrast overrides in styles.css.")
 
         weak_muted = re.search(r"--muted\s*:\s*#(?:6[0-9a-f]{4}|7[0-9a-f]{4}|8[0-9a-f]{4})", text, re.I)
         if weak_muted:
@@ -37,7 +37,7 @@ class FrontendReadabilityAgent(BaseAgent):
         html = self.frontend_root / "index.html"
         if html.exists():
             h = self.read(html)
-            required = ["data-i18n-ext=\"stepSelectAnalysis\"", "analysis-type-grid", "templateAssist", "analysisRequirements"]
+            required = ["upload-packages-v118", "package-card-row", "packageComboTitle", "analysis-type-grid", "analysisRequirements"]
             for item in required:
                 if item not in h:
                     self.add("warning", f"Upload flow marker missing: {item}", html)

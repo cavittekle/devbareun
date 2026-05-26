@@ -31,7 +31,7 @@ class LanguageAuditAgent(BaseAgent):
         i18n = self.frontend_root / "js" / "i18n-extended.js"
         if i18n.exists():
             text = self.read(i18n)
-            must = ["stepSelectAnalysis", "downloadOptionalTemplate", "template_all_text", "analysisProgressDesc"]
+            must = ["stepSelectAnalysis", "downloadOptionalTemplate", "template_all_text", "analysisCostTitle", "analysisScheduleTitle", "analysisAllTitle", "packageCostKicker", "packageScheduleKicker"]
             for key in must:
                 if key not in text:
                     self.add("warning", f"Missing translation key: {key}", i18n)

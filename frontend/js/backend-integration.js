@@ -11,106 +11,106 @@
   const analysisMeta = {
     en: {
       all: {
-        title: "Full Dashboard",
-        text: "Upload cost estimate, progress payment F-2, baseline schedule, actual progress and workforce files. Use the professional multi-sheet template or upload your own files.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "cost, progress, schedule and workforce signals",
-        reqTitle: "Upload baseline and actual data for a reliable executive comparison",
-        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Planned workforce or target values"],
-        actual: ["Progress payment / interim payment (F-2) or actual cost", "Actual progress / actual finish / forecast update", "Actual workforce or site records"],
-        guardrail: "If actual cost or actual progress is missing, DevBareun generates a baseline-only view and does not invent comparison results."
+        title: "Full Project Control",
+        text: "Complete project-control package combining Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions and PDF/Excel reporting.",
+        template: "templates/devbareun-full-project-control-template.xlsx",
+        focus: "schedule, workforce, cost, progress payment, material continuity, risk and management reporting",
+        reqTitle: "Full Project Control requires all core project-control datasets",
+        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Material/procurement baseline if available"],
+        actual: ["Progress payment or actual cost", "Actual progress / actual finish / forecast update", "Actual workforce, material, site notes or risk records"],
+        guardrail: "Full Project Control consolidates schedule recovery, cost/payment control, material continuity and executive risk. Missing actual data is shown as missing; comparison values are not invented."
       },
       cost: {
-        title: "Cost Estimate",
-        text: "Upload a cost estimate / smeta baseline and, for comparison, F-2 / interim payment or actual cost data. Use the professional multi-sheet template or upload your own files.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "cost estimate, BOQ, F-2, amount, remaining works, actual completed amount and total cost",
-        reqTitle: "Cost comparison requires a baseline cost and confirmed actual cost",
-        baseline: ["Cost Estimate / Smeta / BOQ", "Contract amount or approved budget", "Work package amounts and totals"],
-        actual: ["Progress Payment / Interim Payment (F-2)", "Actual completed amount or paid amount", "Remaining value, VAT status or approved variations if available"],
-        guardrail: "Cost variance and actual execution are calculated only when actual cost / F-2 data is detected or confirmed."
+        title: "Cost & Payment Control",
+        text: "Upload cost estimate / smeta baseline plus progress payment or actual cost data. DevBareun compares approved budget, completed amount, remaining value and payment risk.",
+        template: "templates/devbareun-cost-payment-control-template.xlsx",
+        focus: "cost estimate, BOQ, progress payment records, paid amount, remaining works, actual completed amount and total cost",
+        reqTitle: "Cost & Payment Control requires cost baseline and progress payment evidence",
+        baseline: ["Cost Estimate / Smeta / BOQ", "Contract amount or approved budget", "Work package totals, VAT and approved variations if available"],
+        actual: ["Progress Payment", "Actual completed amount or paid amount", "Remaining value, advance offset or current/cumulative payment split"],
+        guardrail: "Cost variance, completed amount and payment risk are calculated only when actual cost or progress payment data is detected or confirmed."
       },
       schedule: {
-        title: "Schedule / Delay",
-        text: "Upload a baseline schedule and actual progress / forecast data. Without actual data, only a planning summary is generated.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "baseline dates, actual dates, duration, progress percent and delay",
-        reqTitle: "Schedule comparison requires baseline plan and actual progress",
-        baseline: ["Activity ID, WBS or activity name", "Planned start / planned finish", "Baseline duration and planned progress"],
-        actual: ["Actual start / actual finish or forecast finish", "Actual progress % or completed quantity", "Status update or report date"],
-        guardrail: "Delay and progress gap are not calculated unless actual progress or actual finish data is uploaded or entered."
+        title: "Schedule Recovery",
+        text: "Upload baseline schedule, actual progress and workforce data. DevBareun connects delay, manpower gap and recovery actions in one dashboard.",
+        template: "templates/devbareun-schedule-recovery-template.xlsx",
+        focus: "baseline schedule, actual progress, delay, workforce gap, productivity and recovery action",
+        reqTitle: "Schedule Recovery requires schedule status and workforce evidence",
+        baseline: ["Activity ID, WBS or activity name", "Planned start / planned finish / baseline duration", "Planned workforce or target productivity assumptions"],
+        actual: ["Actual progress %", "completed quantity or forecast finish", "Actual worker count / crew records", "Site status update or report date"],
+        guardrail: "Recovery logic connects delay and workforce gap. If actual progress or manpower is missing, DevBareun generates a review note instead of inventing a recovery plan."
       },
-      workforce: {
-        title: "Workforce",
-        text: "Upload activity quantities, planned duration and actual worker counts. DevBareun checks required workers, realistic duration and delay risk.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "worker count, trade, planned manpower, actual manpower and gaps",
-        reqTitle: "Workforce planning requires activity quantity, planned duration and actual manpower",
-        baseline: ["Activity / work type", "Quantity and unit", "Planned start/finish or planned duration"],
-        actual: ["Actual worker count", "Trade / crew records", "Optional custom productivity rate"],
-        guardrail: "Required workers and realistic duration are calculated only when activity quantity, unit, planned duration and actual workers are detected or confirmed."
+      material: {
+        title: "Material Continuity",
+        text: "Upload material stock, delivery, procurement or consumption data. DevBareun highlights shortages, delivery risks and continuity actions.",
+        template: "templates/devbareun-material-continuity-template.xlsx",
+        focus: "material stock, procurement, supplier delivery, long-lead items, shortages and continuity actions",
+        reqTitle: "Material Continuity requires stock, delivery and consumption evidence",
+        baseline: ["Material list / BOQ material baseline", "Planned procurement dates", "Minimum stock or delivery targets"],
+        actual: ["Current stock or warehouse records", "Supplier delivery status", "Site consumption / shortage notes"],
+        guardrail: "Continuity risk is shown only from detected stock, delivery or procurement evidence; missing data is shown as a confirmation need."
       },
-      progress: {
-        title: "Progress Payment / Interim Payment (F-2)",
-        text: "Upload F-2 certificates, progress payment / interim payment files, plan/fact reports or completed work tables. Use the professional multi-sheet template or upload your own files.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "planned progress, actual progress, F-2 completed amount and progress gap",
-        reqTitle: "F-2 analysis requires smeta baseline and progress payment data",
-        baseline: ["Smeta / contract total / Nokopitelni baseline", "Planned progress or planned amount if available", "Work package totals"],
-        actual: ["F-2 / progress payment / interim payment sheets", "Current or cumulative completed amount", "Remaining amount or previous/current period split"],
-        guardrail: "Actual execution is calculated only when completed amount can be linked to the smeta / contract baseline."
+      risk: {
+        title: "Risk & Decisions",
+        text: "Upload risk logs, site notes, cost/schedule/material signals or decision records. DevBareun creates a decision-focused risk dashboard.",
+        template: "templates/devbareun-risk-decisions-template.xlsx",
+        focus: "risk register, decision prompts, open issues, owner actions and management priorities",
+        reqTitle: "Risk & Decisions requires confirmed project risk signals",
+        baseline: ["Risk categories or decision topics", "Approved baseline assumptions", "Management thresholds"],
+        actual: ["Open issues and site notes", "Cost, schedule, material or workforce risk evidence", "Owner/contractor decisions and required actions"],
+        guardrail: "Decision prompts are generated from detected evidence and missing data is flagged instead of being invented."
       }
     },
     az: {
       all: {
-        title: "Tam dashboard",
-        text: "Smeta, F-2 / smeta üzrə icra, plan qrafiki, faktiki icra və işçi sayı fayllarını yükləyin. Peşəkar çoxvərəqli şablondan və ya öz fayllarınızdan istifadə edə bilərsiniz.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "xərc, icra, qrafik və işçi sayı göstəriciləri",
-        reqTitle: "Etibarlı ümumi müqayisə üçün plan baza və faktiki məlumat yükləyin",
-        baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Plan işçi sayı və ya hədəf göstəricilər"],
-        actual: ["F-2 / ara ödəniş və ya faktiki xərc", "Faktiki icra / faktiki bitmə / proqnoz yeniləməsi", "Faktiki işçi sayı və ya sahə qeydləri"],
-        guardrail: "Faktiki xərc və ya faktiki icra yoxdursa, DevBareun yalnız baza görünüşü yaradır və müqayisə nəticəsi uydurmur."
+        title: "Tam layihə nəzarəti",
+        text: "Qrafik bərpası, xərc və F-2 nəzarəti, material davamlılığı, risk və qərarlar, rəhbərlik xülasəsi və PDF/Excel hesabatlarını birləşdirən tam layihə nəzarət paneli.",
+        template: "templates/devbareun-full-project-control-template.xlsx",
+        focus: "qrafik, işçi qüvvəsi, xərc, F-2, material davamlılığı, risk və rəhbərlik hesabatı",
+        reqTitle: "Tam layihə nəzarəti üçün bütün əsas layihə nəzarət məlumatları lazımdır",
+        baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Material / təchizat bazası varsa"],
+        actual: ["F-2 / faktiki xərc", "Faktiki icra / faktiki bitmə / proqnoz yeniləməsi", "Faktiki işçi sayı, material, sahə qeydi və ya risk qeydləri"],
+        guardrail: "Tam layihə nəzarəti qrafik bərpası, xərc və F-2 nəzarəti, material davamlılığı və rəhbərlik risk xülasəsini birləşdirir. Faktiki məlumat yoxdursa, müqayisə uydurulmur."
       },
       cost: {
-        title: "Smeta / Xərc hesablaması",
-        text: "Smeta bazasını və müqayisə üçün F-2 / ara ödəniş və ya faktiki xərc məlumatlarını yükləyin. Peşəkar çoxvərəqli şablondan və ya öz fayllarınızdan istifadə edə bilərsiniz.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "smeta, BOQ, F-2, məbləğ, qalıq işlər, faktiki görülmüş iş məbləği və ümumi xərc",
-        reqTitle: "Xərc müqayisəsi üçün smeta bazası və təsdiqlənmiş faktiki xərc lazımdır",
-        baseline: ["Smeta / BOQ / xərc hesablaması", "Müqavilə dəyəri və ya təsdiqlənmiş büdcə", "İş bölmələri üzrə məbləğlər və yekunlar"],
-        actual: ["F-2 / ara ödəniş / smeta üzrə icra", "Faktiki görülmüş işin məbləği və ya ödənilmiş məbləğ", "Qalıq dəyər, ƏDV statusu və təsdiqlənmiş dəyişikliklər varsa"],
-        guardrail: "Xərc fərqi və faktiki icra yalnız faktiki xərc / F-2 məlumatı tapıldıqda və ya təsdiqləndikdə hesablanır."
+        title: "Xərc və F-2 nəzarəti",
+        text: "Smeta bazasını, F-2 və ya faktiki xərc məlumatlarını yükləyin. DevBareun büdcə, görülmüş iş, qalıq dəyər və ödəniş riskini müqayisə edir.",
+        template: "templates/devbareun-cost-payment-control-template.xlsx",
+        focus: "smeta, BOQ, F-2, ödəniş aktları, ödənilmiş məbləğ, qalıq işlər, faktiki görülmüş iş məbləği və ümumi xərc",
+        reqTitle: "Xərc və F-2 nəzarəti üçün smeta bazası və F-2 sübutu lazımdır",
+        baseline: ["Smeta / BOQ / xərc hesablaması", "Müqavilə dəyəri və ya təsdiqlənmiş büdcə", "İş bölmələri üzrə yekunlar, ƏDV və təsdiqlənmiş dəyişikliklər varsa"],
+        actual: ["F-2 / smeta üzrə icra", "Faktiki görülmüş işin məbləği və ya ödənilmiş məbləğ", "Qalıq dəyər, avans azaldılması və ya cari/yığılmış ödəniş bölgüsü"],
+        guardrail: "Xərc fərqi, görülmüş iş məbləği və ödəniş riski yalnız faktiki xərc və ya F-2 məlumatı tapıldıqda və ya təsdiqləndikdə hesablanır."
       },
       schedule: {
-        title: "Qrafik / Gecikmə",
-        text: "Plan qrafiki və faktiki icra / proqnoz məlumatını yükləyin. Faktiki məlumat yoxdursa, yalnız plan xülasəsi yaradılır.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "plan tarixləri, faktiki tarixlər, müddət, icra faizi və gecikmə",
-        reqTitle: "Qrafik müqayisəsi üçün plan qrafiki və faktiki icra lazımdır",
-        baseline: ["Activity ID, WBS və ya iş adı", "Plan başlanğıc / plan bitmə", "Plan müddəti və plan icra faizi"],
-        actual: ["Faktiki başlanğıc / faktiki bitmə və ya proqnoz bitmə", "Faktiki icra % və ya tamamlanmış həcm", "Status yeniləməsi və ya hesabat tarixi"],
-        guardrail: "Faktiki icra və ya faktiki bitmə məlumatı yüklənməyibsə, gecikmə və icra fərqi hesablanmır."
+        title: "Qrafik bərpası",
+        text: "Plan qrafiki, faktiki icra və işçi sayı məlumatlarını yükləyin. DevBareun gecikmə, resurs fərqi və bərpa tədbirlərini bir dashboardda birləşdirir.",
+        template: "templates/devbareun-schedule-recovery-template.xlsx",
+        focus: "plan qrafiki, faktiki icra, gecikmə, işçi sayı fərqi, məhsuldarlıq və bərpa tədbiri",
+        reqTitle: "Qrafik bərpası üçün qrafik vəziyyəti və işçi sayı məlumatı lazımdır",
+        baseline: ["Activity ID, WBS və ya iş adı", "Plan başlanğıc / plan bitmə / plan müddəti", "Plan işçi sayı və ya məhsuldarlıq hədəfi"],
+        actual: ["Faktiki icra %", "tamamlanmış həcm və ya proqnoz bitmə", "Faktiki işçi sayı / briqada qeydləri", "Sahə statusu və ya hesabat tarixi"],
+        guardrail: "Bərpa məntiqi gecikmə və işçi qüvvəsi fərqini birləşdirir. Faktiki icra və ya işçi sayı yoxdursa, DevBareun uydurma bərpa planı yaratmır, yoxlama qeydi göstərir."
       },
-      workforce: {
-        title: "İşçi qüvvəsi",
-        text: "İş həcmi, plan müddəti və faktiki işçi sayı fayllarını yükləyin. DevBareun tələb olunan işçi sayını, real müddəti və gecikmə riskini yoxlayır.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "işçi sayı, ixtisas, plan işçi sayı, faktiki işçi sayı və fərqlər",
-        reqTitle: "İşçi planlaması üçün iş həcmi, plan müddəti və faktiki işçi sayı lazımdır",
-        baseline: ["İş növü", "Həcm və ölçü vahidi", "Plan başlanğıc/bitmə və ya plan müddəti"],
-        actual: ["Faktiki işçi sayı", "İxtisas / briqada qeydləri", "İstəyə bağlı fərdi məhsuldarlıq norması"],
-        guardrail: "Tələb olunan işçi sayı və real müddət yalnız iş həcmi, vahid, plan müddəti və faktiki işçi sayı tapıldıqda və ya təsdiqləndikdə hesablanır."
+      material: {
+        title: "Material davamlılığı",
+        text: "Material qalığı, çatdırılma, satınalma və ya sərfiyyat məlumatlarını yükləyin. DevBareun çatışmazlığı, tədarük riskini və davamlılıq tədbirlərini göstərir.",
+        template: "templates/devbareun-material-continuity-template.xlsx",
+        focus: "material qalığı, satınalma, təchizatçı çatdırılması, uzunmüddətli sifarişlər, çatışmazlıq və davamlılıq tədbirləri",
+        reqTitle: "Material davamlılığı üçün qalıq, çatdırılma və sərfiyyat sübutu lazımdır",
+        baseline: ["Material siyahısı / BOQ material bazası", "Planlaşdırılmış tədarük tarixləri", "Minimum qalıq və ya çatdırılma hədəfləri"],
+        actual: ["Cari qalıq və ya anbar qeydləri", "Təchizatçı çatdırılma statusu", "Sahə sərfiyyatı və çatışmazlıq qeydləri"],
+        guardrail: "Davamlılıq riski yalnız qalıq, çatdırılma və ya satınalma sübutu əsasında göstərilir; çatışmayan məlumat təsdiq tələbi kimi göstərilir."
       },
-      progress: {
-        title: "F-2 / Smeta üzrə icra",
-        text: "F-2 aktları, smeta üzrə icra faylları, plan/fakt hesabatları və ya görülmüş iş cədvəllərini yükləyin. Peşəkar çoxvərəqli şablondan və ya öz fayllarınızdan istifadə edə bilərsiniz.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "plan icra, faktiki icra, F-2 görülmüş iş məbləği və icra fərqi",
-        reqTitle: "F-2 analizi üçün smeta bazası və icra/ödəniş məlumatı lazımdır",
-        baseline: ["Smeta / müqavilə yekunu / Nokopitelni bazası", "Plan icra və ya plan məbləği varsa", "İş bölmələri üzrə yekunlar"],
-        actual: ["F-2 / ara ödəniş / smeta üzrə icra vərəqləri", "Cari və ya yığılmış görülmüş iş məbləği", "Qalıq məbləğ və ya əvvəlki/cari dövr bölgüsü"],
-        guardrail: "Faktiki icra yalnız görülmüş iş məbləği smeta / müqavilə bazası ilə əlaqələndiriləndə hesablanır."
+      risk: {
+        title: "Risk və qərarlar",
+        text: "Risk qeydləri, sahə qeydləri, xərc/qrafik/material siqnalları və qərar məlumatlarını yükləyin. DevBareun qərar yönümlü risk paneli yaradır.",
+        template: "templates/devbareun-risk-decisions-template.xlsx",
+        focus: "risk reyestri, qərar siqnalları, açıq məsələlər, sifarişçi tədbirləri və idarəetmə prioritetləri",
+        reqTitle: "Risk və qərarlar üçün təsdiqlənmiş layihə risk siqnalları lazımdır",
+        baseline: ["Risk kateqoriyaları və ya qərar mövzuları", "Təsdiqlənmiş baza fərziyyələri", "Rəhbərlik hədləri"],
+        actual: ["Açıq məsələlər və sahə qeydləri", "Xərc, qrafik, material və ya işçi qüvvəsi risk sübutları", "Sifarişçi/podratçı qərarları və tələb olunan tədbirlər"],
+        guardrail: "Qərar siqnalları tapılmış sübutlara əsasən yaradılır, çatışmayan məlumat isə uydurulmadan göstərilir."
       }
     }
   };
@@ -190,8 +190,8 @@
       actualRequiredText: "{label} is needed before DevBareun can calculate a reliable comparison. You can still continue with a baseline-only view, but actual variance and execution will stay unavailable.",
       uploadLimit: "Upload limit: {maxFiles} files · {maxFileSizeMb}MB per file · {maxTotalSizeMb}MB total.",
       addActualFiles: "Add actual data files",
-      actualCostFile: "F-2 / Progress Payment / actual cost file",
-      actualProgressFile: "F-2 / progress payment file",
+      actualCostFile: "Progress Payment / actual cost file",
+      actualProgressFile: "Progress payment file",
       actualScheduleFile: "actual progress / forecast update file",
       actualWorkforceFile: "actual workforce / site manpower file",
       actualGeneralFile: "actual progress, payment or site record file",
@@ -216,7 +216,25 @@
       generationFailedToast: "Generation failed. Check backend deployment and file format.",
       noPreparedProject: "No prepared project found. Please upload again.",
       selectedStatus: "{count} file(s) selected. Parser focus: {focus}. Limit: {maxFiles} files, {maxFileSizeMb}MB each.",
-      defaultProject: "DevBareun Uploaded Project"
+      defaultProject: "DevBareun Uploaded Project",
+      processingCenter: "Processing Center",
+      processingCenterSub: "DevBareun is reading uploaded construction files and preparing a dashboard-style result.",
+      processingPackage: "Control package",
+      processingFiles: "Files",
+      processingBackend: "Backend",
+      stageProject: "Project record",
+      stageUpload: "File upload",
+      stageRead: "Data reading",
+      stageDashboard: "Dashboard result",
+      waitingFiles: "Waiting for selected files",
+      pdfQueued: "PDF text extraction and document review queued",
+      filesUploaded: "Files uploaded successfully",
+      mappingCompleted: "Mapping preview completed",
+      resultGenerating: "Result dashboard is being generated",
+      resultCompleted: "Result dashboard is ready",
+      activeStep: "Active",
+      completedStep: "Completed",
+      pendingStep: "Pending"
     },
     az: {
       notDetected: "Aşkar edilmədi",
@@ -264,7 +282,25 @@
       generationFailedToast: "Yaratma uğursuz oldu. Backend deploy və fayl formatını yoxlayın.",
       noPreparedProject: "Hazırlanmış layihə tapılmadı. Zəhmət olmasa yenidən yükləyin.",
       selectedStatus: "{count} fayl seçildi. Yoxlama fokusu: {focus}. Limit: {maxFiles} fayl, hər biri {maxFileSizeMb}MB.",
-      defaultProject: "DevBareun yüklənmiş layihə"
+      defaultProject: "DevBareun yüklənmiş layihə",
+      processingCenter: "Emal mərkəzi",
+      processingCenterSub: "DevBareun yüklənmiş tikinti fayllarını oxuyur və dashboard nəticəsini hazırlayır.",
+      processingPackage: "Nəzarət paketi",
+      processingFiles: "Fayllar",
+      processingBackend: "Backend",
+      stageProject: "Layihə qeydi",
+      stageUpload: "Fayl yüklənməsi",
+      stageRead: "Məlumat oxunması",
+      stageDashboard: "Dashboard nəticəsi",
+      waitingFiles: "Seçilmiş fayllar gözlənilir",
+      pdfQueued: "PDF mətn çıxarışı və sənəd yoxlaması sıraya alındı",
+      filesUploaded: "Fayllar uğurla yükləndi",
+      mappingCompleted: "Məlumat uyğunluğu tamamlandı",
+      resultGenerating: "Nəticə dashboardu yaradılır",
+      resultCompleted: "Nəticə dashboardu hazırdır",
+      activeStep: "Aktiv",
+      completedStep: "Tamamlandı",
+      pendingStep: "Gözləyir"
     }
   };
 
@@ -339,9 +375,7 @@
 
   function actualDataLabel() {
     if (selectedAnalysisType === "cost") return t("actualCostFile");
-    if (selectedAnalysisType === "progress") return t("actualProgressFile");
-    if (selectedAnalysisType === "schedule") return t("actualScheduleFile");
-    if (selectedAnalysisType === "workforce") return t("actualWorkforceFile");
+    if (selectedAnalysisType === "schedule") return t("actualScheduleFile") + " + " + t("actualWorkforceFile");
     return t("actualGeneralFile");
   }
 
@@ -397,6 +431,85 @@
     }
   }
 
+
+  function hasPdf(files) {
+    return Array.from(files || []).some(file => /\.pdf$/i.test(file.name || ""));
+  }
+
+  function processingPanel() {
+    let panel = qs("#devbareunProcessingPanel");
+    const upload = qs("#upload") || qs("main") || document.body;
+    if (!panel && upload) {
+      panel = document.createElement("section");
+      panel.id = "devbareunProcessingPanel";
+      panel.className = "processing-dashboard-panel";
+      const mapping = qs("#mappingPreviewPanel");
+      if (mapping && mapping.parentNode) mapping.parentNode.insertBefore(panel, mapping);
+      else upload.appendChild(panel);
+    }
+    return panel;
+  }
+
+  function stepState(current, index) {
+    if (index < current) return "done";
+    if (index === current) return "active";
+    return "pending";
+  }
+
+  function processingStatusLabel(state) {
+    if (state === "done") return t("completedStep");
+    if (state === "active") return t("activeStep");
+    return t("pendingStep");
+  }
+
+  function renderProcessingPanel(options = {}) {
+    const panel = processingPanel();
+    if (!panel) return;
+    const files = options.files || getSelectedFiles();
+    const meta = metaFor(selectedAnalysisType);
+    const currentStep = Math.max(0, Math.min(3, Number(options.step || 0)));
+    const progress = options.progress ?? [18, 42, 70, 92][currentStep] ?? 18;
+    const phase = options.phase || t("waitingFiles");
+    const detail = options.detail || (hasPdf(files) ? t("pdfQueued") : meta.focus);
+    const stages = [t("stageProject"), t("stageUpload"), t("stageRead"), t("stageDashboard")];
+    const fileList = Array.from(files || []).slice(0, 6).map(file => {
+      const ext = String((file.name || "").split(".").pop() || "").toUpperCase();
+      const isPdf = ext === "PDF";
+      return `<span class="processing-file-pill ${isPdf ? "pdf" : ""}"><b>${escapeHtml(ext || "FILE")}</b>${escapeHtml(file.name || "Unnamed file")}</span>`;
+    }).join("") || `<span class="processing-file-pill muted">${escapeHtml(t("waitingFiles"))}</span>`;
+    panel.hidden = false;
+    panel.innerHTML = `
+      <div class="processing-orbit" aria-hidden="true"></div>
+      <div class="processing-head">
+        <div>
+          <span class="processing-eyebrow">DevBareun</span>
+          <h3>${escapeHtml(t("processingCenter"))}</h3>
+          <p>${escapeHtml(t("processingCenterSub"))}</p>
+        </div>
+        <div class="processing-score"><strong>${Math.round(progress)}%</strong><span>${escapeHtml(phase)}</span></div>
+      </div>
+      <div class="processing-meta-grid">
+        <div><small>${escapeHtml(t("processingPackage"))}</small><b>${escapeHtml(meta.title)}</b></div>
+        <div><small>${escapeHtml(t("processingFiles"))}</small><b>${files.length || 0}</b></div>
+        <div><small>${escapeHtml(t("processingBackend"))}</small><b>${escapeHtml((window.DevBareunAPI && window.DevBareunAPI.baseUrl) || "—")}</b></div>
+      </div>
+      <div class="processing-progress"><span style="width:${Math.max(8, Math.min(100, progress))}%"></span></div>
+      <div class="processing-steps">
+        ${stages.map((label, idx) => { const state = stepState(currentStep, idx); return `<div class="processing-step ${state}"><i>${idx + 1}</i><span>${escapeHtml(label)}</span><small>${escapeHtml(processingStatusLabel(state))}</small></div>`; }).join("")}
+      </div>
+      <div class="processing-detail">
+        <div><b>${escapeHtml(phase)}</b><p>${escapeHtml(detail)}</p></div>
+      </div>
+      <div class="processing-files">${fileList}</div>
+    `;
+  }
+
+  function completeProcessingPanel(message) {
+    renderProcessingPanel({ step: 3, progress: 100, phase: message || t("resultCompleted"), detail: t("resultCompleted") });
+    const panel = qs("#devbareunProcessingPanel");
+    if (panel) panel.classList.add("completed");
+  }
+
   function deriveProjectName(files) {
     const first = files && files[0] ? files[0].name || "" : "";
     const clean = first.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
@@ -409,6 +522,8 @@
     lastPreflight = null;
     const panel = qs("#mappingPreviewPanel");
     if (panel) panel.hidden = true;
+    const processPanel = qs("#devbareunProcessingPanel");
+    if (processPanel) processPanel.hidden = true;
     const btn = generateButton();
     if (btn) btn.textContent = btn.dataset.defaultText || t("generatePreview");
   }
@@ -471,6 +586,20 @@
           const ok = (p.confidence || 0) >= 75 ? "ok" : "warn";
           rows.insertAdjacentHTML("beforeend", `<div class="mapping-row"><b>${escapeHtml(localizeText(p.sheet_name || t("sheet")))}</b><span>${escapeHtml(localizeDetectedType(p.detected_type))}</span><small class="${ok}">${p.confidence || 0}%</small><small>${escapeHtml(mapped)}</small></div>`);
         });
+      }
+      const wizard = preflight.mapping_wizard || {};
+      const required = Array.isArray(wizard.required_fields) ? wizard.required_fields : [];
+      const detectedReq = new Set(Array.isArray(wizard.detected_required_fields) ? wizard.detected_required_fields : []);
+      if (required.length) {
+        const reqTitle = lang() === "az" ? "Məlumat xəritələmə yoxlaması" : "Data mapping check";
+        const reqText = lang() === "az" ? "Bu paket üçün tələb olunan sahələrin hansının tapıldığını göstərir." : "Shows which required fields were detected for this package.";
+        rows.insertAdjacentHTML("beforeend", `<div class="mapping-wizard-card"><div><b>${escapeHtml(reqTitle)}</b><p>${escapeHtml(reqText)}</p></div><div class="mapping-required-grid">${required.map(field => `<span class="mapping-field-pill ${detectedReq.has(field) ? "ok" : "miss"}">${detectedReq.has(field) ? "✓" : "!"} ${escapeHtml(labelFor(field, fieldLabels))}</span>`).join("")}</div></div>`);
+      }
+      const sourceMap = wizard.field_sources || {};
+      const sourceEntries = Object.entries(sourceMap).slice(0, 10);
+      if (sourceEntries.length) {
+        const sourceTitle = lang() === "az" ? "Sütunlar necə oxundu" : "How columns were mapped";
+        rows.insertAdjacentHTML("beforeend", `<details class="mapping-source-details" open><summary>${escapeHtml(sourceTitle)}</summary><div class="mapping-source-list">${sourceEntries.map(([field, sources]) => { const src = Array.isArray(sources) && sources[0] ? sources[0] : {}; return `<div><b>${escapeHtml(labelFor(field, fieldLabels))}</b><span>${escapeHtml(src.file || "")} · ${escapeHtml(src.sheet || "")} · ${escapeHtml(src.column || "")}</span><em>${escapeHtml(String(src.confidence || "—"))}%</em></div>`; }).join("")}</div></details>`);
       }
       rows.insertAdjacentHTML("beforeend", `<div class="mapping-confirm-note">${escapeHtml(t("reviewValues"))}</div>`);
     }
@@ -554,14 +683,17 @@
 
   async function prepareMapping(files) {
     const draftProjectName = deriveProjectName(files);
+    renderProcessingPanel({ step: 0, progress: 18, phase: t("creatingProject", {type: selectedAnalysisType}), detail: metaFor(selectedAnalysisType).focus, files });
     status(t("creatingProject", {type: selectedAnalysisType}), "info");
     const project = await API.createProject(draftProjectName, "info@devbareun.com", selectedAnalysisType);
     const projectId = project.project_id;
     lastProjectId = projectId;
 
+    renderProcessingPanel({ step: 1, progress: hasPdf(files) ? 38 : 45, phase: t("uploadingFiles", {count: files.length, projectId}), detail: hasPdf(files) ? t("pdfQueued") : t("filesUploaded"), files });
     status(t("uploadingFiles", {count: files.length, projectId}), "info");
     await API.uploadFiles(projectId, files);
 
+    renderProcessingPanel({ step: 2, progress: 72, phase: t("detectingFields"), detail: hasPdf(files) ? t("pdfQueued") : t("preparingMapping"), files });
     status(t("detectingFields"), "info");
     let preflight = null;
     try {
@@ -572,19 +704,23 @@
     }
     renderMappingPreview(preflight);
     flowStage = "mapping-ready";
+    renderProcessingPanel({ step: 3, progress: 96, phase: t("mappingCompleted"), detail: t("mappingReady"), files });
     status(t("mappingReady"), "success");
   }
 
   async function finalizeDashboard() {
     if (!lastProjectId) throw new Error(t("noPreparedProject"));
+    renderProcessingPanel({ step: 0, progress: 22, phase: t("confirmingUnlock"), detail: t("resultGenerating") });
     status(t("confirmingUnlock"), "info");
     const payment = await API.mockPayment(lastProjectId);
     if (payment && payment.checkout_url) {
       window.location.href = payment.checkout_url;
       return;
     }
+    renderProcessingPanel({ step: 3, progress: 84, phase: t("calculatingDashboard", {type: selectedAnalysisType}), detail: t("resultGenerating") });
     status(t("calculatingDashboard", {type: selectedAnalysisType}), "info");
     await API.analyzeProject(lastProjectId, selectedAnalysisType, collectManualInputs());
+    completeProcessingPanel(t("dashboardReady"));
     status(t("dashboardReady"), "success");
     window.location.href = "result-dashboard.html?project_id=" + encodeURIComponent(lastProjectId);
   }

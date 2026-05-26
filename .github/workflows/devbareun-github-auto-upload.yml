@@ -20,9 +20,11 @@ on:
 jobs:
   github-auto-upload:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Dry-run upload plan
@@ -42,7 +44,7 @@ jobs:
             python tools/github_auto_upload.py --root . $CLEAN_FLAG
           fi
       - name: Upload sync report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: github-auto-upload-report
           path: agent_reports/github_auto_upload_report.json

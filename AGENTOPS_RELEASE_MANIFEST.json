@@ -1,39 +1,20 @@
 {
-  "package": "devbareun_agentops_v113_fixed_release",
-  "version": "1.1.3-fixed-release",
-  "based_on": "devbareun_agentops_v112_github_auto_upload.zip",
+  "package": "devbareun_agentops_v1210_global_landing_background",
+  "version": "1.2.10-global-landing-background",
   "created": "2026-05-26",
-  "agents": [
-    "BackendSyntaxAgent",
-    "BackendParserAccuracyAgent",
-    "FrontendReadabilityAgent",
-    "LanguageAuditAgent",
-    "SeoAuditAgent",
-    "SecuritySecretsAgent",
-    "DeploymentReadinessAgent",
-    "SiteManagerAgent",
-    "BrowserQaAgent",
-    "ConstructionMarketingResearchAgent",
-    "ReleaseManagerAgent",
-    "ChiefSupervisorAgent"
+  "primary_change": "Moves the abstract construction building animation from hero-scoped layer to a fixed non-repeating global landing-page background.",
+  "changes": [
+    "Global fixed animated skyline background behind entire landing page",
+    "Disables previous hero-scoped construction-abstract-bg to prevent cut-off/half building effect",
+    "Keeps no-repeat background image and subtle grid motion",
+    "Adds light-mode opacity/contrast controls",
+    "Disables motion for reduced-motion users and hides background in print"
   ],
-  "github_repos_detected": [
-    "cavittekle/devbareun-frontend",
-    "cavittekle/devbareun-backend"
+  "changed_files": [
+    "frontend/css/styles.css",
+    "backend/app/version.py",
+    "AGENTOPS_RELEASE_MANIFEST.json",
+    "FIX_REPORT_V1210.md"
   ],
-  "safe_model": "Agents report and prepare decisions; production changes require manual approval.",
-  "github_auto_upload": true,
-  "active_agent_added": "GitHubSyncAgent",
-  "old_qa_agents_removed": true,
-  "fixed_in_this_release": [
-    "GitHubSyncAgent import/base-class crash fixed",
-    "BackendParserAccuracyAgent self.issues crash fixed",
-    "runtime data/storage removed from package",
-    "robots.txt line break fixed",
-    "backend version unified through app/version.py",
-    "backend CORS and upload limits moved to environment controls",
-    "professional template KPI extraction prioritized in parser",
-    "GitHub auto-upload clean-sync mode added",
-    "nested duplicate agents/workflows removed from frontend/backend deploy folders"
-  ]
+  "release": "v1.2.10 Global Landing Background Fix"
 }

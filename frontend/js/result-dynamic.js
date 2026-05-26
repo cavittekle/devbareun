@@ -1,5 +1,5 @@
 (function () {
-  const DEFAULT_REMOTE_API = "https://devbareun-backend-production.up.railway.app";
+  const DEFAULT_REMOTE_API = "https://devbareun-production.up.railway.app";
   const API_BASE = (window.DEVBAREUN_API_BASE ||
     ((location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")
       ? (localStorage.getItem("devbareun_api_base") || DEFAULT_REMOTE_API)
@@ -21,6 +21,12 @@
   function Ltext(value) { return window.DevBareunI18n ? window.DevBareunI18n.text(value) : value; }
   function Llabel(value) { return window.DevBareunI18n ? window.DevBareunI18n.label(value) : value; }
 
+  function translateRenderedDashboard(root = document.body) {
+    if (isAz() && window.DevBareunI18n && typeof window.DevBareunI18n.translateNode === "function") {
+      window.DevBareunI18n.translateNode(root);
+    }
+  }
+
   function badgeClass(level) {
     const v = String(level || "").toLowerCase();
     if (v.includes("critical") || v.includes("high")) return "badge red";
@@ -36,24 +42,34 @@
   }
 
   function getReportLang() {
+    // v1.1.6: keep report/export language aligned with the visible UI language.
+    // This prevents an AZ dashboard from exporting English labels because of stale localStorage.
+    const uiLang = localStorage.getItem("devbareun_lang") === "az" ? "az" : "en";
     const select = document.getElementById("reportLangSelect");
-    if (select && ["en", "az"].includes(select.value)) return select.value;
-    return localStorage.getItem("devbareun_lang") === "az" ? "az" : "en";
+    if (select) select.value = uiLang;
+    return uiLang;
   }
 
   function syncReportLangControl() {
     const select = document.getElementById("reportLangSelect");
     if (!select) return;
-    const saved = localStorage.getItem("devbareun_report_lang");
     const uiLang = localStorage.getItem("devbareun_lang") === "az" ? "az" : "en";
-    select.value = saved || uiLang;
-    select.addEventListener("change", () => {
-      localStorage.setItem("devbareun_report_lang", select.value);
-    });
+    select.value = uiLang;
+    localStorage.setItem("devbareun_report_lang", uiLang);
+    select.onchange = () => {
+      const chosen = select.value === "az" ? "az" : "en";
+      localStorage.setItem("devbareun_report_lang", chosen);
+    };
   }
 
   function setDownloadLinks(projectId) {
     syncReportLangControl();
+    const printBtn = document.getElementById("printDashboardBtn");
+    if (printBtn && !printBtn.dataset.printBound) {
+      printBtn.dataset.printBound = "true";
+      printBtn.textContent = isAz() ? "Çap et" : "Print";
+      printBtn.onclick = (e) => { e.preventDefault(); window.print(); };
+    }
     qsa("button, a").forEach(btn => {
       const label = (btn.textContent || "").toLowerCase();
       if (label.includes("pdf") || label.includes("yüklə")) {
@@ -251,6 +267,7 @@
       });
       if (rendered) {
         mark(mount);
+        translateRenderedDashboard(mount);
         return;
       }
     }
@@ -261,6 +278,7 @@
       });
       if (rendered) {
         mark(mount);
+        translateRenderedDashboard(mount);
         return;
       }
     }
@@ -292,6 +310,7 @@
       <div class="analysis-kpi-grid">${cardHtml}</div>
       <div class="analysis-panel-grid">${panelsHtml}</div>`;
     mark(mount);
+    translateRenderedDashboard(mount);
   }
 
   function updateDashboard(data) {
@@ -326,6 +345,7 @@
     if (summary) setText(summary, Ltext(d.executive_summary || "No executive summary could be generated from the uploaded data."));
 
     setDownloadLinks(data.project_id);
+    translateRenderedDashboard(document.body);
   }
 
   function showNoData(message, type = "warning") {

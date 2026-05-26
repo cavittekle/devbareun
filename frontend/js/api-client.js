@@ -1,5 +1,5 @@
 (function () {
-  const DEFAULT_REMOTE_API = "https://devbareun-backend-production.up.railway.app";
+  const DEFAULT_REMOTE_API = "https://devbareun-production.up.railway.app";
 
   function resolveApiBase() {
     const remote = DEFAULT_REMOTE_API.replace(/\/$/, "");

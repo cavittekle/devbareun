@@ -9,6 +9,24 @@ class ConstructionMarketingResearchAgent(BaseAgent):
     description = "Creates construction SaaS keyword clusters, positioning ideas and content tasks."
 
     KEYWORD_CLUSTERS = {
+        "Schedule Recovery": [
+            "construction schedule recovery dashboard",
+            "construction delay recovery plan",
+            "baseline vs actual schedule and manpower",
+            "project recovery planning construction",
+        ],
+        "Cost & Payment Control": [
+            "construction cost and payment control",
+            "progress payment dashboard",
+            "construction payment certificate analysis",
+            "smeta actual cost comparison",
+        ],
+        "Full Project Control": [
+            "construction project control dashboard",
+            "executive construction dashboard",
+            "construction risk and cost dashboard",
+            "PMO project control reporting",
+        ],
         "Project control dashboard": [
             "construction project control dashboard",
             "construction management dashboard",
@@ -21,11 +39,11 @@ class ConstructionMarketingResearchAgent(BaseAgent):
             "construction cost overrun dashboard",
             "smeta analysis platform",
         ],
-        "Progress payment / F-2": [
+        "Progress Payment": [
             "progress payment certificate software",
             "interim payment certificate construction",
             "hakediş software",
-            "F-2 construction payment analysis",
+            "construction progress payment analysis",
         ],
         "Schedule delay": [
             "construction delay analysis dashboard",
@@ -39,25 +57,50 @@ class ConstructionMarketingResearchAgent(BaseAgent):
             "crew productivity dashboard",
             "construction labor productivity analysis",
         ],
+        "Material Continuity": [
+            "construction material continuity dashboard",
+            "material shortage risk construction",
+            "procurement delivery risk dashboard",
+            "construction supply chain continuity",
+        ],
+        "Risk & Decisions": [
+            "construction risk decision dashboard",
+            "project risk register management actions",
+            "construction executive decision support",
+            "project controls risk dashboard",
+        ],
     }
 
     def check(self) -> None:
         report = {
             "positioning": "DevBareun should be positioned as a construction project-control and reporting platform for owners, PMOs, construction managers and technical supervision teams.",
             "keyword_clusters": self.KEYWORD_CLUSTERS,
+            "analysis_packages": {
+                "Schedule Recovery": "Combines schedule delay and workforce signals into recovery actions.",
+                "Cost & Payment Control": "Combines smeta/cost estimate and progress payment evidence into commercial control.",
+                "Material Continuity": "Combines stock, procurement and delivery signals into continuity actions.",
+                "Risk & Decisions": "Turns project risk evidence into decision prompts and recommended actions.",
+                "Full Project Control": "Premium combined dashboard for schedule, workforce, cost, payment, material continuity, risk and decisions.",
+            },
             "landing_page_sections": [
-                "Upload smeta, BOQ, F-2, schedule and workforce files",
+                "Choose Full Project Control, Schedule Recovery, Cost & Payment Control, Material Continuity or Risk & Decisions",
+                "Upload smeta, BOQ, progress payment, schedule, workforce, material and risk files",
                 "Confirm detected data before dashboard generation",
+                "Data readiness, missing data and confidence score",
+                "How-calculated formulas and source audit trail",
+                "What-if scenarios and management action tracker",
                 "Baseline vs actual project-control dashboard",
                 "PDF and Excel management report export",
                 "Designed for owners, PMOs and technical supervision teams",
             ],
             "blog_topics": [
                 "How to compare planned progress and actual progress in construction",
-                "How F-2 / interim payment data can reveal project risk",
+                "How progress payment data can reveal project risk",
                 "BOQ vs actual cost: early warning signals for cost overrun",
                 "Construction manpower productivity: required crew vs actual crew",
                 "Delay recovery planning from baseline and actual progress data",
+                "Why audit trail and confidence scoring matter in construction project controls",
+                "Using what-if scenarios for construction recovery and cost control",
             ],
             "markets": {
                 "Azerbaijan": "Use Smeta, F-2, layihə nəzarəti, texniki nəzarət, sifarişçi dashboardu wording.",
