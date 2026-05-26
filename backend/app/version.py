@@ -1,4 +1,4 @@
 from __future__ import annotations
 
-APP_VERSION = "1.2.1-selected-upload-layout"
-RELEASE_NAME = "DevBareun five control packages, light mode and F-2 terminology"
+APP_VERSION = "1.2.4-construction-statistical-analytics"
+RELEASE_NAME = "DevBareun construction statistical analytics: EVM, payment, schedule recovery, material continuity and risk-weighted controls"

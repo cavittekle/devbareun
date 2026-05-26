@@ -1,19 +1,25 @@
 {
-  "package": "devbareun_agentops_v120_control_packages_light_f2",
-  "version": "1.2.1-selected-upload-layout",
-  "based_on": "devbareun_agentops_v119_cost_f2_final_polish_full.zip",
+  "package": "devbareun_agentops_v124_construction_statistical_analytics",
+  "version": "1.2.4-construction-statistical-analytics",
+  "based_on": "devbareun_agentops_v123_statistical_analytics_layer_full.zip",
   "created": "2026-05-26",
-  "primary_change": "Five professional construction control packages, light-mode readability hardening and AZ/EN F-2 terminology standardization.",
+  "primary_change": "Replaces generic statistical analytics with construction-specific statistical controls for project control decisions.",
+  "construction_statistical_analytics": {
+    "earned_value_management": ["PV", "EV", "AC", "CV", "SV", "CPI", "SPI", "EAC", "ETC", "VAC"],
+    "cost_and_payment": ["Smeta vs Progress Payment variance", "payment utilization", "commercial buffer", "overbilling watch", "final cost forecast"],
+    "schedule_recovery": ["plan vs actual progress gap", "delay days", "recovery pressure score", "additional workers required"],
+    "workforce": ["required vs current workforce variance", "crew recovery gap", "workforce-progress correlation"],
+    "material_continuity": ["material stock statistics", "low-stock candidates", "material-progress relationship"],
+    "risk_decisions": ["risk-weighted construction score", "decision level", "weighted risk components"],
+    "quality_checks": ["work package/payment outlier detection", "construction trend", "moving average", "correlation checks"]
+  },
   "control_packages": {
-    "Full Project Control": "Complete control across schedule, workforce, cost, F-2/progress payment, material continuity, risks and decisions.",
+    "Full Project Control": "Complete control across schedule, workforce, cost, progress payment, material continuity, risks and decisions.",
     "Schedule Recovery": "Schedule / Delay + Workforce: delay analysis, manpower gap and recovery plan.",
     "Cost & Payment Control": "Cost Estimate + Progress Payment: EN uses Progress Payment, AZ uses F-2.",
     "Material Continuity": "Material stock, delivery, procurement continuity and shortage risk.",
     "Risk & Decisions": "Risk register, decision prompts and recommended management actions."
   },
   "safe_model": "Agents report and prepare decisions; production changes require manual approval.",
-  "github_auto_upload": true,
-  "release_name": "DevBareun Five Control Packages + Light Mode + F-2 Terminology",
-  "date": "2026-05-26",
-  "summary": "Adds Full Project Control, Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions; improves light mode readability; applies AZ=F-2 and EN=Progress Payment naming."
+  "github_auto_upload": true
 }
