@@ -1,4 +1,4 @@
-// DevBareun v1.0.7 — shared EN/AZ UI glossary for dynamic panel text
+// DevBareun v1.1.6 — shared EN/AZ UI glossary for dynamic panel text and print/export language cleanup
 (function () {
   function currentLang() {
     const raw = (localStorage.getItem("devbareun_lang") || document.documentElement.lang || "en").toLowerCase();
@@ -7,6 +7,39 @@
   function isAz() { return currentLang() === "az"; }
 
   const exactAz = {
+
+    // v1.1.6 result-dashboard export terms
+    "Your project dashboard is ready.": "Layihə paneli hazırdır.",
+    "Yourprojectdashboardisready.": "Layihə paneli hazırdır.",
+    "Your project panel is ready.": "Layihə paneli hazırdır.",
+    "Review the key project indicators, risk register and recommended management actions below.": "Əsas layihə göstəriciləri, risk reyestri və tövsiyə olunan idarəetmə tədbirlərinə aşağıda baxın.",
+    "Dashboard": "Panel",
+    "DASHBOARD": "PANEL",
+    "Dashboard confidence": "Panel etibarlılığı",
+    "Dashboard Confidence": "Panel etibarlılığı",
+    "Dashboard Etibarlılıq": "Panel etibarlılığı",
+    "F-2 sheets detected": "F-2 vərəqləri aşkarlandı",
+    "Progress calculation": "İcra hesablaması",
+    "Planned progress": "Plan üzrə icra",
+    "Progress gap": "İcra fərqi",
+    "Detected sheets": "Aşkar edilmiş vərəqlər",
+    "Cost sheets": "Xərc vərəqləri",
+    "Progress sheets": "İcra vərəqləri",
+    "neutral": "neytral",
+    "Neutral": "Neytral",
+    "Plan/Faktiki": "Plan / faktiki",
+    "PLAN / FAKTIKI": "PLAN / FAKTİKİ",
+    "Gap not available": "Fərq mövcud deyil",
+    "plan baseline progress": "plan baza icrası",
+    "planned baseline progress": "plan baza icrası",
+    "planned Baza progress": "plan baza icrası",
+    "Baza progress": "baza icrası",
+    "Completion forecast": "Tamamlanma proqnozu",
+    "Review cost variance by work package and separate approved changes from uncontrolled overruns.": "Xərc fərqini iş paketləri üzrə yoxlayın və təsdiqlənmiş dəyişiklikləri nəzarətsiz xərc artımlarından ayırın.",
+    "The uploaded files did not provide enough mapped KPI evidence for a full risk register.": "Yüklənmiş fayllar tam risk reyestri üçün kifayət qədər uyğunlaşdırılmış KPI sübutu təqdim etmədi.",
+    "Upload a plan/fact, cost or workforce file with clear headers.": "Aydın başlıqları olan plan/fakt, xərc və ya işçi sayı faylı yükləyin.",
+    "No detailed activity table is available for this result.": "Bu nəticə üçün ətraflı iş cədvəli mövcud deyil.",
+    "No detailed rows were detected for this panel. Upload structured data or confirm mappings to populate this section.": "Bu panel üçün ətraflı sətirlər aşkar edilmədi. Bölməni doldurmaq üçün strukturlaşdırılmış məlumat yükləyin və ya uyğunluğu təsdiqləyin.",
 
     "Project Result Dashboard": "Layihə nəticə paneli",
     "Generated project report": "Yaradılmış layihə hesabatı",
@@ -251,6 +284,23 @@
   };
 
   const phraseRules = [
+
+    [/Faktiki icra\s+was detected at\s+([\d.,]+)%,\s*but planned\s+(?:Baza|baseline)\s+progress\s+was not clearly mapped\.?/gi, "Faktiki icra $1% olaraq aşkar edildi, lakin plan baza icrası aydın uyğunlaşdırılmadı."],
+    [/Actual execution\s+was detected at\s+([\d.,]+)%,\s*but planned\s+(?:Baza|baseline)\s+progress\s+was not clearly mapped\.?/gi, "Faktiki icra $1% olaraq aşkar edildi, lakin plan baza icrası aydın uyğunlaşdırılmadı."],
+    [/Completion forecast could not be calculated because\s+(?:Baza|baseline)\s+and\s+(?:Təxmini bitmə|estimated finish)\s+dates were not clearly detected\.?/gi, "Baza və təxmini bitmə tarixləri aydın aşkar edilmədiyi üçün tamamlanma proqnozu hesablana bilmədi."],
+    [/The uploaded files did not provide enough mapped KPI evidence for a full risk register\.?/gi, "Yüklənmiş fayllar tam risk reyestri üçün kifayət qədər uyğunlaşdırılmış KPI sübutu təqdim etmədi."],
+    [/Upload a plan\/fact, cost or workforce file with clear headers\.?/gi, "Aydın başlıqları olan plan/fakt, xərc və ya işçi sayı faylı yükləyin."],
+    [/Review cost variance by work package and separate approved changes from uncontrolled overruns\.?/gi, "Xərc fərqini iş paketləri üzrə yoxlayın və təsdiqlənmiş dəyişiklikləri nəzarətsiz xərc artımlarından ayırın."],
+    [/Dashboard\s+Etibarlılıq/gi, "Panel etibarlılığı"],
+    [/Dashboard confidence/gi, "Panel etibarlılığı"],
+    [/F-2 sheets detected/gi, "F-2 vərəqləri aşkarlandı"],
+    [/Progress calculation/gi, "İcra hesablaması"],
+    [/Planned progress/gi, "Plan üzrə icra"],
+    [/Progress gap/gi, "İcra fərqi"],
+    [/Detected sheets/gi, "Aşkar edilmiş vərəqlər"],
+    [/Cost sheets/gi, "Xərc vərəqləri"],
+    [/Progress sheets/gi, "İcra vərəqləri"],
+    [/\bneutral\b/gi, "neytral"],
     [new RegExp("\\u004daliyet \\u0074ahmini\\s*\\/\\s*sözleşme toplam[ıi]", "gi"), "Smeta / müqavilə üzrə ümumi məbləğ"],
     [new RegExp("\\u004daliyet \\u0074ahmini temel çizgisi", "gi"), "Smeta üzrə baza məbləği"],
     [/\u0047er\u00e7ekte \u0074amamlanan \u0074utar tespit edildi\.?/gi, "Faktiki görülmüş iş məbləği tapıldı."],
@@ -293,6 +343,11 @@
   ];
 
   const textRules = [
+
+    [/Actual execution was detected at ([\d.,]+)%, but planned baseline progress was not clearly mapped\./i, "Faktiki icra $1% olaraq aşkar edildi, lakin plan baza icrası aydın uyğunlaşdırılmadı."],
+    [/Actual execution was detected at ([\d.,]+)%, but planned Baza progress was not clearly mapped\./i, "Faktiki icra $1% olaraq aşkar edildi, lakin plan baza icrası aydın uyğunlaşdırılmadı."],
+    [/Faktiki icra was detected at ([\d.,]+)%, but planned Baza progress was not clearly mapped\./i, "Faktiki icra $1% olaraq aşkar edildi, lakin plan baza icrası aydın uyğunlaşdırılmadı."],
+    [/Completion forecast could not be calculated because Baza and Təxmini bitmə dates were not clearly detected\./i, "Baza və təxmini bitmə tarixləri aydın aşkar edilmədiyi üçün tamamlanma proqnozu hesablana bilmədi."],
     [/The project is ([\d.,]+) percentage points behind the planned baseline\./i, "Layihə plan baza göstəricisindən $1 faiz bəndi geri qalır."],
     [/The available plan\/fact progress data does not show a negative progress gap\./i, "Mövcud plan/fakt icra məlumatı mənfi icra fərqi göstərmir."],
     [/Actual execution was detected at ([\d.,]+)%, but planned baseline progress was not clearly mapped\./i, "Faktiki icra $1% olaraq aşkar edildi, lakin plan baza icrası aydın uyğunlaşdırılmadı."],
@@ -308,7 +363,7 @@
     [/Workforce productivity review checked ([\d.,]+) activities; ([\d.,]+) activities show manpower shortage and maximum duration risk is ([\d.,]+) days\./i, "İşçi məhsuldarlığı yoxlaması $1 işi yoxladı; $2 iş üzrə işçi çatışmazlığı var və maksimum müddət riski $3 gündür."],
     [/Workforce is ([\d.,]+) workers below the indicated recovery requirement\./i, "İşçi sayı göstərilən bərpa tələbindən $1 nəfər aşağıdır."],
     [/Current workforce meets or exceeds the indicated requirement\./i, "Cari işçi sayı göstərilən tələbi qarşılayır və ya aşır."],
-    [/Dashboard confidence is ([\d.,]+)\/100 based on detected sheets, mapped columns and extracted KPI evidence\./i, "Dashboard etibarlılığı tapılmış vərəqlər, uyğunlaşdırılmış sütunlar və çıxarılmış KPI sübutlarına əsasən $1/100-dir."],
+    [/Dashboard confidence is ([\d.,]+)\/100 based on detected sheets, mapped columns and extracted KPI evidence\./i, "Panel etibarlılığı tapılmış vərəqlər, uyğunlaşdırılmış sütunlar və çıxarılmış KPI sübutlarına əsasən $1/100-dir."],
     [/Completion forecast could not be calculated because baseline and estimated finish dates were not clearly detected\./i, "Baza və təxmini bitmə tarixləri aydın tapılmadığı üçün tamamlanma proqnozu hesablana bilmədi."],
     [/Based on detected dates, the projected completion date moves ([\d.,]+) day\(s\) beyond the baseline target\./i, "Tapılmış tarixlərə əsasən proqnoz bitmə tarixi baza hədəfindən $1 gün sonraya keçir."],
     [/Cost variance could not be calculated from the uploaded files\./i, "Yüklənmiş fayllardan xərc fərqi hesablana bilmədi."],
@@ -353,9 +408,9 @@
     if (exactAz[str] !== undefined) return exactAz[str];
     const fieldKey = str.trim().toLowerCase().replace(/[\s-]+/g, "_");
     if (fieldAz[fieldKey]) return fieldAz[fieldKey];
-    const phrase = applyRules(str, phraseRules);
-    if (phrase !== str) return phrase;
-    return applyRules(str, textRules);
+    const fullSentence = applyRules(str, textRules);
+    if (fullSentence !== str) return fullSentence;
+    return applyRules(str, phraseRules);
   }
 
   function label(value) {

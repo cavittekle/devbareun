@@ -69,7 +69,7 @@
     const planned = row.planned ?? row.plan ?? row.planned_progress ?? row.planned_execution ?? row.target;
     const actual = row.actual ?? row.fact ?? row.actual_progress ?? row.actual_execution ?? row.value;
     const delay = row.delay_days ?? row.delay ?? row.variance_days;
-    const name = row.name || row.activity || row.activity_name || row.building || row.block || row.label || `Activity ${index + 1}`;
+    const name = Ltext(row.name || row.activity || row.activity_name || row.building || row.block || row.label || `Activity ${index + 1}`);
     const status = Ltext(row.status || row.risk || row.level || (hasValue(delay) && Number(delay) > 0 ? "Delayed" : "Review"));
     const note = Ltext(row.note || row.comment || row.action || row.description || row.reason || "Plan/fact comparison is based on detected or confirmed uploaded data.");
     return { name, planned, actual, delay, status, note };
@@ -82,7 +82,7 @@
       const cls = riskClass(r.status || r.delay);
       const color = cls === "danger" ? "#fb7185" : cls === "warn" ? "#f59e0b" : "#22d3ee";
       return `<article class="spd-building" style="--accent:${color}">
-        <div class="spd-building-head"><h3>${escapeHtml(r.name)}</h3><span class="spd-badge">${escapeHtml(r.status || "Review")}</span></div>
+        <div class="spd-building-head"><h3>${escapeHtml(r.name)}</h3><span class="spd-badge">${escapeHtml(Ltext(r.status || "Review"))}</span></div>
         <small>${escapeHtml(Llabel("Plan vs Actual"))}</small>
         <div class="spd-small-progress">
           <div class="spd-small-line"><span>${escapeHtml(Llabel("Plan"))}</span><b class="spd-small-track"><i style="--w:${clamp(r.planned)}%"></i></b><em>${fmtPct(r.planned)}</em></div>
@@ -107,7 +107,7 @@
         <td>${fmtPct(r.actual)}</td>
         <td>${hasValue(gap) ? fmtPct(gap) : "—"}</td>
         <td>${fmtDays(r.delay)}</td>
-        <td>${escapeHtml(r.status || "Review")}</td>
+        <td>${escapeHtml(Ltext(r.status || "Review"))}</td>
         <td>${escapeHtml(r.note)}</td>
       </tr>`;
     }).join("")}</tbody></table></div>`;
