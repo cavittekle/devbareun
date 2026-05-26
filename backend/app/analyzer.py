@@ -404,12 +404,12 @@ def _clean_analysis_type(analysis_type: str | None) -> str:
 def _dashboard_label(analysis_type: str) -> tuple[str, str]:
     labels = {
         "cost": (
-            "Cost Control Dashboard",
-            "Budget, smeta baseline, actual completed cost, remaining value and commercial variance are prioritized.",
+            "Cost & Payment Control Dashboard",
+            "Smeta baseline, F-2/progress payment evidence, actual completed cost, remaining value and payment risk are prioritized.",
         ),
         "schedule": (
-            "Schedule / Delay Dashboard",
-            "Baseline progress, actual progress, finish dates, delay impact and recovery actions are prioritized.",
+            "Schedule Recovery Dashboard",
+            "Schedule delay, actual progress, workforce gap and practical recovery actions are prioritized together.",
         ),
         "workforce": (
             "Workforce Productivity Dashboard",
@@ -420,8 +420,8 @@ def _dashboard_label(analysis_type: str) -> tuple[str, str]:
             "F-2 certificates, completed amount, actual execution percentage and remaining progress are prioritized.",
         ),
         "all": (
-            "Executive Project Control Dashboard",
-            "Cost, progress, schedule, workforce, risk and data quality are consolidated for management review.",
+            "Full Project Control Dashboard",
+            "Schedule Recovery, Cost & Payment Control, workforce, risk and data quality are consolidated for management review.",
         ),
     }
     return labels.get(analysis_type, labels["all"])
@@ -534,26 +534,35 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
             },
         ] + common_panels
     elif t == "schedule":
+        productivity_summary = _workforce_productivity_summary(parsed)
+        recovery_shortage = productivity_summary.get("activities_with_shortage")
+        max_delay = productivity_summary.get("max_delay_risk_days")
         primary = [
             _metric("Planned progress", parsed.planned_execution, "%", "primary"),
             _metric("Actual progress", parsed.actual_execution, "%", "primary"),
             _metric("Progress gap", progress_gap, "%", "risk" if progress_gap else "neutral"),
             _metric("Delay impact", parsed.delay_days, "days", "risk" if parsed.delay_days else "neutral"),
+            _metric("Required workforce", productivity_summary.get("total_required_workers") or parsed.workforce_required, "workers", "primary"),
+            _metric("Actual workforce", productivity_summary.get("total_actual_workers") or parsed.workforce_current, "workers", "primary"),
         ]
         panels = [
             {
-                "title": "Baseline dates",
+                "title": "Schedule baseline",
                 "rows": [
                     _metric("Baseline finish", parsed.baseline_finish),
                     _metric("Estimated finish", parsed.estimated_finish),
                     _metric("Schedule sheets", schedule_sheets),
+                    _metric("Actual schedule data", "Missing actual progress / forecast" if parsed.evidence.get("schedule_actual_data_missing") else ("Required" if not parsed.baseline_finish or not parsed.estimated_finish else "Confirmed")),
                 ],
             },
             {
-                "title": "Recovery focus",
+                "title": "Recovery resources",
                 "rows": [
-                    _metric("Recovery action", "Update critical activities and weekly plan/fact tracking"),
-                    _metric("Actual schedule data", "Missing actual progress / forecast" if parsed.evidence.get("schedule_actual_data_missing") else ("Required" if not parsed.baseline_finish or not parsed.estimated_finish else "Confirmed")),
+                    _metric("Workforce sheets", workforce_sheets),
+                    _metric("Workforce gap", workforce_gap, "workers", "risk" if workforce_gap and workforce_gap < 0 else "neutral"),
+                    _metric("Activities with shortage", recovery_shortage, "activities", "risk" if recovery_shortage else "neutral"),
+                    _metric("Max delay risk", max_delay, "days", "risk" if max_delay else "neutral"),
+                    _metric("Recovery action", "Connect weekly plan/fact updates with crew mobilization and critical activity recovery."),
                 ],
             },
         ] + common_panels

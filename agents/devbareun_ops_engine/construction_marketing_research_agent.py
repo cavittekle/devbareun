@@ -9,6 +9,24 @@ class ConstructionMarketingResearchAgent(BaseAgent):
     description = "Creates construction SaaS keyword clusters, positioning ideas and content tasks."
 
     KEYWORD_CLUSTERS = {
+        "Schedule Recovery": [
+            "construction schedule recovery dashboard",
+            "construction delay recovery plan",
+            "baseline vs actual schedule and manpower",
+            "project recovery planning construction",
+        ],
+        "Cost & Payment Control": [
+            "construction cost and payment control",
+            "F-2 progress payment dashboard",
+            "construction payment certificate analysis",
+            "smeta actual cost comparison",
+        ],
+        "Full Dashboard": [
+            "construction project control dashboard",
+            "executive construction dashboard",
+            "construction risk and cost dashboard",
+            "PMO project control reporting",
+        ],
         "Project control dashboard": [
             "construction project control dashboard",
             "construction management dashboard",
@@ -45,7 +63,13 @@ class ConstructionMarketingResearchAgent(BaseAgent):
         report = {
             "positioning": "DevBareun should be positioned as a construction project-control and reporting platform for owners, PMOs, construction managers and technical supervision teams.",
             "keyword_clusters": self.KEYWORD_CLUSTERS,
+            "analysis_packages": {
+                "Schedule Recovery": "Combines schedule delay and workforce signals into recovery actions.",
+                "Cost & Payment Control": "Combines smeta/cost estimate and F-2/progress payment evidence into commercial control.",
+                "Full Dashboard": "Premium combined dashboard for schedule, workforce, cost, F-2, risk and reports.",
+            },
             "landing_page_sections": [
+                "Choose Schedule Recovery, Cost & Payment Control or Full Dashboard",
                 "Upload smeta, BOQ, F-2, schedule and workforce files",
                 "Confirm detected data before dashboard generation",
                 "Baseline vs actual project-control dashboard",

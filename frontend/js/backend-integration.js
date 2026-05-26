@@ -12,108 +12,69 @@
     en: {
       all: {
         title: "Full Dashboard",
-        text: "Upload cost estimate, progress payment F-2, baseline schedule, actual progress and workforce files. Use the professional multi-sheet template or upload your own files.",
+        text: "Premium project-control dashboard combining Schedule Recovery, Cost & Payment Control, risk register, executive summary and PDF/Excel reporting.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "cost, progress, schedule and workforce signals",
-        reqTitle: "Upload baseline and actual data for a reliable executive comparison",
-        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Planned workforce or target values"],
+        focus: "cost, F-2/payment, schedule, workforce, risk and management reporting",
+        reqTitle: "Full Dashboard requires all core project-control datasets",
+        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Planned workforce or target productivity values"],
         actual: ["Progress payment / interim payment (F-2) or actual cost", "Actual progress / actual finish / forecast update", "Actual workforce or site records"],
-        guardrail: "If actual cost or actual progress is missing, DevBareun generates a baseline-only view and does not invent comparison results."
+        guardrail: "Full Dashboard consolidates schedule recovery, cost/payment control and executive risk. Missing actual data is shown as missing; comparison values are not invented."
       },
       cost: {
-        title: "Cost Estimate",
-        text: "Upload a cost estimate / smeta baseline and, for comparison, F-2 / interim payment or actual cost data. Use the professional multi-sheet template or upload your own files.",
+        title: "Cost & Payment Control",
+        text: "Upload cost estimate / smeta baseline plus F-2, interim payment or actual cost data. DevBareun compares approved budget, completed amount, remaining value and payment risk.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "cost estimate, BOQ, F-2, amount, remaining works, actual completed amount and total cost",
-        reqTitle: "Cost comparison requires a baseline cost and confirmed actual cost",
-        baseline: ["Cost Estimate / Smeta / BOQ", "Contract amount or approved budget", "Work package amounts and totals"],
-        actual: ["Progress Payment / Interim Payment (F-2)", "Actual completed amount or paid amount", "Remaining value, VAT status or approved variations if available"],
-        guardrail: "Cost variance and actual execution are calculated only when actual cost / F-2 data is detected or confirmed."
+        focus: "cost estimate, BOQ, F-2, payment certificates, paid amount, remaining works, actual completed amount and total cost",
+        reqTitle: "Cost & Payment Control requires cost baseline and payment / F-2 evidence",
+        baseline: ["Cost Estimate / Smeta / BOQ", "Contract amount or approved budget", "Work package totals, VAT and approved variations if available"],
+        actual: ["Progress Payment / Interim Payment (F-2)", "Actual completed amount or paid amount", "Remaining value, advance offset or current/cumulative payment split"],
+        guardrail: "Cost variance, completed amount and payment risk are calculated only when actual cost or F-2 data is detected or confirmed."
       },
       schedule: {
-        title: "Schedule / Delay",
-        text: "Upload a baseline schedule and actual progress / forecast data. Without actual data, only a planning summary is generated.",
+        title: "Schedule Recovery",
+        text: "Upload baseline schedule, actual progress and workforce data. DevBareun connects delay, manpower gap and recovery actions in one dashboard.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "baseline dates, actual dates, duration, progress percent and delay",
-        reqTitle: "Schedule comparison requires baseline plan and actual progress",
-        baseline: ["Activity ID, WBS or activity name", "Planned start / planned finish", "Baseline duration and planned progress"],
-        actual: ["Actual start / actual finish or forecast finish", "Actual progress % or completed quantity", "Status update or report date"],
-        guardrail: "Delay and progress gap are not calculated unless actual progress or actual finish data is uploaded or entered."
-      },
-      workforce: {
-        title: "Workforce",
-        text: "Upload activity quantities, planned duration and actual worker counts. DevBareun checks required workers, realistic duration and delay risk.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "worker count, trade, planned manpower, actual manpower and gaps",
-        reqTitle: "Workforce planning requires activity quantity, planned duration and actual manpower",
-        baseline: ["Activity / work type", "Quantity and unit", "Planned start/finish or planned duration"],
-        actual: ["Actual worker count", "Trade / crew records", "Optional custom productivity rate"],
-        guardrail: "Required workers and realistic duration are calculated only when activity quantity, unit, planned duration and actual workers are detected or confirmed."
-      },
-      progress: {
-        title: "Progress Payment / Interim Payment (F-2)",
-        text: "Upload F-2 certificates, progress payment / interim payment files, plan/fact reports or completed work tables. Use the professional multi-sheet template or upload your own files.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "planned progress, actual progress, F-2 completed amount and progress gap",
-        reqTitle: "F-2 analysis requires smeta baseline and progress payment data",
-        baseline: ["Smeta / contract total / Nokopitelni baseline", "Planned progress or planned amount if available", "Work package totals"],
-        actual: ["F-2 / progress payment / interim payment sheets", "Current or cumulative completed amount", "Remaining amount or previous/current period split"],
-        guardrail: "Actual execution is calculated only when completed amount can be linked to the smeta / contract baseline."
+        focus: "baseline schedule, actual progress, delay, workforce gap, productivity and recovery action",
+        reqTitle: "Schedule Recovery requires schedule status and workforce evidence",
+        baseline: ["Activity ID, WBS or activity name", "Planned start / planned finish / baseline duration", "Planned workforce or target productivity assumptions"],
+        actual: ["Actual progress %, completed quantity or forecast finish", "Actual worker count / crew records", "Site status update or report date"],
+        guardrail: "Recovery logic connects delay and workforce gap. If actual progress or manpower is missing, DevBareun generates a review note instead of inventing a recovery plan."
       }
     },
     az: {
       all: {
         title: "Tam dashboard",
-        text: "Smeta, F-2 / smeta üzrə icra, plan qrafiki, faktiki icra və işçi sayı fayllarını yükləyin. Peşəkar çoxvərəqli şablondan və ya öz fayllarınızdan istifadə edə bilərsiniz.",
+        text: "Schedule Recovery, Cost & Payment Control, risk reyestri, rəhbərlik xülasəsi və PDF/Excel hesabatlarını birləşdirən premium layihə nəzarət paneli.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "xərc, icra, qrafik və işçi sayı göstəriciləri",
-        reqTitle: "Etibarlı ümumi müqayisə üçün plan baza və faktiki məlumat yükləyin",
-        baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Plan işçi sayı və ya hədəf göstəricilər"],
+        focus: "xərc, F-2/ödəniş, qrafik, işçi qüvvəsi, risk və rəhbərlik hesabatı",
+        reqTitle: "Tam dashboard üçün bütün əsas layihə nəzarət məlumatları lazımdır",
+        baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Plan işçi sayı və ya məhsuldarlıq hədəfləri"],
         actual: ["F-2 / ara ödəniş və ya faktiki xərc", "Faktiki icra / faktiki bitmə / proqnoz yeniləməsi", "Faktiki işçi sayı və ya sahə qeydləri"],
-        guardrail: "Faktiki xərc və ya faktiki icra yoxdursa, DevBareun yalnız baza görünüşü yaradır və müqayisə nəticəsi uydurmur."
+        guardrail: "Tam dashboard Schedule Recovery, Cost & Payment Control və rəhbərlik risk xülasəsini birləşdirir. Faktiki məlumat yoxdursa, müqayisə uydurulmur."
       },
       cost: {
-        title: "Smeta / Xərc hesablaması",
-        text: "Smeta bazasını və müqayisə üçün F-2 / ara ödəniş və ya faktiki xərc məlumatlarını yükləyin. Peşəkar çoxvərəqli şablondan və ya öz fayllarınızdan istifadə edə bilərsiniz.",
+        title: "Cost & Payment Control",
+        text: "Smeta bazasını, F-2 / ara ödəniş və ya faktiki xərc məlumatlarını yükləyin. DevBareun büdcə, görülmüş iş, qalıq dəyər və ödəniş riskini müqayisə edir.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "smeta, BOQ, F-2, məbləğ, qalıq işlər, faktiki görülmüş iş məbləği və ümumi xərc",
-        reqTitle: "Xərc müqayisəsi üçün smeta bazası və təsdiqlənmiş faktiki xərc lazımdır",
-        baseline: ["Smeta / BOQ / xərc hesablaması", "Müqavilə dəyəri və ya təsdiqlənmiş büdcə", "İş bölmələri üzrə məbləğlər və yekunlar"],
-        actual: ["F-2 / ara ödəniş / smeta üzrə icra", "Faktiki görülmüş işin məbləği və ya ödənilmiş məbləğ", "Qalıq dəyər, ƏDV statusu və təsdiqlənmiş dəyişikliklər varsa"],
-        guardrail: "Xərc fərqi və faktiki icra yalnız faktiki xərc / F-2 məlumatı tapıldıqda və ya təsdiqləndikdə hesablanır."
+        focus: "smeta, BOQ, F-2, ödəniş aktları, ödənilmiş məbləğ, qalıq işlər, faktiki görülmüş iş məbləği və ümumi xərc",
+        reqTitle: "Cost & Payment Control üçün smeta bazası və F-2 / ödəniş sübutu lazımdır",
+        baseline: ["Smeta / BOQ / xərc hesablaması", "Müqavilə dəyəri və ya təsdiqlənmiş büdcə", "İş bölmələri üzrə yekunlar, ƏDV və təsdiqlənmiş dəyişikliklər varsa"],
+        actual: ["F-2 / ara ödəniş / smeta üzrə icra", "Faktiki görülmüş işin məbləği və ya ödənilmiş məbləğ", "Qalıq dəyər, avans azaldılması və ya cari/yığılmış ödəniş bölgüsü"],
+        guardrail: "Xərc fərqi, görülmüş iş məbləği və ödəniş riski yalnız faktiki xərc və ya F-2 məlumatı tapıldıqda və ya təsdiqləndikdə hesablanır."
       },
       schedule: {
-        title: "Qrafik / Gecikmə",
-        text: "Plan qrafiki və faktiki icra / proqnoz məlumatını yükləyin. Faktiki məlumat yoxdursa, yalnız plan xülasəsi yaradılır.",
+        title: "Schedule Recovery",
+        text: "Plan qrafiki, faktiki icra və işçi sayı məlumatlarını yükləyin. DevBareun gecikmə, resurs fərqi və bərpa tədbirlərini bir dashboardda birləşdirir.",
         template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "plan tarixləri, faktiki tarixlər, müddət, icra faizi və gecikmə",
-        reqTitle: "Qrafik müqayisəsi üçün plan qrafiki və faktiki icra lazımdır",
-        baseline: ["Activity ID, WBS və ya iş adı", "Plan başlanğıc / plan bitmə", "Plan müddəti və plan icra faizi"],
-        actual: ["Faktiki başlanğıc / faktiki bitmə və ya proqnoz bitmə", "Faktiki icra % və ya tamamlanmış həcm", "Status yeniləməsi və ya hesabat tarixi"],
-        guardrail: "Faktiki icra və ya faktiki bitmə məlumatı yüklənməyibsə, gecikmə və icra fərqi hesablanmır."
-      },
-      workforce: {
-        title: "İşçi qüvvəsi",
-        text: "İş həcmi, plan müddəti və faktiki işçi sayı fayllarını yükləyin. DevBareun tələb olunan işçi sayını, real müddəti və gecikmə riskini yoxlayır.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "işçi sayı, ixtisas, plan işçi sayı, faktiki işçi sayı və fərqlər",
-        reqTitle: "İşçi planlaması üçün iş həcmi, plan müddəti və faktiki işçi sayı lazımdır",
-        baseline: ["İş növü", "Həcm və ölçü vahidi", "Plan başlanğıc/bitmə və ya plan müddəti"],
-        actual: ["Faktiki işçi sayı", "İxtisas / briqada qeydləri", "İstəyə bağlı fərdi məhsuldarlıq norması"],
-        guardrail: "Tələb olunan işçi sayı və real müddət yalnız iş həcmi, vahid, plan müddəti və faktiki işçi sayı tapıldıqda və ya təsdiqləndikdə hesablanır."
-      },
-      progress: {
-        title: "F-2 / Smeta üzrə icra",
-        text: "F-2 aktları, smeta üzrə icra faylları, plan/fakt hesabatları və ya görülmüş iş cədvəllərini yükləyin. Peşəkar çoxvərəqli şablondan və ya öz fayllarınızdan istifadə edə bilərsiniz.",
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
-        focus: "plan icra, faktiki icra, F-2 görülmüş iş məbləği və icra fərqi",
-        reqTitle: "F-2 analizi üçün smeta bazası və icra/ödəniş məlumatı lazımdır",
-        baseline: ["Smeta / müqavilə yekunu / Nokopitelni bazası", "Plan icra və ya plan məbləği varsa", "İş bölmələri üzrə yekunlar"],
-        actual: ["F-2 / ara ödəniş / smeta üzrə icra vərəqləri", "Cari və ya yığılmış görülmüş iş məbləği", "Qalıq məbləğ və ya əvvəlki/cari dövr bölgüsü"],
-        guardrail: "Faktiki icra yalnız görülmüş iş məbləği smeta / müqavilə bazası ilə əlaqələndiriləndə hesablanır."
+        focus: "plan qrafiki, faktiki icra, gecikmə, işçi sayı fərqi, məhsuldarlıq və bərpa tədbiri",
+        reqTitle: "Schedule Recovery üçün qrafik vəziyyəti və işçi sayı məlumatı lazımdır",
+        baseline: ["Activity ID, WBS və ya iş adı", "Plan başlanğıc / plan bitmə / plan müddəti", "Plan işçi sayı və ya məhsuldarlıq hədəfi"],
+        actual: ["Faktiki icra %, tamamlanmış həcm və ya proqnoz bitmə", "Faktiki işçi sayı / briqada qeydləri", "Sahə statusu və ya hesabat tarixi"],
+        guardrail: "Bərpa məntiqi gecikmə və işçi qüvvəsi fərqini birləşdirir. Faktiki icra və ya işçi sayı yoxdursa, DevBareun uydurma bərpa planı yaratmır, yoxlama qeydi göstərir."
       }
     }
   };
+
 
   const fieldLabels = {
     en: {
@@ -339,9 +300,7 @@
 
   function actualDataLabel() {
     if (selectedAnalysisType === "cost") return t("actualCostFile");
-    if (selectedAnalysisType === "progress") return t("actualProgressFile");
-    if (selectedAnalysisType === "schedule") return t("actualScheduleFile");
-    if (selectedAnalysisType === "workforce") return t("actualWorkforceFile");
+    if (selectedAnalysisType === "schedule") return t("actualScheduleFile") + " + " + t("actualWorkforceFile");
     return t("actualGeneralFile");
   }
 

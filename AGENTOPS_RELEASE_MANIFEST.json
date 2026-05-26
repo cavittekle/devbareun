@@ -1,39 +1,14 @@
 {
-  "package": "devbareun_agentops_v113_fixed_release",
-  "version": "1.1.3-fixed-release",
-  "based_on": "devbareun_agentops_v112_github_auto_upload.zip",
+  "package": "devbareun_agentops_v118_control_packages",
+  "version": "1.1.8-control-packages",
+  "based_on": "devbareun_agentops_v117_approved_upload_wizard_full.zip",
   "created": "2026-05-26",
-  "agents": [
-    "BackendSyntaxAgent",
-    "BackendParserAccuracyAgent",
-    "FrontendReadabilityAgent",
-    "LanguageAuditAgent",
-    "SeoAuditAgent",
-    "SecuritySecretsAgent",
-    "DeploymentReadinessAgent",
-    "SiteManagerAgent",
-    "BrowserQaAgent",
-    "ConstructionMarketingResearchAgent",
-    "ReleaseManagerAgent",
-    "ChiefSupervisorAgent"
-  ],
-  "github_repos_detected": [
-    "cavittekle/devbareun-frontend",
-    "cavittekle/devbareun-backend"
-  ],
+  "primary_change": "Reduced public analysis choices to three professional construction control packages.",
+  "control_packages": {
+    "Schedule Recovery": "Schedule / Delay + Workforce: delay analysis, manpower gap and recovery plan.",
+    "Cost & Payment Control": "Cost Estimate + Progress Payment / F-2: smeta, actual cost, F-2 and payment risk.",
+    "Full Dashboard": "Premium combined dashboard: schedule, workforce, cost, F-2, risk and PDF/Excel reports."
+  },
   "safe_model": "Agents report and prepare decisions; production changes require manual approval.",
-  "github_auto_upload": true,
-  "active_agent_added": "GitHubSyncAgent",
-  "old_qa_agents_removed": true,
-  "fixed_in_this_release": [
-    "GitHubSyncAgent import/base-class crash fixed",
-    "BackendParserAccuracyAgent self.issues crash fixed",
-    "runtime data/storage removed from package",
-    "robots.txt line break fixed",
-    "backend version unified through app/version.py",
-    "backend CORS and upload limits moved to environment controls",
-    "professional template KPI extraction prioritized in parser",
-    "GitHub auto-upload clean-sync mode added",
-    "nested duplicate agents/workflows removed from frontend/backend deploy folders"
-  ]
+  "github_auto_upload": true
 }

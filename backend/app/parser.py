@@ -139,7 +139,8 @@ class ConstructionFileParser:
         self._extract_metrics(parsed, all_rows, joined)
         self._apply_az_f2_special_results(parsed)
         self._apply_dashboard_input_evidence(parsed)
-        if self.analysis_type in {"all", "workforce"}:
+        if self.analysis_type in {"all", "workforce", "schedule"}:
+            # v1.1.8: Schedule Recovery combines schedule delay with workforce/recovery logic.
             self._extract_workforce_productivity(parsed, all_rows)
         self._post_process(parsed)
         return parsed

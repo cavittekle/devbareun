@@ -280,7 +280,31 @@
     "unit": "Ölçü vahidi",
     "unit_price": "Vahid qiymət",
     "amount": "Məbləğ",
-    "status": "Status"
+    "status": "Status",
+
+    "Schedule Recovery": "Qrafik bərpa paneli",
+    "Schedule Recovery Dashboard": "Qrafik bərpa dashboardu",
+    "Cost & Payment Control": "Xərc və ödəniş nəzarəti",
+    "Cost & Payment Control Dashboard": "Xərc və ödəniş nəzarəti dashboardu",
+    "Full Dashboard": "Tam dashboard",
+    "Full Project Control Dashboard": "Tam layihə nəzarət dashboardu",
+    "Selected package": "Seçilmiş paket",
+    "Control package": "Nəzarət paketi",
+    "Schedule + Workforce": "Qrafik + işçi qüvvəsi",
+    "Cost Estimate + F-2": "Smeta + F-2",
+    "All modules": "Bütün modullar",
+    "Recovery trend": "Bərpa trendi",
+    "Schedule recovery and workforce requirements": "Qrafik bərpası və işçi qüvvəsi tələbləri",
+    "Cost & Payment Control review": "Xərc və ödəniş nəzarəti baxışı",
+    "Required workforce": "Tələb olunan işçi sayı",
+    "Actual workforce": "Faktiki işçi sayı",
+    "Recovery risk": "Bərpa riski",
+    "Delay + workforce pressure": "Gecikmə + işçi qüvvəsi təzyiqi",
+    "Recovery manpower need": "Bərpa üçün işçi ehtiyacı",
+    "Current manpower": "Cari işçi sayı",
+    "Commercial control": "Kommersiya nəzarəti",
+    "Recovery plan": "Bərpa planı",
+    "Recommended": "Tövsiyə olunur",
   };
 
   const phraseRules = [
