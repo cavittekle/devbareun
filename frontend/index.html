@@ -18,67 +18,123 @@
 <a data-i18n="navFAQ" href="faq.html">FAQ</a>
 <a data-i18n="navContact" href="contact.html">Contact</a></div>
 </header>
-<main id="main"> <section class="wrap hero"> <div aria-hidden="true" class="construction-abstract-bg"><span class="line-dot dot-a"></span><span class="line-dot dot-b"></span><span class="line-dot dot-c"></span><span class="line-dot dot-d"></span><span class="line-dot dot-e"></span><span class="line-dot dot-f"></span></div> <div> <div class="eyebrow"><span class="dot"></span><span data-i18n="heroEyebrow">Construction analytics platform</span></div> <h1><span data-i18n="hero1">Turn construction data into</span> <span class="grad" data-i18n="hero2">management dashboards.</span></h1> <p class="lead" data-i18n="heroLead">Keep costs, progress, schedules and workforce signals under control in one project-control workspace.</p> <div class="actions"><a class="btn primary" data-i18n="ctaUpload" href="#upload">Start Analysis</a></div> <div class="trust"><span data-i18n="trust1">Accurate project control</span><span data-i18n="trust2">Risk and cost visibility</span><span data-i18n="trust3">Professional PDF/Excel reports</span></div> </div> <div aria-label="Dashboard preview" class="mock"> <div class="dash-head"><div><b data-i18n="previewTitle">Project Control Room</b><div class="status"><span class="dot"></span><span data-i18n="previewStatus">Dashboard result preview</span></div></div></div> <div class="grid4"><div class="kpi"><small data-i18n="kpi1">Progress</small><strong>68%</strong></div><div class="kpi"><small data-i18n="kpi2">Delay Risk</small><strong>High</strong></div><div class="kpi"><small data-i18n="kpi3">Cost Variance</small><strong>+7.8%</strong></div><div class="kpi"><small data-i18n="kpi4">Workforce</small><strong>142</strong></div></div> <div class="minirow"><div class="panel"><b data-i18n="chartTitle">Baseline vs Actual</b><div class="bars"><div class="bar" style="height:88%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:80%"></div><div class="bar" style="height:54%"></div><div class="bar" style="height:65%"></div><div class="bar" style="height:43%"></div></div></div><div class="panel"><b data-i18n="riskTitle">Risk Radar</b><div class="risk-list"><div class="risk"><span>Schedule</span><div class="track"><div class="fill" style="width:82%"></div></div></div><div class="risk"><span>Cost</span><div class="track"><div class="fill" style="width:64%"></div></div></div><div class="risk"><span>Labor</span><div class="track"><div class="fill" style="width:76%"></div></div></div><div class="risk"><span>Procurement</span><div class="track"><div class="fill" style="width:49%"></div></div></div></div></div></div> </div> </section> <section class="wrap section" id="upload"> <div class="section-title"><div><h2 data-i18n="uploadTitle">Project Upload Center</h2><p class="muted" data-i18n="uploadText">Drop schedules, progress payment / interim payment F-2 files, cost estimates, workforce tables or site documentation.</p></div></div> <div class="upload"> <div> <div class="upload-guided-flow">
-<div class="flow-step-label"><span>01</span> <span data-i18n-ext="stepSelectAnalysis">Select analysis type</span></div>
-<div aria-label="Select analysis type" class="analysis-type-grid" id="analysisTypeGrid" role="radiogroup">
-<button aria-pressed="true" class="analysis-type-card active" data-analysis-type="all" type="button">
-<b data-i18n-ext="analysisAllTitle">Full Dashboard</b><span data-i18n-ext="analysisAllDesc">Cost + progress + schedule + workforce signals</span>
-</button>
-<button aria-pressed="false" class="analysis-type-card" data-analysis-type="cost" type="button">
-<b data-i18n-ext="analysisCostTitle">Cost Estimate</b><span data-i18n-ext="analysisCostDesc">BOQ, cost estimate, F-2 progress payment, remaining works and budget values</span>
-</button>
-<button aria-pressed="false" class="analysis-type-card" data-analysis-type="schedule" type="button">
-<b data-i18n-ext="analysisScheduleTitle">Schedule / Delay</b><span data-i18n-ext="analysisScheduleDesc">Baseline dates, actual dates, progress and delay</span>
-</button>
-<button aria-pressed="false" class="analysis-type-card" data-analysis-type="workforce" type="button">
-<b data-i18n-ext="analysisWorkforceTitle">Workforce</b><span data-i18n-ext="analysisWorkforceDesc">Daily manpower, trade split and recovery gaps</span>
-</button>
-<button aria-pressed="false" class="analysis-type-card" data-analysis-type="progress" type="button">
-<b data-i18n-ext="analysisProgressTitle">Progress Payment / Interim Payment (F-2)</b><span data-i18n-ext="analysisProgressDesc">Plan/fact, F-2 certificates and physical execution</span>
-</button>
-</div>
-<div class="template-assist compact" id="templateAssist">
-<div>
-<span class="assist-eyebrow" data-i18n-ext="selectedAnalysisLabel">Selected analysis</span>
-<b id="templateTitle">Full Dashboard</b>
-<p class="muted" id="templateText">Upload one or more project files. The template is optional.</p>
-</div>
-<a class="template-link" data-i18n-ext="downloadOptionalTemplate" download="devbareun-professional-upload-template-v2.xlsx" href="templates/devbareun-professional-upload-template-v2.xlsx" id="templateDownload">Download optional template</a>
-</div>
-<div aria-live="polite" class="analysis-requirements" id="analysisRequirements">
-<div class="requirements-head">
-<span class="assist-eyebrow" data-i18n-ext="requiredDataLabel">Required data logic</span>
-<b id="requirementsTitle">Upload baseline and actual data for comparison</b>
-</div>
-<div class="requirements-grid">
-<div class="requirement-card baseline">
-<small data-i18n-ext="baselineDataLabel">Baseline / plan data</small>
-<ul id="baselineRequirements"><li>Cost estimate / smeta</li><li>Schedule baseline</li></ul>
-</div>
-<div class="requirement-card actual">
-<small data-i18n-ext="actualDataLabel">Actual / factual data</small>
-<ul id="actualRequirements"><li>Progress payment / F-2</li><li>Actual progress</li></ul>
-</div>
-</div>
-<p class="requirements-guardrail" data-i18n-ext="noActualGuardrail" id="requirementsGuardrail">No actual data → no comparison result. Unclear actual data → needs confirmation.</p>
-</div>
-</div> <div class="drop" id="dropZone" role="button" tabindex="0"><div><div class="icon" style="margin:auto">⇧</div><h3 data-i18n="uploadTitle">Project Upload Center</h3><p class="muted" data-i18n="uploadHint">Structured analysis: Excel/CSV. Schedule beta: Primavera XER / MS Project XML. PDF text extraction is partial; site images are supporting evidence. Limit: 6 files, 30MB each, 120MB total.</p><button class="btn primary" data-i18n="uploadBtn" type="button">Choose Files</button><input accept=".xlsx,.xls,.csv,.pdf,.jpg,.jpeg,.png,.webp,.xer,.xml" class="file-input" id="fileInput" multiple="" type="file"/></div></div> <div aria-live="polite" class="file-list" id="fileList"></div>
-<div aria-label="Supported inputs" class="supported-inputs"><b data-i18n-ext="supportedInputs">Supported inputs:</b><span class="input-chip">▧ Excel / CSV</span><span class="input-chip">▤ PDF</span><span class="input-chip">⌁ XER / XML</span><span class="input-chip" data-i18n-ext="siteImagesChip">▨ Site Images</span><span class="input-chip" data-i18n-ext="outputChip">▣ Output: PDF + Excel</span></div>
-<div class="notice" data-i18n="uploadNotice" id="uploadNotice">Selected files are ready for project data review and dashboard generation.</div> <div class="mapping-preview-panel" hidden="" id="mappingPreviewPanel">
-<div class="mapping-head"><div><span class="flow-step-label inline"><span>02</span> <span data-i18n-ext="confirmMappingStep">Confirm detected mapping</span></span><h3 data-i18n-ext="mappingTitle">We found these data signals</h3><p class="muted" data-i18n-ext="mappingText">Review the detected sheets, key values and missing fields. The final dashboard is generated only after you confirm this mapping.</p></div><strong id="mappingConfidence">Confidence: —</strong></div>
-<div class="mapping-rows" id="mappingRows"></div>
-<div class="missing-fields" id="missingFields"></div>
-</div> <div class="actions" style="margin-top:14px"><button class="btn primary" data-i18n="generatePreview" disabled="" id="generatePreviewBtn" type="button">Generate Preview</button><button class="btn" data-i18n="clearFiles" disabled="" id="clearFilesBtn" type="button">Clear files</button></div> <div class="preview-box" id="analysisPreview"><b data-i18n-ext="projectDataPreview">Project Data Preview</b><div class="progress-line"><span id="previewProgress"></span></div><p class="muted" data-i18n-ext="projectDataPreviewText">After upload, DevBareun shows a mapping confirmation screen. Review detected values, add missing fields, then generate the selected dashboard and report package.</p></div> </div> <aside aria-label="What DevBareun reads" class="formats reads-panel">
-<div class="reads-head">
-<h3 data-i18n-ext="readsTitle">What DevBareun reads</h3>
-<span class="secure-note" data-i18n-ext="secureNote">Your data is secure.</span>
-</div>
-<div class="format read-item"><span class="read-icon green">▧</span><b>Excel / CSV</b><span data-i18n="fmt1">Schedules, cost estimates, workforce</span><em>›</em></div>
-<div class="format read-item"><span class="read-icon red">▤</span><b>PDF</b><span data-i18n="fmt2">Text PDF extraction, reports, BOQ summaries</span><em>›</em></div>
-<div class="format read-item"><span class="read-icon blue">⌁</span><b>XER / XML</b><span data-i18n="fmt4">Primavera XER / MS Project XML schedule extraction</span><em>›</em></div>
-<div class="format read-item"><span class="read-icon purple">▨</span><b data-i18n-ext="siteImagesTitle">Site Images</b><span data-i18n="fmt3">Supporting visual evidence</span><em>›</em></div>
-<div class="format read-item"><span class="read-icon cyan">▣</span><b data-i18n-ext="outputTitle">Output</b><span data-i18n="fmt5">Dashboard + PDF/Excel report</span><em>›</em></div>
-</aside> </div> </section> <section aria-label="DevBareun trust signals" class="wrap section proof-section">
+<main id="main"> <section class="wrap hero"> <div aria-hidden="true" class="construction-abstract-bg"><span class="line-dot dot-a"></span><span class="line-dot dot-b"></span><span class="line-dot dot-c"></span><span class="line-dot dot-d"></span><span class="line-dot dot-e"></span><span class="line-dot dot-f"></span></div> <div> <div class="eyebrow"><span class="dot"></span><span data-i18n="heroEyebrow">Construction analytics platform</span></div> <h1><span data-i18n="hero1">Turn construction data into</span> <span class="grad" data-i18n="hero2">management dashboards.</span></h1> <p class="lead" data-i18n="heroLead">Keep costs, progress, schedules and workforce signals under control in one project-control workspace.</p> <div class="actions"><a class="btn primary" data-i18n="ctaUpload" href="#upload">Start Analysis</a></div> <div class="trust"><span data-i18n="trust1">Accurate project control</span><span data-i18n="trust2">Risk and cost visibility</span><span data-i18n="trust3">Professional PDF/Excel reports</span></div> </div> <div aria-label="Dashboard preview" class="mock"> <div class="dash-head"><div><b data-i18n="previewTitle">Project Control Room</b><div class="status"><span class="dot"></span><span data-i18n="previewStatus">Dashboard result preview</span></div></div></div> <div class="grid4"><div class="kpi"><small data-i18n="kpi1">Progress</small><strong>68%</strong></div><div class="kpi"><small data-i18n="kpi2">Delay Risk</small><strong>High</strong></div><div class="kpi"><small data-i18n="kpi3">Cost Variance</small><strong>+7.8%</strong></div><div class="kpi"><small data-i18n="kpi4">Workforce</small><strong>142</strong></div></div> <div class="minirow"><div class="panel"><b data-i18n="chartTitle">Baseline vs Actual</b><div class="bars"><div class="bar" style="height:88%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:80%"></div><div class="bar" style="height:54%"></div><div class="bar" style="height:65%"></div><div class="bar" style="height:43%"></div></div></div><div class="panel"><b data-i18n="riskTitle">Risk Radar</b><div class="risk-list"><div class="risk"><span>Schedule</span><div class="track"><div class="fill" style="width:82%"></div></div></div><div class="risk"><span>Cost</span><div class="track"><div class="fill" style="width:64%"></div></div></div><div class="risk"><span>Labor</span><div class="track"><div class="fill" style="width:76%"></div></div></div><div class="risk"><span>Procurement</span><div class="track"><div class="fill" style="width:49%"></div></div></div></div></div></div> </div> </section> <section class="wrap section upload-wizard-v117" id="upload">
+  <div class="upload-wizard-shell">
+    <div class="upload-phasebar" aria-label="Upload workflow steps">
+      <div class="phase active"><span>01</span><div><b data-i18n-ext="wizardPhaseAnalysis">Analysis type</b><small data-i18n-ext="wizardPhaseAnalysisSub">Choose the right control view</small></div></div>
+      <div class="phase-line"></div>
+      <div class="phase"><span>02</span><div><b data-i18n-ext="wizardPhaseUpload">Upload data</b><small data-i18n-ext="wizardPhaseUploadSub">Add your files and review</small></div></div>
+      <div class="phase-line"></div>
+      <div class="phase"><span>03</span><div><b data-i18n-ext="wizardPhaseResult">Get results</b><small data-i18n-ext="wizardPhaseResultSub">Start the analysis</small></div></div>
+    </div>
+
+    <div class="analysis-selection-panel">
+      <div class="wizard-section-head centered">
+        <h2><span>1.</span> <span data-i18n-ext="wizardSelectTitle">Select analysis type</span></h2>
+        <p class="muted" data-i18n-ext="wizardSelectText">Choose the analysis type that matches your goal. Required data will be shown automatically.</p>
+      </div>
+
+      <div aria-label="Select analysis type" class="analysis-type-grid wizard-card-row" id="analysisTypeGrid" role="radiogroup">
+        <button aria-pressed="true" class="analysis-type-card active" data-analysis-type="all" type="button">
+          <i class="analysis-icon">▦</i>
+          <b data-i18n-ext="analysisAllTitle">Full Dashboard</b>
+          <span data-i18n-ext="analysisAllDescLong">Full review of cost, F-2, schedule and workforce indicators</span>
+          <em data-i18n-ext="analysisAllBadge">Most complete analysis</em>
+        </button>
+        <button aria-pressed="false" class="analysis-type-card" data-analysis-type="cost" type="button">
+          <i class="analysis-icon purple">▦</i>
+          <b data-i18n-ext="analysisCostTitle">Cost Estimate</b>
+          <span data-i18n-ext="analysisCostDesc">Cost estimate baseline + F-2 / actual cost for comparison</span>
+        </button>
+        <button aria-pressed="false" class="analysis-type-card" data-analysis-type="schedule" type="button">
+          <i class="analysis-icon blue">▟</i>
+          <b data-i18n-ext="analysisScheduleTitle">Schedule / Delay</b>
+          <span data-i18n-ext="analysisScheduleDesc">Baseline schedule + actual progress for delay comparison</span>
+        </button>
+        <button aria-pressed="false" class="analysis-type-card" data-analysis-type="workforce" type="button">
+          <i class="analysis-icon cyan">☷</i>
+          <b data-i18n-ext="analysisWorkforceTitle">Workforce</b>
+          <span data-i18n-ext="analysisWorkforceDesc">Daily manpower, productivity norms, required crews and delay risk</span>
+        </button>
+        <button aria-pressed="false" class="analysis-type-card" data-analysis-type="progress" type="button">
+          <i class="analysis-icon">▤</i>
+          <b data-i18n-ext="analysisProgressTitle">Progress Payment / Interim Payment (F-2)</b>
+          <span data-i18n-ext="analysisProgressDesc">Plan/fact, F-2 certificates and physical execution</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="upload-main-panel">
+      <div class="wizard-section-head centered">
+        <h2><span>2.</span> <span data-i18n-ext="wizardUploadTitle">Upload data</span></h2>
+        <p class="muted" data-i18n-ext="wizardUploadText">Upload the files required for the selected analysis. Supported formats are shown below.</p>
+      </div>
+
+      <div class="drop wizard-drop" id="dropZone" role="button" tabindex="0">
+        <div>
+          <div class="upload-cloud">⇧</div>
+          <h3 data-i18n-ext="wizardDropTitle">Drag files here or choose</h3>
+          <p class="muted" data-i18n-ext="wizardDropText">Excel, CSV, PDF and XER / XML formats are supported.</p>
+          <button class="btn primary" data-i18n="uploadBtn" type="button">Choose Files</button>
+          <input accept=".xlsx,.xls,.csv,.pdf,.jpg,.jpeg,.png,.webp,.xer,.xml" class="file-input" id="fileInput" multiple="" type="file"/>
+        </div>
+      </div>
+
+      <div aria-live="polite" class="file-list" id="fileList"></div>
+
+      <div aria-label="Supported file formats" class="supported-inputs wizard-formats">
+        <b data-i18n-ext="supportedFileFormats">Supported file formats</b>
+        <span class="input-chip">▧ Excel / CSV</span>
+        <span class="input-chip">▤ PDF</span>
+        <span class="input-chip">⌁ XER / XML</span>
+        <span class="input-chip">▣ MS Project XML</span>
+        <span class="input-chip" data-i18n-ext="siteImagesChip">▨ Site Images</span>
+        <span class="input-chip" data-i18n-ext="outputChip">▣ Output: PDF + Excel</span>
+      </div>
+
+      <details class="wizard-info-box" id="analysisRequirementsDetails">
+        <summary><span>ⓘ</span><div><b data-i18n-ext="dataInfoTitle">About the data</b><small data-i18n-ext="dataInfoText">File names should preferably avoid special characters and spaces.</small></div><em data-i18n-ext="showRequirements">Show requirements</em></summary>
+        <div aria-live="polite" class="analysis-requirements" id="analysisRequirements">
+          <div class="requirements-head">
+            <span class="assist-eyebrow" data-i18n-ext="requiredDataLabel">Required data logic</span>
+            <b id="requirementsTitle">Upload baseline and actual data for comparison</b>
+          </div>
+          <div class="requirements-grid">
+            <div class="requirement-card baseline">
+              <small data-i18n-ext="baselineDataLabel">Baseline / plan data</small>
+              <ul id="baselineRequirements"><li>Cost estimate / smeta</li><li>Schedule baseline</li></ul>
+            </div>
+            <div class="requirement-card actual">
+              <small data-i18n-ext="actualDataLabel">Actual / factual data</small>
+              <ul id="actualRequirements"><li>Progress payment / F-2</li><li>Actual progress</li></ul>
+            </div>
+          </div>
+          <p class="requirements-guardrail" data-i18n-ext="noActualGuardrail" id="requirementsGuardrail">No actual data → no comparison result. Unclear actual data → needs confirmation.</p>
+        </div>
+      </details>
+
+      <div class="notice" data-i18n="uploadNotice" id="uploadNotice">Selected files are ready for project data review and dashboard generation.</div>
+      <div class="mapping-preview-panel" hidden="" id="mappingPreviewPanel">
+        <div class="mapping-head"><div><span class="flow-step-label inline"><span>02</span> <span data-i18n-ext="confirmMappingStep">Confirm detected mapping</span></span><h3 data-i18n-ext="mappingTitle">We found these data signals</h3><p class="muted" data-i18n-ext="mappingText">Review the detected sheets, key values and missing fields. The final dashboard is generated only after you confirm this mapping.</p></div><strong id="mappingConfidence">Confidence: —</strong></div>
+        <div class="mapping-rows" id="mappingRows"></div>
+        <div class="missing-fields" id="missingFields"></div>
+      </div>
+
+      <div class="preview-box" id="analysisPreview"><b data-i18n-ext="projectDataPreview">Project Data Preview</b><div class="progress-line"><span id="previewProgress"></span></div><p class="muted" data-i18n-ext="projectDataPreviewText">After upload, DevBareun shows a mapping confirmation screen. Review detected values, add missing fields, then generate the selected dashboard and report package.</p></div>
+
+      <div class="wizard-actions-bar">
+        <div class="selected-summary" id="templateAssist">
+          <i>✦</i>
+          <div><small data-i18n-ext="selectedAnalysisLabel">Selected analysis</small><b id="templateTitle">Full Dashboard</b><p class="muted" id="templateText">Upload one or more project files. The template is optional.</p></div>
+        </div>
+        <div class="wizard-action-buttons">
+          <button class="btn" data-i18n="clearFiles" disabled="" id="clearFilesBtn" type="button">Clear files</button>
+          <button class="btn primary" data-i18n-ext="startAnalysisCta" disabled="" id="generatePreviewBtn" type="button">Start analysis</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> </section> <section aria-label="DevBareun trust signals" class="wrap section proof-section">
 <div class="proof-banner">
 <div><span class="flow-step-label inline"><span>✓</span> <span data-i18n-ext="proofEyebrow">Construction reporting workflow</span></span><h2 data-i18n-ext="proofTitle">Built for real construction control files.</h2><p class="muted" data-i18n-ext="proofText">Upload BOQ, cost estimate, progress payment / interim payment F-2 certificates, schedule exports and workforce sheets. DevBareun reviews detected sheets and highlights missing fields before generating reports.</p></div>
 <div class="proof-badges"><span data-i18n-ext="proofBadge1">BOQ / Cost Estimate</span><span data-i18n-ext="proofBadge2">Progress Payment / Interim Payment (F-2)</span><span data-i18n-ext="proofBadge3">Schedule Data</span><span data-i18n-ext="proofBadge4">Workforce Sheets</span><span data-i18n-ext="proofBadge5">PDF + Excel Output</span></div>
