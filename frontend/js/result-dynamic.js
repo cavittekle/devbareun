@@ -1,5 +1,5 @@
 (function () {
-  const DEFAULT_REMOTE_API = "https://devbareun-backend-production.up.railway.app";
+const DEFAULT_REMOTE_API = "https://devbareun-production.up.railway.app";
   const API_BASE = (window.DEVBAREUN_API_BASE ||
     ((location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")
       ? (localStorage.getItem("devbareun_api_base") || DEFAULT_REMOTE_API)
