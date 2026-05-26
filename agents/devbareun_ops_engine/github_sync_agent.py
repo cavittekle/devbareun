@@ -30,7 +30,7 @@ class GitHubSyncAgent(BaseAgent):
             self.add("critical", "backend/ folder was not found; backend sync would fail.", self.backend_root)
 
         if not self.metrics["token_present"]:
-            self.add("warning", "GITHUB_TOKEN/GH_TOKEN is not set. Auto-upload dry-run works, but live sync cannot push until a token is configured.", recommendation="Add GITHUB_TOKEN as a GitHub Actions secret or export GH_TOKEN locally.")
+            self.add("info", "GITHUB_TOKEN/GH_TOKEN is not set. Auto-upload dry-run works; live sync needs GH_SYNC_TOKEN or a GitHub token.", recommendation="Add GH_SYNC_TOKEN only if you want the auto-upload workflow to push/PR changes.")
 
         if "--clean" not in text:
             self.add("warning", "Auto-upload tool does not expose --clean mode, so old files may remain in target repos.", upload_script)
