@@ -710,3 +710,23 @@ html[data-theme="light"] .report-lang-control select{
   color:#0f172a !important;
   border-color:rgba(15,23,42,.18) !important;
 }
+
+/* v1.1.5 — readable report-language dropdown in dark/light themes */
+.report-lang-control select,
+.report-lang-control select option{
+  background:#111827 !important;
+  color:#f8fafc !important;
+}
+.report-lang-control select option:checked{
+  background:#93c5fd !important;
+  color:#07111f !important;
+}
+html[data-theme="light"] .report-lang-control select,
+html[data-theme="light"] .report-lang-control select option{
+  background:#ffffff !important;
+  color:#0f172a !important;
+}
+html[data-theme="light"] .report-lang-control select option:checked{
+  background:#bfdbfe !important;
+  color:#0f172a !important;
+}
