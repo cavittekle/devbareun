@@ -1,5 +1,18 @@
 # DevBareun v1.3.8 — Admin Panel Package
 
+## Live deploy preparation
+
+Use these files for the current production-readiness pass:
+
+- `backend/.env.example` for Railway backend variables.
+- `frontend/.env.example` for public Vercel frontend variables.
+- `frontend/vercel.json` for static frontend deploy settings.
+- `backend/railway.json` for FastAPI start command and healthcheck.
+- `docs/LIVE_DEPLOY_CHECKLIST.md` for the final launch checklist.
+- `docs/ENVIRONMENT_VARIABLES.md` for the full secret/public variable map.
+
+Production must keep mock payment and pilot-only flows disabled.
+
 This package follows the corrected roadmap: **v1.3.8 is Admin Panel**. The billing/usage foundation remains in the codebase because the admin console needs payments and credit data, but the official release focus is the protected operations panel.
 
 ## New admin files
@@ -67,7 +80,7 @@ DEVBAREUN_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,http:/
 DEVBAREUN_MAX_FILES=12
 DEVBAREUN_MAX_FILE_MB=30
 DEVBAREUN_MAX_TOTAL_MB=120
-DEVBAREUN_ENABLE_MOCK_PAYMENT=true
+DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 ```
 
 For commercial launch, configure Stripe and set:
@@ -75,7 +88,10 @@ For commercial launch, configure Stripe and set:
 ```text
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 STRIPE_SECRET_KEY=...
-STRIPE_PRICE_ID=...
+STRIPE_SINGLE_PROJECT_PRICE_ID=...
+STRIPE_PLUS_PRICE_ID=...
+STRIPE_PRO_PRICE_ID=...
+STRIPE_WEBHOOK_SECRET=...
 ```
 
 ### Frontend

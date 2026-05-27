@@ -1,48 +1,88 @@
-
 # Environment Variables
 
-## Backend
+This file is the live deployment reference for DevBareun.
+
+## Backend: Railway
+
+Set these in the Railway backend service. Values with secrets must never be committed.
 
 ```env
+DEVBAREUN_ENV=production
 APP_ENV=production
-DEVBAREUN_VERSION=1.3.0-saas-foundation
+DEVBAREUN_VERSION=1.3.10-live-ready
+PUBLIC_SITE_URL=https://devbareun.com
 DEVBAREUN_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
-DEVBAREUN_ENABLE_MOCK_PAYMENT=false
+DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
+
+DEVBAREUN_MAX_FILES=12
 DEVBAREUN_MAX_FILE_MB=30
 DEVBAREUN_MAX_TOTAL_MB=120
-DEVBAREUN_MAX_FILES=12
 
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
-SUPABASE_STORAGE_BUCKET=project-files
+DEVBAREUN_PRODUCTION_SECURITY=true
+DEVBAREUN_ENABLE_MOCK_PAYMENT=false
+DEVBAREUN_ENABLE_PILOT_LOGIN=false
+DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
+DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false
 
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_SINGLE_PRICE_ID=
-STRIPE_PLUS_PRICE_ID=
-STRIPE_PRO_PRICE_ID=
+DEVBAREUN_ADMIN_EMAILS=admin@devbareun.com
+DEVBAREUN_ALLOW_ADMIN_EMAIL_FALLBACK=false
+DEVBAREUN_ALLOW_DEVBAREUN_DOMAIN_ADMINS=false
 
-RESULT_LINK_DAYS=14
-JWT_SECRET=
-ADMIN_EMAILS=
-```
+DEVBAREUN_RATE_LIMIT_ENABLED=true
+DEVBAREUN_RATE_LIMIT_WINDOW_SECONDS=60
+DEVBAREUN_RATE_LIMIT_DEFAULT_PER_MIN=180
+DEVBAREUN_RATE_LIMIT_AUTH_PER_MIN=20
+DEVBAREUN_RATE_LIMIT_UPLOAD_PER_MIN=30
+DEVBAREUN_RATE_LIMIT_ANALYSIS_PER_MIN=20
+DEVBAREUN_RATE_LIMIT_EXPORT_PER_MIN=60
+DEVBAREUN_RATE_LIMIT_ADMIN_PER_MIN=120
+DEVBAREUN_RATE_LIMIT_WEBHOOK_PER_MIN=100
 
-## Frontend / Vercel
+DEVBAREUN_GUEST_RESULT_DAYS=7
+DEVBAREUN_GUEST_RESULT_MAX_DAYS=7
 
-```env
-VITE_API_URL=https://devbareun-production.up.railway.app
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-```
-
-## v1.3.2 Supabase Auth + Storage
-
-```env
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-backend-only
+SUPABASE_ANON_KEY=replace_with_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=replace_with_service_role_key_backend_only
 SUPABASE_STORAGE_BUCKET=devbareun-project-files
+
+STRIPE_SECRET_KEY=sk_live_or_test_replace_me
+STRIPE_WEBHOOK_SECRET=whsec_replace_me
+STRIPE_SINGLE_PROJECT_PRICE_ID=price_single_project
+STRIPE_PLUS_PRICE_ID=price_plus_monthly
+STRIPE_PRO_PRICE_ID=price_pro_monthly
+STRIPE_SINGLE_PROJECT_AMOUNT_CENTS=2900
+STRIPE_CURRENCY=usd
+
+STRIPE_PRICE_ID=price_single_project
+DEVBAREUN_STRIPE_AMOUNT_CENTS=2900
+DEVBAREUN_STRIPE_CURRENCY=usd
+FRONTEND_SUCCESS_URL=https://devbareun.com/result-dashboard.html?payment=success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}
+FRONTEND_CANCEL_URL=https://devbareun.com/?payment=cancelled&project_id={project_id}
+
+OPENAI_MAPPING_ENABLED=false
+OPENAI_MAPPING_MODEL=gpt-4.1-mini
+OPENAI_MAPPING_CONFIDENCE_THRESHOLD=85
+OPENAI_API_KEY=
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY` must only exist in the backend environment. Do not add it to Vercel public frontend variables.
+## Frontend: Vercel
+
+Set Vercel Root Directory to `frontend`.
+
+The current frontend is static HTML, so public env variables are mainly a deployment checklist and future build reference. Keep secrets out of Vercel frontend variables.
+
+```env
+VITE_DEVBAREUN_API_BASE=https://devbareun-production.up.railway.app
+VITE_PUBLIC_SITE_URL=https://devbareun.com
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=replace_with_supabase_anon_key
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_or_test_replace_me
+```
+
+## Secret Boundary
+
+- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `OPENAI_API_KEY`.
+- Frontend allowed: Supabase anon key, Stripe publishable key, public site URL, public API URL.
+- Production must keep `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
+- Production must keep `DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false`.

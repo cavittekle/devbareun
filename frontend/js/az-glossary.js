@@ -8,7 +8,6 @@
 
   const exactAz = {
 
-<<<<<<< HEAD
     // v1.2.5 adaptive upload/dashboard and print
     "Adaptive dashboard": "Adaptiv dashboard",
     "Dashboard adjusted to uploaded data": "Dashboard yüklənmiş məlumatlara uyğunlaşdırılıb",
@@ -23,8 +22,6 @@
     "Print": "Çap et",
     "Remove file": "Faylı sil",
 
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     // v1.2.0 control packages and terminology
 
     "Actual cost / progress payment data was not found. Cost variance and actual execution require confirmed actual data.": "Faktiki xərc / F-2 məlumatı tapılmadı. Xərc fərqi və faktiki icra üçün təsdiqlənmiş faktiki məlumat lazımdır.",

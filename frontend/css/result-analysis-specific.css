@@ -26,7 +26,6 @@ body.is-light .asd-stat-card,body.light .asd-stat-card,body[data-theme="light"] 
 
 /* v1.2.4 Construction statistics polish */
 .asd-stat-grid.construction{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.asd-stat-grid.compact-row{grid-template-columns:repeat(6,minmax(0,1fr));margin-top:10px}.asd-stat-card small{display:block;margin-top:6px;color:#8fb5ca;font-size:11px;line-height:1.35}.asd-stat-card.compact{min-height:62px}.asd-stat-card.compact strong{font-size:16px}body.is-light .asd-stat-card small,body.light .asd-stat-card small,body[data-theme="light"] .asd-stat-card small{color:#64748b}@media(max-width:1180px){.asd-stat-grid.construction{grid-template-columns:repeat(3,minmax(0,1fr))}.asd-stat-grid.compact-row{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:720px){.asd-stat-grid.construction,.asd-stat-grid.compact-row{grid-template-columns:1fr}}
-<<<<<<< HEAD
 
 /* DevBareun v1.2.5 — adaptive dashboard evidence block */
 .asd-adaptive-panel{border-color:rgba(34,211,238,.28)!important;background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(139,92,246,.06))!important}
@@ -39,5 +38,3 @@ body.is-light .asd-stat-card,body.light .asd-stat-card,body[data-theme="light"] 
 .asd-adaptive-chip.missing{color:#ffdf9f;background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.28)}
 @media(max-width:760px){.asd-adaptive-grid{grid-template-columns:1fr}}
 @media print{.asd-adaptive-panel{break-inside:avoid}}
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3

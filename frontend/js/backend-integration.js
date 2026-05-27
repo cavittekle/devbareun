@@ -13,11 +13,7 @@
       all: {
         title: "Full Project Control",
         text: "Complete project-control package combining Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions and PDF/Excel reporting.",
-<<<<<<< HEAD
         template: "templates/devbareun-full-project-control-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "schedule, workforce, cost, progress payment, material continuity, risk and management reporting",
         reqTitle: "Full Project Control requires all core project-control datasets",
         baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Material/procurement baseline if available"],
@@ -27,11 +23,7 @@
       cost: {
         title: "Cost & Payment Control",
         text: "Upload cost estimate / smeta baseline plus progress payment or actual cost data. DevBareun compares approved budget, completed amount, remaining value and payment risk.",
-<<<<<<< HEAD
         template: "templates/devbareun-cost-payment-control-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "cost estimate, BOQ, progress payment records, paid amount, remaining works, actual completed amount and total cost",
         reqTitle: "Cost & Payment Control requires cost baseline and progress payment evidence",
         baseline: ["Cost Estimate / Smeta / BOQ", "Contract amount or approved budget", "Work package totals, VAT and approved variations if available"],
@@ -41,11 +33,7 @@
       schedule: {
         title: "Schedule Recovery",
         text: "Upload baseline schedule, actual progress and workforce data. DevBareun connects delay, manpower gap and recovery actions in one dashboard.",
-<<<<<<< HEAD
         template: "templates/devbareun-schedule-recovery-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "baseline schedule, actual progress, delay, workforce gap, productivity and recovery action",
         reqTitle: "Schedule Recovery requires schedule status and workforce evidence",
         baseline: ["Activity ID, WBS or activity name", "Planned start / planned finish / baseline duration", "Planned workforce or target productivity assumptions"],
@@ -55,11 +43,7 @@
       material: {
         title: "Material Continuity",
         text: "Upload material stock, delivery, procurement or consumption data. DevBareun highlights shortages, delivery risks and continuity actions.",
-<<<<<<< HEAD
         template: "templates/devbareun-material-continuity-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "material stock, procurement, supplier delivery, long-lead items, shortages and continuity actions",
         reqTitle: "Material Continuity requires stock, delivery and consumption evidence",
         baseline: ["Material list / BOQ material baseline", "Planned procurement dates", "Minimum stock or delivery targets"],
@@ -69,11 +53,7 @@
       risk: {
         title: "Risk & Decisions",
         text: "Upload risk logs, site notes, cost/schedule/material signals or decision records. DevBareun creates a decision-focused risk dashboard.",
-<<<<<<< HEAD
         template: "templates/devbareun-risk-decisions-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "risk register, decision prompts, open issues, owner actions and management priorities",
         reqTitle: "Risk & Decisions requires confirmed project risk signals",
         baseline: ["Risk categories or decision topics", "Approved baseline assumptions", "Management thresholds"],
@@ -85,11 +65,7 @@
       all: {
         title: "Tam layihə nəzarəti",
         text: "Qrafik bərpası, xərc və F-2 nəzarəti, material davamlılığı, risk və qərarlar, rəhbərlik xülasəsi və PDF/Excel hesabatlarını birləşdirən tam layihə nəzarət paneli.",
-<<<<<<< HEAD
         template: "templates/devbareun-full-project-control-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "qrafik, işçi qüvvəsi, xərc, F-2, material davamlılığı, risk və rəhbərlik hesabatı",
         reqTitle: "Tam layihə nəzarəti üçün bütün əsas layihə nəzarət məlumatları lazımdır",
         baseline: ["Smeta / müqavilə bazası", "Plan qrafiki / plan icra", "Material / təchizat bazası varsa"],
@@ -99,11 +75,7 @@
       cost: {
         title: "Xərc və F-2 nəzarəti",
         text: "Smeta bazasını, F-2 və ya faktiki xərc məlumatlarını yükləyin. DevBareun büdcə, görülmüş iş, qalıq dəyər və ödəniş riskini müqayisə edir.",
-<<<<<<< HEAD
         template: "templates/devbareun-cost-payment-control-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "smeta, BOQ, F-2, ödəniş aktları, ödənilmiş məbləğ, qalıq işlər, faktiki görülmüş iş məbləği və ümumi xərc",
         reqTitle: "Xərc və F-2 nəzarəti üçün smeta bazası və F-2 sübutu lazımdır",
         baseline: ["Smeta / BOQ / xərc hesablaması", "Müqavilə dəyəri və ya təsdiqlənmiş büdcə", "İş bölmələri üzrə yekunlar, ƏDV və təsdiqlənmiş dəyişikliklər varsa"],
@@ -113,11 +85,7 @@
       schedule: {
         title: "Qrafik bərpası",
         text: "Plan qrafiki, faktiki icra və işçi sayı məlumatlarını yükləyin. DevBareun gecikmə, resurs fərqi və bərpa tədbirlərini bir dashboardda birləşdirir.",
-<<<<<<< HEAD
         template: "templates/devbareun-schedule-recovery-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "plan qrafiki, faktiki icra, gecikmə, işçi sayı fərqi, məhsuldarlıq və bərpa tədbiri",
         reqTitle: "Qrafik bərpası üçün qrafik vəziyyəti və işçi sayı məlumatı lazımdır",
         baseline: ["Activity ID, WBS və ya iş adı", "Plan başlanğıc / plan bitmə / plan müddəti", "Plan işçi sayı və ya məhsuldarlıq hədəfi"],
@@ -127,11 +95,7 @@
       material: {
         title: "Material davamlılığı",
         text: "Material qalığı, çatdırılma, satınalma və ya sərfiyyat məlumatlarını yükləyin. DevBareun çatışmazlığı, tədarük riskini və davamlılıq tədbirlərini göstərir.",
-<<<<<<< HEAD
         template: "templates/devbareun-material-continuity-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "material qalığı, satınalma, təchizatçı çatdırılması, uzunmüddətli sifarişlər, çatışmazlıq və davamlılıq tədbirləri",
         reqTitle: "Material davamlılığı üçün qalıq, çatdırılma və sərfiyyat sübutu lazımdır",
         baseline: ["Material siyahısı / BOQ material bazası", "Planlaşdırılmış tədarük tarixləri", "Minimum qalıq və ya çatdırılma hədəfləri"],
@@ -141,11 +105,7 @@
       risk: {
         title: "Risk və qərarlar",
         text: "Risk qeydləri, sahə qeydləri, xərc/qrafik/material siqnalları və qərar məlumatlarını yükləyin. DevBareun qərar yönümlü risk paneli yaradır.",
-<<<<<<< HEAD
         template: "templates/devbareun-risk-decisions-template.xlsx",
-=======
-        template: "templates/devbareun-professional-upload-template-v2.xlsx",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         focus: "risk reyestri, qərar siqnalları, açıq məsələlər, sifarişçi tədbirləri və idarəetmə prioritetləri",
         reqTitle: "Risk və qərarlar üçün təsdiqlənmiş layihə risk siqnalları lazımdır",
         baseline: ["Risk kateqoriyaları və ya qərar mövzuları", "Təsdiqlənmiş baza fərziyyələri", "Rəhbərlik hədləri"],

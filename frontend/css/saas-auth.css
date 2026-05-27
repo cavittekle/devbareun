@@ -8,6 +8,10 @@
   color: #eef6ff;
 }
 
+.saas-auth-page #db-loading-screen {
+  display: none !important;
+}
+
 .auth-shell {
   min-height: 100vh;
   display: grid;

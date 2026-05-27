@@ -1,33 +1,67 @@
+# DevBareun Live Deployment Guide
 
-# DevBareun v1.3.0 Deployment Guide
+## Frontend: Vercel
 
-## Frontend
+Recommended setup:
 
-Keep the current Vercel configuration:
+- Project root: repository root
+- Vercel Root Directory: `frontend`
+- Framework Preset: Other
+- Build Command: leave empty
+- Output Directory: leave empty
+- Config file: `frontend/vercel.json`
 
-- Root Directory: `frontend`
-- Framework: static/other unless migrated to Next.js later
-- Environment: `VITE_API_URL`
+After deployment, connect:
 
-## Backend
+- `devbareun.com`
+- `www.devbareun.com`
 
-Keep Railway backend:
+Redirect `www` to apex in Vercel domain settings if needed.
+
+## Backend: Railway
+
+Recommended setup:
 
 - Root Directory: `backend`
-- Start command: use existing Railway/FastAPI configuration
-- Add Supabase and Stripe variables before production launch
+- Runtime: Python 3.12
+- Start Command: from `backend/railway.json`
+- Healthcheck Path: `/api/saas/health`
 
-## Database
+Railway must have all backend variables from `backend/.env.example`.
 
-Use Supabase PostgreSQL with the SQL files in `/database`.
+## Supabase
 
-## Recommended release order
+Use `docs/SUPABASE_SETUP_GUIDE.md`.
 
-1. Deploy backend v1.3.0.
-2. Verify `/health` shows `1.3.0-saas-foundation`.
-3. Verify `/api/saas/health`.
-4. Configure Supabase schema.
-5. Configure Stripe test mode.
-6. Test Single Project guest flow in test mode.
-7. Test Plus/Pro subscription flow.
-8. Enable production payment and disable mock payment.
+Minimum launch requirements:
+
+- SQL migrations applied.
+- Private storage bucket created.
+- Supabase Auth enabled.
+- `SUPABASE_SERVICE_ROLE_KEY` exists only in Railway.
+
+## Stripe
+
+Use `docs/STRIPE_SETUP_GUIDE.md`.
+
+Minimum launch requirements:
+
+- Test mode checkout works for Single Project.
+- Test mode subscription checkout works for Plus and Pro.
+- Webhook reaches Railway and signature verification passes.
+- Production mock payment is disabled.
+
+## Release Order
+
+1. Create Supabase project and run SQL.
+2. Create Stripe products and webhook in test mode.
+3. Deploy Railway backend with production security enabled.
+4. Verify `GET /health`.
+5. Verify `GET /api/saas/health`.
+6. Deploy Vercel frontend from `frontend`.
+7. Add production domains to CORS and checkout allow-list.
+8. Test Single Project upload and checkout.
+9. Test Plus account creation, login, billing and workspace access.
+10. Test Pro account creation, login, billing and workspace access.
+11. Switch Stripe keys and price IDs to live mode.
+12. Re-test one low-value live checkout before public launch.

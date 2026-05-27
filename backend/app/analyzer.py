@@ -211,27 +211,6 @@ def confidence_score(parsed: ParsedProjectData, risk: Dict[str, Any]) -> int:
 def build_summary(parsed: ParsedProjectData, risk: Dict[str, Any], confidence: int, analysis_type: str | None = "all") -> str:
     parts: List[str] = []
     t = _clean_analysis_type(analysis_type)
-<<<<<<< HEAD
-=======
-    if t == "material":
-        material_count = _available_sheet_count(parsed, "procurement") + _available_sheet_count(parsed, "material")
-        if material_count:
-            parts.append(f"Material/procurement evidence was detected in {material_count} sheet(s).")
-        else:
-            parts.append("Material continuity data was not clearly detected from the uploaded files.")
-        parts.append("Confirm stock levels, supplier delivery dates, critical materials and alternative procurement actions before using continuity conclusions.")
-        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
-        return " ".join(parts)
-    if t == "risk":
-        register = build_risk_register(parsed, risk)
-        if risk.get("score") is not None:
-            parts.append(f"Combined risk score is {risk.get('score')}/100 with {risk.get('level')} status.")
-        parts.append(f"Risk & Decisions dashboard prepared {len(register)} risk/decision item(s) from available evidence.")
-        parts.append("Use the recommended actions as management prompts and confirm unclear source data before final decisions.")
-        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
-        return " ".join(parts)
-
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     if t == "cost":
         baseline = _cost_baseline(parsed)
         remaining = _remaining_cost(parsed)
@@ -916,24 +895,6 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
         }
     ]
 
-    if t == "material":
-        material_count = _available_sheet_count(parsed, "procurement") + _available_sheet_count(parsed, "material")
-        if material_count:
-            parts.append(f"Material/procurement evidence was detected in {material_count} sheet(s).")
-        else:
-            parts.append("Material continuity data was not clearly detected from the uploaded files.")
-        parts.append("Confirm stock levels, supplier delivery dates, critical materials and alternative procurement actions before using continuity conclusions.")
-        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
-        return " ".join(parts)
-    if t == "risk":
-        register = build_risk_register(parsed, risk)
-        if risk.get("score") is not None:
-            parts.append(f"Combined risk score is {risk.get('score')}/100 with {risk.get('level')} status.")
-        parts.append(f"Risk & Decisions dashboard prepared {len(register)} risk/decision item(s) from available evidence.")
-        parts.append("Use the recommended actions as management prompts and confirm unclear source data before final decisions.")
-        parts.append(f"Dashboard confidence is {confidence}/100 based on detected sheets, mapped columns and extracted KPI evidence.")
-        return " ".join(parts)
-
     if t == "cost":
         baseline = _cost_baseline(parsed)
         variance_value = _cost_variance_value(parsed)
@@ -1123,15 +1084,11 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
         "description": description,
         "primary_kpis": primary,
         "panels": panels,
-<<<<<<< HEAD
         "cost_rows": [r for r in (_cost_control_rows(parsed) if t == "cost" else []) if _row_has_evidence(r)],
         "visible_blocks": visible_blocks,
         "suppressed_empty_blocks": suppressed_blocks,
         "advanced_sections": advanced_sections,
         "adaptive_policy": "Package-specific dashboard blocks are rendered only when uploaded data provides enough evidence. Empty modules are converted into missing-data guidance instead of blank cards.",
-=======
-        "cost_rows": _cost_control_rows(parsed) if t == "cost" else [],
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         "pdf_logic": "The PDF report is generated from the same analysis-specific dashboard payload shown on the result page.",
     }
 

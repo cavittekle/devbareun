@@ -7,7 +7,6 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 from .models import ParsedProjectData
 
 
-<<<<<<< HEAD
 MIN_TREND_POINTS = 4
 MIN_CORRELATION_POINTS = 4
 MIN_EAC_PROGRESS_PCT = 5.0
@@ -15,8 +14,6 @@ MIN_FORECAST_PROGRESS_PCT = 10.0
 LOW_STOCK_MEAN_THRESHOLD_PCT = 0.20
 
 
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
 def _num(value: Any) -> Optional[float]:
     if value is None or value == "":
         return None
@@ -81,7 +78,6 @@ def descriptive_stats(values: Iterable[Any]) -> Dict[str, Any]:
 
 
 def _linear_regression(values: List[float]) -> Dict[str, Any]:
-<<<<<<< HEAD
     """Trend guardrail for construction data.
 
     Two or three points can create a visually convincing but statistically weak
@@ -99,10 +95,6 @@ def _linear_regression(values: List[float]) -> Dict[str, Any]:
             "minimum_points_required": MIN_TREND_POINTS,
             "reliability_note": "At least 4 construction periods are required before trend/forecast is shown.",
         }
-=======
-    if len(values) < 2:
-        return {"slope": None, "intercept": None, "r2": None, "direction": "Insufficient data", "forecast_next": None}
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     xs = list(range(1, len(values) + 1))
     xbar = mean(xs)
     ybar = mean(values)
@@ -112,11 +104,7 @@ def _linear_regression(values: List[float]) -> Dict[str, Any]:
     predicted = [intercept + slope * x for x in xs]
     ss_tot = sum((y - ybar) ** 2 for y in values)
     ss_res = sum((y - yp) ** 2 for y, yp in zip(values, predicted))
-<<<<<<< HEAD
     r2 = 1 - ss_res / ss_tot if ss_tot else None
-=======
-    r2 = 1 - ss_res / ss_tot if ss_tot else 1.0
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     if abs(slope) < 0.01:
         direction = "Stable"
     elif slope > 0:
@@ -126,28 +114,18 @@ def _linear_regression(values: List[float]) -> Dict[str, Any]:
     return {
         "slope": _round(slope),
         "intercept": _round(intercept),
-<<<<<<< HEAD
         "r2": _round(max(0, min(1, r2)), 3) if r2 is not None else None,
         "direction": direction,
         "forecast_next": _round(intercept + slope * (len(values) + 1)),
         "sample_size": len(values),
         "minimum_points_required": MIN_TREND_POINTS,
         "reliability_note": "Trend is based on detected construction periods and should be checked against source documents.",
-=======
-        "r2": _round(max(0, min(1, r2)), 3),
-        "direction": direction,
-        "forecast_next": _round(intercept + slope * (len(values) + 1)),
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     }
 
 
 def _pearson(x_values: List[float], y_values: List[float]) -> Optional[float]:
     n = min(len(x_values), len(y_values))
-<<<<<<< HEAD
     if n < MIN_CORRELATION_POINTS:
-=======
-    if n < 2:
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         return None
     x = x_values[:n]
     y = y_values[:n]
@@ -210,11 +188,8 @@ def _collect_cost_series(parsed: ParsedProjectData) -> Tuple[List[float], List[s
     labels: List[str] = []
     evidence = parsed.evidence or {}
     f2_periods = evidence.get("f2_periods") or []
-<<<<<<< HEAD
     if not f2_periods and isinstance(evidence.get("az_f2_parser"), dict):
         f2_periods = evidence.get("az_f2_parser", {}).get("periods") or []
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     if isinstance(f2_periods, list):
         for idx, row in enumerate(f2_periods):
             if not isinstance(row, dict):
@@ -233,14 +208,11 @@ def _collect_cost_series(parsed: ParsedProjectData) -> Tuple[List[float], List[s
                 values.append(value)
                 labels.append(str(row.get("section") or row.get("name") or f"Work package {idx + 1}"))
     if not values:
-<<<<<<< HEAD
         f2_completed = _num(evidence.get("f2_completed_amount") or evidence.get("completed_amount"))
         if f2_completed is not None:
             values.append(f2_completed)
             labels.append("Progress Payment / completed amount")
     if not values:
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         for label, value in [("Smeta baseline", parsed.planned_cost or parsed.total_cost), ("Progress Payment / actual", parsed.actual_cost)]:
             n = _num(value)
             if n is not None:
@@ -250,7 +222,6 @@ def _collect_cost_series(parsed: ParsedProjectData) -> Tuple[List[float], List[s
 
 
 def _collect_progress_series(parsed: ParsedProjectData) -> Tuple[List[float], List[str]]:
-<<<<<<< HEAD
     values: List[float] = []
     labels: List[str] = []
     evidence = parsed.evidence or {}
@@ -268,10 +239,6 @@ def _collect_progress_series(parsed: ParsedProjectData) -> Tuple[List[float], Li
     if not values:
         values = _safe_values([parsed.planned_execution, parsed.actual_execution])
         labels = [label for label, value in [("Planned progress", parsed.planned_execution), ("Actual progress", parsed.actual_execution)] if _num(value) is not None]
-=======
-    values = _safe_values([parsed.planned_execution, parsed.actual_execution])
-    labels = [label for label, value in [("Planned progress", parsed.planned_execution), ("Actual progress", parsed.actual_execution)] if _num(value) is not None]
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     return values, labels
 
 
@@ -329,7 +296,6 @@ def _earned_value_metrics(parsed: ParsedProjectData) -> Dict[str, Any]:
     sv = (ev - pv) if ev is not None and pv is not None else None
     cpi = _safe_div(ev, ac)
     spi = _safe_div(ev, pv)
-<<<<<<< HEAD
     eac = None
     eac_method = None
     eac_confidence = "Not enough construction progress evidence"
@@ -345,9 +311,6 @@ def _earned_value_metrics(parsed: ParsedProjectData) -> Dict[str, Any]:
         eac = _safe_div(ac, actual_pct / 100)
         eac_method = "AC / actual progress"
         eac_confidence = "Fallback forecast — validate before commercial decisions"
-=======
-    eac = _safe_div(bac, cpi) if bac is not None and cpi not in (None, 0) else (_safe_div(ac, actual_pct / 100) if ac is not None and actual_pct not in (None, 0) else None)
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     etc = (eac - ac) if eac is not None and ac is not None else None
     vac = (bac - eac) if bac is not None and eac is not None else None
     return {
@@ -362,12 +325,9 @@ def _earned_value_metrics(parsed: ParsedProjectData) -> Dict[str, Any]:
         "estimate_at_completion_eac": _round(eac),
         "estimate_to_complete_etc": _round(etc),
         "variance_at_completion_vac": _round(vac),
-<<<<<<< HEAD
         "eac_method": eac_method,
         "eac_confidence": eac_confidence,
         "eac_warning": eac_warning,
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         "interpretation": _evm_interpretation(cpi, spi),
     }
 
@@ -438,29 +398,20 @@ def _schedule_recovery(parsed: ParsedProjectData) -> Dict[str, Any]:
 def _material_continuity(parsed: ParsedProjectData) -> Dict[str, Any]:
     material_values, material_labels = _collect_material_series(parsed)
     stats = descriptive_stats(material_values)
-<<<<<<< HEAD
     low_stock_threshold = None
     if material_values:
         mean_value = _num(stats.get("mean"))
         low_stock_threshold = (mean_value * LOW_STOCK_MEAN_THRESHOLD_PCT) if mean_value is not None else None
         low_stock = [label for label, value in zip(material_labels, material_values) if low_stock_threshold is not None and value < low_stock_threshold]
-=======
-    if material_values:
-        low_stock = [label for label, value in zip(material_labels, material_values) if value <= (stats.get("median") or value)]
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     else:
         low_stock = []
     return {
         "material_items_detected": len(material_values),
         "material_stock_statistics": stats,
         "low_stock_candidates": low_stock[:5],
-<<<<<<< HEAD
         "low_stock_threshold": _round(low_stock_threshold),
         "low_stock_method": "value < 20% of detected mean stock" if material_values else "needs material stock, consumption and delivery data",
         "stockout_readiness": "Material stock data detected — confirm against consumption rate and lead time" if material_values else "Needs material stock, consumption and delivery data",
-=======
-        "stockout_readiness": "Material stock data detected" if material_values else "Needs material stock, consumption and delivery data",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     }
 
 
@@ -500,7 +451,6 @@ def _forecast(parsed: ParsedProjectData, trend: Dict[str, Any]) -> Dict[str, Any
     actual = _actual_cost(parsed)
     progress = _num(parsed.actual_execution)
     final_cost = None
-<<<<<<< HEAD
     method = None
     confidence = "Not enough construction data"
     note = "Forecast requires sufficient progress or at least 4 reliable cost periods."
@@ -517,27 +467,16 @@ def _forecast(parsed: ParsedProjectData, trend: Dict[str, Any]) -> Dict[str, Any
         method = "detected cost trend"
         confidence = "Trend-based indicative forecast"
         note = "Forecast uses at least 4 detected cost/payment periods."
-=======
-    if actual is not None and progress and progress > 0:
-        final_cost = actual / (progress / 100)
-    elif trend.get("forecast_next") is not None:
-        final_cost = trend.get("forecast_next")
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     overrun = (final_cost - baseline) if final_cost is not None and baseline is not None else None
     return {
         "estimated_final_cost": _round(final_cost),
         "estimated_overrun_amount": _round(overrun),
         "estimated_overrun_percent": _round((overrun / baseline * 100) if overrun is not None and baseline else None),
-<<<<<<< HEAD
         "method": method,
         "confidence": confidence,
         "minimum_progress_required_percent": MIN_FORECAST_PROGRESS_PCT,
         "minimum_trend_points_required": MIN_TREND_POINTS,
         "note": note,
-=======
-        "confidence": "Construction indicative" if final_cost is not None else "Not enough construction data",
-        "note": "Forecast uses detected progress payment, actual progress and construction trend evidence. Confirm before commercial decisions.",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     }
 
 
@@ -601,7 +540,6 @@ def build_statistical_analytics(parsed: ParsedProjectData, risk: Dict[str, Any],
         ("Material stock vs progress", material_values, progress_values),
     ]
     for name, x, y in pairs:
-<<<<<<< HEAD
         sample_size = min(len(x), len(y))
         corr = _pearson(x, y)
         correlations.append({
@@ -611,10 +549,6 @@ def build_statistical_analytics(parsed: ParsedProjectData, risk: Dict[str, Any],
             "minimum_points_required": MIN_CORRELATION_POINTS,
             "interpretation": _correlation_label(corr) if corr is not None else "Insufficient data for correlation",
         })
-=======
-        corr = _pearson(x, y)
-        correlations.append({"pair": name, "pearson_r": corr, "interpretation": _correlation_label(corr)})
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
 
     outliers = _z_score_outliers(primary_series, primary_labels)
     evm = _earned_value_metrics(parsed)
@@ -698,10 +632,6 @@ def build_statistical_analytics(parsed: ParsedProjectData, risk: Dict[str, Any],
             "Construction correlation checks",
             "Work package / payment outlier detection",
             "Risk-weighted construction score",
-<<<<<<< HEAD
             "Final cost forecast and overrun estimate with early-stage guardrails",
-=======
-            "Final cost forecast and overrun estimate",
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         ],
     }

@@ -1,9 +1,6 @@
 (function () {
   const DEFAULT_REMOTE_API = "https://devbareun-production.up.railway.app";
-<<<<<<< HEAD
   const PROJECT_TOKEN_PREFIX = "devbareun_project_token_";
-=======
->>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
 
   function resolveApiBase() {
     const remote = DEFAULT_REMOTE_API.replace(/\/$/, "");
