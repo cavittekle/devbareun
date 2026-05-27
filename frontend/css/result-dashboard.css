@@ -838,3 +838,32 @@ html[data-theme="light"] .report-lang-control select option:checked{
     border-color:rgba(148,163,184,.25)!important;
   }
 }
+
+
+/* DevBareun v1.2.12 — share link toast */
+.db-share-toast{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  z-index:9999;
+  padding:13px 16px;
+  border-radius:16px;
+  border:1px solid rgba(34,211,238,.42);
+  background:linear-gradient(135deg,rgba(5,15,31,.94),rgba(15,23,42,.94));
+  color:#e6fbff;
+  box-shadow:0 18px 46px rgba(0,0,0,.36),0 0 28px rgba(34,211,238,.18);
+  font-weight:800;
+  letter-spacing:.01em;
+  opacity:0;
+  transform:translateY(10px);
+  pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;
+}
+.db-share-toast.show{opacity:1;transform:translateY(0)}
+[data-theme="light"] .db-share-toast{
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(236,253,255,.96));
+  color:#0f172a;
+  border-color:rgba(8,145,178,.30);
+  box-shadow:0 18px 42px rgba(15,23,42,.18);
+}
+@media print{.db-share-toast{display:none!important}}

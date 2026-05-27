@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Report Archive — DevBareun</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/saas-auth.css?v=13936" />
+  <link rel="stylesheet" href="css/persistent-workspace.css?v=13936" />
+  <link rel="stylesheet" href="css/report-print.css" />
+</head>
+<body data-protected="true" class="workspace-page">
+  <main class="workspace-layout">
+    <aside class="workspace-sidebar">
+      <a class="brand-link" href="/">DevBareun</a>
+      <nav>
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/projects.html">Projects</a>
+        <a class="active" href="/reports.html">Reports</a>
+        <a href="/billing.html">Billing</a>
+        <a href="/profile.html">Profile</a>
+      </nav>
+    </aside>
+    <section class="workspace-main">
+      <header class="workspace-topbar">
+        <div>
+          <p class="eyebrow">Report archive</p>
+          <h1>Saved reports and print-ready outputs</h1>
+          <p class="muted">Each generated analysis keeps its Analysis ID, Report ID, project reference and A4/A3 print path.</p>
+        </div>
+        <div class="report-archive-filters">
+          <label class="report-lang-control print-size-control">
+            <span>Default print</span>
+            <select class="db-print-size-select" aria-label="Default print size">
+              <option value="A4">A4</option>
+              <option value="A3">A3</option>
+            </select>
+          </label>
+        </div>
+      </header>
+      <section class="workspace-panel wide">
+        <div class="report-archive-toolbar">
+          <div>
+            <h2>Archive</h2>
+            <p class="muted">Filter reports, open saved dashboards, or print directly in A4/A3 format.</p>
+          </div>
+          <div class="report-archive-filters db-screen-only">
+            <input id="reportArchiveSearch" type="search" placeholder="Search project, report or analysis ID" />
+            <select id="reportArchiveType">
+              <option value="all">All packages</option>
+              <option value="schedule">Schedule</option>
+              <option value="cost">Cost</option>
+              <option value="material">Material</option>
+              <option value="risk">Risk</option>
+              <option value="all-project-control">Full Project Control</option>
+            </select>
+          </div>
+        </div>
+        <div id="reportArchiveStats" class="report-archive-stats"></div>
+        <div id="workspaceReportArchive"></div>
+      </section>
+    </section>
+  </main>
+  <script src="js/auth-workspace.js?v=13936"></script>
+  <script src="js/persistent-workspace.js?v=13936"></script>
+  <script src="js/report-print-system.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import secrets
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -12,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 from uuid import uuid4
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, FileResponse
 from pydantic import BaseModel, Field
@@ -22,6 +23,12 @@ from .parser import ConstructionFileParser
 from .reports import build_excel_bytes, build_pdf_bytes
 from .openai_mapper import build_workbook_context, run_assisted_mapping, should_call_openai
 from .version import APP_VERSION
+from .saas_routes import router as saas_router
+from .auth_routes import router as auth_router
+from .persistence_routes import router as persistence_router
+from .auth_runtime import AuthError, consume_pilot_credit, get_bearer_token, verify_supabase_token
+from .persistence_runtime import save_analysis
+from .security_runtime import apply_security_headers, mock_payment_allowed, rate_limiter
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data" / "projects"
@@ -76,6 +83,8 @@ def _allowed_origins() -> List[str]:
         "https://devbareun.vercel.app",
         "http://localhost:3000",
         "http://localhost:5173",
+        "http://127.0.0.1:4173",
+        "http://localhost:4173",
         "http://localhost:8000",
     ]
 
@@ -92,6 +101,17 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def devbareun_security_middleware(request: Request, call_next):
+    rate_limiter.check(request)
+    response = await call_next(request)
+    return apply_security_headers(response)
+
+
+app.include_router(saas_router)
+app.include_router(auth_router)
+app.include_router(persistence_router)
 
 
 class ProjectCreate(BaseModel):
@@ -167,24 +187,27 @@ def download_template(analysis_type: str) -> FileResponse:
 @app.post("/api/projects")
 def create_project(payload: ProjectCreate) -> Dict[str, Any]:
     project_id = uuid4().hex[:12]
+    project_token = _generate_project_token()
     project = {
         "project_id": project_id,
         "project_name": payload.project_name or "DevBareun Uploaded Project",
         "customer_email": payload.customer_email or "info@devbareun.com",
         "analysis_type": payload.analysis_type or "all",
         "paid": False,
+        "project_token": project_token,
         "created_at": datetime.utcnow().isoformat(),
         "files": [],
     }
     _save_project(project_id, project)
     (UPLOAD_DIR / project_id).mkdir(parents=True, exist_ok=True)
-    return {"project_id": project_id, "project": project}
+    return {"project_id": project_id, "project_token": project_token, "project": _public_project(project)}
 
 
 @app.post("/api/projects/{project_id}/upload")
-async def upload_files(project_id: str, files: List[UploadFile] = File(...)) -> Dict[str, Any]:
+async def upload_files(project_id: str, files: List[UploadFile] = File(...), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token)
     if not files:
         raise HTTPException(status_code=400, detail="No files were uploaded.")
 
@@ -238,9 +261,10 @@ async def upload_files(project_id: str, files: List[UploadFile] = File(...)) -> 
 
 
 @app.post("/api/payments/create-checkout")
-def create_checkout(payload: PaymentRequest) -> Dict[str, Any]:
+def create_checkout(payload: PaymentRequest, x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
     project_id = _safe_project_id(payload.project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token)
 
     if os.getenv("STRIPE_SECRET_KEY"):
         session = _create_stripe_checkout_session(project_id, payload.success_url, payload.cancel_url)
@@ -257,7 +281,7 @@ def create_checkout(payload: PaymentRequest) -> Dict[str, Any]:
             "session_id": session.get("id"),
         }
 
-    if _env_bool("DEVBAREUN_ENABLE_MOCK_PAYMENT", True):
+    if mock_payment_allowed():
         project["paid"] = True
         project["payment_status"] = "mock_pilot_paid"
         project["updated_at"] = datetime.utcnow().isoformat()
@@ -268,9 +292,10 @@ def create_checkout(payload: PaymentRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/projects/{project_id}/preflight")
-def preflight_project(project_id: str, payload: AnalysisRequest | None = None) -> Dict[str, Any]:
+def preflight_project(project_id: str, payload: AnalysisRequest | None = None, x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token)
     paths = _project_upload_paths(project_id, project)
     if not paths:
         raise HTTPException(status_code=400, detail="No uploaded files found for this project.")
@@ -332,14 +357,15 @@ def preflight_project(project_id: str, payload: AnalysisRequest | None = None) -
 
 
 @app.post("/api/projects/{project_id}/analyze")
-def analyze_project(project_id: str, payload: AnalysisRequest | None = None) -> Dict[str, Any]:
+async def analyze_project(project_id: str, payload: AnalysisRequest | None = None, authorization: str | None = Header(None), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token)
     paths = _project_upload_paths(project_id, project)
     if not paths:
         raise HTTPException(status_code=400, detail="No uploaded files found for this project.")
-    if not project.get("paid"):
-        raise HTTPException(status_code=402, detail="Payment is required before dashboard generation. Pilot mode uses /api/payments/create-checkout to unlock analysis.")
+
+    access = await _ensure_analysis_access(project, authorization)
 
     analysis_type = (payload.analysis_type if payload else None) or project.get("analysis_type") or "all"
     parser = ConstructionFileParser(analysis_type=analysis_type)
@@ -353,44 +379,68 @@ def analyze_project(project_id: str, payload: AnalysisRequest | None = None) -> 
     project["project_name"] = result["dashboard"]["project"]["name"]
     project["analysis"] = result
     project["analyzed_at"] = datetime.utcnow().isoformat()
+    project["analysis_access_mode"] = access.get("mode")
+
+    user = access.get("user")
+    saved_analysis = None
+    if user:
+        saved_analysis = await save_analysis(user.email, {
+            "project_id": project_id,
+            "project_name": project.get("project_name"),
+            "analysis_type": analysis_type,
+            "dashboard": result.get("dashboard", {}),
+            "kpis": result.get("dashboard", {}).get("kpis", {}),
+            "report_payload": result,
+            "status": "completed",
+            "language": "en",
+            "print_size": "A4",
+        })
+        result.setdefault("workspace", {})["saved_analysis_id"] = saved_analysis.get("analysis_id")
+        result["workspace"]["report_id"] = saved_analysis.get("report_id")
+        result["workspace"]["credits_remaining"] = (access.get("usage") or {}).get("credits_remaining")
+
+    project["workspace_analysis_id"] = saved_analysis.get("analysis_id") if saved_analysis else project.get("workspace_analysis_id")
+    project["workspace_report_id"] = saved_analysis.get("report_id") if saved_analysis else project.get("workspace_report_id")
+    project["updated_at"] = datetime.utcnow().isoformat()
     _save_project(project_id, project)
     return result
 
 
 @app.get("/api/projects/{project_id}/dashboard")
-def get_dashboard(project_id: str) -> Dict[str, Any]:
+def get_dashboard(project_id: str, project_token: str | None = None, x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token or project_token)
     if "analysis" not in project:
         raise HTTPException(status_code=404, detail="Dashboard has not been generated yet.")
     return project["analysis"]
 
 
 @app.get("/api/projects/{project_id}/report/pdf")
-def get_pdf_report(project_id: str, lang: str = "en") -> Response:
+async def get_pdf_report(project_id: str, lang: str = "en", paper: str = "a4", project_token: str | None = None, authorization: str | None = Header(None), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Response:
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token or project_token)
     if "analysis" not in project:
         raise HTTPException(status_code=404, detail="Dashboard has not been generated yet.")
-    if not project.get("paid"):
-        raise HTTPException(status_code=402, detail="Payment is required before PDF export.")
-    pdf_bytes = build_pdf_bytes(project["analysis"], lang=lang)
+    await _ensure_export_access(project, authorization, "PDF")
+    pdf_bytes = build_pdf_bytes(project["analysis"], lang=lang, paper=paper)
     report_id = project["analysis"]["dashboard"]["project"].get("report_id", project_id)
     return Response(
         pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{report_id}_DevBareun_Report.pdf"'},
+        headers={"Content-Disposition": f'attachment; filename="{report_id}_DevBareun_Report_{str(paper).upper()}.pdf"'},
     )
 
 
 @app.get("/api/projects/{project_id}/report/excel")
-def get_excel_report(project_id: str, lang: str = "en") -> Response:
+async def get_excel_report(project_id: str, lang: str = "en", project_token: str | None = None, authorization: str | None = Header(None), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Response:
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
+    _require_project_token(project, x_project_token or project_token)
     if "analysis" not in project:
         raise HTTPException(status_code=404, detail="Dashboard has not been generated yet.")
-    if not project.get("paid"):
-        raise HTTPException(status_code=402, detail="Payment is required before Excel export.")
+    await _ensure_export_access(project, authorization, "Excel")
     excel_bytes = build_excel_bytes(project["analysis"], lang=lang)
     report_id = project["analysis"]["dashboard"]["project"].get("report_id", project_id)
     return Response(
@@ -400,6 +450,43 @@ def get_excel_report(project_id: str, lang: str = "en") -> Response:
     )
 
 
+
+
+
+async def _optional_workspace_user(authorization: str | None):
+    token = get_bearer_token(authorization)
+    if not token:
+        return None, None
+    try:
+        return await verify_supabase_token(token), token
+    except AuthError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+async def _ensure_analysis_access(project: Dict[str, Any], authorization: str | None) -> Dict[str, Any]:
+    """Allow analysis when the legacy project is paid or the workspace has credits."""
+    if project.get("paid"):
+        return {"allowed": True, "mode": "paid_project", "user": None, "token": None}
+    user, token = await _optional_workspace_user(authorization)
+    if user:
+        try:
+            usage = consume_pilot_credit(token)
+        except AuthError as exc:
+            raise HTTPException(status_code=402, detail=str(exc)) from exc
+        project["workspace_owner_email"] = user.email
+        project["workspace_plan"] = user.plan
+        project["workspace_payment_status"] = "credit_unlocked"
+        return {"allowed": True, "mode": "workspace_credit", "user": user, "token": token, "usage": usage}
+    raise HTTPException(status_code=402, detail="Payment or workspace credit is required before dashboard generation.")
+
+
+async def _ensure_export_access(project: Dict[str, Any], authorization: str | None, export_name: str) -> Dict[str, Any]:
+    if project.get("paid"):
+        return {"allowed": True, "mode": "paid_project"}
+    user, token = await _optional_workspace_user(authorization)
+    if user and project.get("workspace_owner_email") == user.email:
+        return {"allowed": True, "mode": "workspace_owner", "user": user, "token": token}
+    raise HTTPException(status_code=402, detail=f"Payment or workspace ownership is required before {export_name} export.")
 
 
 def _mapping_wizard_for_preflight(parsed: Any, analysis_type: str, confidence: int, missing: List[str]) -> Dict[str, Any]:
@@ -560,8 +647,8 @@ def _create_stripe_checkout_session(project_id: str, success_url: str | None, ca
 
     default_success = os.getenv("FRONTEND_SUCCESS_URL", "https://devbareun.com/result-dashboard.html?payment=success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}")
     default_cancel = os.getenv("FRONTEND_CANCEL_URL", "https://devbareun.com/?payment=cancelled&project_id={project_id}")
-    final_success = (success_url or default_success).replace("{project_id}", project_id)
-    final_cancel = (cancel_url or default_cancel).replace("{project_id}", project_id)
+    final_success = _safe_checkout_url((success_url or default_success).replace("{project_id}", project_id))
+    final_cancel = _safe_checkout_url((cancel_url or default_cancel).replace("{project_id}", project_id))
 
     data: Dict[str, Any] = {
         "mode": "payment",
@@ -577,8 +664,8 @@ def _create_stripe_checkout_session(project_id: str, success_url: str | None, ca
     else:
         data.update({
             "line_items[0][price_data][currency]": os.getenv("DEVBAREUN_STRIPE_CURRENCY", "usd"),
-            "line_items[0][price_data][product_data][name]": "DevBareun Project Dashboard",
-            "line_items[0][price_data][unit_amount]": str(_int_env("DEVBAREUN_STRIPE_AMOUNT_CENTS", 4900)),
+            "line_items[0][price_data][product_data][name]": "DevBareun Single Project Analysis",
+            "line_items[0][price_data][unit_amount]": str(_int_env("DEVBAREUN_STRIPE_AMOUNT_CENTS", 2900)),
             "line_items[0][quantity]": "1",
         })
 
@@ -616,6 +703,46 @@ def _load_project(project_id: str) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail="Project not found.")
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _public_project(project: Dict[str, Any]) -> Dict[str, Any]:
+    clean = dict(project)
+    clean.pop("project_token", None)
+    return clean
+
+
+def _generate_project_token() -> str:
+    return "dbr_proj_" + secrets.token_urlsafe(32)
+
+
+def _require_project_token(project: Dict[str, Any], provided_token: str | None) -> None:
+    expected = str(project.get("project_token") or "")
+    if not expected:
+        raise HTTPException(status_code=500, detail="Project token missing on server record.")
+    token = (provided_token or "").strip()
+    if not token or token != expected:
+        raise HTTPException(status_code=401, detail="Valid project token is required.")
+
+
+def _safe_checkout_url(url: str) -> str:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in {"http", "https"}:
+        raise HTTPException(status_code=400, detail="Checkout redirect URL must be http/https.")
+    allowed = [item.strip().rstrip("/") for item in os.getenv("DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS", "").split(",") if item.strip()]
+    if not allowed:
+        allowed = [
+            "https://devbareun.com",
+            "https://www.devbareun.com",
+            "https://devbareun.vercel.app",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:4173",
+            "http://localhost:4173",
+        ]
+    origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+    if origin not in allowed:
+        raise HTTPException(status_code=400, detail="Checkout redirect origin is not allowed.")
+    return url
 
 
 def _project_upload_paths(project_id: str, project: Dict[str, Any]) -> List[Path]:

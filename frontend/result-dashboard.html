@@ -14,6 +14,7 @@
 <link href="css/result-dashboard.css" rel="stylesheet"/>
 <link href="css/result-schedule-progress.css" rel="stylesheet"/>
 <link href="css/result-analysis-specific.css" rel="stylesheet"/>
+<link href="css/report-print.css" rel="stylesheet"/>
 </head>
 <body class="result-page">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -53,10 +54,17 @@
 <option value="az">Azərbaycanca</option>
 </select>
 </label>
+<label class="report-lang-control print-size-control">
+<span>Print size</span>
+<select id="printSizeSelect" class="db-print-size-select" aria-label="Report print size">
+<option value="A4">A4</option>
+<option value="A3">A3</option>
+</select>
+</label>
 <button class="btn primary" data-placeholder="PDF report download is available for paid generated results." data-r-i18n="downloadPdf" type="button">Download PDF</button>
 <button class="btn" data-placeholder="Excel report download is available for paid generated results." data-r-i18n="downloadExcel" type="button">Download Excel</button>
-<button class="btn" id="printDashboardBtn" type="button">Print</button>
-<button class="btn ghost" data-placeholder="A time-limited secure share link can be generated for this result." data-r-i18n="shareLink" type="button">Share Link</button>
+<button class="btn db-print-btn" id="printDashboardBtn" data-print-size="auto" type="button">Print</button>
+<button class="btn ghost" id="shareDashboardBtn" data-placeholder="Copy a secure share link for this generated result." data-r-i18n="shareLink" type="button">Share Link</button>
 </div>
 </section>
 <section class="result-status-card">
@@ -258,5 +266,6 @@
 <script src="js/result-analysis-specific.js"></script>
 <script src="js/result-schedule-progress.js"></script>
 <script src="js/result-dynamic.js"></script>
+<script src="js/report-print-system.js"></script>
 </body>
 </html>

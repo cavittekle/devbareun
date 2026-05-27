@@ -10,7 +10,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A3, A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
@@ -95,6 +95,13 @@ def _paragraph(value: Any, style: ParagraphStyle) -> Paragraph:
     return Paragraph(xml_escape(_text(value)), style)
 
 
+def _paper_size(paper: str | None):
+    value = str(paper or "a4").lower().strip()
+    if value in {"a3", "a3-landscape", "a3_landscape"}:
+        return landscape(A3)
+    return A4
+
+
 
 
 _LABELS = {
@@ -150,7 +157,7 @@ def _translate_na(value: Any, lang: str = "en") -> str:
     text = _text(value)
     return _label("not_available", lang) if text == "Not available" else text
 
-def build_pdf_bytes(result: Dict[str, Any], lang: str = "en") -> bytes:
+def build_pdf_bytes(result: Dict[str, Any], lang: str = "en", paper: str = "a4") -> bytes:
     lang = _lang(lang)
     _register_unicode_fonts()
 
@@ -162,7 +169,7 @@ def build_pdf_bytes(result: Dict[str, Any], lang: str = "en") -> bytes:
     buffer = BytesIO()
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=A4,
+        pagesize=_paper_size(paper),
         rightMargin=14 * mm,
         leftMargin=14 * mm,
         topMargin=14 * mm,
@@ -367,6 +374,8 @@ def build_excel_bytes(result: Dict[str, Any], lang: str = "en") -> bytes:
     ws.append([])
     ws.append([_label("project", lang), dashboard["project"].get("name")])
     ws.append([_label("report_id", lang), dashboard["project"].get("report_id")])
+    ws.append(["Result ID", dashboard["project"].get("result_id") or dashboard["project"].get("report_id")])
+    ws.append(["Project ID", result.get("project_id") or dashboard.get("project_id") or "—"])
     ws.append([_label("status", lang), dashboard["project"].get("status")])
     ws.append([_label("currency", lang), dashboard["project"].get("currency")])
     ws.append([_label("confidence", lang), dashboard["project"].get("confidence")])

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - DevBareun</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/saas-auth.css?v=13936" />
+</head>
+<body class="saas-auth-page">
+  <main class="auth-shell">
+    <div class="auth-layout">
+      <section class="auth-intro" aria-label="Workspace benefits">
+        <span class="auth-badge">Workspace access</span>
+        <h1>Continue your project control workflow.</h1>
+        <p>Sign in once to manage projects, analysis credits and saved report outputs in one secure workspace.</p>
+        <div class="auth-journey">
+          <article><b>01</b><div><strong>Dashboard overview</strong><small>See plan, credits and saved activity.</small></div></article>
+          <article><b>02</b><div><strong>Project workflow</strong><small>Create projects and upload control data.</small></div></article>
+          <article><b>03</b><div><strong>Report archive</strong><small>Return to dashboards and print-ready reports.</small></div></article>
+        </div>
+        <p class="auth-target">After login you will open: <strong data-auth-destination>Project control dashboard</strong></p>
+      </section>
+
+      <section class="auth-card">
+        <a class="brand-link" href="/index.html">DevBareun</a>
+        <p class="eyebrow">User login</p>
+        <h2>Login to workspace</h2>
+        <p>Access your protected project panel and saved reporting history.</p>
+
+        <form id="loginForm" class="auth-form">
+          <label>Email
+            <input name="email" type="email" autocomplete="email" placeholder="name@company.com" required />
+          </label>
+          <label>Password
+            <input name="password" type="password" autocomplete="current-password" placeholder="Minimum 8 characters" minlength="8" required />
+          </label>
+          <label>Workspace package
+            <select name="plan">
+              <option value="plus">Plus - 5 projects / month</option>
+              <option value="pro">Pro - 20 projects / month</option>
+            </select>
+          </label>
+          <button class="btn btn-primary auth-submit" type="submit">Login and open panel</button>
+          <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <p class="auth-switch">No account? <a data-auth-switch-link href="/register.html">Create workspace</a></p>
+        <p class="auth-single">One project only? <a href="/index.html?plan=single#upload">Upload without an account</a></p>
+      </section>
+    </div>
+  </main>
+  <script src="js/auth-workspace.js?v=13936"></script>
+</body>
+</html>

@@ -465,6 +465,63 @@ def _metric(label: str, value: Any, unit: str | None = None, status: str = "neut
     return {"label": label, "value": value, "unit": unit or "", "status": status, "note": note or ""}
 
 
+def _is_meaningful_value(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped or stripped in {"—", "-", "None", "null"}:
+            return False
+        low = stripped.lower()
+        if low in {"not detected", "not available", "actual data required", "data required", "missing", "required"}:
+            return False
+    return True
+
+
+def _is_meaningful_metric(metric: Dict[str, Any]) -> bool:
+    return _is_meaningful_value(metric.get("value"))
+
+
+def _filter_metrics(metrics: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    filtered = [m for m in metrics if _is_meaningful_metric(m)]
+    return filtered
+
+
+def _row_has_evidence(row: Dict[str, Any]) -> bool:
+    evidence_keys = ["planned", "actual", "remaining", "variance", "variance_value", "value", "quantity", "required", "current", "completed", "cumulative"]
+    if any(_is_meaningful_value(row.get(k)) for k in evidence_keys):
+        return True
+    # Keep explicit management/evidence rows only when their status confirms useful information.
+    status = str(row.get("status") or "").lower()
+    if status in {"confirmed", "controlled", "baseline", "approved"}:
+        return True
+    return False
+
+
+def _filter_panel(panel: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    rows = panel.get("rows") or []
+    filtered_rows = [r for r in rows if isinstance(r, dict) and (_is_meaningful_metric(r) or _row_has_evidence(r))]
+    if not filtered_rows:
+        return None
+    new_panel = dict(panel)
+    new_panel["rows"] = filtered_rows
+    return new_panel
+
+
+def _filter_panels(panels: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for panel in panels:
+        filtered = _filter_panel(panel)
+        if filtered is not None:
+            out.append(filtered)
+    return out
+
+
+def _visible_dashboard_blocks(parsed: ParsedProjectData, mode: str, risk: Dict[str, Any]) -> List[str]:
+    profile = _adaptive_dashboard_profile(parsed, mode, risk)
+    return list(profile.get("active_blocks") or [])
+
+
 def _actual_cost_needs_confirmation(parsed: ParsedProjectData) -> bool:
     return bool(parsed.evidence.get("needs_confirmation_actual_cost") or parsed.evidence.get("commercial_guardrail"))
 
@@ -1015,6 +1072,11 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
             }
         ] + common_panels
 
+    primary = _filter_metrics(primary)
+    panels = _filter_panels(panels)
+    advanced_sections = _advanced_sections(parsed, risk, confidence, t)
+    visible_blocks = _visible_dashboard_blocks(parsed, t, risk)
+    suppressed_blocks = (advanced_sections.get("adaptive_dashboard") or {}).get("missing_blocks") or []
     title, description = _dashboard_label(t)
     return {
         "mode": t,
@@ -1022,8 +1084,11 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
         "description": description,
         "primary_kpis": primary,
         "panels": panels,
-        "cost_rows": _cost_control_rows(parsed) if t == "cost" else [],
-        "advanced_sections": _advanced_sections(parsed, risk, confidence, t),
+        "cost_rows": [r for r in (_cost_control_rows(parsed) if t == "cost" else []) if _row_has_evidence(r)],
+        "visible_blocks": visible_blocks,
+        "suppressed_empty_blocks": suppressed_blocks,
+        "advanced_sections": advanced_sections,
+        "adaptive_policy": "Package-specific dashboard blocks are rendered only when uploaded data provides enough evidence. Empty modules are converted into missing-data guidance instead of blank cards.",
         "pdf_logic": "The PDF report is generated from the same analysis-specific dashboard payload shown on the result page.",
     }
 
@@ -1035,13 +1100,18 @@ def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: s
     confidence = confidence_score(parsed, risk)
     status = _status_from_score(risk["score"])
     today = date.today().isoformat()
-    report_id = f"DBR-{date.today().year}-{project_id[-6:].upper()}"
+    # Every generated dashboard/export must have its own immutable result ID.
+    # Do not reuse only project_id suffix, because the same uploaded project can be
+    # re-analysed several times with different packages or manual mappings.
+    result_id = f"DBR-{date.today().year}-{uuid4().hex[:8].upper()}"
+    report_id = result_id
 
     dashboard_sections = build_analysis_dashboard_sections(parsed, risk, confidence, analysis_type)
     dashboard = {
         "project": {
             "name": parsed.project_name or "DevBareun Uploaded Project",
             "report_id": report_id,
+            "result_id": result_id,
             "report_date": today,
             "status": status,
             "currency": parsed.currency or "Not detected",

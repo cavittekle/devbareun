@@ -1897,3 +1897,198 @@ html[data-theme="light"] body::after{
 @media print{
   body::before,body::after,.construction-abstract-bg{display:none!important;}
 }
+
+
+/* DevBareun v1.2.11 — landing-long abstract building background without image scaling + upload file list polish */
+body.result-page::before,
+body.result-page::after{
+  display:none!important;
+}
+body:not(.result-page)::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.48;
+  transform:none!important;
+  animation:dbCityLineDrift 24s ease-in-out infinite alternate;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat;
+  background-size:100% 100%,100% 100%,78vw 78vh,62vw 64vh,46vw 58vh,100% 100%;
+  background-position:center,center,right top,left 18vh,right 70vh,center;
+  background-image:
+    linear-gradient(90deg,rgba(5,10,22,.92),rgba(5,10,22,.50) 38%,rgba(5,10,22,.28) 64%,rgba(5,10,22,.72)),
+    linear-gradient(180deg,rgba(5,10,22,.22) 0%,rgba(5,10,22,.55) 50%,rgba(5,10,22,.93) 100%),
+    linear-gradient(90deg,transparent 0 8%,rgba(34,211,238,.44) 8.2% 8.55%,transparent 8.7% 15%,rgba(124,58,237,.50) 15.2% 15.55%,transparent 15.7% 25%,rgba(34,211,238,.34) 25.2% 25.5%,transparent 25.7% 36%,rgba(99,102,241,.45) 36.2% 36.55%,transparent 36.7% 49%,rgba(34,211,238,.40) 49.1% 49.45%,transparent 49.7% 62%,rgba(124,58,237,.44) 62.1% 62.4%,transparent 62.7% 76%,rgba(34,211,238,.38) 76.1% 76.45%,transparent 76.7% 100%),
+    linear-gradient(90deg,transparent 0 12%,rgba(34,211,238,.24) 12.2% 12.55%,transparent 12.7% 28%,rgba(34,211,238,.20) 28.2% 28.5%,transparent 28.8% 44%,rgba(124,58,237,.22) 44.2% 44.45%,transparent 44.7% 61%,rgba(34,211,238,.24) 61.2% 61.45%,transparent 61.7% 100%),
+    linear-gradient(90deg,transparent 0 6%,rgba(34,211,238,.18) 6.1% 6.45%,transparent 6.7% 20%,rgba(124,58,237,.22) 20.2% 20.45%,transparent 20.7% 39%,rgba(34,211,238,.18) 39.2% 39.5%,transparent 39.8% 56%,rgba(34,211,238,.16) 56.2% 56.45%,transparent 56.8% 100%),
+    radial-gradient(circle at 18% 8%,rgba(34,211,238,.16),transparent 24%),radial-gradient(circle at 86% 10%,rgba(124,58,237,.16),transparent 26%);
+}
+body:not(.result-page)::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.20;
+  transform:none!important;
+  background:
+    linear-gradient(90deg,rgba(34,211,238,.10) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(34,211,238,.07) 1px,transparent 1px);
+  background-size:92px 92px,92px 92px;
+  animation:dbGlobalGridFlow 22s linear infinite;
+}
+@keyframes dbCityLineDrift{
+  from{background-position:center,center,right top,left 18vh,right 70vh,center;}
+  to{background-position:center,center,calc(100% - 24px) 2vh,24px 16vh,calc(100% - 18px) 68vh,center;}
+}
+html[data-theme="light"] body:not(.result-page)::before{opacity:.16;filter:saturate(.8) contrast(.9);}
+html[data-theme="light"] body:not(.result-page)::after{opacity:.10;}
+.file-list:not(:empty){
+  display:grid!important;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:16px!important;
+}
+.file-chip-v125{
+  border-color:rgba(34,211,238,.22)!important;
+  background:linear-gradient(135deg,rgba(15,23,42,.76),rgba(2,8,23,.68))!important;
+  box-shadow:0 14px 40px rgba(0,0,0,.18);
+}
+.file-chip-v125 .file-chip-main b{max-width:none!important;}
+.file-chip-v125 .pill{font-size:11px;font-weight:950;color:#8df7ff;border:1px solid rgba(34,211,238,.22);background:rgba(34,211,238,.08);padding:6px 8px;border-radius:999px;}
+html[data-theme="light"] .file-chip-v125{background:#fff!important;border-color:#bae6fd!important;box-shadow:0 10px 28px rgba(15,23,42,.08);}
+@media (prefers-reduced-motion:reduce){body:not(.result-page)::before,body:not(.result-page)::after{animation:none!important;}}
+@media(max-width:720px){body:not(.result-page)::before{background-size:100% 100%,100% 100%,115vw 70vh,95vw 58vh,70vw 50vh,100% 100%;opacity:.32;}}
+
+/* v1.3.4 SaaS real upload progress */
+.saas-progress {
+  width: 100%;
+  height: 7px;
+  margin-top: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+.saas-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22d3ee, #3b82f6, #8b5cf6);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.32);
+  transition: width 0.22s ease;
+}
+[data-theme="light"] .saas-progress {
+  background: rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+
+
+/* DevBareun v1.3.5 workspace layout append */
+.workspace-page {
+  background: #07111f;
+  color: #eef6ff;
+  min-height: 100vh;
+}
+
+.workspace-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.workspace-sidebar {
+  border-right: 1px solid rgba(148, 163, 184, .16);
+  background: rgba(2, 6, 23, .72);
+  padding: 24px;
+}
+
+.workspace-sidebar nav {
+  display: grid;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.workspace-sidebar nav a {
+  color: #b7c8dd;
+  text-decoration: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.workspace-sidebar nav a.active,
+.workspace-sidebar nav a:hover {
+  color: white;
+  background: rgba(34, 211, 238, .12);
+}
+
+.workspace-main {
+  padding: 32px;
+}
+
+.workspace-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 26px;
+}
+
+.workspace-topbar h1 {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 52px);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.workspace-panel {
+  padding: 24px;
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(2, 6, 23, .82));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
+}
+
+.workspace-panel.wide {
+  grid-column: 1 / -1;
+}
+
+.workspace-panel strong {
+  display: block;
+  font-size: 28px;
+  margin: 6px 0 8px;
+}
+
+.panel-label,
+.eyebrow {
+  color: #67e8f9;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.muted {
+  color: #9fb3c8;
+}
+
+.btn-small {
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+}
+
+@media (max-width: 900px) {
+  .workspace-layout { grid-template-columns: 1fr; }
+  .workspace-sidebar { position: static; border-right: 0; border-bottom: 1px solid rgba(148, 163, 184, .16); }
+  .workspace-sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-grid { grid-template-columns: 1fr; }
+  .workspace-topbar { align-items: flex-start; flex-direction: column; }
+}

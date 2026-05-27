@@ -2,7 +2,7 @@
   const DEFAULT_REMOTE_API = "https://devbareun-production.up.railway.app";
   const API_BASE = (window.DEVBAREUN_API_BASE ||
     ((location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")
-      ? (localStorage.getItem("devbareun_api_base") || DEFAULT_REMOTE_API)
+      ? (localStorage.getItem("devbareun_api_base") || `http://${location.hostname === "localhost" ? "127.0.0.1" : location.hostname}:8000`)
       : DEFAULT_REMOTE_API)).replace(/\/$/, "");
 
   let latestDashboard = null;
@@ -10,6 +10,14 @@
   function qs(sel, root = document) { return root.querySelector(sel); }
   function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
   function getProjectId() { return new URLSearchParams(window.location.search).get("project_id"); }
+  function getProjectToken(projectId) { try { return localStorage.getItem(`devbareun_project_token_${projectId}`) || ""; } catch (e) { return ""; } }
+  function withProjectToken(url, projectId) {
+    const token = getProjectToken(projectId);
+    if (!token) return url;
+    const u = new URL(url, location.origin);
+    u.searchParams.set("project_token", token);
+    return u.toString();
+  }
   function na(value) { return value === undefined || value === null || value === "" ? "—" : value; }
   function pct(value) { return value === undefined || value === null ? "—" : `${value}%`; }
   function days(value) { return window.DevBareunI18n ? window.DevBareunI18n.days(value) : (value === undefined || value === null ? "—" : `${value > 0 ? "+" : ""}${value} days`); }
@@ -78,7 +86,7 @@
           const lang = getReportLang();
           btn.textContent = lang === "az" ? "PDF hesabat hazırlanır..." : "Preparing selected dashboard PDF...";
           btn.disabled = true;
-          window.open(`${API_BASE}/api/projects/${projectId}/report/pdf?lang=${encodeURIComponent(lang)}`, "_blank");
+          window.open(withProjectToken(`${API_BASE}/api/projects/${projectId}/report/pdf?lang=${encodeURIComponent(lang)}`, projectId), "_blank");
           setTimeout(() => { btn.textContent = previous || (lang === "az" ? "PDF yüklə" : "Download PDF"); btn.disabled = false; }, 1800);
         };
       }
@@ -88,7 +96,7 @@
           const lang = getReportLang();
           btn.textContent = lang === "az" ? "Excel hesabat hazırlanır..." : "Preparing dashboard Excel...";
           btn.disabled = true;
-          window.open(`${API_BASE}/api/projects/${projectId}/report/excel?lang=${encodeURIComponent(lang)}`, "_blank");
+          window.open(withProjectToken(`${API_BASE}/api/projects/${projectId}/report/excel?lang=${encodeURIComponent(lang)}`, projectId), "_blank");
           setTimeout(() => { btn.textContent = previous || (lang === "az" ? "Excel yüklə" : "Download Excel"); btn.disabled = false; }, 1600);
         };
       }
@@ -380,7 +388,9 @@
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/projects/${projectId}/dashboard`);
+      const token = getProjectToken(projectId);
+      const headers = token ? { "X-Project-Token": token } : {};
+      const res = await fetch(`${API_BASE}/api/projects/${projectId}/dashboard`, { headers });
       if (!res.ok) throw new Error(await res.text() || "Dashboard not found");
       updateDashboard(await res.json());
     } catch (err) {
@@ -393,4 +403,102 @@
   document.addEventListener("DOMContentLoaded", load);
   document.addEventListener("devbareun:lang", () => { if (latestDashboard) setTimeout(() => updateDashboard(latestDashboard), 0); });
   load();
+})();
+
+
+/* DevBareun v1.2.11 — stable print/download binding and per-result export clarity */
+(function(){
+  function qs(sel){return document.querySelector(sel);}
+  function lang(){try{return localStorage.getItem('devbareun_report_lang')||localStorage.getItem('devbareun_lang')||document.documentElement.lang||'en';}catch(e){return 'en';}}
+  function updatePrintLabel(){var b=qs('#printDashboardBtn'); if(b){b.textContent=String(lang()).toLowerCase().startsWith('az')?'Çap et':'Print';}}
+  document.addEventListener('DOMContentLoaded',function(){
+    updatePrintLabel();
+    var b=qs('#printDashboardBtn');
+    if(b && !b.dataset.v1211PrintBound){
+      b.dataset.v1211PrintBound='true';
+      b.addEventListener('click',function(e){e.preventDefault(); setTimeout(function(){window.print();},40);},true);
+    }
+  });
+  document.addEventListener('devbareun:lang',updatePrintLabel);
+})();
+
+
+/* DevBareun v1.2.12 — active share link binding */
+(function(){
+  function qs(sel){return document.querySelector(sel);}
+  function isAz(){try{return (localStorage.getItem('devbareun_lang')||document.documentElement.lang||'en').toLowerCase().startsWith('az');}catch(e){return false;}}
+  function label(key){
+    var az=isAz();
+    var dict={
+      share: az?'Link paylaş':'Share Link',
+      copied: az?'Link kopyalandı':'Link copied',
+      failed: az?'Link kopyalanmadı':'Copy failed',
+      unsupported: az?'Paylaşım linki hazırdır':'Share link ready'
+    };
+    return dict[key]||key;
+  }
+  function projectId(){return new URLSearchParams(location.search).get('project_id')||'';}
+  function buildShareUrl(){
+    var url=new URL(location.href);
+    var pid=projectId();
+    if(pid) url.searchParams.set('project_id',pid);
+    url.searchParams.delete('token');
+    url.hash='';
+    return url.toString();
+  }
+  function showShareToast(message){
+    var old=qs('.db-share-toast');
+    if(old) old.remove();
+    var el=document.createElement('div');
+    el.className='db-share-toast';
+    el.textContent=message;
+    document.body.appendChild(el);
+    requestAnimationFrame(function(){el.classList.add('show');});
+    setTimeout(function(){el.classList.remove('show'); setTimeout(function(){el.remove();},240);},2200);
+  }
+  async function copyText(text){
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.setAttribute('readonly','');
+    ta.style.position='fixed';
+    ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok=document.execCommand('copy');
+    ta.remove();
+    return ok;
+  }
+  function bindShare(){
+    var btn=qs('#shareDashboardBtn');
+    if(!btn || btn.dataset.v1212ShareBound) return;
+    btn.dataset.v1212ShareBound='true';
+    btn.textContent=label('share');
+    btn.addEventListener('click',async function(e){
+      e.preventDefault();
+      var url=buildShareUrl();
+      var title=document.title||'DevBareun Project Result Dashboard';
+      try{
+        if(navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+          await navigator.share({title:title,url:url});
+          showShareToast(label('unsupported'));
+          return;
+        }
+        var ok=await copyText(url);
+        var prev=btn.textContent;
+        btn.textContent=ok?label('copied'):label('failed');
+        showShareToast(ok?label('copied'):label('failed'));
+        setTimeout(function(){btn.textContent=label('share');},1600);
+      }catch(err){
+        console.warn('Share failed',err);
+        try{await copyText(url); showShareToast(label('copied'));}catch(e2){showShareToast(label('failed'));}
+        setTimeout(function(){btn.textContent=label('share');},1600);
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded',bindShare);
+  document.addEventListener('devbareun:lang',function(){var b=qs('#shareDashboardBtn'); if(b)b.textContent=label('share');});
 })();

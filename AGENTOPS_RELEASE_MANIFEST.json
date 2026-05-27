@@ -1,20 +1,75 @@
 {
-  "package": "devbareun_agentops_v1210_global_landing_background",
-  "version": "1.2.10-global-landing-background",
-  "created": "2026-05-26",
-  "primary_change": "Moves the abstract construction building animation from hero-scoped layer to a fixed non-repeating global landing-page background.",
+  "version": "v1.3.9.9",
+  "release": "Production Security + Landing Login Block Hotfix",
+  "release_type": "production_security_landing_login_block_hotfix",
+  "package": "devbareun_agentops_v139_2_landing_login_block_hotfix_FULL.zip",
+  "inherits_from": "v1.3.8 — Admin Panel",
+  "roadmap_alignment": [
+    "v1.3.8 — Admin Panel",
+    "v1.3.9 — Production Security",
+    "v1.4.0 — Real SaaS Launch Package",
+    "v1.4.1 — Analytics Polish",
+    "v1.4.2 — PMO / Portfolio Dashboard"
+  ],
+  "features": [
+    "supabase_rls_strict_migration",
+    "protected_file_access",
+    "stripe_webhook_signature_verification",
+    "admin_role_protection_hardening",
+    "api_rate_limits",
+    "secure_guest_result_expiry",
+    "security_response_headers",
+    "production_mock_payment_block",
+    "landing_login_create_account_controls",
+    "landing_payment_packages_single_plus_pro",
+    "landing_plan_to_billing_flow",
+    "auth_plan_prefill_from_landing",
+    "billing_selected_plan_highlight",
+    "visible_hero_login_card",
+    "landing_inline_email_password_login_form",
+    "landing_plan_selector_inside_login_card",
+    "authenticated_workspace_card_on_landing",
+    "landing_login_card_responsive_styles",
+    "landing_login_card_en_az_translations"
+  ],
+  "preserve_existing_design": true,
+  "next_release": "v1.4.0 — Real SaaS Launch Package",
+  "hotfix_for": "v1.3.9.1 — Landing SaaS Hotfix",
+  "release_name": "AZ/theme exact alignment hotfix",
+  "updated_files": [
+    "frontend/index.html",
+    "frontend/css/landing-saas-v139.css",
+    "frontend/js/landing-saas-v139.js",
+    "FIX_REPORT_V139_3_SELECTED_LANDING_DESIGN.md"
+  ],
+  "notes": [
+    "A",
+    "p",
+    "p",
+    "l",
+    "i",
+    "e",
+    "d",
+    " ",
+    "t",
+    "h",
+    "Final CSS override: AZ and theme icon are centered in equal 50% halves of the utility capsule."
+  ],
+  "fixes": [
+    "selected header responsive balance",
+    "hero starts above the fold",
+    "Azerbaijani landing initialization",
+    "dashboard preview first-screen sizing"
+  ],
+  "package_file": "devbareun_agentops_v139_5_header_compact_icon_hotfix_FULL.zip",
   "changes": [
-    "Global fixed animated skyline background behind entire landing page",
-    "Disables previous hero-scoped construction-abstract-bg to prevent cut-off/half building effect",
-    "Keeps no-repeat background image and subtle grid motion",
-    "Adds light-mode opacity/contrast controls",
-    "Disables motion for reduced-motion users and hides background in print"
+    "v1.3.9.5: compact AZ/theme utility buttons, fixed Platform nav icon/text alignment, replaced Login/Create/Start emoji symbols with SVG mask icons.",
+    "v1.3.9.6: compacted right header utility/auth/CTA group to match left navigation scale"
   ],
-  "changed_files": [
-    "frontend/css/styles.css",
-    "backend/app/version.py",
-    "AGENTOPS_RELEASE_MANIFEST.json",
-    "FIX_REPORT_V1210.md"
+  "updated_at": "2026-05-27T00:00:00Z",
+  "hotfixes": [
+    "v1.3.9.7 — centered and enlarged AZ/theme capsule light-mode icon",
+    "v1.3.9.8 — AZ/theme capsule equal-side alignment hotfix"
   ],
-  "release": "v1.2.10 Global Landing Background Fix"
+  "package_name": "devbareun_agentops_v139_8_az_theme_equal_alignment_hotfix_FULL.zip"
 }
