@@ -452,6 +452,7 @@ async def get_excel_report(project_id: str, lang: str = "en", project_token: str
 
 
 
+<<<<<<< HEAD
 
 async def _optional_workspace_user(authorization: str | None):
     token = get_bearer_token(authorization)
@@ -489,6 +490,8 @@ async def _ensure_export_access(project: Dict[str, Any], authorization: str | No
     raise HTTPException(status_code=402, detail=f"Payment or workspace ownership is required before {export_name} export.")
 
 
+=======
+>>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
 def _mapping_wizard_for_preflight(parsed: Any, analysis_type: str, confidence: int, missing: List[str]) -> Dict[str, Any]:
     profiles = [s.to_dict() for s in parsed.sheets]
     strong = [p for p in profiles if int(p.get("confidence") or 0) >= 75]
@@ -504,6 +507,7 @@ def _mapping_wizard_for_preflight(parsed: Any, analysis_type: str, confidence: i
                 "confidence": p.get("confidence"),
             })
     required = _required_fields_for_mapping(analysis_type)
+<<<<<<< HEAD
     def has_confirmed_value(field: str) -> bool:
         if hasattr(parsed, field):
             value = getattr(parsed, field, None)
@@ -515,6 +519,9 @@ def _mapping_wizard_for_preflight(parsed: Any, analysis_type: str, confidence: i
 
     detected_required = [field for field in required if has_confirmed_value(field)]
     mapped_required = [field for field in required if field in field_sources]
+=======
+    detected_required = [field for field in required if getattr(parsed, field, None) not in (None, "") or field in field_sources]
+>>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
     missing_required = [field for field in required if field not in detected_required]
     readiness = max(0, min(100, int(confidence * 0.65 + (len(detected_required) / max(1, len(required))) * 35)))
     return {
@@ -522,7 +529,10 @@ def _mapping_wizard_for_preflight(parsed: Any, analysis_type: str, confidence: i
         "template": TEMPLATE_MANIFEST.get((analysis_type or "all").lower(), TEMPLATE_MANIFEST["all"]),
         "required_fields": required,
         "detected_required_fields": detected_required,
+<<<<<<< HEAD
         "mapped_required_fields": mapped_required,
+=======
+>>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
         "missing_required_fields": list(dict.fromkeys(missing_required + list(missing or [])))[:10],
         "field_sources": field_sources,
         "sheet_summary": {

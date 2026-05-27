@@ -1727,6 +1727,7 @@ html[data-theme="light"] .upload-packages-v118 .package-card span:not(.package-k
   .upload-packages-v118 .wizard-action-buttons{flex-direction:column;align-items:stretch;}
   .upload-packages-v118 .wizard-action-buttons .btn{width:100%;}
 }
+<<<<<<< HEAD
 
 /* DevBareun v1.2.5 — upload file manager + non-repeating animated construction skyline */
 body::before{
@@ -2092,3 +2093,5 @@ html[data-theme="light"] .file-chip-v125{background:#fff!important;border-color:
   .workspace-grid { grid-template-columns: 1fr; }
   .workspace-topbar { align-items: flex-start; flex-direction: column; }
 }
+=======
+>>>>>>> a71c3ae48045c65514ab1d10b3c6e7f098eb1be3
