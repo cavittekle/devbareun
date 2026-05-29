@@ -8,7 +8,7 @@
 
   const dict = {
     en: {
-      previewStoryKicker: "Project-control intelligence",
+      previewStoryKicker: "Project-control analytics",
       previewStoryTitle: "Turn project data into decisions before delays grow.",
       previewStoryText: "DevBareun brings schedule, cost and risk signals into one reliable view for faster reporting and clearer action.",
       previewStoryTag1: "Plan vs actual",

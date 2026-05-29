@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import os
+import json
+import re
 import urllib.parse
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 try:
@@ -13,6 +16,9 @@ except Exception:  # pragma: no cover - optional until Stripe is configured
 from .saas_ids import make_public_id
 from .saas_store import insert, find_one, list_rows, update_one, log_activity
 from .security_runtime import production_security_enabled, stripe_webhook_must_verify
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+LEGACY_PROJECT_DIR = BASE_DIR / "data" / "projects"
 
 PLAN_CONFIG: Dict[str, Dict[str, Any]] = {
     "single": {
@@ -59,11 +65,14 @@ def _safe_checkout_url(url: str) -> str:
             "https://devbareun.com",
             "https://www.devbareun.com",
             "https://devbareun.vercel.app",
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://127.0.0.1:4173",
-            "http://localhost:4173",
         ]
+        if not production_security_enabled():
+            allowed.extend([
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://127.0.0.1:4173",
+                "http://localhost:4173",
+            ])
     origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
     if origin not in allowed:
         raise ValueError("Checkout redirect origin is not allowed.")
@@ -203,6 +212,31 @@ def activate_checkout(checkout_id: str, stripe_session_id: Optional[str] = None,
     return {"payment": payment, "credit": credit}
 
 
+def _safe_legacy_project_id(project_id: str) -> str:
+    project_id = (project_id or "").strip()
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", project_id):
+        raise ValueError("Invalid project_id in Stripe metadata.")
+    return project_id
+
+
+def activate_legacy_single_project(project_id: str, stripe_session_id: Optional[str] = None) -> Dict[str, Any]:
+    safe_project_id = _safe_legacy_project_id(project_id)
+    path = LEGACY_PROJECT_DIR / f"{safe_project_id}.json"
+    if not path.exists():
+        return {"status": "legacy_project_not_found", "project_id": safe_project_id}
+    with path.open("r", encoding="utf-8") as handle:
+        project = json.load(handle)
+    project["paid"] = True
+    project["payment_status"] = "stripe_paid"
+    project["stripe_checkout_session_id"] = stripe_session_id or project.get("stripe_checkout_session_id")
+    project["paid_at"] = datetime.utcnow().isoformat()
+    project["updated_at"] = datetime.utcnow().isoformat()
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(project, handle, ensure_ascii=False, indent=2)
+    log_activity(project.get("customer_email"), "payment.legacy_single_project_paid", {"project_id": safe_project_id, "stripe_session_id": stripe_session_id})
+    return {"status": "legacy_project_paid", "project_id": safe_project_id}
+
+
 def handle_stripe_webhook(raw_body: bytes, signature: Optional[str]) -> Dict[str, Any]:
     webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
     if not _stripe_ready():
@@ -223,6 +257,10 @@ def handle_stripe_webhook(raw_body: bytes, signature: Optional[str]) -> Dict[str
         checkout_id = metadata.get("checkout_id")
         if checkout_id:
             activated = activate_checkout(checkout_id, obj.get("id"), obj.get("customer_email"))
+            return {"status": "handled", "event": event_type, "activated": activated}
+        project_id = metadata.get("project_id") or obj.get("client_reference_id")
+        if project_id:
+            activated = activate_legacy_single_project(project_id, obj.get("id"))
             return {"status": "handled", "event": event_type, "activated": activated}
     if event_type in {"customer.subscription.deleted", "customer.subscription.paused"}:
         stripe_sub_id = obj.get("id")

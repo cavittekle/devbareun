@@ -196,7 +196,7 @@
       actualWorkforceFile: "actual workforce / site manpower file",
       actualGeneralFile: "actual progress, payment or site record file",
       generatePreview: "Generate Preview",
-      confirmGenerate: "Confirm & Generate Dashboard",
+      confirmGenerate: "Pay $29 & Generate Dashboard",
       processing: "Processing...",
       generatingDashboard: "Generating dashboard...",
       preparingMapping: "Preparing mapping...",
@@ -209,7 +209,7 @@
       detectingFields: "3/3 Detecting sheets, key values and missing fields...",
       mappingUnavailable: "Preflight mapping unavailable:",
       mappingReady: "Mapping preview is ready. Review the detected values, add missing fields if needed, then confirm.",
-      confirmingUnlock: "1/3 Confirming result unlock step...",
+      confirmingUnlock: "1/3 Opening secure $29 Single Project checkout...",
       calculatingDashboard: "2/3 Calculating {type} dashboard from confirmed mapping...",
       dashboardReady: "3/3 Dashboard ready. Opening result page...",
       generationFailed: "Generation failed: {message}",
@@ -262,7 +262,7 @@
       actualWorkforceFile: "faktiki işçi sayı / sahə işçi qeydi faylı",
       actualGeneralFile: "faktiki icra, ödəniş və ya sahə qeydi faylı",
       generatePreview: "Önbaxış yarat",
-      confirmGenerate: "Təsdiqlə və dashboard yarat",
+      confirmGenerate: "$29 ödə və dashboard yarat",
       processing: "Emal olunur...",
       generatingDashboard: "Dashboard yaradılır...",
       preparingMapping: "Məlumat uyğunluğu hazırlanır...",
@@ -275,7 +275,7 @@
       detectingFields: "3/3 Vərəqlər, əsas dəyərlər və çatışmayan sahələr yoxlanılır...",
       mappingUnavailable: "İlkin məlumat uyğunluğu əlçatan deyil:",
       mappingReady: "Məlumat önbaxışı hazırdır. Tapılmış dəyərləri yoxlayın, lazım olduqda çatışmayan sahələri əlavə edin və təsdiqləyin.",
-      confirmingUnlock: "1/3 Nəticənin açılması addımı təsdiqlənir...",
+      confirmingUnlock: "1/3 Təhlükəsiz $29 Single Project checkout açılır...",
       calculatingDashboard: "2/3 Təsdiqlənmiş məlumatlara əsasən {type} dashboard hesablanır...",
       dashboardReady: "3/3 Dashboard hazırdır. Nəticə səhifəsi açılır...",
       generationFailed: "Yaratma uğursuz oldu: {message}",
@@ -712,8 +712,17 @@
     if (!lastProjectId) throw new Error(t("noPreparedProject"));
     renderProcessingPanel({ step: 0, progress: 22, phase: t("confirmingUnlock"), detail: t("resultGenerating") });
     status(t("confirmingUnlock"), "info");
-    const payment = await API.mockPayment(lastProjectId);
+    const successUrl = `${location.origin}/payment-success.html?plan=single&guest=1&project_id=${encodeURIComponent(lastProjectId)}&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${location.origin}/payment-failed.html?plan=single&guest=1&project_id=${encodeURIComponent(lastProjectId)}`;
+    const payment = await API.mockPayment(lastProjectId, { success_url: successUrl, cancel_url: cancelUrl });
     if (payment && payment.checkout_url) {
+      try {
+        localStorage.setItem("devbareun_pending_single_project", JSON.stringify({
+          project_id: lastProjectId,
+          analysis_type: selectedAnalysisType,
+          created_at: new Date().toISOString()
+        }));
+      } catch (_) {}
       window.location.href = payment.checkout_url;
       return;
     }

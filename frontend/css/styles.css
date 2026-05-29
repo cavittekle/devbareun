@@ -846,7 +846,7 @@ html[data-theme="light"] .icon-btn{
 }
 
 
-/* v0.6.0 — Approved landing composition: dashboard preview + analysis flow, no public AI wording */
+/* v0.6.0 - Approved landing composition: dashboard preview + analysis flow, no public automated review wording */
 body{background:radial-gradient(circle at 18% 4%,rgba(34,211,238,.13),transparent 28%),radial-gradient(circle at 78% 2%,rgba(139,92,246,.16),transparent 32%),linear-gradient(180deg,#050b14 0%,#07111f 48%,#050b14 100%)}
 .site-header{background:rgba(5,11,20,.78);border-bottom:1px solid rgba(148,163,184,.12)}
 .hero{padding:62px 0 22px;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;}

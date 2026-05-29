@@ -9,4 +9,4 @@ Key terminology:
 - AZ: Smeta / Xərc hesablaması
 - AZ: F-2 / Smeta üzrə icra
 
-Public copy avoids AI/artificial-intelligence wording and uses construction project-control terminology.
+Public copy uses construction project-control terminology and avoids consumer automation wording.

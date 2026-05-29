@@ -33,7 +33,7 @@ async def pilot_login(payload: LoginRequest):
     Pilot login for staging/demo environments.
     Production should use Supabase Auth on the frontend and pass the Supabase JWT.
     """
-    if production_security_enabled() and not bool_env("DEVBAREUN_ENABLE_PILOT_LOGIN", False):
+    if production_security_enabled():
         raise HTTPException(status_code=403, detail="Pilot login is disabled in production security mode.")
     try:
         return create_pilot_session(payload.email, payload.plan or "plus")

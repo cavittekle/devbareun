@@ -9,7 +9,7 @@ Set these in the Railway backend service. Values with secrets must never be comm
 ```env
 DEVBAREUN_ENV=production
 APP_ENV=production
-DEVBAREUN_VERSION=1.3.10-live-ready
+DEVBAREUN_VERSION=1.4.0-production-saas-core
 PUBLIC_SITE_URL=https://devbareun.com
 DEVBAREUN_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
 DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
@@ -17,8 +17,11 @@ DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.c
 DEVBAREUN_MAX_FILES=12
 DEVBAREUN_MAX_FILE_MB=30
 DEVBAREUN_MAX_TOTAL_MB=120
+DEVBAREUN_MAX_UPLOAD_BYTES=104857600
 
 DEVBAREUN_PRODUCTION_SECURITY=true
+DEVBAREUN_ENABLE_DEV_AUTH=false
+DEVBAREUN_ENABLE_LOCAL_STORE=false
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 DEVBAREUN_ENABLE_PILOT_LOGIN=false
 DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
@@ -44,10 +47,11 @@ DEVBAREUN_GUEST_RESULT_MAX_DAYS=7
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=replace_with_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=replace_with_service_role_key_backend_only
-SUPABASE_STORAGE_BUCKET=devbareun-project-files
+SUPABASE_JWT_SECRET=replace_with_supabase_jwt_secret_if_using_local_jwt_verification
+SUPABASE_STORAGE_BUCKET=project-files
 
-STRIPE_SECRET_KEY=sk_live_or_test_replace_me
-STRIPE_WEBHOOK_SECRET=whsec_replace_me
+STRIPE_SECRET_KEY=replace_with_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=replace_with_stripe_webhook_secret
 STRIPE_SINGLE_PROJECT_PRICE_ID=price_single_project
 STRIPE_PLUS_PRICE_ID=price_plus_monthly
 STRIPE_PRO_PRICE_ID=price_pro_monthly
@@ -73,6 +77,7 @@ Set Vercel Root Directory to `frontend`.
 The current frontend is static HTML, so public env variables are mainly a deployment checklist and future build reference. Keep secrets out of Vercel frontend variables.
 
 ```env
+VITE_DEVBAREUN_API_BASE_URL=https://devbareun-production.up.railway.app
 VITE_DEVBAREUN_API_BASE=https://devbareun-production.up.railway.app
 VITE_PUBLIC_SITE_URL=https://devbareun.com
 VITE_SUPABASE_URL=https://your-project.supabase.co

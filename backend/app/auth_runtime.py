@@ -15,7 +15,7 @@ import secrets
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
 
-from .security_runtime import devbareun_domain_admin_allowed
+from .security_runtime import bool_env, devbareun_domain_admin_allowed, production_security_enabled
 
 try:
     import httpx
@@ -84,10 +84,18 @@ def set_pilot_plan(token: Optional[str], plan: str) -> Dict[str, Any]:
 
 
 def _pilot_enabled() -> bool:
-    return os.getenv("DEVBAREUN_AUTH_MODE", "pilot").lower() in {"pilot", "mock", "local"}
+    if production_security_enabled():
+        return bool_env("DEVBAREUN_ENABLE_PILOT_LOGIN", False) and not bool_env("DEVBAREUN_PRODUCTION_SECURITY", True)
+    if bool_env("DEVBAREUN_ENABLE_DEV_AUTH", False):
+        return True
+    if bool_env("DEVBAREUN_ENABLE_PILOT_LOGIN", False):
+        return True
+    return os.getenv("DEVBAREUN_AUTH_MODE", "disabled").lower() in {"pilot", "mock", "local"}
 
 
 def create_pilot_session(email: str, plan: str = "plus") -> Dict[str, Any]:
+    if not _pilot_enabled():
+        raise AuthError("Pilot login is disabled.")
     email = (email or "").strip().lower()
     if not email or "@" not in email:
         raise AuthError("Valid email is required.")
@@ -124,8 +132,10 @@ async def verify_supabase_token(token: str) -> AuthUser:
     if not token:
         raise AuthError("Missing access token.")
 
-    if token in _PILOT_SESSIONS:
+    if token in _PILOT_SESSIONS and _pilot_enabled():
         return _PILOT_SESSIONS[token]
+    if token in _PILOT_SESSIONS:
+        raise AuthError("Pilot session is disabled in the current security mode.")
 
     if _pilot_enabled() and token.startswith("dbr_"):
         raise AuthError("Invalid or expired pilot session.")

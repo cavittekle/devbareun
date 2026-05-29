@@ -72,16 +72,21 @@ Connects landing access, authentication and protected workspace pages.
     const normalized = normalizeSession(session);
     localStorage.setItem(SESSION_KEY, JSON.stringify(normalized));
     localStorage.setItem(LEGACY_SESSION_KEY, JSON.stringify(normalized));
+    window.DevBareunAPI?.saveSession?.(normalized);
     renderAuthState();
   }
 
   function clearSession() {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(LEGACY_SESSION_KEY);
+    window.DevBareunAPI?.clearAuthToken?.();
     renderAuthState();
   }
 
   async function api(path, options = {}) {
+    if (window.DevBareunAPI?.apiRequest) {
+      return window.DevBareunAPI.apiRequest(path, options);
+    }
     const session = getSession();
     const headers = {
       "Content-Type": "application/json",
@@ -274,6 +279,22 @@ Connects landing access, authentication and protected workspace pages.
   }
 
   async function createWorkspaceSession(mode, email, password, plan) {
+    if (window.DevBareunAPI?.loginUser && mode === "login") {
+      try {
+        await window.DevBareunAPI.loginUser({ email, password, plan });
+        return window.DevBareunAPI.readSession?.() || getSession();
+      } catch (err) {
+        if (!LOCAL_PREVIEW || !/Supabase is not configured/i.test(String(err.message))) throw err;
+      }
+    }
+    if (window.DevBareunAPI?.registerUser && mode === "register") {
+      try {
+        await window.DevBareunAPI.registerUser({ email, password, plan });
+        return window.DevBareunAPI.readSession?.() || getSession();
+      } catch (err) {
+        if (!LOCAL_PREVIEW || !/Supabase is not configured/i.test(String(err.message))) throw err;
+      }
+    }
     try {
       const data = await api(`/api/auth/supabase/${mode}`, {
         method: "POST",

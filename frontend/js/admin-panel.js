@@ -183,13 +183,11 @@
     const payload = Object.fromEntries(fd.entries());
     $("#adminLoginStatus").textContent = "Creating pilot admin session...";
     try{
-      const res = await fetch(`${API.API_BASE}/api/auth/pilot-login`, {
+      const data = await API.api("/api/auth/pilot-login", {
         method: "POST",
-        headers: {"Content-Type":"application/json"},
+        auth: false,
         body: JSON.stringify(payload)
       });
-      const data = await res.json().catch(()=>({}));
-      if(!res.ok) throw new Error(data.detail || "Pilot login failed");
       API.saveSession(data);
       $("#adminLoginStatus").textContent = "Admin session created.";
       await boot();

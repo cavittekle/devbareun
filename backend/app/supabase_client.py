@@ -25,7 +25,7 @@ def settings() -> SupabaseSettings:
     url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
     anon_key = os.getenv("SUPABASE_ANON_KEY")
     service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-    storage_bucket = os.getenv("SUPABASE_STORAGE_BUCKET", "devbareun-project-files")
+    storage_bucket = os.getenv("SUPABASE_STORAGE_BUCKET", "project-files")
     return SupabaseSettings(url=url, anon_key=anon_key, service_role_key=service_role_key, storage_bucket=storage_bucket)
 
 

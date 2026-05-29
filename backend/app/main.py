@@ -14,9 +14,11 @@ from typing import Any, Dict, List
 from uuid import uuid4
 
 from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, FileResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel, Field
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .analyzer import build_dashboard, apply_baseline_actual_guardrails
 from .parser import ConstructionFileParser
@@ -26,9 +28,17 @@ from .version import APP_VERSION
 from .saas_routes import router as saas_router
 from .auth_routes import router as auth_router
 from .persistence_routes import router as persistence_router
+from .upload_routes import router as upload_router
+from .analysis_routes import router as analysis_router
+from .dashboard_routes import router as dashboard_router
+from .billing_routes import router as billing_router
+from .report_routes import router as report_router
 from .auth_runtime import AuthError, consume_pilot_credit, get_bearer_token, verify_supabase_token
+from .file_validation import validate_upload_metadata
 from .persistence_runtime import save_analysis
-from .security_runtime import apply_security_headers, mock_payment_allowed, rate_limiter
+from .production_store import is_configured as production_store_configured
+from .security_runtime import apply_security_headers, bool_env, mock_payment_allowed, production_security_enabled, rate_limiter
+from .supabase_client import is_configured as supabase_is_configured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data" / "projects"
@@ -77,6 +87,12 @@ def _allowed_origins() -> List[str]:
     if raw:
         values = [item.strip().rstrip("/") for item in raw.split(",") if item.strip()]
         return values or ["http://localhost:3000"]
+    if production_security_enabled():
+        return [
+            "https://devbareun.com",
+            "https://www.devbareun.com",
+            "https://devbareun.vercel.app",
+        ]
     return [
         "https://devbareun.com",
         "https://www.devbareun.com",
@@ -88,30 +104,93 @@ def _allowed_origins() -> List[str]:
         "http://localhost:8000",
     ]
 
+def _api_docs_enabled() -> bool:
+    return not bool_env("DEVBAREUN_DISABLE_DOCS", production_security_enabled())
+
+
 app = FastAPI(
     title="DevBareun Construction Analytics Backend",
     version=APP_VERSION,
-    description="MVP backend for universal construction file parsing, project dashboard generation and report exports.",
+    description="Production SaaS backend for construction file parsing, project dashboard generation and report exports.",
+    docs_url="/docs" if _api_docs_enabled() else None,
+    redoc_url="/redoc" if _api_docs_enabled() else None,
+    openapi_url="/openapi.json" if _api_docs_enabled() else None,
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins(),
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
 @app.middleware("http")
 async def devbareun_security_middleware(request: Request, call_next):
-    rate_limiter.check(request)
+    try:
+        rate_limiter.check(request)
+    except HTTPException as exc:
+        detail = exc.detail
+        code = f"http_{exc.status_code}"
+        message = str(detail or "Request failed.")
+        details: Dict[str, Any] = {}
+        if isinstance(detail, dict):
+            code = str(detail.get("code") or detail.get("error") or code)
+            message = str(detail.get("message") or detail.get("detail") or "Request failed.")
+            details = {k: v for k, v in detail.items() if k not in {"code", "error", "message", "detail"}}
+        return apply_security_headers(JSONResponse(status_code=exc.status_code, content=_error_payload(code, message, details), headers=exc.headers))
     response = await call_next(request)
     return apply_security_headers(response)
+
+
+def _error_payload(code: str, message: str, details: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    return {
+        "error": True,
+        "code": code,
+        "message": message,
+        "details": details or {},
+    }
+
+
+@app.exception_handler(StarletteHTTPException)
+async def devbareun_http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    detail = exc.detail
+    code = f"http_{exc.status_code}"
+    message = "Request failed."
+    details: Dict[str, Any] = {}
+    if isinstance(detail, dict):
+        message = str(detail.get("message") or detail.get("detail") or message)
+        code = str(detail.get("code") or detail.get("error") or code)
+        details = {k: v for k, v in detail.items() if k not in {"message", "detail", "code", "error"}}
+    elif detail:
+        message = str(detail)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=_error_payload(code, message, details),
+        headers=getattr(exc, "headers", None),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def devbareun_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content=_error_payload(
+            "validation_failed",
+            "Request validation failed.",
+            {"errors": exc.errors()},
+        ),
+    )
 
 
 app.include_router(saas_router)
 app.include_router(auth_router)
 app.include_router(persistence_router)
+app.include_router(upload_router)
+app.include_router(analysis_router)
+app.include_router(dashboard_router)
+app.include_router(billing_router)
+app.include_router(report_router)
 
 
 class ProjectCreate(BaseModel):
@@ -131,10 +210,12 @@ class PaymentRequest(BaseModel):
     cancel_url: str | None = None
 
 
-def _health_payload() -> Dict[str, str]:
+def _health_payload() -> Dict[str, Any]:
     return {
         "status": "ok",
-        "service": "devbareun-backend",
+        "service": "DevBareun Backend",
+        "database": "connected" if production_store_configured() else "not_configured",
+        "storage": "configured" if supabase_is_configured(require_service=True) else "not_configured",
         "version": APP_VERSION,
         "time": datetime.utcnow().isoformat(),
     }
@@ -220,14 +301,19 @@ async def upload_files(project_id: str, files: List[UploadFile] = File(...), x_p
     upload_path = UPLOAD_DIR / project_id
     upload_path.mkdir(parents=True, exist_ok=True)
     saved_files = []
-    allowed = {".xlsx", ".xlsm", ".xls", ".csv", ".pdf", ".jpg", ".jpeg", ".png", ".webp", ".xer", ".xml"}
     total_bytes = 0
 
     for upload in files:
-        original_name = Path(upload.filename or "uploaded_file").name
-        suffix = Path(original_name).suffix.lower()
-        if suffix not in allowed:
-            raise HTTPException(status_code=400, detail=f"Unsupported file type: {original_name}")
+        try:
+            meta = validate_upload_metadata(
+                upload.filename or "uploaded_file",
+                upload.content_type,
+                getattr(upload, "size", None),
+                max_file_bytes,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        original_name = meta["original_filename"]
 
         safe_name = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{uuid4().hex[:6]}_{_safe_filename(original_name)}"
         target = upload_path / safe_name
@@ -734,11 +820,14 @@ def _safe_checkout_url(url: str) -> str:
             "https://devbareun.com",
             "https://www.devbareun.com",
             "https://devbareun.vercel.app",
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://127.0.0.1:4173",
-            "http://localhost:4173",
         ]
+        if not production_security_enabled():
+            allowed.extend([
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://127.0.0.1:4173",
+                "http://localhost:4173",
+            ])
     origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
     if origin not in allowed:
         raise HTTPException(status_code=400, detail="Checkout redirect origin is not allowed.")

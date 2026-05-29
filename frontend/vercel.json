@@ -3,6 +3,31 @@
   "trailingSlash": false,
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://*.railway.app https://*.up.railway.app https://api.stripe.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {
@@ -25,6 +50,42 @@
     {
       "source": "/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/register.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/upload",
+      "destination": "/upload.html"
+    },
+    {
+      "source": "/projects",
+      "destination": "/projects.html"
+    },
+    {
+      "source": "/projects/:id",
+      "destination": "/project-detail.html?id=:id"
+    },
+    {
+      "source": "/reports",
+      "destination": "/reports.html"
+    },
+    {
+      "source": "/billing",
+      "destination": "/billing.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/settings.html"
     }
   ]
 }

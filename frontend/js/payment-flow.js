@@ -16,6 +16,11 @@ v1.3.8 — checkout result and pilot activation helper.
     catch { return null; }
   }
 
+  function pendingSingleProject() {
+    try { return JSON.parse(localStorage.getItem("devbareun_pending_single_project") || "null"); }
+    catch { return null; }
+  }
+
   function isGuestSingleFlow() {
     const checkout = lastCheckout();
     return (params.get("plan") || checkout?.plan) === "single" &&
@@ -79,6 +84,33 @@ v1.3.8 — checkout result and pilot activation helper.
   async function renderSuccess() {
     const mount = $("#paymentSuccessStatus");
     if (!mount) return;
+    const projectId = params.get("project_id");
+    if (projectId && window.DevBareunAPI?.analyzeProject) {
+      const pending = pendingSingleProject() || {};
+      const analysisType = pending.analysis_type || "all";
+      const attempts = 4;
+      for (let i = 1; i <= attempts; i += 1) {
+        try {
+          mount.textContent = i === 1
+            ? "Payment received. Generating your Single Project dashboard..."
+            : "Payment webhook is still confirming. Retrying dashboard generation...";
+          await window.DevBareunAPI.analyzeProject(projectId, analysisType, {});
+          localStorage.removeItem("devbareun_pending_single_project");
+          mount.textContent = "Dashboard is ready. Opening your result...";
+          setTimeout(() => {
+            location.href = `result-dashboard.html?project_id=${encodeURIComponent(projectId)}`;
+          }, 650);
+          return;
+        } catch (err) {
+          if (i >= attempts || !/payment|credit|required|402|paid/i.test(String(err.message || err))) {
+            mount.textContent = `Payment page loaded, but dashboard generation needs review: ${err.message || err}`;
+            return;
+          }
+          await new Promise(resolve => setTimeout(resolve, 1800));
+        }
+      }
+      return;
+    }
     const checkoutId = params.get("checkout_id");
     if (!checkoutId || checkoutId === "{CHECKOUT_SESSION_ID}") {
       mount.textContent = "Payment status received. Open your dashboard to continue.";

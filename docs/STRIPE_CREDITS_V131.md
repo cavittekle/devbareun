@@ -14,8 +14,8 @@ This phase keeps the existing DevBareun design and adds SaaS payment/credit logi
 
 ```bash
 PUBLIC_SITE_URL=https://devbareun.com
-STRIPE_SECRET_KEY=sk_live_or_test
-STRIPE_WEBHOOK_SECRET=whsec_live_or_test
+STRIPE_SECRET_KEY=replace_with_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=replace_with_stripe_webhook_secret
 STRIPE_SINGLE_PROJECT_PRICE_ID=price_xxx
 STRIPE_PLUS_PRICE_ID=price_xxx
 STRIPE_PRO_PRICE_ID=price_xxx

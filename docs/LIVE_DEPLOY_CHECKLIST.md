@@ -19,6 +19,8 @@ Use this as the final pre-launch runbook.
 - [ ] `/api/saas/health` returns success
 - [ ] Logs show no missing production secrets
 - [ ] `DEVBAREUN_PRODUCTION_SECURITY=true`
+- [ ] `DEVBAREUN_ENABLE_DEV_AUTH=false`
+- [ ] `DEVBAREUN_ENABLE_LOCAL_STORE=false`
 - [ ] `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`
 - [ ] `DEVBAREUN_ENABLE_PILOT_LOGIN=false`
 - [ ] `DEVBAREUN_ENABLE_PILOT_CHECKOUT=false`
@@ -35,12 +37,13 @@ Use this as the final pre-launch runbook.
 
 ## 4. Supabase
 
-- [ ] SQL files are applied in the documented order
+- [ ] `database/2026_05_29_v140_production_saas_core.sql` is applied after earlier migrations
 - [ ] RLS policies are reviewed
-- [ ] Private bucket `devbareun-project-files` exists
+- [ ] Private bucket `project-files` exists
 - [ ] `SUPABASE_URL` is set in Railway
 - [ ] `SUPABASE_ANON_KEY` is set in Railway
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` is set only in Railway
+- [ ] `SUPABASE_STORAGE_BUCKET=project-files`
 - [ ] No service role key exists in frontend files, Vercel vars or browser code
 
 ## 5. Stripe

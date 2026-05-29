@@ -2,114 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Workspace Dashboard - DevBareun</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/saas-auth.css?v=13936" />
-  <link rel="stylesheet" href="css/persistent-workspace.css?v=13936" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Overview - DevBareun Member Workspace</title>
+  <meta name="description" content="Private DevBareun member workspace overview for project dashboards and reporting." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="canonical" href="https://devbareun.com/dashboard.html" />
+  <meta property="og:title" content="Overview - DevBareun Member Workspace" />
+  <meta property="og:description" content="Private DevBareun member workspace overview for project dashboards and reporting." />
+  <meta property="og:url" content="https://devbareun.com/dashboard.html" />
+  <meta name="theme-color" content="#020817" />
+  <link rel="icon" href="assets/favicon.png" />
+  <link rel="stylesheet" href="css/member-workspace.css?v=13940" />
 </head>
-<body data-protected="true" class="workspace-page">
-  <main class="workspace-layout">
-    <aside class="workspace-sidebar">
-      <a class="brand-link" href="/index.html">DevBareun</a>
-      <p class="sidebar-label">Workspace panel</p>
-      <nav>
-        <a class="active" href="/dashboard.html">Dashboard</a>
-        <a href="/projects.html">Projects</a>
-        <a href="/reports.html">Reports</a>
-        <a href="/billing.html">Billing</a>
-        <a href="/profile.html">Profile</a>
-      </nav>
-      <div class="sidebar-help">
-        <strong>Need a new analysis?</strong>
-        <p>Start with a project record, then upload report files.</p>
-        <a href="/projects.html">New project</a>
-      </div>
-    </aside>
-
-    <section class="workspace-main">
-      <header class="workspace-topbar">
-        <div>
-          <p class="eyebrow">Protected workspace</p>
-          <h1>Project control dashboard</h1>
-          <p class="muted">Projects, reporting history and available analysis credits in one place.</p>
-        </div>
-        <div class="workspace-user-card">
-          <span class="workspace-avatar" data-auth-initial>D</span>
-          <div>
-            <strong data-auth-email>Loading...</strong>
-            <small><span data-auth-plan>Plan</span> &middot; <span data-auth-credits>-</span> credits</small>
-          </div>
-          <button class="btn btn-ghost btn-small" data-logout>Logout</button>
-        </div>
-      </header>
-
-      <section class="workspace-panel wide dashboard-welcome">
-        <div>
-          <p class="eyebrow">Workspace ready</p>
-          <h2>Welcome back. Turn the next report into decisions.</h2>
-          <p class="muted">Create a project record, attach construction files and keep generated reports available for review and export.</p>
-        </div>
-        <div class="workspace-actions">
-          <a class="btn btn-primary" href="/projects.html">Create project</a>
-          <a class="btn btn-ghost" href="/reports.html">Open archive</a>
-        </div>
-      </section>
-
-      <div class="workspace-grid dashboard-metrics">
-        <article class="workspace-panel">
-          <span class="panel-label">Credits available</span>
-          <strong data-auth-credits>-</strong>
-          <p>Remaining analysis capacity in your current package.</p>
-        </article>
-        <article class="workspace-panel">
-          <span class="panel-label">Active plan</span>
-          <strong data-auth-plan>-</strong>
-          <p>Your ongoing workspace access level.</p>
-        </article>
-        <article class="workspace-panel">
-          <span class="panel-label">Projects</span>
-          <strong data-project-count>-</strong>
-          <p>Saved construction project records.</p>
-        </article>
-        <article class="workspace-panel">
-          <span class="panel-label">Reports</span>
-          <strong data-report-count>-</strong>
-          <p>Archived outputs ready for A4/A3 print.</p>
-        </article>
-      </div>
-
-      <section class="workspace-panel wide workspace-path">
-        <div class="workspace-section-heading">
-          <div>
-            <p class="eyebrow">Next workflow</p>
-            <h2>From file upload to management report</h2>
-          </div>
-          <a class="btn btn-ghost" href="/billing.html">Manage plan</a>
-        </div>
-        <div class="workspace-step-grid">
-          <article>
-            <span>01</span>
-            <h3>Create project</h3>
-            <p>Save project identity, parties, currency and contract baseline.</p>
-            <a href="/projects.html">Start project</a>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Upload data</h3>
-            <p>Attach cost, schedule and field report evidence for analysis.</p>
-            <a href="/projects.html">Choose a project first</a>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Review outputs</h3>
-            <p>Open saved dashboards, exports and print-ready reports.</p>
-            <a href="/reports.html">View reports</a>
-          </article>
-        </div>
-      </section>
-    </section>
-  </main>
-  <script src="js/auth-workspace.js?v=13936"></script>
+<body class="member-workspace-page" data-member-page="dashboard">
+  <noscript>DevBareun Member Workspace requires JavaScript.</noscript>
+  <div id="memberWorkspaceApp"></div>
+  <script src="js/devbareun-api.js?v=14000"></script>
+  <script src="js/member-workspace.js?v=13940"></script>
 </body>
 </html>

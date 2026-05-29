@@ -1,87 +1,20 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Billing — DevBareun</title>
-<link href="css/styles.css" rel="stylesheet"/>
-<link href="css/saas-auth.css?v=13936" rel="stylesheet"/>
-<link href="css/persistent-workspace.css?v=13936" rel="stylesheet"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Billing - DevBareun Member Workspace</title>
+  <meta name="description" content="Private DevBareun billing workspace for subscription and usage management." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="canonical" href="https://devbareun.com/billing.html" />
+  <meta name="theme-color" content="#020817" />
+  <link rel="icon" href="assets/favicon.png" />
+  <link rel="stylesheet" href="css/member-workspace.css?v=13940" />
 </head>
-<body class="workspace-page" data-protected="true">
-<main class="workspace-layout">
-<aside class="workspace-sidebar">
-<a class="brand-link" href="/">DevBareun</a>
-<nav>
-<a href="/dashboard.html">Dashboard</a>
-<a href="/projects.html">Projects</a>
-<a href="/reports.html">Reports</a>
-<a class="active" href="/billing.html">Billing</a>
-<a href="/profile.html">Profile</a>
-</nav>
-</aside>
-<section class="workspace-main">
-<header class="workspace-topbar">
-<div>
-<p class="eyebrow">Billing gate</p>
-<h1>Plan, credits and analysis access</h1>
-<p class="muted">Use one-time project review or monthly workspace packages. Each generated report is saved to the report archive.</p>
-</div>
-<div class="workspace-user-card">
-<span class="workspace-avatar" data-auth-initial="">D</span>
-<div><strong data-auth-email="">Loading...</strong><small><span data-auth-plan="">Plan</span> · <span data-auth-credits="">—</span> credits</small></div>
-<button class="btn btn-ghost btn-small" data-logout="">Logout</button>
-</div>
-</header>
-<section class="workspace-panel wide" id="billingEntitlementSummary"></section>
-<section class="workspace-panel wide">
-<div class="report-archive-toolbar">
-<div><h2>Packages</h2><p class="muted">Commercial values are configured through Stripe price IDs in production.</p></div>
-<p class="auth-status" id="billingStatus"></p>
-</div>
-<div class="billing-plan-grid">
-<article class="billing-plan-card" data-plan-card="single">
-<p class="eyebrow">One-time</p>
-<h2>Single Project</h2>
-<div class="billing-plan-price">$29 <small>one-time / 1 analysis</small></div>
-<ul class="billing-feature-list">
-<li>One project upload and dashboard</li>
-<li>Saved report archive row</li>
-<li>A4/A3 print output</li>
-<li>PDF and Excel export after unlock</li>
-</ul>
-<button class="btn btn-primary" data-plan-checkout="single">Buy single project</button>
-</article>
-<article class="billing-plan-card featured" data-plan-card="plus">
-<p class="eyebrow">Monthly</p>
-<h2>Plus</h2>
-<div class="billing-plan-price">$49 <small>/ month - 5 projects</small></div>
-<ul class="billing-feature-list">
-<li>5 analysis credits per month</li>
-<li>Workspace project history</li>
-<li>Report archive and print center</li>
-<li>PDF/Excel exports</li>
-</ul>
-<button class="btn btn-primary" data-plan-checkout="plus">Start Plus</button>
-</article>
-<article class="billing-plan-card" data-plan-card="pro">
-<p class="eyebrow">Monthly</p>
-<h2>Pro</h2>
-<div class="billing-plan-price">$89 <small>/ month - 20 projects</small></div>
-<ul class="billing-feature-list">
-<li>20 analysis credits per month</li>
-<li>Higher-volume project control workflow</li>
-<li>A3 management-ready report output</li>
-<li>Admin-ready usage tracking</li>
-</ul>
-<button class="btn btn-primary" data-plan-checkout="pro">Start Pro</button>
-</article>
-</div>
-</section>
-</section>
-</main>
-<script src="js/auth-workspace.js?v=13936"></script>
-<script src="js/billing-gate.js?v=13936"></script>
+<body class="member-workspace-page" data-member-page="billing">
+  <noscript>DevBareun Member Workspace requires JavaScript.</noscript>
+  <div id="memberWorkspaceApp"></div>
+  <script src="js/devbareun-api.js?v=14000"></script>
+  <script src="js/member-workspace.js?v=13940"></script>
 </body>
 </html>

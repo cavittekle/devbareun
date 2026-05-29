@@ -26,7 +26,7 @@ Monthly subscription with 5 project analyses per month.
 Monthly subscription with 20 project analyses per month and advanced exports.
 
 ## Important terminology rule
-Public website copy should avoid the words AI, Artificial Intelligence, intelligence, süni intellekt and intellekt. Use construction analytics, project control, management dashboard, risk analytics, schedule analytics, cost analytics, document control, reporting and project review.
+Public website copy should use construction analytics, project control, management dashboard, risk analytics, schedule analytics, cost analytics, document control, reporting and project review terminology.
 
 ## Current status
 

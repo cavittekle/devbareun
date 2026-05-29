@@ -13,8 +13,8 @@ Create these Stripe products and prices:
 Set in Railway:
 
 ```env
-STRIPE_SECRET_KEY=sk_live_or_test_replace_me
-STRIPE_WEBHOOK_SECRET=whsec_replace_me
+STRIPE_SECRET_KEY=replace_with_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=replace_with_stripe_webhook_secret
 STRIPE_SINGLE_PROJECT_PRICE_ID=price_single_project
 STRIPE_PLUS_PRICE_ID=price_plus_monthly
 STRIPE_PRO_PRICE_ID=price_pro_monthly
@@ -46,6 +46,22 @@ Enable these events:
 - `invoice.payment_failed`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
+
+## Single Project Upload Flow
+
+The public landing page uses this paid guest flow:
+
+1. Visitor selects Single Project or opens `index.html?plan=single#upload`.
+2. Visitor uploads project files on the landing upload panel.
+3. DevBareun creates a guest project record and uploads the files.
+4. DevBareun shows a mapping preview.
+5. The button changes to `Pay $29 & Generate Dashboard`.
+6. Backend creates a Stripe Checkout session with `metadata.project_id`.
+7. Stripe redirects back to `payment-success.html?plan=single&guest=1&project_id=...`.
+8. Stripe webhook marks that project as paid.
+9. The success page generates the dashboard and opens `result-dashboard.html`.
+
+This means Single Project does not need an account, but dashboard generation stays locked until payment is confirmed.
 
 Production rules:
 

@@ -388,11 +388,15 @@
       return;
     }
     try {
-      const token = getProjectToken(projectId);
-      const headers = token ? { "X-Project-Token": token } : {};
-      const res = await fetch(`${API_BASE}/api/projects/${projectId}/dashboard`, { headers });
-      if (!res.ok) throw new Error(await res.text() || "Dashboard not found");
-      updateDashboard(await res.json());
+      if (window.DevBareunAPI && window.DevBareunAPI.getDashboard) {
+        updateDashboard(await window.DevBareunAPI.getDashboard(projectId));
+      } else {
+        const token = getProjectToken(projectId);
+        const headers = token ? { "X-Project-Token": token } : {};
+        const res = await fetch(`${API_BASE}/api/projects/${projectId}/dashboard`, { headers });
+        if (!res.ok) throw new Error(await res.text() || "Dashboard not found");
+        updateDashboard(await res.json());
+      }
     } catch (err) {
       console.error(err);
       clearStaticSamples();

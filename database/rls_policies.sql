@@ -1,8 +1,8 @@
 -- DevBareun strict Row Level Security policies
--- Latest baseline: v1.3.9 Production Security
+-- Latest baseline: v1.4.0 Production SaaS Core
 --
 -- Supabase SQL Editor does not execute local include commands.
 -- Apply this file by copying the SQL from:
--- database/2026_05_27_v139_production_security.sql
+-- database/2026_05_29_v140_production_saas_core.sql
 --
 -- This pointer file is kept for repo compatibility with older setup notes.
