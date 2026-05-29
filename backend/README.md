@@ -1,70 +1,80 @@
-# DevBareun Backend v1.1.3
+# DevBareun Backend v1.4.0
 
-FastAPI backend for DevBareun construction analytics, project-control parsing, dashboard generation and PDF/Excel exports.
+FastAPI backend for DevBareun construction analytics, project control uploads, background project review jobs, executive dashboard APIs, billing, and report exports.
 
-## Current version
-
-```text
-1.1.3-fixed-release
-```
-
-## Main fixes in this package
-
-- Unified backend health/version marker through `app/version.py`.
-- Added server-side upload limits: file count, per-file MB and total MB.
-- Replaced open CORS wildcard with environment-controlled allowed origins.
-- Added project-id and filename validation guards.
-- Added optional Stripe Checkout creation path while keeping pilot mock unlock configurable.
-- Prioritized the official `Full_Dashboard_Input` template sheet so planned/actual KPI columns are read deterministically.
-- Protected workforce fields from negative variance values being treated as worker counts.
-- Removed runtime `data/` and `storage/` contents from the package.
-
-## Railway start command
+## Railway Start Command
 
 ```bash
 python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
 ```
 
-## Health check
+Railway config is stored in `railway.json` and uses `/api/health` as the healthcheck path.
+
+## Required Production Environment
+
+Copy values from `.env.example` into Railway. Keep these security flags set for production:
 
 ```text
-/health
-/api/health
-```
-
-Expected version:
-
-```text
-1.1.3-fixed-release
-```
-
-## Environment variables
-
-Copy `backend/.env.example` when configuring Railway.
-
-Important variables:
-
-```text
-DEVBAREUN_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,http://localhost:3000,http://localhost:5173
-DEVBAREUN_MAX_FILES=12
-DEVBAREUN_MAX_FILE_MB=30
-DEVBAREUN_MAX_TOTAL_MB=120
+DEVBAREUN_ENV=production
+APP_ENV=production
+DEVBAREUN_PRODUCTION_SECURITY=true
+DEVBAREUN_ENABLE_DEV_AUTH=false
+DEVBAREUN_ENABLE_LOCAL_STORE=false
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
+DEVBAREUN_ENABLE_PILOT_LOGIN=false
+DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
+DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false
+DEVBAREUN_DISABLE_DOCS=true
+```
+
+Supabase backend variables:
+
+```text
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_JWT_SECRET=
+SUPABASE_STORAGE_BUCKET=project-files
+```
+
+Stripe can remain placeholder until payment testing starts, but production checkout requires:
+
+```text
 STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 STRIPE_SINGLE_PROJECT_PRICE_ID=
 STRIPE_PLUS_PRICE_ID=
 STRIPE_PRO_PRICE_ID=
-STRIPE_WEBHOOK_SECRET=
 ```
 
-For commercial launch, set Stripe credentials and disable pilot mock unlock:
+## Health Checks
 
 ```text
-DEVBAREUN_ENABLE_MOCK_PAYMENT=false
+GET /api/health
+GET /api/saas/health
 ```
 
-## Notes
+Expected backend health shape:
 
-- Calculations remain deterministic in Python.
-- Optional OpenAI-assisted mapping is available through `OPENAI_MAPPING_ENABLED=true`; it should classify unclear data only, not replace Python calculations.
-- Store runtime uploads and project JSON outside GitHub in production storage/database.
+```json
+{
+  "status": "ok",
+  "service": "DevBareun Backend",
+  "database": "connected",
+  "storage": "configured",
+  "version": "1.4.0"
+}
+```
+
+Without Supabase env values, `database` and `storage` show `not_configured`.
+
+## Supabase Setup
+
+Apply database SQL files from the repository root `database/` folder. For a clean v1.4.0 setup, use:
+
+1. `2026_05_29_v140_production_saas_core.sql`
+2. `2026_05_29_v140_part2_jobs_billing_reports.sql`
+3. `seed_plans.sql`
+
+Then create a private Supabase Storage bucket named `project-files`.
+
