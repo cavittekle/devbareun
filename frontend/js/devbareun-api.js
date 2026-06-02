@@ -16,6 +16,9 @@
   }
 
   function localDefaultApi() {
+    if (localStorage.getItem("devbareun_use_local_backend") !== "true") {
+      return DEFAULT_REMOTE_API;
+    }
     var host = location.hostname === "localhost" ? "127.0.0.1" : (location.hostname || "127.0.0.1");
     return "http://" + host + ":8000";
   }
