@@ -1,0 +1,32 @@
+# DevBareun repository hygiene
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / frontend builds
+node_modules/
+dist/
+build/
+.vercel/
+.netlify/
+
+# DevBareun runtime/generated data
+backend/data/
+backend/storage/
+agent_reports/
+reports/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+*.log
+*.tmp

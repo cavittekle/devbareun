@@ -1,0 +1,119 @@
+{
+  "plaster": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 20,
+      "typical": 25,
+      "high": 35
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "paint": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 40,
+      "typical": 60,
+      "high": 80
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "tile": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 8,
+      "typical": 12,
+      "high": 15
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "masonry": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 8,
+      "typical": 12,
+      "high": 15
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "screed": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 35,
+      "typical": 50,
+      "high": 70
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "formwork": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 8,
+      "typical": 12,
+      "high": 18
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "rebar": {
+    "unit": "ton",
+    "productivity_per_worker_day": {
+      "low": 0.25,
+      "typical": 0.45,
+      "high": 0.7
+    },
+    "productivity_unit": "ton/worker/day"
+  },
+  "concrete": {
+    "unit": "m³",
+    "productivity_per_worker_day": {
+      "low": 8,
+      "typical": 12,
+      "high": 18
+    },
+    "productivity_unit": "m³/worker/day"
+  },
+  "facade": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 5,
+      "typical": 9,
+      "high": 14
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "stone_floor": {
+    "unit": "m²",
+    "productivity_per_worker_day": {
+      "low": 8,
+      "typical": 14,
+      "high": 20
+    },
+    "productivity_unit": "m²/worker/day"
+  },
+  "electrical_cable": {
+    "unit": "m",
+    "productivity_per_worker_day": {
+      "low": 40,
+      "typical": 80,
+      "high": 130
+    },
+    "productivity_unit": "m/worker/day"
+  },
+  "plumbing_pipe": {
+    "unit": "m",
+    "productivity_per_worker_day": {
+      "low": 20,
+      "typical": 40,
+      "high": 70
+    },
+    "productivity_unit": "m/worker/day"
+  },
+  "excavation": {
+    "unit": "m³",
+    "productivity_per_worker_day": {
+      "low": 20,
+      "typical": 45,
+      "high": 80
+    },
+    "productivity_unit": "m³/crew/day"
+  }
+}

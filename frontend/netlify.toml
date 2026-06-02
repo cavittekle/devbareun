@@ -1,0 +1,18 @@
+# DevBareun Netlify settings
+# Redirect www to apex domain. Also configure both domains in Netlify Domain Settings.
+
+[[redirects]]
+  from = "https://www.devbareun.com/*"
+  to = "https://devbareun.com/:splat"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/assets/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

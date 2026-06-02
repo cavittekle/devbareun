@@ -1,0 +1,83 @@
+{
+  "Alçı ustası": {
+    "used_in": [
+      "plaster"
+    ]
+  },
+  "Fəhlə": {
+    "used_in": [
+      "plaster",
+      "tile",
+      "masonry",
+      "screed",
+      "formwork",
+      "rebar",
+      "concrete",
+      "facade",
+      "stone_floor",
+      "electrical_cable",
+      "plumbing_pipe",
+      "excavation"
+    ]
+  },
+  "Malyar": {
+    "used_in": [
+      "paint"
+    ]
+  },
+  "Kafel ustası": {
+    "used_in": [
+      "tile"
+    ]
+  },
+  "Hörgü ustası": {
+    "used_in": [
+      "masonry"
+    ]
+  },
+  "Şap ustası": {
+    "used_in": [
+      "screed"
+    ]
+  },
+  "Qəlibçi": {
+    "used_in": [
+      "formwork"
+    ]
+  },
+  "Dəmirçi": {
+    "used_in": [
+      "rebar"
+    ]
+  },
+  "Betonçu": {
+    "used_in": [
+      "concrete"
+    ]
+  },
+  "Fasad ustası": {
+    "used_in": [
+      "facade"
+    ]
+  },
+  "Daş ustası": {
+    "used_in": [
+      "stone_floor"
+    ]
+  },
+  "Elektrik": {
+    "used_in": [
+      "electrical_cable"
+    ]
+  },
+  "Santexnik": {
+    "used_in": [
+      "plumbing_pipe"
+    ]
+  },
+  "Operator": {
+    "used_in": [
+      "excavation"
+    ]
+  }
+}
