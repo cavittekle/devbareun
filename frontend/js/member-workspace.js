@@ -511,7 +511,7 @@
 
   function brandMarkup() {
     return '<a class="mw-brand" href="dashboard.html" aria-label="DevBareun workspace">' +
-      '<img src="assets/devbareun-symbol-white.svg" alt="DevBareun" />' +
+      '<img src="assets/devbareun-symbol-white.svg?v=2" alt="DevBareun" />' +
       '<span>Dev<span>Bareun</span></span>' +
       '</a>';
   }

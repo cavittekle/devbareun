@@ -8,12 +8,12 @@
   "theme_color": "#020817",
   "icons": [
     {
-      "src": "assets/devbareun-app-icon-512.png",
+      "src": "assets/devbareun-app-icon-512.png?v=2",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "assets/apple-touch-icon.png",
+      "src": "assets/apple-touch-icon.png?v=2",
       "sizes": "180x180",
       "type": "image/png"
     }
