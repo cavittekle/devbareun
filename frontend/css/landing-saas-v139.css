@@ -1793,3 +1793,20 @@ html[data-theme="light"] .selected-header-v1393 .selected-menu-btn {
 html[data-theme="light"] .selected-landing-v1393 .selected-dash-rail .rail-logo img {
   filter: invert(1) brightness(.58) saturate(1.35);
 }
+
+/* Dark-only product direction: remove the public theme switch from the landing header. */
+.themeBtn,
+.selected-header-v1393 .selected-utility-pill .selected-theme-btn,
+.selected-header-v1393 .selected-utility-pill .selected-divider {
+  display: none !important;
+}
+
+.selected-header-v1393 .selected-utility-pill {
+  width: 52px !important;
+  grid-template-columns: 1fr !important;
+}
+
+.selected-header-v1393 .selected-utility-pill .selected-lang-btn {
+  flex-basis: 100% !important;
+  width: 100% !important;
+}

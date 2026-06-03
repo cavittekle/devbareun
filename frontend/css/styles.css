@@ -2092,3 +2092,8 @@ html[data-theme="light"] .file-chip-v125{background:#fff!important;border-color:
   .workspace-grid { grid-template-columns: 1fr; }
   .workspace-topbar { align-items: flex-start; flex-direction: column; }
 }
+
+/* DevBareun is dark-only; keep any legacy theme toggle out of the UI. */
+.themeBtn {
+  display: none !important;
+}
