@@ -28,6 +28,8 @@ Use neutral construction SaaS wording instead:
 - document control
 - reporting
 - project performance dashboard
+- executive dashboard
+- construction reporting platform
 
 ## Main Rule
 
@@ -44,11 +46,11 @@ If a similar implementation already exists, reuse it and improve it instead of c
 Before editing files, always check:
 
 1. What files and folders already exist.
-2. Which files control the requested feature or bug.
+2. Which files control the requested feature, bug, or design issue.
 3. Whether the requested feature already exists.
-4. Whether a similar page, component, function, API, database table, route, or style already exists.
-5. Whether the change affects frontend, backend, database, deployment, authentication, payment, storage, or documentation.
-6. Whether the change may break mobile layout, localization, dashboard behavior, upload flow, or existing user flows.
+4. Whether a similar page, component, function, API endpoint, database table, migration, route, or style already exists.
+5. Whether the change affects frontend, backend, database, deployment, authentication, payment, storage, export, reports, or documentation.
+6. Whether the change may break mobile layout, dark-only styling, localization, dashboard behavior, upload flow, print/export behavior, or existing user flows.
 7. Whether the task can be completed with minimal changes.
 
 Do not start coding before identifying the exact files that need to be changed.
@@ -102,6 +104,10 @@ Preserve the approved DevBareun visual direction:
 - dashboard preview
 - orbit-logo loading screen or equivalent polished loading state
 - executive construction dashboard style
+- customer dashboard after login
+- public landing page without forced login
+- PDF and Excel export direction
+- Supabase + Vercel + Railway + GitHub deployment direction
 
 Do not replace the UI with a completely different design unless explicitly requested.
 
@@ -142,8 +148,24 @@ When changing frontend:
 - keep the dark interface readable
 - keep EN/AZ switching working
 - keep spacing and typography consistent
+- preserve approved header, footer, loading screen, and dashboard direction
 - do not add unnecessary visual noise
 - do not show empty cards, empty sections, placeholder charts, or fake dashboard data in production UI
+
+## Localization Rules
+
+Default language is English.
+
+Azerbaijani is the secondary language.
+
+Do not leave mixed-language UI.
+
+When adding new visible text:
+
+- add both English and Azerbaijani versions
+- keep construction terminology professional
+- make sure buttons, menus, labels, tooltips, dashboard titles, form errors, and report/export labels are translated
+- selected language should apply to the dashboard and reports/exports where applicable
 
 ## Backend Rules
 

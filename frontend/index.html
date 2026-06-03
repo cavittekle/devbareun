@@ -174,53 +174,145 @@
 <h2><span>1.</span> <span data-i18n-ext="wizardSelectTitle">Choose control package</span></h2>
 <p class="muted" data-i18n-ext="wizardSelectText">Choose the package that matches the main project problem. DevBareun will prepare the right dashboard and required upload logic.</p>
 </div>
+<div class="solve-selector" aria-label="What are you trying to solve?">
+<div>
+<small>Guided selection</small>
+<strong>What are you trying to solve?</strong>
+</div>
+<div class="solve-options" role="radiogroup">
+<button aria-pressed="false" class="solve-option" data-solve-package="schedule" type="button">Project Delay</button>
+<button aria-pressed="false" class="solve-option" data-solve-package="cost" type="button">Cost Overrun</button>
+<button aria-pressed="false" class="solve-option" data-solve-package="material" type="button">Material Issues</button>
+<button aria-pressed="false" class="solve-option" data-solve-package="risk" type="button">Risk Management</button>
+<button aria-pressed="true" class="solve-option active" data-solve-package="all" type="button">Full Project Control</button>
+</div>
+</div>
 <div aria-label="Select control package" class="analysis-type-grid wizard-card-row package-card-row" id="analysisTypeGrid" role="radiogroup">
-<button aria-pressed="true" class="analysis-type-card package-card package-premium active" data-analysis-type="all" type="button">
+<article aria-checked="true" aria-pressed="true" class="analysis-type-card package-card package-premium active" data-analysis-type="all" role="radio" tabindex="0">
 <i class="analysis-icon">&#9670;</i>
 <small class="package-kicker" data-i18n-ext="packageFullKicker">All modules</small>
 <b data-i18n-ext="analysisAllTitle">Full Project Control</b>
+<span class="package-dashboard-label">6 Dashboards Included</span>
 <span data-i18n-ext="analysisAllDescLong">Complete control across schedule, cost, payment, material, risk and decisions</span>
 <em data-i18n-ext="analysisAllBadge">Recommended</em>
-</button>
-<button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="schedule" type="button">
+<div class="package-card-sections">
+<div class="package-card-section"><small>Problem</small><p>Management needs one complete view across schedule, cost, payment, material and risk.</p></div>
+<div class="package-card-section"><small>Upload</small><ul><li>Schedule baseline</li><li>Cost estimate / BOQ</li><li>F-2 / progress payment</li><li>Material and risk records</li></ul></div>
+<div class="package-card-section"><small>Result</small><ul><li>Schedule Dashboard</li><li>Cost Dashboard</li><li>Payment Dashboard</li><li>Material Dashboard</li><li>Risk Dashboard</li><li>Executive Dashboard</li></ul></div>
+</div>
+<button class="package-example-link" data-example-package="all" type="button">View Example Dashboard</button>
+</article>
+<article aria-checked="false" aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="schedule" role="radio" tabindex="0">
 <i class="analysis-icon blue">&#9638;</i>
 <small class="package-kicker" data-i18n-ext="packageScheduleKicker">Schedule + Workforce</small>
 <b data-i18n-ext="analysisScheduleTitle">Schedule Recovery</b>
 <span data-i18n-ext="analysisScheduleDesc">Delay analysis, workforce gap and recovery planning</span>
 <em data-i18n-ext="analysisScheduleBadge">Recovery plan</em>
-</button>
-<button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="cost" type="button">
+<div class="package-card-sections">
+<div class="package-card-section"><small>Problem</small><p>Project is delayed and needs recovery planning.</p></div>
+<div class="package-card-section"><small>Upload</small><ul><li>Baseline Schedule</li><li>Actual Progress</li><li>Workforce Data (optional)</li></ul></div>
+<div class="package-card-section"><small>Result</small><ul><li>Delay Dashboard</li><li>SPI</li><li>Critical Path</li><li>Recovery Plan</li><li>Required Workforce Increase</li></ul></div>
+</div>
+<button class="package-example-link" data-example-package="schedule" type="button">View Example Dashboard</button>
+</article>
+<article aria-checked="false" aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="cost" role="radio" tabindex="0">
 <i class="analysis-icon purple">&#9670;</i>
 <small class="package-kicker" data-i18n-ext="packageCostKicker">Cost Estimate + Progress Payment</small>
 <b data-i18n-ext="analysisCostTitle">Cost &amp; Payment Control</b>
 <span data-i18n-ext="analysisCostDesc">Cost estimate, actual cost and progress payment control</span>
 <em data-i18n-ext="analysisCostBadge">Commercial control</em>
-</button>
-<button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="material" type="button">
+<div class="package-card-sections">
+<div class="package-card-section"><small>Problem</small><p>Budget pressure, overrun or payment uncertainty needs control.</p></div>
+<div class="package-card-section"><small>Upload</small><ul><li>Cost Estimate / BOQ</li><li>Actual Cost</li><li>F-2 / Progress Payment</li></ul></div>
+<div class="package-card-section"><small>Result</small><ul><li>Cost Dashboard</li><li>CPI</li><li>Budget Variance</li><li>Payment Status</li><li>Remaining Value</li></ul></div>
+</div>
+<button class="package-example-link" data-example-package="cost" type="button">View Example Dashboard</button>
+</article>
+<article aria-checked="false" aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="material" role="radio" tabindex="0">
 <i class="analysis-icon cyan">&#9635;</i>
 <small class="package-kicker" data-i18n-ext="packageMaterialKicker">Material + Procurement</small>
 <b data-i18n-ext="analysisMaterialTitle">Material Continuity</b>
 <span data-i18n-ext="analysisMaterialDesc">Stock, delivery risk and procurement continuity</span>
 <em data-i18n-ext="analysisMaterialBadge">Supply chain</em>
-</button>
-<button aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="risk" type="button">
+<div class="package-card-sections">
+<div class="package-card-section"><small>Problem</small><p>Material shortages or delivery risk may slow site progress.</p></div>
+<div class="package-card-section"><small>Upload</small><ul><li>Material List / BOQ</li><li>Stock Records</li><li>Delivery / Procurement Updates</li></ul></div>
+<div class="package-card-section"><small>Result</small><ul><li>Material Dashboard</li><li>Shortage Alerts</li><li>Delivery Risk</li><li>Continuity Actions</li></ul></div>
+</div>
+<button class="package-example-link" data-example-package="material" type="button">View Example Dashboard</button>
+</article>
+<article aria-checked="false" aria-pressed="false" class="analysis-type-card package-card" data-analysis-type="risk" role="radio" tabindex="0">
 <i class="analysis-icon purple">&#9888;</i>
 <small class="package-kicker" data-i18n-ext="packageRiskKicker">Risk + Decisions</small>
 <b data-i18n-ext="analysisRiskTitle">Risk &amp; Decisions</b>
 <span data-i18n-ext="analysisRiskDesc">Risk register, decision prompts and management actions</span>
 <em data-i18n-ext="analysisRiskBadge">Executive focus</em>
-</button>
+<div class="package-card-sections">
+<div class="package-card-section"><small>Problem</small><p>Management needs a clear risk register and decision path.</p></div>
+<div class="package-card-section"><small>Upload</small><ul><li>Risk Log</li><li>Site Notes</li><li>Cost / Schedule Signals</li><li>Decision Records</li></ul></div>
+<div class="package-card-section"><small>Result</small><ul><li>Risk Dashboard</li><li>Priority Register</li><li>Decision Prompts</li><li>Management Actions</li></ul></div>
+</div>
+<button class="package-example-link" data-example-package="risk" type="button">View Example Dashboard</button>
+</article>
 </div>
 <div aria-live="polite" class="package-combo-strip">
 <span class="combo-icon">&#10003;</span>
 <div><b data-i18n-ext="packageComboTitle" id="packageComboTitle">Selected package: Full Dashboard</b><p class="muted" data-i18n-ext="packageComboText" id="packageComboText">Complete project-control view for management reporting.</p></div>
 <a class="btn ghost" data-i18n-ext="downloadOptionalTemplate" href="templates/devbareun-professional-upload-template-v2.xlsx" id="templateDownload">Download professional template</a>
 </div>
+<div class="analysis-output-grid" aria-label="Analysis flow summary">
+<article class="analysis-output-card">
+<small data-i18n-ext="flowInputLabel">You upload</small>
+<strong data-i18n-ext="flowInputTitle">Project control files</strong>
+<p data-i18n-ext="flowInputText">BOQ, cost estimate, F-2, schedule, workforce, procurement or risk files depending on the selected package.</p>
+</article>
+<article class="analysis-output-card">
+<small data-i18n-ext="flowAnalyzeLabel">We analyze</small>
+<strong data-i18n-ext="flowAnalyzeTitle">Baseline vs actual performance</strong>
+<p data-i18n-ext="flowAnalyzeText">DevBareun checks delays, cost pressure, payment status, material continuity and executive risk based on the files you upload.</p>
+</article>
+<article class="analysis-output-card">
+<small data-i18n-ext="flowReceiveLabel">You receive</small>
+<strong data-i18n-ext="flowReceiveTitle">Dashboard plus report package</strong>
+<p data-i18n-ext="flowReceiveText">A package-specific dashboard, detected issues, decision prompts, and PDF or Excel outputs ready for review and export.</p>
+</article>
+</div>
 </div>
 <div class="upload-main-panel">
 <div class="wizard-section-head centered">
 <h2><span>2.</span> <span data-i18n-ext="wizardUploadTitle">Upload required data</span></h2>
 <p class="muted" data-i18n-ext="wizardUploadText">Upload the files required for the selected control package. Supported formats are shown below.</p>
+</div>
+<div aria-live="polite" class="upload-guidance-panel">
+<div class="upload-guide-columns">
+<div>
+<small>Required Files</small>
+<strong id="requiredFilesTitle">Full Project Control requires:</strong>
+<ol class="upload-guide-list" id="packageRequiredFiles">
+<li>Schedule baseline</li>
+<li>Cost estimate / BOQ</li>
+<li>F-2 / progress payment</li>
+<li>Material and risk records</li>
+</ol>
+</div>
+<div>
+<small>You will receive:</small>
+<strong id="expectedOutputTitle">Dashboards prepared:</strong>
+<ul class="upload-guide-list output" id="packageExpectedOutputs">
+<li>Schedule Dashboard</li>
+<li>Cost Dashboard</li>
+<li>Payment Dashboard</li>
+<li>Material Dashboard</li>
+<li>Risk Dashboard</li>
+<li>Executive Dashboard</li>
+</ul>
+</div>
+</div>
+<div class="smart-detection-panel" hidden id="smartDetectionPanel">
+<strong id="smartDetectionTitle">Analyzing uploaded files...</strong>
+<div class="detection-chip-row" id="smartDetectionChips"></div>
+<p id="smartDetectionStatus">Preparing dashboards...</p>
+</div>
 </div>
 <div class="drop wizard-drop" id="dropZone" role="button" tabindex="0">
 <div>
@@ -403,6 +495,17 @@
 </span>
 </div>
 </footer>
+<div aria-hidden="true" class="package-example-modal" data-package-example-modal hidden>
+<div class="package-example-backdrop" data-example-modal-close></div>
+<section aria-labelledby="exampleModalTitle" aria-modal="true" class="package-example-dialog" role="dialog">
+<button aria-label="Close example dashboard" class="package-example-close" data-example-modal-close type="button">&times;</button>
+<small id="exampleModalKicker">Example Dashboard</small>
+<h2 id="exampleModalTitle">Full Project Control</h2>
+<p id="exampleModalText">A complete project-control dashboard with executive KPIs and relevant modules based on uploaded data.</p>
+<div class="example-kpi-grid" id="exampleModalKpis"></div>
+<div aria-label="Example dashboard chart" class="example-chart" id="exampleModalChart"></div>
+</section>
+</div>
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
 <script src="js/az-glossary.js"></script>
 <script src="js/app.js?v=13937"></script><script src="js/devbareun-api.js?v=14000"></script><script src="js/auth-workspace.js?v=13936"></script><script src="js/landing-saas-v139.js?v=13932"></script><script src="js/landing-theme-preference.js?v=13937"></script>
@@ -410,6 +513,7 @@
 <script src="js/api-client.js"></script>
 <script src="js/backend-integration.js"></script>
 <script src="js/i18n-extended.js"></script>
+<script src="js/package-upload-guide.js"></script>
 </body>
 </html>
 

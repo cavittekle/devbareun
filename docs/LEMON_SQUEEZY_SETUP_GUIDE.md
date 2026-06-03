@@ -12,6 +12,14 @@ Create these products in Lemon Squeezy:
 
 Copy each product variant ID. DevBareun uses variant IDs to create hosted checkouts.
 
+Current test-mode variant IDs:
+
+```text
+LEMON_SQUEEZY_SINGLE_VARIANT_ID=1741208
+LEMON_SQUEEZY_PLUS_VARIANT_ID=1741246
+LEMON_SQUEEZY_PRO_VARIANT_ID=1741254
+```
+
 ## Backend Variables
 
 Set these in Railway:

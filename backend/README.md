@@ -37,15 +37,19 @@ SUPABASE_JWT_SECRET=
 SUPABASE_STORAGE_BUCKET=project-files
 ```
 
-Stripe can remain placeholder until payment testing starts, but production checkout requires:
+Production checkout currently uses Lemon Squeezy:
 
 ```text
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_SINGLE_PROJECT_PRICE_ID=
-STRIPE_PLUS_PRICE_ID=
-STRIPE_PRO_PRICE_ID=
+DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
+LEMON_SQUEEZY_API_KEY=
+LEMON_SQUEEZY_STORE_ID=
+LEMON_SQUEEZY_WEBHOOK_SECRET=
+LEMON_SQUEEZY_SINGLE_VARIANT_ID=
+LEMON_SQUEEZY_PLUS_VARIANT_ID=
+LEMON_SQUEEZY_PRO_VARIANT_ID=
 ```
+
+Stripe variables may stay empty unless legacy Stripe checkout is enabled again.
 
 ## Health Checks
 
@@ -77,4 +81,3 @@ Apply database SQL files from the repository root `database/` folder. For a clea
 3. `seed_plans.sql`
 
 Then create a private Supabase Storage bucket named `project-files`.
-

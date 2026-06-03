@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  project-health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required project control files
+        run: |
+          test -f AGENTS.md || (echo "Missing AGENTS.md" && exit 1)
+          test -f .env.example || (echo "Missing .env.example" && exit 1)
+          test -f README.md || (echo "Missing README.md" && exit 1)
+          test -f docs/PROJECT_STATE.md || (echo "Missing docs/PROJECT_STATE.md" && exit 1)
+          test -f docs/DEPLOYMENT_GUIDE.md || (echo "Missing docs/DEPLOYMENT_GUIDE.md" && exit 1)
+          test -f docs/CHANGELOG.md || (echo "Missing docs/CHANGELOG.md" && exit 1)
+          test -f docs/API.md || (echo "Missing docs/API.md" && exit 1)
+          test -f docs/DATABASE.md || (echo "Missing docs/DATABASE.md" && exit 1)
+          test -f docs/AUTOMATIONS.md || (echo "Missing docs/AUTOMATIONS.md" && exit 1)
+
+      - name: Check forbidden committed environment files
+        run: |
+          if find . -name ".env" -not -path "./.git/*" | grep -q .; then
+            echo "Error: .env file found in repository."
+            find . -name ".env" -not -path "./.git/*"
+            exit 1
+          fi
+
+      - name: Check for obvious secret patterns
+        run: |
+          if grep -RIn --exclude-dir=.git --exclude=".env.example" \
+            -E "(SUPABASE_SERVICE_ROLE_KEY=.+|STRIPE_SECRET_KEY=sk_|JWT_SECRET=.+|DATABASE_URL=postgres://|DATABASE_URL=postgresql://)" .; then
+            echo "Potential secret detected. Review output above."
+            exit 1
+          fi
+
+      - name: Detect dashboard frontend
+        id: detect_frontend
+        run: |
+          if [ -f frontend/member-dashboard-app/package.json ]; then
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.detect_frontend.outputs.frontend == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dashboard dependencies
+        if: steps.detect_frontend.outputs.frontend == 'true'
+        working-directory: frontend/member-dashboard-app
+        run: npm install
+
+      - name: Build dashboard frontend
+        if: steps.detect_frontend.outputs.frontend == 'true'
+        working-directory: frontend/member-dashboard-app
+        run: npm run build
+
+      - name: Detect backend
+        id: detect_backend
+        run: |
+          if [ -f backend/requirements.txt ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Python
+        if: steps.detect_backend.outputs.backend == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        if: steps.detect_backend.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Python syntax check
+        if: steps.detect_backend.outputs.backend == 'true'
+        working-directory: backend
+        run: python -m compileall app
+
+      - name: Run backend tests if available
+        if: steps.detect_backend.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          if [ -d tests ]; then
+            python -m pytest
+          else
+            echo "No backend tests directory found. Skipping."
+          fi

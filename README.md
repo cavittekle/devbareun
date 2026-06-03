@@ -46,7 +46,7 @@ Copy and configure:
 - `backend/.env.example` in Railway or local backend env.
 - `frontend/.env.example` in Vercel or local frontend env.
 
-Frontend env values are public. Never place `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, or webhook secrets in frontend files.
+Frontend env values are public. Never place `SUPABASE_SERVICE_ROLE_KEY`, payment API keys, or webhook secrets in frontend files.
 
 ## Supabase Setup
 
@@ -56,15 +56,16 @@ Frontend env values are public. Never place `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE
 4. Configure backend-only service role access in Railway.
 5. Keep frontend limited to `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 
-## Stripe Setup
+## Lemon Squeezy Setup
 
 Configure these backend variables:
 
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_SINGLE_PROJECT_PRICE_ID`
-- `STRIPE_PLUS_PRICE_ID`
-- `STRIPE_PRO_PRICE_ID`
+- `PAYMENT_PROVIDER=lemon_squeezy`
+- `LEMON_SQUEEZY_API_KEY`
+- `LEMON_SQUEEZY_WEBHOOK_SECRET`
+- `LEMON_SQUEEZY_SINGLE_VARIANT_ID`
+- `LEMON_SQUEEZY_PLUS_VARIANT_ID`
+- `LEMON_SQUEEZY_PRO_VARIANT_ID`
 
 Production flags must keep mock and pilot checkout disabled.
 
@@ -114,10 +115,35 @@ Required production flags:
 
 - Configure CORS and checkout redirect allowlists.
 - Keep docs disabled in production.
-- Verify Stripe webhook signatures.
+- Verify payment webhook signatures.
 - Keep service role keys backend-only.
 - Apply Supabase RLS policies.
 - Use private storage buckets.
 - Confirm member pages are `noindex`.
 - Run backend compile/import checks and frontend build before deploy.
 
+## Codex Task Starter
+
+Use this at the beginning of Codex or agent tasks:
+
+```text
+Read AGENTS.md and docs/PROJECT_STATE.md first.
+
+Do not recreate the project.
+Do not duplicate existing files, pages, components, APIs, routes, styles, database tables, migrations, or configuration files.
+Find the existing implementation and improve only the required part.
+
+Task:
+[write the exact task here]
+
+Before coding:
+- inspect existing files
+- identify exact files to change
+- avoid unrelated changes
+
+After coding:
+- list changed files
+- explain what changed
+- explain how to test
+- mention risks or follow-up tasks
+```
