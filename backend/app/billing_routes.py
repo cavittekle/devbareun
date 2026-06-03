@@ -42,10 +42,12 @@ async def one_time_checkout(payload: CheckoutRequest, current_user: CurrentUser 
 
 
 @router.post("/webhook")
-async def stripe_webhook(request: Request) -> Dict[str, Any]:
+async def billing_webhook(request: Request) -> Dict[str, Any]:
     body = await request.body()
-    signature = request.headers.get("stripe-signature")
-    return handle_webhook(body, signature)
+    lemon_signature = request.headers.get("x-signature")
+    if lemon_signature:
+        return handle_webhook(body, lemon_signature, provider_hint="lemonsqueezy")
+    return handle_webhook(body, request.headers.get("stripe-signature"), provider_hint="stripe")
 
 
 @router.get("/status")
@@ -56,4 +58,3 @@ async def billing_status(current_user: CurrentUser = Depends(get_current_user)) 
 @router.get("/usage")
 async def billing_usage(current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
     return {"usage": get_usage(current_user)}
-

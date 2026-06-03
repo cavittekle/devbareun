@@ -64,6 +64,14 @@ DEVBAREUN_STRIPE_CURRENCY=usd
 FRONTEND_SUCCESS_URL=https://devbareun.com/result-dashboard.html?payment=success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}
 FRONTEND_CANCEL_URL=https://devbareun.com/?payment=cancelled&project_id={project_id}
 
+DEVBAREUN_PAYMENT_PROVIDER=stripe
+LEMON_SQUEEZY_API_KEY=
+LEMON_SQUEEZY_STORE_ID=
+LEMON_SQUEEZY_WEBHOOK_SECRET=
+LEMON_SQUEEZY_SINGLE_VARIANT_ID=
+LEMON_SQUEEZY_PLUS_VARIANT_ID=
+LEMON_SQUEEZY_PRO_VARIANT_ID=
+
 OPENAI_MAPPING_ENABLED=false
 OPENAI_MAPPING_MODEL=gpt-4.1-mini
 OPENAI_MAPPING_CONFIDENCE_THRESHOLD=85
@@ -87,7 +95,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_or_test_replace_me
 
 ## Secret Boundary
 
-- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `OPENAI_API_KEY`.
-- Frontend allowed: Supabase anon key, Stripe publishable key, public site URL, public API URL.
+- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, `OPENAI_API_KEY`.
+- Frontend allowed: Supabase anon key, Stripe publishable key if Stripe is enabled, public site URL, public API URL. Lemon Squeezy API and webhook secrets stay backend-only.
 - Production must keep `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
 - Production must keep `DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false`.

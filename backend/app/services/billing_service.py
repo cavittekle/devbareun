@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import hmac
 import os
 import urllib.error
 import urllib.parse
@@ -133,7 +135,11 @@ def create_checkout_session(user: CurrentUser, plan: str, project_id: Optional[s
     return _create_checkout(user=user, plan=plan, mode=mode, project_id=project_id, success_url=success_url, cancel_url=cancel_url)
 
 
-def handle_webhook(raw_body: bytes, signature: Optional[str]) -> Dict[str, Any]:
+def handle_webhook(raw_body: bytes, signature: Optional[str], provider_hint: Optional[str] = None) -> Dict[str, Any]:
+    provider = str(provider_hint or _payment_provider()).strip().lower()
+    if provider == "lemonsqueezy":
+        return _handle_lemon_webhook(raw_body, signature)
+
     if not _stripe_ready():
         raise HTTPException(status_code=503, detail={"error": "stripe_not_configured", "message": "Stripe secret key is not configured."})
     webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
@@ -180,6 +186,9 @@ def _create_checkout(
 ) -> Dict[str, Any]:
     if plan not in PLAN_LIMITS:
         raise HTTPException(status_code=400, detail={"error": "invalid_plan", "message": f"Unsupported plan: {plan}"})
+    if _payment_provider() == "lemonsqueezy" and _lemon_ready():
+        return _create_lemon_checkout(user=user, plan=plan, mode=mode, project_id=project_id, success_url=success_url, cancel_url=cancel_url)
+
     if not _stripe_ready():
         if production_security_enabled() or not bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", False):
             raise HTTPException(status_code=503, detail={"error": "stripe_not_configured", "message": "Stripe Checkout is not configured."})
@@ -383,6 +392,169 @@ def _stripe_ready() -> bool:
         stripe.api_key = secret
         return True
     return bool(secret)
+
+
+def _payment_provider() -> str:
+    provider = os.getenv("DEVBAREUN_PAYMENT_PROVIDER", "").strip().lower()
+    if provider:
+        return provider
+    if os.getenv("LEMON_SQUEEZY_API_KEY") and os.getenv("LEMON_SQUEEZY_STORE_ID"):
+        return "lemonsqueezy"
+    return "stripe"
+
+
+def _lemon_variant_env(plan: str) -> str:
+    return {
+        "single": "LEMON_SQUEEZY_SINGLE_VARIANT_ID",
+        "plus": "LEMON_SQUEEZY_PLUS_VARIANT_ID",
+        "pro": "LEMON_SQUEEZY_PRO_VARIANT_ID",
+    }[plan]
+
+
+def _lemon_ready() -> bool:
+    return bool(os.getenv("LEMON_SQUEEZY_API_KEY") and os.getenv("LEMON_SQUEEZY_STORE_ID"))
+
+
+def _create_lemon_checkout(
+    *,
+    user: CurrentUser,
+    plan: str,
+    mode: str,
+    project_id: Optional[str],
+    success_url: Optional[str],
+    cancel_url: Optional[str],
+) -> Dict[str, Any]:
+    variant_id = os.getenv(_lemon_variant_env(plan))
+    if not variant_id:
+        raise HTTPException(status_code=503, detail={"error": "lemon_variant_missing", "message": f"{_lemon_variant_env(plan)} is required."})
+
+    success = _safe_checkout_url(success_url or f"{_base_url()}/billing.html?checkout=success&provider=lemonsqueezy")
+    metadata = {"plan": plan, "user_id": user.id, "auth_user_id": user.auth_user_id, "email": user.email, "project_id": project_id or "", "mode": mode}
+    payload = {
+        "data": {
+            "type": "checkouts",
+            "attributes": {
+                "product_options": {
+                    "redirect_url": success,
+                    "receipt_button_text": "Open DevBareun",
+                    "receipt_link_url": success,
+                    "enabled_variants": [int(variant_id) if str(variant_id).isdigit() else variant_id],
+                },
+                "checkout_options": {
+                    "embed": False,
+                    "media": True,
+                    "logo": True,
+                    "desc": True,
+                    "subscription_preview": True,
+                },
+                "checkout_data": {
+                    "email": user.email,
+                    "custom": metadata,
+                },
+            },
+            "relationships": {
+                "store": {"data": {"type": "stores", "id": str(os.getenv("LEMON_SQUEEZY_STORE_ID"))}},
+                "variant": {"data": {"type": "variants", "id": str(variant_id)}},
+            },
+        }
+    }
+    try:
+        checkout = _lemon_post("/v1/checkouts", payload)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail={"error": "lemon_checkout_failed", "message": str(exc)}) from exc
+
+    attrs = checkout.get("data", {}).get("attributes", {})
+    session = {"id": checkout.get("data", {}).get("id"), "url": attrs.get("url")}
+    _insert_payment(user, plan, session, project_id)
+    return {"checkout_url": attrs.get("url"), "session_id": session["id"], "mode": mode, "plan": plan, "provider": "lemonsqueezy"}
+
+
+def _handle_lemon_webhook(raw_body: bytes, signature: Optional[str]) -> Dict[str, Any]:
+    secret = os.getenv("LEMON_SQUEEZY_WEBHOOK_SECRET")
+    if secret:
+        if not signature:
+            raise HTTPException(status_code=400, detail={"error": "missing_signature", "message": "Missing X-Signature header."})
+        digest = hmac.new(secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(digest, signature):
+            raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Invalid Lemon Squeezy signature."})
+    elif production_security_enabled():
+        raise HTTPException(status_code=503, detail={"error": "lemon_webhook_not_configured", "message": "LEMON_SQUEEZY_WEBHOOK_SECRET is required."})
+
+    try:
+        event = json.loads(raw_body.decode("utf-8"))
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Invalid JSON payload."}) from exc
+
+    event_id = str(event.get("meta", {}).get("event_id") or event.get("data", {}).get("id") or "")
+    event_type = str(event.get("meta", {}).get("event_name") or "")
+    if not event_type:
+        raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Webhook event name is missing."})
+    if event_id and _stripe_event_seen(f"lemon:{event_id}"):
+        return {"status": "duplicate_ignored", "event_id": event_id, "event_type": event_type, "provider": "lemonsqueezy"}
+    if event_id:
+        _record_stripe_event(f"lemon:{event_id}", event_type, event)
+
+    obj = event.get("data", {}) or {}
+    attrs = obj.get("attributes", {}) or {}
+    custom = event.get("meta", {}).get("custom_data") or attrs.get("custom_data") or {}
+    plan = str(custom.get("plan") or _plan_from_variant(attrs.get("variant_id")) or "single").lower()
+    email = custom.get("email") or attrs.get("user_email") or attrs.get("customer_email")
+    user_id = custom.get("user_id") or custom.get("auth_user_id")
+    project_id = custom.get("project_id") or None
+
+    if event_type == "order_created":
+        if plan == "single":
+            _grant_credit(user_id, email, project_id, source="lemon_one_time", stripe_session_id=str(obj.get("id") or ""))
+        return {"status": "handled", "event": event_type, "plan": plan, "provider": "lemonsqueezy"}
+    if event_type in {"subscription_created", "subscription_updated", "subscription_resumed", "subscription_payment_success"}:
+        _upsert_subscription(user_id, email, plan if plan in {"plus", "pro"} else "plus", _lemon_subscription_object(obj), status="active")
+        return {"status": "handled", "event": event_type, "plan": plan, "provider": "lemonsqueezy"}
+    if event_type in {"subscription_cancelled", "subscription_expired", "subscription_paused", "subscription_payment_failed"}:
+        status = "past_due" if event_type == "subscription_payment_failed" else "canceled"
+        _upsert_subscription(user_id, email, plan if plan in {"plus", "pro"} else "plus", _lemon_subscription_object(obj), status=status)
+        return {"status": "handled", "event": event_type, "plan": plan, "provider": "lemonsqueezy"}
+    return {"status": "ignored", "event": event_type, "provider": "lemonsqueezy"}
+
+
+def _plan_from_variant(variant_id: Any) -> Optional[str]:
+    if not variant_id:
+        return None
+    value = str(variant_id)
+    for plan in PLAN_LIMITS:
+        if value == str(os.getenv(_lemon_variant_env(plan)) or ""):
+            return plan
+    return None
+
+
+def _lemon_subscription_object(obj: Dict[str, Any]) -> Dict[str, Any]:
+    attrs = obj.get("attributes", {}) or {}
+    return {
+        "id": str(obj.get("id") or ""),
+        "customer": attrs.get("customer_id"),
+        "subscription": str(obj.get("id") or ""),
+    }
+
+
+def _lemon_post(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    token = os.getenv("LEMON_SQUEEZY_API_KEY")
+    if not token:
+        raise RuntimeError("LEMON_SQUEEZY_API_KEY is not configured.")
+    req = urllib.request.Request(
+        f"https://api.lemonsqueezy.com{path}",
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+        headers={
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json",
+            "Authorization": f"Bearer {token}",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(raw) from exc
 
 
 def _stripe_post(path: str, data: Dict[str, Any]) -> Dict[str, Any]:
