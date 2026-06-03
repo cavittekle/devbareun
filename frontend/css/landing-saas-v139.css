@@ -406,6 +406,12 @@ html[data-theme="light"] .landing-login-links a{color:#475569}
   font-weight: 950;
   border: 1px solid rgba(167, 230, 255, .16);
 }
+.selected-dash-rail .rail-logo img {
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
+}
 .selected-dash-rail button {
   width: 44px;
   height: 44px;

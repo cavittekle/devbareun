@@ -40,7 +40,7 @@ export default function Sidebar({ activeSection, isOpen, onClose, onSectionChang
       >
         <div className="mb-8 flex items-center justify-between">
           <a className="flex items-center gap-3" href="/index.html" aria-label="DevBareun landing">
-            <img className="h-10 w-10 rounded-2xl object-contain" src="/assets/devbareun-mark.webp" alt="DevBareun" />
+            <img className="h-10 w-10 rounded-2xl object-contain" src="/assets/devbareun-symbol-white.svg" alt="DevBareun" />
             <div>
               <div className="text-lg font-black tracking-tight text-slate-950 dark:text-white">
                 Dev<span className="text-cyanAccent">Bareun</span>
