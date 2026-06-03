@@ -429,7 +429,14 @@ def _create_lemon_checkout(
         raise HTTPException(status_code=503, detail={"error": "lemon_variant_missing", "message": f"{_lemon_variant_env(plan)} is required."})
 
     success = _safe_checkout_url(success_url or f"{_base_url()}/billing.html?checkout=success&provider=lemonsqueezy")
-    metadata = {"plan": plan, "user_id": user.id, "auth_user_id": user.auth_user_id, "email": user.email, "project_id": project_id or "", "mode": mode}
+    metadata = {
+        "plan": str(plan),
+        "user_id": str(user.id or "guest"),
+        "auth_user_id": str(user.auth_user_id or "guest"),
+        "email": str(user.email),
+        "project_id": str(project_id or "none"),
+        "mode": str(mode),
+    }
     payload = {
         "data": {
             "type": "checkouts",
