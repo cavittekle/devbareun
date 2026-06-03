@@ -1772,3 +1772,24 @@ html[data-theme="light"] .landing-login-links a{color:#475569}
     grid-template-columns: 1fr;
   }
 }
+
+/* Light-mode contrast guard for the compact header controls and imported white rail mark. */
+html[data-theme="light"] .selected-header-v1393 .selected-utility-pill .selected-lang-btn {
+  color: #102033 !important;
+}
+
+html[data-theme="light"] .selected-header-v1393 .selected-utility-pill .selected-theme-btn::before {
+  background: #102033 !important;
+  filter: drop-shadow(0 0 5px rgba(8, 145, 178, .18)) !important;
+}
+
+html[data-theme="light"] .selected-header-v1393 .selected-menu-btn {
+  color: #102033 !important;
+  background: rgba(255, 255, 255, .92) !important;
+  border-color: rgba(15, 23, 42, .14) !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .08) !important;
+}
+
+html[data-theme="light"] .selected-landing-v1393 .selected-dash-rail .rail-logo img {
+  filter: invert(1) brightness(.58) saturate(1.35);
+}
