@@ -16,21 +16,23 @@ v1.3.8 — plan checkout bridge for Single / Plus / Pro packages.
   }
 
   function checkoutEndpoint(plan) {
-    return plan === "single" ? "/api/payments/create-one-time-checkout" : "/api/payments/create-subscription-checkout";
+    return plan === "single" ? "/api/billing/create-one-time-checkout" : "/api/billing/create-subscription-checkout";
   }
 
   async function createCheckout(plan, projectId) {
     const api = window.DevBareunAuth?.api;
     if (!api) throw new Error("Workspace API is not ready.");
-    const email = currentEmail();
+    const email = currentEmail() || window.prompt("Enter your email for checkout receipts:", "");
+    if (!email || !email.includes("@")) throw new Error("Email is required to open checkout.");
     const origin = window.location.origin;
     return api(checkoutEndpoint(plan), {
       method: "POST",
       body: JSON.stringify({
+        plan: plan,
         plan_code: plan,
         project_id: projectId || null,
         customer_email: email || null,
-        success_url: `${origin}/payment-success.html?plan=${encodeURIComponent(plan)}&checkout_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${origin}/payment-success.html?plan=${encodeURIComponent(plan)}`,
         cancel_url: `${origin}/payment-failed.html?plan=${encodeURIComponent(plan)}`,
       }),
     });

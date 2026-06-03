@@ -372,6 +372,25 @@
     }
   }
 
+  function checkoutEmail() {
+    var session = getSession();
+    var state = loadState();
+    return String((session && session.email) || (state.profile && state.profile.email) || localStorage.getItem("devbareun_checkout_email") || "").trim();
+  }
+
+  function requestCheckoutEmail() {
+    var email = checkoutEmail();
+    if (!email || email.indexOf("@") === -1) {
+      email = window.prompt("Enter your email for checkout receipts:", "") || "";
+    }
+    email = String(email).trim().toLowerCase();
+    if (email && email.indexOf("@") !== -1) {
+      localStorage.setItem("devbareun_checkout_email", email);
+      return email;
+    }
+    throw new Error("Email is required to open checkout.");
+  }
+
   function devMemberDemoEnabled() {
     return window.DEVBAREUN_ENABLE_DEV_AUTH === true ||
       localStorage.getItem("devbareun_enable_member_demo") === "true";
@@ -947,22 +966,22 @@
     var chooseMode = new URLSearchParams(window.location.search).get("choose") === "1" || !state.activePlan;
     var plan = planCatalog[usage.plan] || planCatalog.plus;
     return shell("billing",
-      pageHead(chooseMode ? "Choose Your Plan" : "Billing", chooseMode ? "Select Plus or Pro to activate the member workspace." : "Manage subscription status, usage, invoices and Stripe placeholders.", "") +
+      pageHead(chooseMode ? "Choose Your Plan" : "Billing", chooseMode ? "Select Plus or Pro to activate the member workspace." : "Manage subscription status, usage and checkout.", "") +
       '<section class="mw-grid three">' +
       kpiCard(["Current Plan", state.activePlan ? plan.name : "No active plan", state.activePlan ? plan.badge : "Plan required"]) +
       kpiCard(["Monthly limit", usage.limit + " reviews", "Plan capacity"]) +
       kpiCard(["Used analyses", usage.used + "/" + usage.limit, usage.remaining + " remaining"]) +
       kpiCard(["Remaining analyses", usage.remaining, "Available this cycle"]) +
       kpiCard(["Next billing date", formatDate(usage.nextBillingDate), "Subscription cycle"]) +
-      kpiCard(["Payment status", state.activePlan ? usage.paymentStatus : "Inactive", "Stripe placeholder"]) +
+      kpiCard(["Payment status", state.activePlan ? usage.paymentStatus : "Inactive", "Lemon Squeezy"]) +
       '</section>' +
       '<section class="mw-plan-grid">' + planCard("plus", state) + planCard("pro", state) + '</section>' +
       '<section class="mw-grid three">' +
-      '<article class="mw-panel"><h2>Stripe Checkout</h2><p class="mw-muted">Checkout session placeholder for Plus and Pro subscriptions.</p><button class="mw-btn primary" type="button" data-checkout-placeholder>Open Checkout Placeholder</button></article>' +
+      '<article class="mw-panel"><h2>Single Project</h2><p class="mw-muted">Buy one project analysis credit with Lemon Squeezy checkout.</p><button class="mw-btn primary" type="button" data-checkout-plan="single">Analyze One Project</button></article>' +
       '<article class="mw-panel"><h2>Customer Portal</h2><p class="mw-muted">Portal placeholder for subscription management and invoice history.</p><button class="mw-btn" type="button" data-portal-placeholder>Manage subscription</button></article>' +
-      '<article class="mw-panel"><h2>Webhook Status</h2><p class="mw-muted">Webhook listener placeholder for checkout, invoice and subscription events.</p><span class="mw-status processing">Waiting for backend</span></article>' +
+      '<article class="mw-panel"><h2>Webhook Status</h2><p class="mw-muted">Lemon Squeezy webhook listener is connected through the backend.</p><span class="mw-status processing">Waiting for checkout event</span></article>' +
       '</section>' +
-      '<section class="mw-panel"><h2>Billing Actions</h2><div class="mw-action-row"><button class="mw-btn primary" data-set-plan="pro" type="button">Upgrade to Pro</button><button class="mw-btn" data-portal-placeholder type="button">View invoices</button><button class="mw-btn danger" data-cancel-placeholder type="button">Cancel subscription placeholder</button></div></section>'
+      '<section class="mw-panel"><h2>Billing Actions</h2><div class="mw-action-row"><button class="mw-btn primary" data-checkout-plan="pro" type="button">Upgrade to Pro</button><button class="mw-btn" data-checkout-plan="plus" type="button">Start Plus</button><button class="mw-btn danger" data-cancel-placeholder type="button">Cancel subscription placeholder</button></div></section>'
     );
   }
 
@@ -975,8 +994,45 @@
       '<p class="mw-muted">' + escapeHtml(plan.description) + '</p>' +
       '<div class="mw-price">' + escapeHtml(plan.price) + '<small>/ month</small></div>' +
       '<ul class="mw-check-list">' + plan.features.map(function (feature) { return '<li>' + escapeHtml(feature) + '</li>'; }).join("") + '</ul>' +
-      '<button class="mw-btn primary" type="button" data-set-plan="' + planId + '">' + (current ? "Use this plan" : "Select " + plan.name) + '</button>' +
+      '<button class="mw-btn primary" type="button" data-checkout-plan="' + planId + '">' + (current ? "Use this plan" : "Select " + plan.name) + '</button>' +
       '</article>';
+  }
+
+  async function openCheckout(plan, button) {
+    if (!window.DevBareunAPI) {
+      throw new Error("Checkout API is not ready.");
+    }
+    var email = requestCheckoutEmail();
+    var origin = window.location.origin;
+    var payload = {
+      plan: plan,
+      plan_code: plan,
+      customer_email: email,
+      success_url: origin + "/payment-success.html?plan=" + encodeURIComponent(plan),
+      cancel_url: origin + "/payment-failed.html?plan=" + encodeURIComponent(plan)
+    };
+    var originalText = button ? button.textContent : "";
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Creating checkout...";
+    }
+    try {
+      var data = plan === "single"
+        ? await window.DevBareunAPI.createOneTimeCheckout(payload)
+        : await window.DevBareunAPI.createSubscriptionCheckout(payload);
+      var checkoutUrl = data && (data.checkout_url || data.url);
+      if (!checkoutUrl) {
+        throw new Error("Checkout URL was not returned.");
+      }
+      localStorage.setItem("devbareun_last_checkout", JSON.stringify({ plan: plan, email: email, data: data }));
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+      throw error;
+    }
   }
 
   function renderSettings() {
@@ -1131,7 +1187,7 @@
   function bindWorkspace() {
     if (!workspaceEventsBound) {
       workspaceEventsBound = true;
-      document.addEventListener("click", function (event) {
+      document.addEventListener("click", async function (event) {
       var notifyButton = event.target.closest("[data-notification-toggle]");
       var accountButton = event.target.closest("[data-account-toggle]");
       if (notifyButton) {
@@ -1146,6 +1202,16 @@
       if (logout) {
         clearSession();
         redirect("login.html");
+      }
+      var checkoutPlan = event.target.closest("[data-checkout-plan]");
+      if (checkoutPlan) {
+        event.preventDefault();
+        try {
+          await openCheckout(checkoutPlan.getAttribute("data-checkout-plan") || "plus", checkoutPlan);
+        } catch (error) {
+          showToast(error.message || "Checkout could not be opened.");
+        }
+        return;
       }
       var setPlan = event.target.closest("[data-set-plan]");
       if (setPlan) {

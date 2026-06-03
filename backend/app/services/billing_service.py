@@ -269,7 +269,7 @@ def _update_by_id(table: str, row: Dict[str, Any], patch: Dict[str, Any]) -> Dic
 
 def _insert_payment(user: CurrentUser, plan: str, session: Dict[str, Any], project_id: Optional[str]) -> None:
     payload = {
-        "user_id": user.id if uuid_like(user.id) else user.auth_user_id,
+        "user_id": user.id if uuid_like(user.id) else (user.auth_user_id if uuid_like(user.auth_user_id) else None),
         "owner_email": user.email,
         "project_id": project_id if uuid_like(str(project_id or "")) else None,
         "stripe_session_id": session.get("id"),
