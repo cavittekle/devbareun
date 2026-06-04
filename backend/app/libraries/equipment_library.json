@@ -1,0 +1,126 @@
+{
+  "hand tools": {
+    "used_in": [
+      "plaster",
+      "tile",
+      "masonry",
+      "formwork",
+      "facade",
+      "plumbing_pipe"
+    ]
+  },
+  "scaffold": {
+    "used_in": [
+      "plaster",
+      "paint",
+      "masonry",
+      "facade"
+    ]
+  },
+  "roller": {
+    "used_in": [
+      "paint"
+    ]
+  },
+  "spray": {
+    "used_in": [
+      "paint"
+    ]
+  },
+  "tile cutter": {
+    "used_in": [
+      "tile"
+    ]
+  },
+  "mixer": {
+    "used_in": [
+      "screed"
+    ]
+  },
+  "laser level": {
+    "used_in": [
+      "screed"
+    ]
+  },
+  "formwork system": {
+    "used_in": [
+      "formwork"
+    ]
+  },
+  "crane": {
+    "used_in": [
+      "formwork",
+      "rebar"
+    ]
+  },
+  "rebar cutter": {
+    "used_in": [
+      "rebar"
+    ]
+  },
+  "rebar bender": {
+    "used_in": [
+      "rebar"
+    ]
+  },
+  "concrete pump": {
+    "used_in": [
+      "concrete"
+    ]
+  },
+  "mixer truck": {
+    "used_in": [
+      "concrete"
+    ]
+  },
+  "vibrator": {
+    "used_in": [
+      "concrete"
+    ]
+  },
+  "manlift": {
+    "used_in": [
+      "facade"
+    ]
+  },
+  "stone cutter": {
+    "used_in": [
+      "stone_floor"
+    ]
+  },
+  "vibroplate": {
+    "used_in": [
+      "stone_floor"
+    ]
+  },
+  "forklift": {
+    "used_in": [
+      "stone_floor"
+    ]
+  },
+  "cable tools": {
+    "used_in": [
+      "electrical_cable"
+    ]
+  },
+  "lift": {
+    "used_in": [
+      "electrical_cable"
+    ]
+  },
+  "press/welding tools": {
+    "used_in": [
+      "plumbing_pipe"
+    ]
+  },
+  "excavator": {
+    "used_in": [
+      "excavation"
+    ]
+  },
+  "dump truck": {
+    "used_in": [
+      "excavation"
+    ]
+  }
+}

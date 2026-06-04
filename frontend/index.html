@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevBareun | Construction Analytics and Project Control SaaS</title>
+  <meta name="description" content="DevBareun turns construction project files into project control dashboards, schedule analytics, cost analytics, risk analytics and management reports." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://devbareun.com/" />
+  <meta property="og:title" content="DevBareun | Construction Analytics and Project Control SaaS" />
+  <meta property="og:description" content="Upload project files, confirm mapping and receive project control dashboards with PDF and Excel reporting outputs." />
+  <meta property="og:image" content="https://devbareun.com/assets/og-image.png" />
+  <meta property="og:url" content="https://devbareun.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#0B0C10" />
+  <link rel="icon" href="assets/favicon.png?v=2" type="image/png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
+  <link rel="manifest" href="site.webmanifest?v=2" />
+  <script>
+    (function () {
+      try {
+        var savedLang = localStorage.getItem("devbareun_lang") || "en";
+        localStorage.setItem("devbareun_theme", "dark");
+        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("lang", savedLang);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/modern-landing.css?v=14008" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div id="db-loading-screen" class="loader" aria-label="Preparing DevBareun">
+    <div class="loader-grid" aria-hidden="true"></div>
+    <div class="loader-content">
+      <div class="loader-mark">
+        <span class="orbit orbit-a"></span>
+        <span class="orbit orbit-b"></span>
+        <span class="orbit orbit-c"></span>
+        <img src="assets/devbareun-logo-compact-white.svg?v=3" alt="DevBareun" />
+      </div>
+      <p data-i18n="loaderTitle">Construction analytics platform</p>
+      <div class="loader-bar"><span></span></div>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap nav-shell">
+      <a class="brand" href="index.html" aria-label="DevBareun home">
+        <img src="assets/devbareun-symbol-white.svg?v=2" alt="" class="brand-symbol" />
+        <span>
+          <strong>Dev<span>Bareun</span></strong>
+          <small>Construction Analytics</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#platform" data-i18n="navPlatform">Platform</a>
+        <a href="#upload" data-i18n="navUpload">Upload</a>
+        <a href="#pricing" data-i18n="navPricing">Pricing</a>
+        <a href="reports.html" data-i18n="navReports">Reports</a>
+        <a href="#faq" data-i18n="navFAQ">FAQ</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="lang-toggle" type="button" aria-label="Switch language" data-language-toggle>
+          <span data-current-lang>EN</span>
+          <i aria-hidden="true"></i>
+        </button>
+        <a class="header-login" href="login.html?next=dashboard.html" data-i18n="login">Login</a>
+        <a class="btn btn-primary nav-cta" href="#upload" data-i18n="startAnalysis">Start Analysis</a>
+        <button class="mobile-menu-btn" type="button" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="mobile-menu" aria-label="Mobile navigation">
+      <a href="#platform" data-i18n="navPlatform">Platform</a>
+      <a href="#upload" data-i18n="navUpload">Upload</a>
+      <a href="#pricing" data-i18n="navPricing">Pricing</a>
+      <a href="reports.html" data-i18n="navReports">Reports</a>
+      <a href="#faq" data-i18n="navFAQ">FAQ</a>
+      <a href="login.html?next=dashboard.html" data-i18n="login">Login</a>
+      <a href="#upload" data-i18n="startAnalysis">Start Analysis</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero section-shell">
+      <div class="grid-bg" aria-hidden="true"></div>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="section-label" data-i18n="heroLabel">Project control SaaS for construction teams</p>
+          <h1 data-i18n="heroTitle">Upload project files. Confirm mapping. Get a management dashboard.</h1>
+          <p class="hero-lead" data-i18n="heroLead">DevBareun converts schedules, progress files, cost estimates, material records and risk logs into clean project control dashboards and report-ready outputs.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
+            <a class="btn btn-secondary" href="#dashboard-preview" data-i18n="heroSecondary">View dashboard preview</a>
+          </div>
+          <div class="hero-points" aria-label="Workflow summary">
+            <span data-i18n="heroPointUpload">Upload files</span>
+            <span data-i18n="heroPointMap">Confirm mapping</span>
+            <span data-i18n="heroPointDash">Receive dashboard</span>
+          </div>
+        </div>
+
+        <div class="hero-dashboard" aria-label="Animated DevBareun dashboard preview">
+          <div class="dashboard-head">
+            <span>DevBareun</span>
+            <strong data-i18n="dashTitle">Project Control Dashboard</strong>
+          </div>
+          <div class="kpi-row">
+            <article><span>Progress</span><strong>68%</strong><small>Plan 75%</small></article>
+            <article><span>SPI</span><strong>0.92</strong><small>Schedule</small></article>
+            <article><span>CPI</span><strong>0.97</strong><small>Cost</small></article>
+          </div>
+          <div class="chart-panel">
+            <div class="chart-title"><strong data-i18n="chartTitle">Baseline vs actual progress</strong><span>Jan - Nov</span></div>
+            <svg class="line-chart" viewBox="0 0 640 300" role="img" aria-label="Animated baseline versus actual progress chart">
+              <g class="chart-grid">
+                <line x1="32" y1="54" x2="608" y2="54"></line>
+                <line x1="32" y1="118" x2="608" y2="118"></line>
+                <line x1="32" y1="182" x2="608" y2="182"></line>
+                <line x1="32" y1="246" x2="608" y2="246"></line>
+              </g>
+              <path class="planned-line" d="M40 236 C125 186 200 148 284 115 C365 82 452 55 600 35"></path>
+              <path class="actual-line" d="M40 252 C128 214 204 185 290 152 C372 122 458 104 600 73"></path>
+            </svg>
+          </div>
+          <div class="mini-grid">
+            <article><span data-i18n="miniDelay">Delay signal</span><strong>14 days</strong></article>
+            <article><span data-i18n="miniPayment">Payment status</span><strong>Tracked</strong></article>
+            <article><span data-i18n="miniReport">Report output</span><strong>PDF / Excel</strong></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workflow wrap section" id="platform">
+      <div class="section-heading narrow">
+        <p class="section-label" data-i18n="workflowLabel">Workflow</p>
+        <h2 data-i18n="workflowTitle">Three clear steps from files to management view.</h2>
+      </div>
+      <div class="workflow-grid">
+        <article><span>01</span><h3 data-i18n="stepUploadTitle">Upload</h3><p data-i18n="stepUploadText">Add schedules, progress payment files, cost estimates, material records or risk logs.</p></article>
+        <article><span>02</span><h3 data-i18n="stepMappingTitle">Confirm Mapping</h3><p data-i18n="stepMappingText">Review detected file types and confirm which data belongs to each dashboard area.</p></article>
+        <article><span>03</span><h3 data-i18n="stepDashboardTitle">Dashboard</h3><p data-i18n="stepDashboardText">Unlock the full dashboard and export management reports for review.</p></article>
+      </div>
+    </section>
+
+    <section class="upload-section wrap section" id="upload">
+      <div class="section-heading">
+        <p class="section-label" data-i18n="uploadLabel">Upload and analysis packages</p>
+        <h2 data-i18n="uploadTitle">Choose the problem, then upload the right files.</h2>
+        <p data-i18n="uploadIntro">Single Project users upload first, preview mapping and pay with Lemon Squeezy to unlock the full dashboard. Plus and Pro users spend monthly project credits.</p>
+      </div>
+
+      <div class="package-grid" role="tablist" aria-label="Analysis packages">
+        <button type="button" class="package-card active" data-package="schedule" role="tab" aria-selected="true">
+          <span>Schedule Recovery</span><strong data-i18n="pkgScheduleTitle">Delay + workforce logic</strong><small data-i18n="pkgScheduleText">Baseline, actual progress and workforce recovery planning.</small>
+        </button>
+        <button type="button" class="package-card" data-package="cost" role="tab" aria-selected="false">
+          <span>Cost Control</span><strong data-i18n="pkgCostTitle">Cost + F-2 tracking</strong><small data-i18n="pkgCostText">Cost estimate, actual cost and progress payment visibility.</small>
+        </button>
+        <button type="button" class="package-card" data-package="material" role="tab" aria-selected="false">
+          <span>Material Continuity</span><strong data-i18n="pkgMaterialTitle">Stock + consumption logic</strong><small data-i18n="pkgMaterialText">Material stock, consumption and procurement continuity.</small>
+        </button>
+        <button type="button" class="package-card" data-package="risk" role="tab" aria-selected="false">
+          <span>Risk &amp; Decisions</span><strong data-i18n="pkgRiskTitle">Risk register + decisions</strong><small data-i18n="pkgRiskText">Risk tracking, decision records and management actions.</small>
+        </button>
+      </div>
+
+      <div class="upload-workspace">
+        <aside class="mapping-panel">
+          <div>
+            <p class="section-label" data-i18n="requiredFiles">Required files</p>
+            <h3 id="selectedPackageTitle">Schedule Recovery</h3>
+            <ol id="requiredFilesList"></ol>
+          </div>
+          <div>
+            <p class="section-label" data-i18n="youReceive">You will receive</p>
+            <ul class="check-list" id="outputList"></ul>
+          </div>
+        </aside>
+
+        <div class="upload-panel">
+          <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload project files">
+            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xls,.csv,.pdf,.xer,.xml,.jpg,.jpeg,.png,.webp" />
+            <div class="drop-icon" aria-hidden="true">+</div>
+            <h3 data-i18n="dropTitle">Drop project files here, or browse</h3>
+            <p data-i18n="dropText">Excel, CSV, PDF, Primavera XER, MS Project XML and supporting images are accepted.</p>
+            <button class="btn btn-secondary" type="button" id="browseBtn" data-i18n="browseFiles">Choose files</button>
+          </div>
+          <div class="file-list" id="fileList" aria-live="polite"></div>
+          <div class="smart-status" id="smartStatus" hidden>
+            <strong data-i18n="detecting">Analyzing uploaded files...</strong>
+            <div id="detectChips"></div>
+            <p data-i18n="preparingDashboards">Preparing dashboards...</p>
+          </div>
+          <div class="mapping-preview" id="mappingPreview" hidden>
+            <h3 data-i18n="mappingTitle">Detected mapping preview</h3>
+            <div id="mappingRows"></div>
+            <a class="btn btn-primary" href="#pricing" data-i18n="unlockDashboard">Unlock dashboard</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-value wrap section" id="dashboard-preview">
+      <div class="value-copy">
+        <p class="section-label" data-i18n="dashboardLabel">Dashboard and report value</p>
+        <h2 data-i18n="dashboardTitle">Only relevant dashboards are shown.</h2>
+        <p data-i18n="dashboardText">DevBareun detects available data and prepares matching dashboard blocks. Empty sections stay hidden so the result stays focused.</p>
+        <ul class="check-list">
+          <li data-i18n="valueOne">Schedule + progress files show delay and recovery dashboards.</li>
+          <li data-i18n="valueTwo">Cost, material and risk files show only the matching control views.</li>
+          <li data-i18n="valueThree">Reports are prepared for management review and export.</li>
+        </ul>
+      </div>
+      <div class="report-panel">
+        <div class="report-header">
+          <span data-i18n="previewLabel">Example output</span>
+          <strong data-i18n="previewTitle">Schedule Recovery Dashboard</strong>
+          <p data-i18n="previewSubtitle">Created from baseline schedule and actual progress files.</p>
+        </div>
+        <div class="report-metrics">
+          <article><span data-i18n="previewMetricOne">Delay status</span><strong>14 days</strong><small data-i18n="previewMetricOneNote">behind baseline</small></article>
+          <article><span data-i18n="previewMetricTwo">Schedule score</span><strong>0.92 SPI</strong><small data-i18n="previewMetricTwoNote">needs recovery</small></article>
+          <article><span data-i18n="previewMetricThree">Critical path</span><strong>5 tasks</strong><small data-i18n="previewMetricThreeNote">need attention</small></article>
+          <article><span data-i18n="previewMetricFour">Report output</span><strong>PDF / Excel</strong><small data-i18n="previewMetricFourNote">ready for review</small></article>
+        </div>
+        <div class="report-chart" aria-label="Planned versus actual progress example">
+          <div class="chart-topline"><span data-i18n="previewChartTitle">Plan vs actual progress</span><small data-i18n="previewChartRange">Jan - Nov</small></div>
+          <svg viewBox="0 0 520 220" role="img" aria-label="Actual progress is below planned progress">
+            <g class="chart-grid">
+              <line x1="24" y1="40" x2="500" y2="40"></line>
+              <line x1="24" y1="90" x2="500" y2="90"></line>
+              <line x1="24" y1="140" x2="500" y2="140"></line>
+              <line x1="24" y1="190" x2="500" y2="190"></line>
+            </g>
+            <path class="planned-preview" d="M28 176 C96 138 150 108 214 86 C286 62 360 42 492 26"></path>
+            <path class="actual-preview" d="M28 188 C96 158 154 134 220 112 C292 90 358 78 492 58"></path>
+            <circle class="chart-point" cx="356" cy="78" r="6"></circle>
+          </svg>
+          <div class="chart-legend"><span><i class="actual-dot"></i><b data-i18n="previewActual">Actual</b></span><span><i class="planned-dot"></i><b data-i18n="previewPlanned">Planned</b></span></div>
+        </div>
+        <div class="report-insight">
+          <strong data-i18n="previewInsightTitle">What you understand</strong>
+          <p data-i18n="previewInsightText">The dashboard shows how late the project is, which tasks drive the delay, and what recovery actions should be reviewed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing wrap section" id="pricing">
+      <div class="section-heading">
+        <p class="section-label" data-i18n="pricingLabel">Pricing</p>
+        <h2 data-i18n="pricingTitle">Choose one project or monthly project credits.</h2>
+        <p data-i18n="pricingText">Billing is prepared around Lemon Squeezy checkout. No payment details are collected on the DevBareun page.</p>
+      </div>
+      <div class="pricing-grid">
+        <article class="price-card"><span data-i18n="oneTime">One-time</span><h3>Single Project</h3><strong>$29</strong><p data-i18n="singleDesc">Upload files, preview mapping, then pay to unlock one full dashboard and report package.</p><a class="btn btn-secondary" href="#upload" data-plan="single" data-i18n="singleCta">Upload one project</a></article>
+        <article class="price-card featured"><span data-i18n="monthly">Monthly</span><h3>Plus</h3><strong>$49</strong><p data-i18n="plusDesc">5 project credits per month for recurring project control and report archive workflows.</p><a class="btn btn-primary" href="#upload" data-plan="plus" data-i18n="plusCta">Start Plus</a></article>
+        <article class="price-card"><span data-i18n="monthly">Monthly</span><h3>Pro</h3><strong>$89</strong><p data-i18n="proDesc">20 project credits per month for teams managing multiple active construction sites.</p><a class="btn btn-secondary" href="#upload" data-plan="pro" data-i18n="proCta">Start Pro</a></article>
+      </div>
+    </section>
+
+    <section class="faq wrap section" id="faq">
+      <div class="section-heading">
+        <p class="section-label">FAQ</p>
+        <h2 data-i18n="faqTitle">Questions before uploading.</h2>
+      </div>
+      <div class="faq-list">
+        <details open><summary data-i18n="faqQ1">What files should I upload?</summary><p data-i18n="faqA1">Upload the files required by the selected package: schedule, progress, cost, payment, material or risk records.</p></details>
+        <details><summary data-i18n="faqQ2">How does Single Project payment work?</summary><p data-i18n="faqA2">You upload files first, review the mapping preview, then use Lemon Squeezy checkout to unlock the full dashboard and reports.</p></details>
+        <details><summary data-i18n="faqQ3">What do Plus and Pro include?</summary><p data-i18n="faqA3">Plus includes 5 monthly project credits. Pro includes 20 monthly project credits for larger teams.</p></details>
+        <details><summary data-i18n="faqQ4">Will empty dashboard blocks appear?</summary><p data-i18n="faqA4">No. The result view is designed to show only dashboard areas supported by uploaded project data.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div>
+        <a class="footer-brand" href="index.html" aria-label="DevBareun home">
+          <img src="assets/devbareun-symbol-white.svg?v=2" alt="" />
+          <strong>Dev<span>Bareun</span></strong>
+        </a>
+        <p data-i18n="footerText">Construction analytics, project control and reporting platform.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="#platform">Platform</a>
+        <a href="#upload">Upload</a>
+        <a href="#pricing">Pricing</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+      <div class="footer-contact">
+        <span>Contact</span>
+        <a href="mailto:info@devbareun.com">info@devbareun.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/modern-landing.js?v=14008" defer></script>
+</body>
+</html>

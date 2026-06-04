@@ -1,0 +1,14 @@
+# Railway deploys only the FastAPI backend runtime from this directory.
+.env
+.env.*
+.env.example
+*.md
+data/
+storage/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+*.tmp
