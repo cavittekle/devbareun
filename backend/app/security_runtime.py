@@ -52,7 +52,7 @@ def devbareun_domain_admin_allowed() -> bool:
 
 
 def mock_payment_allowed() -> bool:
-    return bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", not is_production()) and not production_security_enabled()
+    return bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", False) and not production_security_enabled()
 
 
 def require_production_secret(name: str) -> None:
@@ -180,4 +180,3 @@ def assert_storage_path_access(file_row: Optional[Dict[str, Any]], user_email: O
     if owner and not requester:
         raise HTTPException(status_code=401, detail="Authorization is required for protected file access.")
     return file_row
-

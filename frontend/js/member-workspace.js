@@ -4,8 +4,36 @@
   var STATE_KEY = "devbareun_member_workspace_state";
   var SESSION_KEY = "devbareun_member_workspace_session";
   var APP_ID = "memberWorkspaceApp";
+  var WORKSPACE_VERSION = "2026-06-04-member-panel-v2";
   var authEventsBound = false;
   var workspaceEventsBound = false;
+
+  var analysisModules = {
+    "Schedule Recovery": {
+      short: "Delay and workforce logic",
+      files: ["Baseline schedule", "Actual progress", "Workforce data (optional)"],
+      outputs: ["Delay dashboard", "Critical path", "Workforce gap", "Recovery plan"],
+      reportType: "Schedule Recovery Report"
+    },
+    "Cost Control": {
+      short: "Estimate and payment tracking",
+      files: ["Cost estimate / BOQ", "Progress payment / F-2", "Actual cost records"],
+      outputs: ["Cost variance dashboard", "Payment status", "Budget pressure", "Export package"],
+      reportType: "Cost Control Report"
+    },
+    "Material Continuity": {
+      short: "Stock and consumption logic",
+      files: ["Material list / BOQ", "Stock records", "Delivery or procurement updates"],
+      outputs: ["Material dashboard", "Shortage alerts", "Delivery risk", "Continuity actions"],
+      reportType: "Material Continuity Report"
+    },
+    "Risk & Decisions": {
+      short: "Risk register and decision tracking",
+      files: ["Risk register", "Decision log", "Meeting notes or issue records"],
+      outputs: ["Risk dashboard", "Decision status", "Priority actions", "Management notes"],
+      reportType: "Risk & Decisions Report"
+    }
+  };
 
   var pages = {
     login: { title: "Login", path: "login.html" },
@@ -27,12 +55,12 @@
       limit: 5,
       label: "Plus Plan",
       badge: "5 reviews / month",
-      description: "For teams that need recurring project checks, upload history and essential reporting.",
+      description: "For teams that need recurring project credits, upload history and essential reporting.",
       features: [
-        "5 project reviews per month",
+        "5 project credits per month",
         "Basic dashboard access",
         "Project upload",
-        "Schedule, cost, risk and material flow modules",
+        "Schedule, cost, material and risk modules",
         "PDF export",
         "Basic reporting"
       ]
@@ -46,14 +74,14 @@
       badge: "20 reviews / month",
       description: "For companies managing multiple active sites with stronger reporting and priority status.",
       features: [
-        "20 project reviews per month",
+        "20 project credits per month",
         "Advanced management dashboard",
         "Schedule recovery module",
-        "Cost and payment control",
+        "Cost control",
         "Material continuity tracking",
         "Risk and decision register",
         "PDF and Excel export",
-        "Priority processing status",
+        "Priority review status",
         "Advanced reporting"
       ]
     }
@@ -69,8 +97,8 @@
       phase: "Construction",
       uploadedDate: "2026-05-05",
       reviewDate: "2026-05-11",
-      module: "Full Project Control",
-      status: "Completed",
+      module: "Schedule Recovery",
+      status: "Ready",
       risk: "High",
       progressScore: 72,
       plannedProgress: 72,
@@ -165,8 +193,8 @@
       phase: "Handover",
       uploadedDate: "2026-05-18",
       reviewDate: "2026-05-19",
-      module: "Cost & Payment Control",
-      status: "Completed",
+      module: "Cost Control",
+      status: "Ready",
       risk: "Medium",
       progressScore: 79,
       plannedProgress: 91,
@@ -189,7 +217,7 @@
       phase: "Tender",
       uploadedDate: "2026-05-20",
       reviewDate: "2026-05-20",
-      module: "Material Flow",
+      module: "Material Continuity",
       status: "Uploaded",
       risk: "High",
       progressScore: 57,
@@ -212,7 +240,7 @@
       name: "Residential Complex Control Report",
       projectId: "residential-complex",
       projectName: "Residential Complex",
-      type: "Full Project Control Report",
+      type: "Schedule Recovery Report",
       createdDate: "2026-05-11",
       format: "PDF",
       status: "Ready"
@@ -222,7 +250,7 @@
       name: "Commercial Center Payment Report",
       projectId: "commercial-center",
       projectName: "Commercial Center",
-      type: "Cost & Payment Report",
+      type: "Cost Control Report",
       createdDate: "2026-05-19",
       format: "PDF + Excel",
       status: "Ready"
@@ -275,6 +303,7 @@
   function initialState() {
     return {
       currentPlan: "plus",
+      version: WORKSPACE_VERSION,
       activePlan: true,
       usage: {
         plus: { used: 3, limit: 5, nextBillingDate: "2026-06-01", paymentStatus: "Active" },
@@ -306,22 +335,29 @@
     };
   }
 
+  /**
+   * WARNING: plan and usage data here is display-only.
+   * A user can modify these values in DevTools. Server must enforce limits.
+   * NOTE: plan and usage data must be re-validated server-side on every API call. Client state is display-only.
+   */
   function loadState() {
     try {
       var raw = localStorage.getItem(STATE_KEY);
       if (!raw) {
-        return initialState();
+        return verifyStateIntegrity(initialState());
       }
-      return normalizeState(JSON.parse(raw));
+      return verifyStateIntegrity(normalizeState(JSON.parse(raw)));
     } catch (error) {
-      return initialState();
+      return verifyStateIntegrity(initialState());
     }
   }
 
   function normalizeState(state) {
     var fresh = initialState();
+    var needsMigration = !state || state.version !== WORKSPACE_VERSION;
     state = state && typeof state === "object" ? state : fresh;
     state.currentPlan = state.currentPlan || fresh.currentPlan;
+    state.version = state.version || "";
     state.activePlan = typeof state.activePlan === "boolean" ? state.activePlan : true;
     state.usage = Object.assign({}, fresh.usage, state.usage || {});
     state.profile = Object.assign({}, fresh.profile, state.profile || {});
@@ -329,13 +365,71 @@
     state.projects = Array.isArray(state.projects) && state.projects.length ? state.projects : fresh.projects;
     state.reports = Array.isArray(state.reports) ? state.reports : fresh.reports;
     state.notifications = Array.isArray(state.notifications) ? state.notifications : fresh.notifications;
+    if (needsMigration) {
+      state.projects.forEach(normalizeProjectModule);
+      state.reports.forEach(normalizeReportType);
+    }
+    state.version = WORKSPACE_VERSION;
     return state;
+  }
+
+  function verifyStateIntegrity(state) {
+    var fresh = initialState();
+    state = state && typeof state === "object" ? state : fresh;
+    if (!Object.prototype.hasOwnProperty.call(planCatalog, state.currentPlan)) {
+      console.warn("DevBareun: state integrity check failed, field reset:", "currentPlan");
+      state.currentPlan = fresh.currentPlan;
+    }
+    state.usage = state.usage && typeof state.usage === "object" ? state.usage : {};
+    Object.keys(planCatalog).forEach(function (plan) {
+      var catalog = planCatalog[plan];
+      var freshUsage = fresh.usage[plan];
+      var usage = state.usage[plan] && typeof state.usage[plan] === "object" ? state.usage[plan] : {};
+      var used = Number(usage.used);
+      if (!Number.isInteger(used) || used < 0 || used > catalog.limit) {
+        console.warn("DevBareun: state integrity check failed, field reset:", "usage." + plan + ".used");
+        usage.used = freshUsage.used;
+      }
+      usage.limit = catalog.limit;
+      usage.nextBillingDate = usage.nextBillingDate || freshUsage.nextBillingDate;
+      usage.paymentStatus = usage.paymentStatus || freshUsage.paymentStatus;
+      state.usage[plan] = usage;
+    });
+    return state;
+  }
+
+  function normalizeProjectModule(project) {
+    if (!project) return;
+    if (project.module === "Full Project Control" || project.module === "Document Control") {
+      project.module = "Schedule Recovery";
+    }
+    if (project.module === "Cost & Payment Control") {
+      project.module = "Cost Control";
+    }
+    if (project.module === "Material Flow") {
+      project.module = "Material Continuity";
+    }
+    if (project.status === "Completed") {
+      project.status = "Ready";
+    }
+  }
+
+  function normalizeReportType(report) {
+    if (!report) return;
+    report.type = String(report.type || "")
+      .replace("Full Project Control", "Schedule Recovery")
+      .replace("Cost & Payment", "Cost Control")
+      .replace("Material Flow", "Material Continuity");
   }
 
   function saveState(state) {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
   }
 
+  /**
+   * WARNING: session is stored in localStorage and is client-readable.
+   * Always re-validate access server-side (Supabase JWT) on protected API calls.
+   */
   function getSession() {
     try {
       var local = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
@@ -380,20 +474,20 @@
 
   function requestCheckoutEmail() {
     var email = checkoutEmail();
-    if (!email || email.indexOf("@") === -1) {
-      email = window.prompt("Enter your email for checkout receipts:", "") || "";
-    }
     email = String(email).trim().toLowerCase();
     if (email && email.indexOf("@") !== -1) {
       localStorage.setItem("devbareun_checkout_email", email);
       return email;
     }
-    throw new Error("Email is required to open checkout.");
+    throw new Error("Please update your email in Settings before checkout.");
   }
 
+  /**
+   * Demo mode bypasses real auth. Only enable via window.DEVBAREUN_ENABLE_DEV_AUTH
+   * in development. Never set this to true in production builds.
+   */
   function devMemberDemoEnabled() {
-    return window.DEVBAREUN_ENABLE_DEV_AUTH === true ||
-      localStorage.getItem("devbareun_enable_member_demo") === "true";
+    return window.DEVBAREUN_ENABLE_DEV_AUTH === true;
   }
 
   function getApp() {
@@ -494,6 +588,7 @@
   }
 
   function ensureAccess(page, state) {
+    activateDemoSessionFromUrl(state);
     var session = getSession();
     if (page === "login" || page === "register") {
       return true;
@@ -509,10 +604,31 @@
     return true;
   }
 
+  function activateDemoSessionFromUrl(state) {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "1" || !devMemberDemoEnabled()) {
+      return;
+    }
+    var plan = params.get("plan") === "pro" ? "pro" : "plus";
+    if (planCatalog[plan]) {
+      state.currentPlan = plan;
+    }
+    state.activePlan = true;
+    saveState(state);
+    setSession({
+      loggedIn: true,
+      activePlan: true,
+      plan: state.currentPlan,
+      email: state.profile.email
+    });
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
   function brandMarkup() {
     return '<a class="mw-brand" href="dashboard.html" aria-label="DevBareun workspace">' +
-      '<img src="assets/devbareun-symbol-white.svg?v=2" alt="DevBareun" />' +
-      '<span>Dev<span>Bareun</span></span>' +
+      '<img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" />' +
       '</a>';
   }
 
@@ -569,12 +685,12 @@
     var usage = currentUsage(state);
     var plan = planCatalog[usage.plan] || planCatalog.plus;
     var nav = [
-      ["dashboard", "OV", "Overview", "dashboard.html"],
-      ["upload", "UP", "Upload Project", "upload.html"],
-      ["projects", "PR", "My Projects", "projects.html"],
-      ["reports", "RP", "Reports", "reports.html"],
-      ["billing", "BL", "Billing", "billing.html"],
-      ["settings", "ST", "Settings", "settings.html"]
+      ["dashboard", navIcon("overview"), "Overview", "dashboard.html"],
+      ["upload", navIcon("upload"), "Upload Project", "upload.html"],
+      ["projects", navIcon("projects"), "My Projects", "projects.html"],
+      ["reports", navIcon("reports"), "Reports", "reports.html"],
+      ["billing", navIcon("billing"), "Billing", "billing.html"],
+      ["settings", navIcon("settings"), "Settings", "settings.html"]
     ];
     var navMarkup = nav.map(function (item) {
       var active = page === item[0] || (page === "project-detail" && item[0] === "projects");
@@ -585,17 +701,16 @@
     return '<div class="mw-layout">' +
       '<aside class="mw-sidebar">' +
       brandMarkup() +
-      '<nav>' + navMarkup + '<button class="mw-nav-link" type="button" data-logout><i>LO</i><span>Logout</span></button></nav>' +
+      '<nav>' + navMarkup + '<button class="mw-nav-link" type="button" data-logout><i>' + navIcon("logout") + '</i><span>Logout</span></button></nav>' +
       '<div class="mw-sidebar-card"><strong>' + escapeHtml(plan.label) + '</strong>' +
-      '<p class="mw-muted">' + usage.used + ' of ' + usage.limit + ' monthly project reviews used.</p>' +
+      '<p class="mw-muted">' + usage.used + ' of ' + usage.limit + ' monthly project credits used.</p>' +
       '<div class="mw-meter" aria-label="Usage"><i style="--value:' + usage.percent + '%"></i></div>' +
       '</div>' +
       '</aside>' +
       '<main class="mw-main">' +
       '<header class="mw-topbar">' +
-      '<div class="mw-topbar-brand">' + brandMarkup() + '</div>' +
       '<input class="mw-search" type="search" placeholder="Search projects..." data-global-search />' +
-      '<button class="mw-icon-btn has-dot" type="button" data-notification-toggle aria-label="Notifications">N</button>' +
+      '<button class="mw-icon-btn mw-notification-btn has-dot" type="button" data-notification-toggle aria-label="Notifications"><span>' + navIcon("notifications") + '</span><b>Notifications</b></button>' +
       '<span class="mw-plan-badge">' + escapeHtml(plan.name) + ' plan</span>' +
       '<button class="mw-avatar" type="button" data-account-toggle aria-label="Account menu">DB</button>' +
       '<div class="mw-dropdown" data-notification-menu>' + notificationMarkup(state) + '</div>' +
@@ -606,6 +721,20 @@
       '<div class="mw-toast" data-toast></div>' +
       '</main>' +
       '</div>';
+  }
+
+  function navIcon(type) {
+    var icons = {
+      overview: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h7V4H4v9Zm9 7h7V4h-7v16ZM4 20h7v-5H4v5Z"/></svg>',
+      upload: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 7 8h3v7h4V8h3l-5-5ZM5 17v3h14v-3h2v5H3v-5h2Z"/></svg>',
+      projects: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h4l2 2H19a2 2 0 0 1 2 2v10.5A2.5 2.5 0 0 1 18.5 21h-13A2.5 2.5 0 0 1 3 18.5v-12Z"/></svg>',
+      reports: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6V3Zm8 1.8V8h3.2L14 4.8ZM8 12h8v2H8v-2Zm0 4h8v2H8v-2Z"/></svg>',
+      billing: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16a2 2 0 0 1 2 2v1H2V8a2 2 0 0 1 2-2Zm-2 5h20v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5Zm3 3v2h5v-2H5Z"/></svg>',
+      notifications: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a4 4 0 0 1 4 4v2.2c0 .9.3 1.7.8 2.4l1.2 1.6c.6.8 1 1.8 1 2.8V17H5v-1c0-1 .4-2 1-2.8l1.2-1.6c.5-.7.8-1.5.8-2.4V7a4 4 0 0 1 4-4Zm-2.7 16a2.8 2.8 0 0 0 5.4 0H9.3Z"/></svg>',
+      settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m19.4 13.5.1-1.5-.1-1.5 2-1.5-2-3.5-2.4 1a7.3 7.3 0 0 0-2.6-1.5L14 2h-4l-.4 2.5A7.3 7.3 0 0 0 7 6L4.6 5 2.6 8.5l2 1.5-.1 1.5.1 1.5-2 1.5 2 3.5 2.4-1a7.3 7.3 0 0 0 2.6 1.5L10 22h4l.4-2.5A7.3 7.3 0 0 0 17 18l2.4 1 2-3.5-2-1.5ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>',
+      logout: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h9v2H6v12h7v2H4V4Zm12.5 4.5L20 12l-3.5 3.5-1.4-1.4 1.1-1.1H10v-2h6.2l-1.1-1.1 1.4-1.4Z"/></svg>'
+    };
+    return icons[type] || icons.overview;
   }
 
   function notificationMarkup(state) {
@@ -621,20 +750,20 @@
     return '<article><strong>' + escapeHtml(state.profile.fullName) + '</strong>' +
       '<p class="mw-muted">' + escapeHtml(state.profile.email) + '</p></article>' +
       '<article><strong>' + escapeHtml(planCatalog[usage.plan].label) + '</strong>' +
-      '<p class="mw-muted">' + usage.remaining + ' project reviews remaining this month.</p></article>' +
+      '<p class="mw-muted">' + usage.remaining + ' project credits remaining this month.</p></article>' +
       '<div class="mw-action-row"><a class="mw-btn" href="settings.html">Settings</a><button class="mw-btn danger" type="button" data-logout>Logout</button></div>';
   }
 
   function limitWarning(state) {
     if (!state.activePlan) {
-      return '<strong>Choose Your Plan</strong><p class="mw-muted">Select Plus or Pro to activate project upload and review features.</p>';
+      return '<strong>Choose Your Plan</strong><p class="mw-muted">Select Plus or Pro to activate project upload and dashboard features.</p>';
     }
     var usage = currentUsage(state);
     if (usage.percent >= 100) {
-      return '<strong>Monthly project review limit reached.</strong><p class="mw-muted">Upload can stay visible, but new project reviews are disabled until upgrade or next billing cycle.</p><a class="mw-btn primary" href="billing.html">Upgrade Plan</a>';
+      return '<strong>Monthly project credit limit reached.</strong><p class="mw-muted">Upload can stay visible, but new analyses are disabled until upgrade or next billing cycle.</p><a class="mw-btn primary" href="billing.html">Upgrade Plan</a>';
     }
     if (usage.percent >= 80) {
-      return '<strong>You have used 80% of your monthly project review limit.</strong><p class="mw-muted">Consider upgrading before the next project upload.</p>';
+      return '<strong>You have used 80% of your monthly project credits.</strong><p class="mw-muted">Consider upgrading before the next project upload.</p>';
     }
     return "";
   }
@@ -651,15 +780,15 @@
     var projects = state.projects;
     var activeProjects = projects.filter(function (p) { return p.status !== "Archived"; }).length;
     var completedReports = state.reports.filter(function (r) { return r.status === "Ready"; }).length;
-    var pending = projects.filter(function (p) { return p.status === "Processing" || p.status === "Uploaded"; }).length;
+    var pending = projects.filter(function (p) { return p.status === "Mapping" || p.status === "Processing" || p.status === "Uploaded"; }).length;
     var highRisk = projects.filter(function (p) { return p.risk === "High" || p.risk === "Critical"; }).length;
     var kpis = [
       ["Current Plan", plan.name, plan.badge],
-      ["Used Analyses This Month", usage.used + "/" + usage.limit, usage.percent + "% used"],
-      ["Remaining Analyses", usage.remaining, "Available reviews"],
+      ["Used Credits This Month", usage.used + "/" + usage.limit, usage.percent + "% used"],
+      ["Remaining Credits", usage.remaining, "Available project analyses"],
       ["Active Projects", activeProjects, "Open workspaces"],
-      ["Completed Reports", completedReports, "Ready downloads"],
-      ["Pending Reviews", pending, "Processing or uploaded"],
+      ["Reports Ready", completedReports, "PDF / Excel exports"],
+      ["In Progress", pending, "Mapping or processing"],
       ["High Risk Projects", highRisk, "Needs attention"],
       ["Next Billing Date", formatDate(usage.nextBillingDate), usage.paymentStatus]
     ];
@@ -672,7 +801,12 @@
       return '<div class="mw-list-row"><div><strong>' + escapeHtml(project.name) + '</strong><small>' + escapeHtml(project.module) + ' needs follow-up.</small></div><a class="mw-btn" href="project-detail.html?id=' + encodeURIComponent(project.id) + '">Open</a></div>';
     }).join("") || '<div class="mw-empty">No urgent action items in this demo workspace.</div>';
     return shell("dashboard",
-      pageHead("Member Overview", "Track plan usage, project status, risk signals and latest reports from one control panel.", '<a class="mw-btn primary" href="upload.html">Upload New Project</a><a class="mw-btn" href="projects.html">View Projects</a>') +
+      pageHead("Workspace Dashboard", "This is what a customer sees after login: credits, project status, dashboards, reports and billing in one place.", '<a class="mw-btn primary" href="upload.html">Start New Analysis</a><a class="mw-btn" href="reports.html">Download Reports</a>') +
+      '<section class="mw-stage-strip">' +
+      '<article><b>01</b><strong>Upload files</strong><span>Schedule, BOQ, F-2, stock or risk records.</span></article>' +
+      '<article><b>02</b><strong>Confirm mapping</strong><span>Review detected columns before analysis starts.</span></article>' +
+      '<article><b>03</b><strong>Get dashboard</strong><span>Only relevant dashboards and reports are shown.</span></article>' +
+      '</section>' +
       '<section class="mw-grid kpis">' + kpiMarkup + '</section>' +
       usageCard(state) +
       '<section class="mw-grid two">' +
@@ -698,10 +832,10 @@
       steps.push('<span class="' + (index <= usage.used ? "is-filled" : "") + '">' + index + '</span>');
     }
     return '<section class="mw-panel">' +
-      '<div class="mw-usage-head"><div><h2>Monthly Project Review Limit</h2><p class="mw-muted">' + escapeHtml(plan.label) + ' includes ' + usage.limit + ' project reviews per month.</p></div><strong>' + usage.used + '/' + usage.limit + '</strong></div>' +
+      '<div class="mw-usage-head"><div><h2>Monthly Project Credits</h2><p class="mw-muted">' + escapeHtml(plan.label) + ' includes ' + usage.limit + ' project analyses per month.</p></div><strong>' + usage.used + '/' + usage.limit + '</strong></div>' +
       '<div class="mw-meter"><i style="--value:' + usage.percent + '%"></i></div>' +
       '<div class="mw-limit-steps">' + steps.join("") + '</div>' +
-      (usage.remaining === 0 ? '<p class="mw-muted">Monthly project review limit reached.</p><a class="mw-btn primary" href="billing.html">Upgrade Plan</a>' : '<p class="mw-muted">' + usage.remaining + ' project reviews remaining this month.</p>') +
+      (usage.remaining === 0 ? '<p class="mw-muted">Monthly project credit limit reached.</p><a class="mw-btn primary" href="billing.html">Upgrade Plan</a>' : '<p class="mw-muted">' + usage.remaining + ' project credits remaining this month.</p>') +
       '</section>';
   }
 
@@ -722,7 +856,7 @@
       '<div class="mw-list-row"><div><strong>Risk Summary</strong><small>' + critical + ' critical project risk records need review.</small></div></div>' +
       '<div class="mw-list-row"><div><strong>Schedule Alerts</strong><small>' + schedule + ' projects show delay pressure above the target range.</small></div></div>' +
       '<div class="mw-list-row"><div><strong>Cost Alerts</strong><small>' + cost + ' projects have cost variance to monitor.</small></div></div>' +
-      '<div class="mw-list-row"><div><strong>Material Flow Alerts</strong><small>' + material + ' projects show low material continuity.</small></div></div>' +
+      '<div class="mw-list-row"><div><strong>Material Continuity Alerts</strong><small>' + material + ' projects show low material continuity.</small></div></div>' +
       '</div>';
   }
 
@@ -730,8 +864,9 @@
     var state = loadState();
     var usage = currentUsage(state);
     var limitReached = usage.remaining <= 0;
+    var moduleNames = Object.keys(analysisModules);
     return shell("upload",
-      pageHead("Upload Project", "Add project documents, choose the review module and start a project performance review.", '<a class="mw-btn" href="projects.html">My Projects</a>') +
+      pageHead("Upload Project", "Add project files, confirm the detected mapping and generate the matching dashboard.", '<a class="mw-btn" href="projects.html">My Projects</a>') +
       '<section class="mw-grid two">' +
       '<article class="mw-panel">' +
       '<form class="mw-form" data-upload-form>' +
@@ -741,7 +876,8 @@
       '<label>Client / company name<input name="client" type="text" placeholder="Client or company" required /></label>' +
       '<label>Project type<select name="type" required>' + optionList(["Residential", "Commercial", "Infrastructure", "Public Building", "Mixed-use", "Industrial"]) + '</select></label>' +
       '<label>Project phase<select name="phase" required>' + optionList(["Concept", "Design", "Tender", "Construction", "Handover"]) + '</select></label>' +
-      '<label>Analysis module<select name="module" required>' + optionList(["Full Project Control", "Schedule Recovery", "Cost & Payment Control", "Material Flow", "Risk & Decisions", "Document Control"]) + '</select></label>' +
+      '<label>Analysis module<select name="module" required data-module-select>' + optionList(moduleNames) + '</select></label>' +
+      '<div class="full" data-module-helper>' + moduleHelper("Schedule Recovery") + '</div>' +
       '<div class="full">' + uploadBox() + '</div>' +
       '</div>' +
       '<p class="mw-muted" data-upload-status>' + (limitReached ? 'Your monthly limit is used. Upgrade to Pro or wait for next billing cycle.' : 'Supported formats: PDF, XLS, XLSX, DOC, DOCX, CSV, Primavera schedule export placeholder and MS Project export placeholder.') + '</p>' +
@@ -751,18 +887,23 @@
       '<aside class="mw-panel">' +
       '<h2>Review Capacity</h2>' +
       usageCard(state) +
-      '<h2>Module Guide</h2>' +
-      '<ul class="mw-check-list">' +
-      '<li>Full Project Control for overall project control summary.</li>' +
-      '<li>Schedule Recovery for delay and sequence pressure.</li>' +
-      '<li>Cost & Payment Control for payment status and variance.</li>' +
-      '<li>Material Flow for continuity and delivery tracking.</li>' +
-      '<li>Risk & Decisions for action registers and owner deadlines.</li>' +
-      '<li>Document Control for file completeness and review status.</li>' +
-      '</ul>' +
+      '<h2>How It Works</h2>' +
+      '<div class="mw-list">' +
+      '<div class="mw-list-row"><div><strong>1. Upload</strong><small>Add project files for the selected package.</small></div></div>' +
+      '<div class="mw-list-row"><div><strong>2. Mapping preview</strong><small>Detected file types and fields are shown before the dashboard is prepared.</small></div></div>' +
+      '<div class="mw-list-row"><div><strong>3. Dashboard and report</strong><small>The workspace shows only relevant dashboard blocks and export files.</small></div></div>' +
+      '</div>' +
       '</aside>' +
       '</section>'
     );
+  }
+
+  function moduleHelper(name) {
+    var module = analysisModules[name] || analysisModules["Schedule Recovery"];
+    return '<section class="mw-module-helper">' +
+      '<article><p class="mw-eyebrow">Required files</p><h3>' + escapeHtml(name) + '</h3><ol>' + module.files.map(function (file) { return '<li>' + escapeHtml(file) + '</li>'; }).join("") + '</ol></article>' +
+      '<article><p class="mw-eyebrow">You will receive</p><h3>Prepared outputs</h3><ul class="mw-check-list">' + module.outputs.map(function (output) { return '<li>' + escapeHtml(output) + '</li>'; }).join("") + '</ul></article>' +
+      '</section>';
   }
 
   function optionList(values) {
@@ -786,10 +927,10 @@
       '<section class="mw-panel">' +
       '<div class="mw-filter-grid" data-project-filters>' +
       '<input class="mw-filter" name="search" placeholder="Search project name" />' +
-      '<select class="mw-filter" name="status"><option value="">All statuses</option>' + optionList(["Draft", "Uploaded", "Processing", "Completed", "Action Required", "Archived"]) + '</select>' +
+      '<select class="mw-filter" name="status"><option value="">All statuses</option>' + optionList(["Draft", "Uploaded", "Mapping", "Processing", "Ready", "Action Required", "Archived"]) + '</select>' +
       '<select class="mw-filter" name="risk"><option value="">All risk levels</option>' + optionList(["Low", "Medium", "High", "Critical"]) + '</select>' +
       '<select class="mw-filter" name="type"><option value="">All project types</option>' + optionList(["Residential", "Commercial", "Infrastructure", "Public Building", "Mixed-use", "Industrial"]) + '</select>' +
-      '<select class="mw-filter" name="module"><option value="">All modules</option>' + optionList(["Full Project Control", "Schedule Recovery", "Cost & Payment Control", "Material Flow", "Risk & Decisions", "Document Control"]) + '</select>' +
+      '<select class="mw-filter" name="module"><option value="">All modules</option>' + optionList(Object.keys(analysisModules)) + '</select>' +
       '</div>' +
       '<div class="mw-action-row" style="margin-top:14px"><button class="mw-btn primary" type="button" data-view-mode="table">Table view</button><button class="mw-btn" type="button" data-view-mode="cards">Card view</button></div>' +
       '</section>' +
@@ -869,12 +1010,12 @@
       '</section>' +
       '<section class="mw-grid kpis">' + kpis.map(kpiCard).join("") + '</section>' +
       '<section class="mw-chart-grid">' +
-      '<article class="mw-panel mw-chart"><h2>Planned vs Actual Progress</h2>' + lineChart() + '</article>' +
-      '<article class="mw-panel mw-chart"><h2>Cost Baseline vs Actual</h2>' + barChart([52, 60, 65, 72, 74, 86]) + '</article>' +
-      '<article class="mw-panel mw-chart"><h2>Risk Distribution</h2>' + donutChart() + '</article>' +
-      '<article class="mw-panel mw-chart"><h2>Material Flow Status</h2>' + barChart([68, 54, 42, 70, 48, 63]) + '</article>' +
-      '<article class="mw-panel mw-chart"><h2>Workforce Requirement</h2>' + lineChart("workforce") + '</article>' +
-      '<article class="mw-panel mw-chart"><h2>Decision Status</h2>' + barChart([35, 52, 46, 61, 75, 68]) + '</article>' +
+      '<article class="mw-panel mw-chart"><h2>Planned vs Actual Progress</h2>' + chartPlaceholderNote() + lineChart() + '</article>' +
+      '<article class="mw-panel mw-chart"><h2>Cost Baseline vs Actual</h2>' + chartPlaceholderNote() + barChart([52, 60, 65, 72, 74, 86]) + '</article>' +
+      '<article class="mw-panel mw-chart"><h2>Risk Distribution</h2>' + chartPlaceholderNote() + donutChart() + '</article>' +
+      '<article class="mw-panel mw-chart"><h2>Material Continuity Status</h2>' + chartPlaceholderNote() + barChart([68, 54, 42, 70, 48, 63]) + '</article>' +
+      '<article class="mw-panel mw-chart"><h2>Workforce Requirement</h2>' + chartPlaceholderNote() + lineChart("workforce") + '</article>' +
+      '<article class="mw-panel mw-chart"><h2>Decision Status</h2>' + chartPlaceholderNote() + barChart([35, 52, 46, 61, 75, 68]) + '</article>' +
       '</section>' +
       '<section class="mw-panel"><h2>Risk Table</h2>' + riskTable(project) + '</section>' +
       '<section class="mw-summary-grid">' +
@@ -882,6 +1023,10 @@
       '<article class="mw-panel"><h2>Report Summary</h2>' + reportSummary(project) + '</article>' +
       '</section>'
     );
+  }
+
+  function chartPlaceholderNote() {
+    return '<p class="mw-muted" style="font-size:11px;margin-top:4px">Illustrative chart &mdash; connect project data to populate.</p>';
   }
 
   function lineChart(kind) {
@@ -903,12 +1048,12 @@
   function donutChart() {
     return '<div class="mw-donut-wrap"><div class="mw-donut"><svg viewBox="0 0 120 120" role="img" aria-label="Risk distribution donut">' +
       '<circle class="base" cx="60" cy="60" r="43"></circle><circle class="a" cx="60" cy="60" r="43" pathLength="100"></circle><circle class="b" cx="60" cy="60" r="43" pathLength="100"></circle><circle class="c" cx="60" cy="60" r="43" pathLength="100"></circle><circle class="d" cx="60" cy="60" r="43" pathLength="100"></circle>' +
-      '</svg></div><ul class="mw-check-list"><li>Schedule pressure 42%</li><li>Cost variance 28%</li><li>Decision delay 18%</li><li>Material flow 12%</li></ul></div>';
+      '</svg></div><ul class="mw-check-list"><li class="mw-muted">Chart data will reflect project analysis results.</li></ul></div>';
   }
 
   function riskTable(project) {
     var risks = [
-      ["Delayed material delivery", "Material Flow", "Steel delivery sequence is not aligned with next work front.", "High", "Medium", "High", "Adjust material delivery", "Procurement lead", "2026-06-02", "Open"],
+      ["Delayed material delivery", "Material Continuity", "Steel delivery sequence is not aligned with next work front.", "High", "Medium", "High", "Adjust material delivery", "Procurement lead", "2026-06-02", "Open"],
       ["Payment approval delay", "Cost Control", "Payment package approval is behind the target date.", "High", "High", "Critical", "Update payment schedule", "Commercial manager", "2026-05-31", "Action Required"],
       ["Workforce shortage", "Schedule", "Concrete crew capacity is below recovery requirement.", "Medium", "Medium", project.risk, "Increase workforce", "Site manager", "2026-06-04", "Open"]
     ];
@@ -973,13 +1118,13 @@
       kpiCard(["Used analyses", usage.used + "/" + usage.limit, usage.remaining + " remaining"]) +
       kpiCard(["Remaining analyses", usage.remaining, "Available this cycle"]) +
       kpiCard(["Next billing date", formatDate(usage.nextBillingDate), "Subscription cycle"]) +
-      kpiCard(["Payment status", state.activePlan ? usage.paymentStatus : "Inactive", "Lemon Squeezy"]) +
+      kpiCard(["Payment status", state.activePlan ? usage.paymentStatus : "Inactive", "payment provider"]) +
       '</section>' +
       '<section class="mw-plan-grid">' + planCard("plus", state) + planCard("pro", state) + '</section>' +
       '<section class="mw-grid three">' +
-      '<article class="mw-panel"><h2>Single Project</h2><p class="mw-muted">Buy one project analysis credit with Lemon Squeezy checkout.</p><button class="mw-btn primary" type="button" data-checkout-plan="single">Analyze One Project</button></article>' +
+      '<article class="mw-panel"><h2>Single Project</h2><p class="mw-muted">Buy one project analysis credit with the payment provider checkout.</p><button class="mw-btn primary" type="button" data-checkout-plan="single">Analyze One Project</button></article>' +
       '<article class="mw-panel"><h2>Customer Portal</h2><p class="mw-muted">Portal placeholder for subscription management and invoice history.</p><button class="mw-btn" type="button" data-portal-placeholder>Manage subscription</button></article>' +
-      '<article class="mw-panel"><h2>Webhook Status</h2><p class="mw-muted">Lemon Squeezy webhook listener is connected through the backend.</p><span class="mw-status processing">Waiting for checkout event</span></article>' +
+      '<article class="mw-panel"><h2>Webhook Status</h2><p class="mw-muted">Payment webhook listener is connected through the backend.</p><span class="mw-status processing">Waiting for checkout event</span></article>' +
       '</section>' +
       '<section class="mw-panel"><h2>Billing Actions</h2><div class="mw-action-row"><button class="mw-btn primary" data-checkout-plan="pro" type="button">Upgrade to Pro</button><button class="mw-btn" data-checkout-plan="plus" type="button">Start Plus</button><button class="mw-btn danger" data-cancel-placeholder type="button">Cancel subscription placeholder</button></div></section>'
     );
@@ -1051,8 +1196,8 @@
       settingsInput("Country / city", "city", profile.country + " / " + profile.city) +
       '</div><button class="mw-btn primary" type="submit">Save settings</button></form></article>' +
       '<article class="mw-panel"><h2>Preferences</h2><form class="mw-form" data-preferences-form>' +
-      '<label>Dashboard language<select name="dashboardLanguage"><option ' + selected(prefs.dashboardLanguage, "English") + '>English</option><option ' + selected(prefs.dashboardLanguage, "Azerbaijani") + '>Azerbaijani</option></select></label>' +
-      '<label>Default report language<select name="reportLanguage"><option ' + selected(prefs.reportLanguage, "English") + '>English</option><option ' + selected(prefs.reportLanguage, "Azerbaijani") + '>Azerbaijani</option></select></label>' +
+      '<label>Dashboard language<select name="dashboardLanguage"><option ' + selected(prefs.dashboardLanguage, "English") + '>English</option><option ' + selected(prefs.dashboardLanguage, "Azerbaijani") + '>Azerbaijani</option></select><p class="mw-muted">Language switching is coming soon. Reports are currently generated in English.</p></label>' +
+      '<label>Default report language<select name="reportLanguage"><option ' + selected(prefs.reportLanguage, "English") + '>English</option><option ' + selected(prefs.reportLanguage, "Azerbaijani") + '>Azerbaijani</option></select><p class="mw-muted">Language switching is coming soon. Reports are currently generated in English.</p></label>' +
       '<label>Default export format<select name="exportFormat"><option ' + selected(prefs.exportFormat, "PDF") + '>PDF</option><option ' + selected(prefs.exportFormat, "Excel") + '>Excel</option><option ' + selected(prefs.exportFormat, "PDF + Excel") + '>PDF + Excel</option></select></label>' +
       '<label><input type="checkbox" name="completed" ' + checked(prefs.notifications.completed) + ' /> Project completed</label>' +
       '<label><input type="checkbox" name="limit" ' + checked(prefs.notifications.limit) + ' /> Limit warning</label>' +
@@ -1094,14 +1239,8 @@
   }
 
   function downloadMock(filename, content) {
-    var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    var link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+    showToast("Export ready: " + filename + " - connect backend storage to enable real downloads.");
+    return;
   }
 
   function bindAuth() {
@@ -1243,10 +1382,10 @@
         downloadMock(slug(report ? report.name : "report") + ".txt", "DevBareun report download placeholder.");
       }
       if (event.target.closest("[data-checkout-placeholder]")) {
-        showToast("Lemon Squeezy checkout placeholder is ready for backend connection.");
+        showToast("Payment provider checkout placeholder is ready for backend connection.");
       }
       if (event.target.closest("[data-portal-placeholder]")) {
-        showToast("Lemon Squeezy customer portal placeholder is ready for backend connection.");
+        showToast("Customer portal placeholder is ready for backend connection.");
       }
       if (event.target.closest("[data-cancel-placeholder]")) {
         showToast("Cancel subscription placeholder only. No billing action was made.");
@@ -1274,6 +1413,15 @@
       if (event.target.closest("[data-project-filters]")) {
         applyProjectFilters();
       }
+      if (event.target.matches("[data-module-select]")) {
+        updateModuleHelper(event.target.value);
+      }
+      });
+
+      document.addEventListener("change", function (event) {
+      if (event.target.matches("[data-module-select]")) {
+        updateModuleHelper(event.target.value);
+      }
       });
 
       document.addEventListener("submit", function (event) {
@@ -1293,10 +1441,21 @@
         savePreferences(prefs);
       }
       });
+
+      bindUploadArea();
+      updateModuleHelper();
     }
 
-    bindUploadArea();
     initSearchFromSession();
+  }
+
+  function updateModuleHelper(value) {
+    var helper = document.querySelector("[data-module-helper]");
+    var select = document.querySelector("[data-module-select]");
+    if (!helper || !select) {
+      return;
+    }
+    helper.innerHTML = moduleHelper(value || select.value || "Schedule Recovery");
   }
 
   function toggleDropdown(selector) {
@@ -1370,28 +1529,33 @@
   }
 
   function bindUploadArea() {
-    var area = document.querySelector("[data-upload-drop]");
-    var input = document.querySelector("[data-file-input]");
-    if (!area || !input) {
-      return;
-    }
-    area.addEventListener("click", function () {
-      input.click();
-    });
-    area.addEventListener("dragover", function (event) {
+    document.addEventListener("dragover", function (event) {
+      var area = event.target.closest && event.target.closest("[data-upload-drop]");
+      if (!area) {
+        return;
+      }
       event.preventDefault();
       area.classList.add("is-drag");
     });
-    area.addEventListener("dragleave", function () {
-      area.classList.remove("is-drag");
+    document.addEventListener("dragleave", function (event) {
+      var area = event.target.closest && event.target.closest("[data-upload-drop]");
+      if (area) {
+        area.classList.remove("is-drag");
+      }
     });
-    area.addEventListener("drop", function (event) {
+    document.addEventListener("drop", function (event) {
+      var area = event.target.closest && event.target.closest("[data-upload-drop]");
+      if (!area) {
+        return;
+      }
       event.preventDefault();
       area.classList.remove("is-drag");
       renderFiles(event.dataTransfer.files);
     });
-    input.addEventListener("change", function () {
-      renderFiles(input.files);
+    document.addEventListener("change", function (event) {
+      if (event.target.matches("[data-file-input]")) {
+        renderFiles(event.target.files);
+      }
     });
     document.addEventListener("click", function (event) {
       var remove = event.target.closest("[data-remove-file]");
@@ -1434,6 +1598,8 @@
       showToast("Project name is required.");
       return;
     }
+    var selectedModule = data.get("module") || "Schedule Recovery";
+    var moduleInfo = analysisModules[selectedModule] || analysisModules["Schedule Recovery"];
     var project = {
       id: slug(name) + "-" + Date.now(),
       name: name,
@@ -1443,8 +1609,8 @@
       phase: data.get("phase") || "Construction",
       uploadedDate: todayIso(),
       reviewDate: todayIso(),
-      module: data.get("module") || "Full Project Control",
-      status: "Processing",
+      module: selectedModule,
+      status: "Mapping",
       risk: "Medium",
       progressScore: 58,
       plannedProgress: 54,
@@ -1462,32 +1628,47 @@
     state.usage[usage.plan].used = Math.min(usage.limit, usage.used + 1);
     state.notifications.unshift({
       id: "n" + Date.now(),
-      title: "Project review started",
-      body: project.name + " is now processing.",
+      title: "Mapping started",
+      body: project.name + " files are being mapped.",
       time: "Now"
     });
     saveState(state);
-    showToast("Project status set to Processing.");
+    showToast("Files uploaded. Mapping preview is being prepared.");
+    window.setTimeout(function () {
+      var mappedState = loadState();
+      var mapped = mappedState.projects.find(function (item) { return item.id === project.id; });
+      if (mapped) {
+        mapped.status = "Processing";
+        mapped.lastUpdated = todayIso();
+        mappedState.notifications.unshift({
+          id: "n" + Date.now(),
+          title: "Dashboard preparation started",
+          body: project.name + " mapping is confirmed and dashboards are being prepared.",
+          time: "Now"
+        });
+        saveState(mappedState);
+      }
+    }, 900);
     window.setTimeout(function () {
       var nextState = loadState();
       var saved = nextState.projects.find(function (item) { return item.id === project.id; });
       if (saved) {
-        saved.status = "Completed";
+        saved.status = "Ready";
         saved.progressScore = 74;
         saved.lastUpdated = todayIso();
         nextState.reports.unshift({
           id: "rpt-" + project.id,
-          name: project.name + " Project Control Report",
+          name: project.name + " " + moduleInfo.reportType,
           projectId: project.id,
           projectName: project.name,
-          type: "Full Project Control Report",
+          type: moduleInfo.reportType,
           createdDate: todayIso(),
-          format: "PDF",
+          format: "PDF + Excel",
           status: "Ready"
         });
         nextState.notifications.unshift({
           id: "n" + Date.now(),
-          title: "Project review completed",
+          title: "Dashboard ready",
           body: project.name + " dashboard and report are ready.",
           time: "Now"
         });
@@ -1527,7 +1708,7 @@
       risk: data.has("risk")
     };
     saveState(state);
-    showToast("Workspace preferences saved.");
+    showToast("Preferences saved. Language settings will apply when this feature is activated.");
   }
 
   function todayIso() {

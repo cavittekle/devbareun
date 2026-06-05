@@ -30,6 +30,7 @@ DEVBAREUN_ENABLE_LOCAL_STORE=false
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 DEVBAREUN_ENABLE_PILOT_LOGIN=false
 DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
+DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD=false
 DEVBAREUN_DISABLE_DOCS=true
 ```
 
@@ -56,6 +57,11 @@ Expected live health after configuration:
 ```
 
 If `database` or `storage` returns `not_configured`, live Supabase setup is incomplete.
+
+Railway filesystem storage is ephemeral. Production uploads must use Supabase
+Storage signed upload URLs through `/api/uploads/create-url` and
+`/api/uploads/mark-uploaded`. Keep the legacy local project upload endpoints
+disabled in production unless you are running a temporary private test.
 
 ## Payment
 

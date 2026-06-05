@@ -37,7 +37,7 @@ from .auth_runtime import AuthError, consume_pilot_credit, get_bearer_token, ver
 from .file_validation import validate_upload_metadata
 from .persistence_runtime import save_analysis
 from .production_store import is_configured as production_store_configured
-from .security_runtime import apply_security_headers, bool_env, mock_payment_allowed, production_security_enabled, rate_limiter
+from .security_runtime import apply_security_headers, bool_env, production_security_enabled, rate_limiter
 from .supabase_client import is_configured as supabase_is_configured
 from .services.billing_service import create_one_time_checkout as create_billing_one_time_checkout
 from .services.premium_analysis import file_group_status
@@ -101,17 +101,24 @@ TEMPLATE_MANIFEST = {
 
 
 
+def _production_origins() -> List[str]:
+    return [
+        "https://devbareun.com",
+        "https://www.devbareun.com",
+        "https://devbareun.vercel.app",
+    ]
+
+
 def _allowed_origins() -> List[str]:
     raw = os.getenv("DEVBAREUN_ALLOWED_ORIGINS")
     if raw:
         values = [item.strip().rstrip("/") for item in raw.split(",") if item.strip()]
+        if production_security_enabled():
+            values = [origin for origin in values if origin != "*" and not origin.startswith("http://")]
+            return values or _production_origins()
         return values or ["http://localhost:3000"]
     if production_security_enabled():
-        return [
-            "https://devbareun.com",
-            "https://www.devbareun.com",
-            "https://devbareun.vercel.app",
-        ]
+        return _production_origins()
     return [
         "https://devbareun.com",
         "https://www.devbareun.com",
@@ -125,6 +132,17 @@ def _allowed_origins() -> List[str]:
 
 def _api_docs_enabled() -> bool:
     return not bool_env("DEVBAREUN_DISABLE_DOCS", production_security_enabled())
+
+
+def _require_persistent_project_storage() -> None:
+    if production_security_enabled() and not bool_env("DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD", False):
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "persistent_storage_required",
+                "message": "Production uploads require Supabase Storage. Configure the authenticated storage upload flow before using local project upload endpoints.",
+            },
+        )
 
 
 app = FastAPI(
@@ -286,6 +304,7 @@ def download_template(analysis_type: str) -> FileResponse:
 
 @app.post("/api/projects")
 def create_project(payload: ProjectCreate) -> Dict[str, Any]:
+    _require_persistent_project_storage()
     project_id = uuid4().hex[:12]
     project_token = _generate_project_token()
     analysis_type = normalize_analysis_type(payload.analysis_type)
@@ -306,6 +325,7 @@ def create_project(payload: ProjectCreate) -> Dict[str, Any]:
 
 @app.post("/api/projects/{project_id}/upload")
 async def upload_files(project_id: str, files: List[UploadFile] = File(...), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
+    _require_persistent_project_storage()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token)
@@ -388,14 +408,7 @@ def create_checkout(payload: PaymentRequest, x_project_token: str | None = Heade
             "session_id": session.get("session_id"),
         }
 
-    if mock_payment_allowed():
-        project["paid"] = True
-        project["payment_status"] = "mock_pilot_paid"
-        project["updated_at"] = datetime.utcnow().isoformat()
-        _save_project(project_id, project)
-        return {"project_id": project_id, "status": "paid", "mode": "mock_pilot", "note": "Pilot mode only. Configure Lemon Squeezy and disable DEVBAREUN_ENABLE_MOCK_PAYMENT before commercial launch."}
-
-    raise HTTPException(status_code=503, detail="Payment provider is not configured. Set Lemon Squeezy variables or enable DEVBAREUN_ENABLE_MOCK_PAYMENT for pilot testing.")
+    raise HTTPException(status_code=400, detail="Customer email is required before opening payment provider checkout.")
 
 
 @app.post("/api/projects/{project_id}/preflight")

@@ -606,8 +606,8 @@ def create_subscription_checkout(payload: CheckoutRequest) -> Dict[str, Any]:
 @router.post("/payments/activate-pilot-checkout")
 def activate_pilot_checkout(checkout_id: str, customer_email: Optional[EmailStr] = None) -> Dict[str, Any]:
     """Pilot helper for non-production checkout testing. Disable before production launch."""
-    if production_security_enabled() and not bool_env("DEVBAREUN_ENABLE_PILOT_CHECKOUT", False):
-        raise HTTPException(status_code=403, detail="Pilot checkout activation is disabled in production security mode.")
+    if production_security_enabled() or not bool_env("DEVBAREUN_ENABLE_PILOT_CHECKOUT", False):
+        raise HTTPException(status_code=403, detail="Pilot checkout activation is disabled.")
     session = find_one("checkout_sessions", checkout_id=checkout_id)
     if not session:
         raise HTTPException(status_code=404, detail="Pilot checkout session was not found.")
