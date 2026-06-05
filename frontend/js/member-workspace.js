@@ -3,8 +3,9 @@
 
   var STATE_KEY = "devbareun_member_workspace_state";
   var SESSION_KEY = "devbareun_member_workspace_session";
+  var DEMO_MODE_KEY = "devbareun_member_workspace_demo_mode";
   var APP_ID = "memberWorkspaceApp";
-  var WORKSPACE_VERSION = "2026-06-04-member-panel-v2";
+  var WORKSPACE_VERSION = "2026-06-05-member-panel-v3";
   var authEventsBound = false;
   var workspaceEventsBound = false;
 
@@ -300,20 +301,33 @@
     }
   ];
 
-  function initialState() {
+  function wantsDemoWorkspace() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get("demo") === "1") {
+        return true;
+      }
+      return localStorage.getItem(DEMO_MODE_KEY) === "1";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function emptyState() {
     return {
       currentPlan: "plus",
       version: WORKSPACE_VERSION,
+      isDemoData: false,
       activePlan: true,
       usage: {
-        plus: { used: 3, limit: 5, nextBillingDate: "2026-06-01", paymentStatus: "Active" },
-        pro: { used: 7, limit: 20, nextBillingDate: "2026-06-01", paymentStatus: "Active" }
+        plus: { used: 0, limit: 5, nextBillingDate: "2026-06-01", paymentStatus: "Active" },
+        pro: { used: 0, limit: 20, nextBillingDate: "2026-06-01", paymentStatus: "Active" }
       },
       profile: {
-        fullName: "DevBareun Demo User",
+        fullName: "DevBareun Member",
         email: "member@devbareun.com",
-        company: "DevBareun Construction",
-        position: "Project Controls Manager",
+        company: "",
+        position: "",
         phone: "",
         city: "Baku",
         country: "Azerbaijan"
@@ -329,10 +343,43 @@
           risk: true
         }
       },
-      projects: defaultProjects.slice(),
-      reports: defaultReports.slice(),
-      notifications: defaultNotifications.slice()
+      projects: [],
+      reports: [],
+      notifications: []
     };
+  }
+
+  function demoState() {
+    var state = emptyState();
+    state.isDemoData = true;
+    state.usage.plus.used = 3;
+    state.usage.pro.used = 7;
+    state.profile.fullName = "DevBareun Demo User";
+    state.profile.company = "DevBareun Construction";
+    state.profile.position = "Project Controls Manager";
+    state.projects = defaultProjects.slice();
+    state.reports = defaultReports.slice();
+    state.notifications = defaultNotifications.slice();
+    return state;
+  }
+
+  function looksLikeLegacyDemoState(state) {
+    if (!state || typeof state !== "object") {
+      return false;
+    }
+    if (state.isDemoData === true) {
+      return true;
+    }
+    var projects = Array.isArray(state.projects) ? state.projects : [];
+    var reports = Array.isArray(state.reports) ? state.reports : [];
+    var profile = state.profile || {};
+    return String(profile.email || "").toLowerCase() === "member@devbareun.com" &&
+      projects.some(function (project) { return project && project.id === "residential-complex"; }) &&
+      reports.some(function (report) { return report && report.id === "rpt-residential-full"; });
+  }
+
+  function initialState() {
+    return wantsDemoWorkspace() ? demoState() : emptyState();
   }
 
   /**
@@ -354,15 +401,22 @@
 
   function normalizeState(state) {
     var fresh = initialState();
+    var empty = emptyState();
     var needsMigration = !state || state.version !== WORKSPACE_VERSION;
     state = state && typeof state === "object" ? state : fresh;
+    state.isDemoData = looksLikeLegacyDemoState(state);
+    if (state.isDemoData && !wantsDemoWorkspace()) {
+      state = empty;
+      fresh = empty;
+      needsMigration = true;
+    }
     state.currentPlan = state.currentPlan || fresh.currentPlan;
     state.version = state.version || "";
     state.activePlan = typeof state.activePlan === "boolean" ? state.activePlan : true;
     state.usage = Object.assign({}, fresh.usage, state.usage || {});
     state.profile = Object.assign({}, fresh.profile, state.profile || {});
     state.preferences = Object.assign({}, fresh.preferences, state.preferences || {});
-    state.projects = Array.isArray(state.projects) && state.projects.length ? state.projects : fresh.projects;
+    state.projects = Array.isArray(state.projects) ? state.projects : fresh.projects;
     state.reports = Array.isArray(state.reports) ? state.reports : fresh.reports;
     state.notifications = Array.isArray(state.notifications) ? state.notifications : fresh.notifications;
     if (needsMigration) {
@@ -609,17 +663,19 @@
     if (params.get("demo") !== "1" || !devMemberDemoEnabled()) {
       return;
     }
+    localStorage.setItem(DEMO_MODE_KEY, "1");
     var plan = params.get("plan") === "pro" ? "pro" : "plus";
+    var demo = demoState();
     if (planCatalog[plan]) {
-      state.currentPlan = plan;
+      demo.currentPlan = plan;
     }
-    state.activePlan = true;
-    saveState(state);
+    demo.activePlan = true;
+    saveState(demo);
     setSession({
       loggedIn: true,
       activePlan: true,
-      plan: state.currentPlan,
-      email: state.profile.email
+      plan: demo.currentPlan,
+      email: demo.profile.email
     });
     if (window.history && window.history.replaceState) {
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -712,7 +768,7 @@
       '<input class="mw-search" type="search" placeholder="Search projects..." data-global-search />' +
       '<button class="mw-icon-btn mw-notification-btn has-dot" type="button" data-notification-toggle aria-label="Notifications"><span>' + navIcon("notifications") + '</span><b>Notifications</b></button>' +
       '<span class="mw-plan-badge">' + escapeHtml(plan.name) + ' plan</span>' +
-      '<button class="mw-avatar" type="button" data-account-toggle aria-label="Account menu">DB</button>' +
+      '<button class="mw-avatar" type="button" data-account-toggle aria-label="Account menu"><img src="assets/devbareun-symbol-white-512.png?v=1" alt="" /></button>' +
       '<div class="mw-dropdown" data-notification-menu>' + notificationMarkup(state) + '</div>' +
       '<div class="mw-dropdown mw-account-dropdown" data-account-menu>' + accountMenuMarkup(state, usage) + '</div>' +
       '</header>' +
@@ -799,7 +855,29 @@
     }).join("");
     var actionItems = projects.filter(function (p) { return p.status === "Action Required" || p.risk === "Critical"; }).map(function (project) {
       return '<div class="mw-list-row"><div><strong>' + escapeHtml(project.name) + '</strong><small>' + escapeHtml(project.module) + ' needs follow-up.</small></div><a class="mw-btn" href="project-detail.html?id=' + encodeURIComponent(project.id) + '">Open</a></div>';
-    }).join("") || '<div class="mw-empty">No urgent action items in this demo workspace.</div>';
+    }).join("") || '<div class="mw-empty">No urgent action items yet.</div>';
+    var hasProjects = projects.length > 0;
+    var overviewContent = hasProjects
+      ? '<section class="mw-grid kpis">' + kpiMarkup + '</section>' +
+        usageCard(state) +
+        '<section class="mw-grid two">' +
+        '<article class="mw-panel"><h2>Recent Projects</h2><div class="mw-list">' + recent + '</div></article>' +
+        '<article class="mw-panel"><h2>Latest Reports</h2><div class="mw-list">' + (reports || '<div class="mw-empty">No reports yet.</div>') + '</div></article>' +
+        '</section>' +
+        '<section class="mw-grid two">' +
+        '<article class="mw-panel"><h2>Action Required</h2><div class="mw-list">' + actionItems + '</div></article>' +
+        '<article class="mw-panel"><h2>Alert Summary</h2>' + alertSummary(projects) + '</article>' +
+        '</section>'
+      : '<section class="mw-panel">' +
+        '<h2>Your workspace is ready</h2>' +
+        '<p class="mw-muted">No project data has been uploaded yet. Start with your first schedule, cost, material or risk package and DevBareun will prepare the matching dashboards here.</p>' +
+        '<div class="mw-action-row"><a class="mw-btn primary" href="upload.html">Upload First Project</a><a class="mw-btn" href="billing.html">View Plan</a></div>' +
+        '</section>' +
+        usageCard(state) +
+        '<section class="mw-grid two">' +
+        '<article class="mw-panel"><h2>Next Step</h2><div class="mw-list"><div class="mw-list-row"><div><strong>Upload project files</strong><small>Add baseline schedule, BOQ, F-2, stock or risk records to start the first review.</small></div></div></div></article>' +
+        '<article class="mw-panel"><h2>Reports</h2><div class="mw-empty">Generated dashboards and export files will appear here after the first analysis.</div></article>' +
+        '</section>';
     return shell("dashboard",
       pageHead("Workspace Dashboard", "This is what a customer sees after login: credits, project status, dashboards, reports and billing in one place.", '<a class="mw-btn primary" href="upload.html">Start New Analysis</a><a class="mw-btn" href="reports.html">Download Reports</a>') +
       '<section class="mw-stage-strip">' +
@@ -807,16 +885,7 @@
       '<article><b>02</b><strong>Confirm mapping</strong><span>Review detected columns before analysis starts.</span></article>' +
       '<article><b>03</b><strong>Get dashboard</strong><span>Only relevant dashboards and reports are shown.</span></article>' +
       '</section>' +
-      '<section class="mw-grid kpis">' + kpiMarkup + '</section>' +
-      usageCard(state) +
-      '<section class="mw-grid two">' +
-      '<article class="mw-panel"><h2>Recent Projects</h2><div class="mw-list">' + recent + '</div></article>' +
-      '<article class="mw-panel"><h2>Latest Reports</h2><div class="mw-list">' + (reports || '<div class="mw-empty">No reports yet.</div>') + '</div></article>' +
-      '</section>' +
-      '<section class="mw-grid two">' +
-      '<article class="mw-panel"><h2>Action Required</h2><div class="mw-list">' + actionItems + '</div></article>' +
-      '<article class="mw-panel"><h2>Alert Summary</h2>' + alertSummary(projects) + '</article>' +
-      '</section>'
+      overviewContent
     );
   }
 
@@ -1094,6 +1163,12 @@
 
   function renderReports() {
     var state = loadState();
+    if (!state.reports.length) {
+      return shell("reports",
+        pageHead("Reports", "All generated project reports and export packages appear here.", '<a class="mw-btn primary" href="upload.html">Upload Project</a>') +
+        '<section class="mw-panel"><div class="mw-empty">No reports yet. After the first completed analysis, PDF and Excel exports will appear here.</div></section>'
+      );
+    }
     var rows = state.reports.map(function (report) {
       return '<tr><td><strong>' + escapeHtml(report.name) + '</strong></td><td>' + escapeHtml(report.projectName) + '</td><td>' +
         escapeHtml(report.type) + '</td><td>' + formatDate(report.createdDate) + '</td><td><span class="mw-format-badge">' +
