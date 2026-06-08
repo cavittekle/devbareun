@@ -38,7 +38,7 @@ def analyze_full_project_control_premium(
 
     return {
         "analysis_type": PREMIUM_ANALYSIS_TYPE,
-        "title": "Full Project Control Premium Dashboard",
+        "title": "Project Control Dashboard",
         "executive_summary": summary,
         "kpis": {
             "project_status": summary.get("overall_project_status"),
@@ -364,4 +364,4 @@ def _issue(label: str, status: Any, value: Any, suffix: str) -> str:
 
 
 def _missing_warnings(missing_inputs: List[Dict[str, Any]]) -> List[str]:
-    return [f"{item['group']} input is missing for Full Project Control Premium." for item in missing_inputs]
+    return [f"{item['group']} input is missing for the combined project-control dashboard." for item in missing_inputs]

@@ -360,7 +360,7 @@ def _create_lemon_checkout(
     try:
         checkout = _lemon_post("/v1/checkouts", payload)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail={"error": "lemon_checkout_failed", "message": str(exc)}) from exc
+        raise HTTPException(status_code=502, detail={"error": "lemon_checkout_failed", "message": "Lemon Squeezy checkout could not be created. Please verify billing configuration and try again."}) from exc
 
     attrs = checkout.get("data", {}).get("attributes", {})
     session = {"id": checkout.get("data", {}).get("id"), "url": attrs.get("url")}
@@ -468,7 +468,7 @@ def _safe_checkout_url(url: str) -> str:
     if not allowed:
         allowed = ["https://devbareun.com", "https://www.devbareun.com", "https://devbareun.vercel.app"]
         if not production_security_enabled():
-            allowed.extend(["http://localhost:5173", "http://127.0.0.1:5173", "http://127.0.0.1:4173"])
+            allowed.extend(["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"])
     origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
     if origin not in allowed:
         raise HTTPException(status_code=400, detail={"error": "invalid_url", "message": "Checkout redirect origin is not allowed."})

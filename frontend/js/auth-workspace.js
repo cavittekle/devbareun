@@ -6,9 +6,11 @@ Connects landing access, authentication and protected workspace pages.
 (function () {
   "use strict";
 
+  const PRODUCTION_HOSTS = new Set(["devbareun.com", "www.devbareun.com"]);
+  const IS_PRODUCTION_HOST = PRODUCTION_HOSTS.has(location.hostname);
   const LOCAL_DEFAULT_API = `http://${location.hostname === "localhost" ? "127.0.0.1" : location.hostname}:8000`;
   const API_BASE =
-    localStorage.getItem("devbareun_api_base") ||
+    (!IS_PRODUCTION_HOST ? localStorage.getItem("devbareun_api_base") : "") ||
     window.DEVBAREUN_API_URL ||
     ((location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")
       ? LOCAL_DEFAULT_API
@@ -306,11 +308,10 @@ Connects landing access, authentication and protected workspace pages.
         ? "Check your email confirmation, then log in to open the workspace."
         : "Login did not return a workspace session.");
     } catch (err) {
-      if (!LOCAL_PREVIEW || !/Supabase is not configured/i.test(String(err.message))) throw err;
-      return api("/api/auth/pilot-login", {
-        method: "POST",
-        body: JSON.stringify({ email, password, plan }),
-      });
+      if (LOCAL_PREVIEW && /Supabase is not configured/i.test(String(err.message || err))) {
+        throw new Error("Workspace authentication is not configured yet. Connect Supabase Auth to enable production login.");
+      }
+      throw err;
     }
   }
 

@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   "use strict";
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -11,17 +11,42 @@
       navUpload: "Upload",
       navPricing: "Pricing",
       navReports: "Reports",
+      navAbout: "About",
       navFAQ: "FAQ",
+      navContact: "Contact",
       login: "Login",
       startAnalysis: "Start Analysis",
       heroLabel: "Project control SaaS for construction teams",
-      heroTitle: "Upload project files. Confirm mapping. Get a management dashboard.",
-      heroLead: "DevBareun converts schedules, progress files, cost estimates, material records and risk logs into clean project control dashboards and report-ready outputs.",
+      heroTitle: "Turn project files into clear decisions.",
+      heroLead: "DevBareun helps construction teams turn schedules, progress files, cost data, and site records into clear reporting, risk visibility, and recovery actions.",
       heroPrimary: "Start analysis",
       heroSecondary: "View dashboard preview",
       heroPointUpload: "Upload files",
       heroPointMap: "Confirm mapping",
       heroPointDash: "Receive dashboard",
+      heroShowcasePill: "4 control packages - schedule, cost, material, risk",
+      heroShowcaseTitleOne: "Construction project",
+      heroShowcaseTitleTwo: "control,",
+      heroShowcaseTitleThree: "done right.",
+      heroShowcaseLead: "Upload your project files. Get a precise management dashboard - schedule, cost, payment, material and risk - in one view.",
+      heroFlowUpload: "Upload project files",
+      heroFlowMap: "Confirm detected mapping",
+      heroFlowDashboard: "Review dashboard output",
+      heroBenefitLabel: "Project control for construction teams",
+      heroBenefitTitle: "See what needs action before delays grow.",
+      heroBenefitText: "Replace scattered project updates with a clear decision view for schedule, cost, progress, risk, and recovery actions.",
+      benefitDelayTitle: "Catch delays earlier",
+      benefitDelayText: "Identify critical schedule issues before they affect handover dates.",
+      benefitReportsTitle: "Turn files into reports",
+      benefitReportsText: "Convert project data into clear executive reporting.",
+      benefitTeamsTitle: "Keep teams aligned",
+      benefitTeamsText: "Give management, planners, and site teams one shared project view.",
+      benefitRecoveryTitle: "Move faster with recovery actions",
+      benefitRecoveryText: "See what needs attention now and act before delays grow.",
+      benefitTagSchedule: "Schedule analytics",
+      benefitTagRisk: "Risk visibility",
+      benefitTagRecovery: "Recovery actions",
+      benefitTagExports: "PDF / Excel outputs",
       dashTitle: "Project Control Dashboard",
       chartTitle: "Baseline vs actual progress",
       miniDelay: "Delay signal",
@@ -38,8 +63,13 @@
       uploadLabel: "Upload and analysis packages",
       uploadTitle: "Choose the problem, then upload the right files.",
       uploadIntro: "Single Project users upload first, preview mapping and pay with Lemon Squeezy to unlock the full dashboard. Plus and Pro users spend monthly project credits.",
+      downloadTemplate: "Download template",
+      statPackages: "Control packages",
+      statFormats: "File formats",
+      statPlans: "Pricing plans",
+      statLanguages: "Languages",
       pkgScheduleTitle: "Delay + workforce logic",
-      pkgScheduleText: "Baseline, actual progress and workforce recovery planning.",
+      pkgScheduleText: "Delay, actual progress and workforce recovery planning.",
       pkgCostTitle: "Cost + F-2 tracking",
       pkgCostText: "Cost estimate, actual cost and progress payment visibility.",
       pkgMaterialTitle: "Stock + consumption logic",
@@ -85,16 +115,49 @@
       previewInsightTitle: "What you understand",
       previewInsightText: "The dashboard shows how late the project is, which tasks drive the delay, and what recovery actions should be reviewed.",
       pricingLabel: "Pricing",
-      pricingTitle: "Choose one project or monthly project credits.",
-      pricingText: "Billing is prepared around Lemon Squeezy checkout. No payment details are collected on the DevBareun page.",
+      pricingTitle: "Simple, transparent pricing.",
+      pricingText: "One project or twenty. Pick the plan that fits. No hidden fees, no lock-in.",
       oneTime: "One-time",
       monthly: "Monthly",
+      annual: "Annual",
+      saveAnnual: "Save 20%",
+      mostPopular: "Most popular",
+      recommended: "Recommended",
+      highVolume: "High volume",
+      priceSingleNote: "one-time",
+      priceMonthlyNote: "month",
+      priceAnnualNote: "year",
+      priceAnnualBilledNote: "mo, billed annually",
+      pricingSingleShort: "Perfect for a single project analysis with full dashboard output.",
+      pricingPlusShort: "The sweet spot for active project teams managing multiple sites.",
+      pricingProShort: "For companies running larger portfolios with admin oversight.",
       singleDesc: "Upload files, preview mapping, then pay to unlock one full dashboard and report package.",
       plusDesc: "5 project credits per month for recurring project control and report archive workflows.",
       proDesc: "20 project credits per month for teams managing multiple active construction sites.",
       singleCta: "Upload one project",
       plusCta: "Start Plus",
       proCta: "Start Pro",
+      pricingIncludes: "What's included",
+      compareSingle: "Single Project",
+      comparePlus: "Plus",
+      comparePro: "Pro",
+      rowCredits: "Analysis credits",
+      rowCreditsSingle: "1 project",
+      rowCreditsPlus: "5 / month",
+      rowCreditsPro: "20 / month",
+      rowCreditsPlusAnnual: "5 / month",
+      rowCreditsProAnnual: "20 / month",
+      rowPackages: "All 4 control packages",
+      rowDashboard: "Package-specific dashboard",
+      rowExport: "PDF + Excel export",
+      rowArchive: "Report archive",
+      rowUsage: "Credit usage visibility",
+      rowWorkspace: "Multi-project workspace",
+      rowAdmin: "Admin usage tracking",
+      pricingTrustSecure: "Secure checkout",
+      pricingTrustCancel: "Cancel anytime",
+      pricingTrustSetup: "No setup fees",
+      pricingTrustIncluded: "All packages included",
       faqTitle: "Questions before uploading.",
       faqQ1: "What files should I upload?",
       faqA1: "Upload the files required by the selected package: schedule, progress, cost, payment, material or risk records.",
@@ -104,7 +167,18 @@
       faqA3: "Plus includes 5 monthly project credits. Pro includes 20 monthly project credits for larger teams.",
       faqQ4: "Will empty dashboard blocks appear?",
       faqA4: "No. The result view is designed to show only dashboard areas supported by uploaded project data.",
-      footerText: "Construction analytics, project control and reporting platform."
+      footerText: "Construction analytics, project control and reporting platform.",
+      footerBadgeOne: "Project control",
+      footerBadgeTwo: "Report-ready outputs",
+      footerProduct: "Product",
+      footerCompany: "Company",
+      footerPlatform: "Platform",
+      footerLegal: "Legal",
+      footerPrivacy: "Privacy Policy",
+      footerTerms: "Terms of Service",
+      footerContact: "Contact",
+      footerContactText: "For product, billing and project setup questions.",
+      footerBottom: "Built for construction project teams."
     },
     az: {
       loaderTitle: "Tikinti analitika platforması",
@@ -112,17 +186,42 @@
       navUpload: "Yükləmə",
       navPricing: "Qiymət",
       navReports: "Hesabatlar",
+      navAbout: "Haqqında",
       navFAQ: "FAQ",
+      navContact: "Əlaqə",
       login: "Giriş",
       startAnalysis: "Analizə başla",
       heroLabel: "Tikinti komandaları üçün layihə nəzarəti SaaS",
-      heroTitle: "Layihə fayllarını yüklə. Mapping-i təsdiqlə. İdarəetmə dashboardu al.",
-      heroLead: "DevBareun qrafikləri, icra fayllarını, smeta məlumatlarını, material qeydlərini və risk siyahılarını aydın layihə nəzarəti dashboardlarına və hesabat nəticələrinə çevirir.",
+      heroTitle: "Layihə fayllarını aydın qərarlara çevirin.",
+      heroLead: "DevBareun tikinti komandalarına qrafikləri, icra fayllarını, xərc məlumatlarını və sahə qeydlərini aydın hesabatlara, risk görünürlüğünə və bərpa addımlarına çevirməyə kömək edir.",
       heroPrimary: "Analizə başla",
       heroSecondary: "Dashboard nümunəsinə bax",
       heroPointUpload: "Faylları yüklə",
       heroPointMap: "Mapping-i təsdiqlə",
       heroPointDash: "Dashboard al",
+      heroShowcasePill: "4 nəzarət paketi - qrafik, xərc, material, risk",
+      heroShowcaseTitleOne: "Tikinti layihəsi",
+      heroShowcaseTitleTwo: "nəzarəti,",
+      heroShowcaseTitleThree: "düzgün qurulmuş.",
+      heroShowcaseLead: "Layihə fayllarınızı yükləyin. Qrafik, xərc, ödəniş, material və risk üzrə dəqiq idarəetmə dashboardunu bir görünüşdə alın.",
+      heroFlowUpload: "Layihə fayllarını yüklə",
+      heroFlowMap: "Mapping nəticəsini təsdiqlə",
+      heroFlowDashboard: "Dashboard nəticəsinə bax",
+      heroBenefitLabel: "Tikinti komandaları üçün layihə nəzarəti",
+      heroBenefitTitle: "Gecikmələr böyümədən nəyi etmək lazım olduğunu görün.",
+      heroBenefitText: "Dağınıq layihə yeniləmələrini qrafik, xərc, icra, risk və bərpa addımları üçün aydın qərar görünüşünə çevirin.",
+      benefitDelayTitle: "Gecikmələri daha tez görün",
+      benefitDelayText: "Təhvil tarixlərinə təsir etməzdən əvvəl kritik qrafik problemlərini müəyyən edin.",
+      benefitReportsTitle: "Faylları hesabatlara çevirin",
+      benefitReportsText: "Layihə məlumatlarını aydın rəhbərlik hesabatlarına çevirin.",
+      benefitTeamsTitle: "Komandaları eyni xətdə saxlayın",
+      benefitTeamsText: "Rəhbərlik, planlama və sahə komandalarına ortaq layihə görünüşü verin.",
+      benefitRecoveryTitle: "Bərpa addımları ilə daha sürətli hərəkət edin",
+      benefitRecoveryText: "İndi diqqət tələb edənləri görün və gecikmələr böyümədən hərəkət edin.",
+      benefitTagSchedule: "Qrafik analitikası",
+      benefitTagRisk: "Risk görünürlüğü",
+      benefitTagRecovery: "Bərpa addımları",
+      benefitTagExports: "PDF / Excel nəticələri",
       dashTitle: "Layihə nəzarəti dashboardu",
       chartTitle: "Plan və faktiki irəliləyiş",
       miniDelay: "Gecikmə siqnalı",
@@ -139,8 +238,13 @@
       uploadLabel: "Yükləmə və analiz paketləri",
       uploadTitle: "Problemi seç, sonra düzgün faylları yüklə.",
       uploadIntro: "Single Project istifadəçiləri əvvəl yükləyir, mapping preview görür və tam dashboardu açmaq üçün Lemon Squeezy ilə ödəniş edir. Plus və Pro istifadəçiləri aylıq layihə kreditlərindən istifadə edir.",
+      downloadTemplate: "Şablonu yüklə",
+      statPackages: "Nəzarət paketləri",
+      statFormats: "Fayl formatları",
+      statPlans: "Qiymət planları",
+      statLanguages: "Dillər",
       pkgScheduleTitle: "Gecikmə + işçi qüvvəsi məntiqi",
-      pkgScheduleText: "Baseline, faktiki irəliləyiş və bərpa planlaması.",
+      pkgScheduleText: "Gecikmə, faktiki irəliləyiş və bərpa planlaması.",
       pkgCostTitle: "Smeta + F-2 izləmə",
       pkgCostText: "Smeta, faktiki xərc və icra ödənişi görünürlüğü.",
       pkgMaterialTitle: "Anbar + sərfiyyat məntiqi",
@@ -186,16 +290,49 @@
       previewInsightTitle: "Nə başa düşürsən",
       previewInsightText: "Dashboard layihənin neçə gün gecikdiyini, gecikməni yaradan tapşırıqları və baxılmalı bərpa addımlarını göstərir.",
       pricingLabel: "Qiymət",
-      pricingTitle: "Bir layihə və ya aylıq layihə kreditləri seç.",
-      pricingText: "Ödəniş axını Lemon Squeezy checkout istiqamətində hazırlanıb. Kart məlumatları DevBareun səhifəsində toplanmır.",
+      pricingTitle: "Sadə və şəffaf qiymət.",
+      pricingText: "Bir layihə və ya aylıq kreditlər. Gizli xərc və uzunmüddətli məcburiyyət yoxdur.",
       oneTime: "Birdəfəlik",
       monthly: "Aylıq",
+      annual: "İllik",
+      saveAnnual: "20% qənaət",
+      mostPopular: "Ən çox seçilən",
+      recommended: "Tövsiyə olunur",
+      highVolume: "Böyük həcm",
+      priceSingleNote: "birdəfəlik",
+      priceMonthlyNote: "aylıq",
+      priceAnnualNote: "illik",
+      priceAnnualBilledNote: "ay, illik ödənilir",
+      pricingSingleShort: "Tam dashboard nəticəsi ilə bir layihə analizi üçün uyğundur.",
+      pricingPlusShort: "Bir neçə sahəni idarə edən aktiv layihə komandaları üçün ən uyğun seçim.",
+      pricingProShort: "Daha böyük portfelləri admin nəzarəti ilə idarə edən şirkətlər üçün.",
       singleDesc: "Faylları yüklə, mapping preview gör, sonra tam dashboard və hesabat paketini açmaq üçün ödə.",
       plusDesc: "Davamlı layihə nəzarəti və hesabat arxivi üçün ayda 5 layihə krediti.",
       proDesc: "Bir neçə aktiv tikinti sahəsi olan komandalar üçün ayda 20 layihə krediti.",
       singleCta: "Bir layihə yüklə",
       plusCta: "Plus başlat",
       proCta: "Pro başlat",
+      pricingIncludes: "Nələr daxildir",
+      compareSingle: "Single Project",
+      comparePlus: "Plus",
+      comparePro: "Pro",
+      rowCredits: "Analiz kreditləri",
+      rowCreditsSingle: "1 layihə",
+      rowCreditsPlus: "5 / ay",
+      rowCreditsPro: "20 / ay",
+      rowCreditsPlusAnnual: "5 / ay",
+      rowCreditsProAnnual: "20 / ay",
+      rowPackages: "Bütün 4 nəzarət paketi",
+      rowDashboard: "Paketə uyğun dashboard",
+      rowExport: "PDF + Excel export",
+      rowArchive: "Hesabat arxivi",
+      rowUsage: "Kredit istifadəsi görünüşü",
+      rowWorkspace: "Çox layihəli workspace",
+      rowAdmin: "Admin istifadə izləməsi",
+      pricingTrustSecure: "Təhlükəsiz checkout",
+      pricingTrustCancel: "İstənilən vaxt ləğv",
+      pricingTrustSetup: "Setup xərci yoxdur",
+      pricingTrustIncluded: "Bütün paketlər daxildir",
       faqTitle: "Yükləmədən əvvəl suallar.",
       faqQ1: "Hansı faylları yükləməliyəm?",
       faqA1: "Seçilmiş paketə uyğun faylları yükləyin: qrafik, irəliləyiş, xərc, ödəniş, material və ya risk qeydləri.",
@@ -205,7 +342,18 @@
       faqA3: "Plus ayda 5 layihə krediti, Pro isə daha böyük komandalar üçün ayda 20 layihə krediti verir.",
       faqQ4: "Boş dashboard blokları görünəcək?",
       faqA4: "Xeyr. Nəticə yalnız yüklənmiş məlumatla dəstəklənən dashboard sahələrini göstərmək üçün hazırlanıb.",
-      footerText: "Tikinti analitikası, layihə nəzarəti və hesabat platforması."
+      footerText: "Tikinti analitikası, layihə nəzarəti və hesabat platforması.",
+      footerBadgeOne: "Layihə nəzarəti",
+      footerBadgeTwo: "Hesabata hazır nəticələr",
+      footerProduct: "Məhsul",
+      footerCompany: "Şirkət",
+      footerPlatform: "Platforma",
+      footerLegal: "Hüquqi",
+      footerPrivacy: "Məxfilik Siyasəti",
+      footerTerms: "Xidmət Şərtləri",
+      footerContact: "Əlaqə",
+      footerContactText: "Məhsul, ödəniş və layihə qurulumu sualları üçün.",
+      footerBottom: "Tikinti layihə komandaları üçün hazırlanıb."
     }
   };
 
@@ -246,6 +394,7 @@
     const currentLang = $("[data-current-lang]");
     if (currentLang) currentLang.textContent = lang.toUpperCase();
     try { localStorage.setItem("devbareun_lang", lang); } catch (e) {}
+    updateBillingDisplay(document.body.dataset.billingCycle || "monthly");
   }
 
   function applyTheme() {
@@ -319,6 +468,34 @@
     toast("Files selected. Mapping preview is ready.");
   }
 
+  function updateBillingDisplay(cycle) {
+    const lang = document.documentElement.lang || "en";
+    const dictionary = translations[lang] || translations.en;
+    const selectedCycle = cycle === "annual" ? "annual" : "monthly";
+    document.body.dataset.billingCycle = selectedCycle;
+
+    $$("[data-billing]").forEach((button) => {
+      const active = button.getAttribute("data-billing") === selectedCycle;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    const planValues = selectedCycle === "annual"
+      ? { plus: "39", pro: "71" }
+      : { plus: "49", pro: "89" };
+    Object.entries(planValues).forEach(([plan, value]) => {
+      const price = $(`[data-price-plan="${plan}"]`);
+      if (price) price.textContent = value;
+      const note = $(`[data-billing-note="${plan}"]`);
+      if (note) note.textContent = selectedCycle === "annual" ? dictionary.priceAnnualBilledNote : dictionary.priceMonthlyNote;
+    });
+
+    const plusCredit = $('[data-credit-plan="plus"]');
+    const proCredit = $('[data-credit-plan="pro"]');
+    if (plusCredit) plusCredit.textContent = selectedCycle === "annual" ? dictionary.rowCreditsPlusAnnual : dictionary.rowCreditsPlus;
+    if (proCredit) proCredit.textContent = selectedCycle === "annual" ? dictionary.rowCreditsProAnnual : dictionary.rowCreditsPro;
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     window.setTimeout(() => {
       const loader = $("#db-loading-screen");
@@ -327,7 +504,7 @@
         loader.setAttribute("aria-hidden", "true");
         window.setTimeout(() => loader.remove(), 800);
       }
-    }, 5000);
+    }, 2000);
 
     applyLanguage(localStorage.getItem("devbareun_lang") || "en");
     applyTheme();
@@ -352,6 +529,10 @@
     }));
 
     $$(".package-card").forEach((card) => card.addEventListener("click", () => renderPackage(card.getAttribute("data-package") || "schedule")));
+    $$("[data-billing]").forEach((button) => button.addEventListener("click", () => {
+      updateBillingDisplay(button.getAttribute("data-billing") || "monthly");
+    }));
+    updateBillingDisplay("monthly");
 
     const drop = $("#dropZone");
     const input = $("#fileInput");

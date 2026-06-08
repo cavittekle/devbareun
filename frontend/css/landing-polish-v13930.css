@@ -267,7 +267,7 @@ body.selected-landing-v1393 > * {
 }
 
 .selected-landing-v1393 .landing-plan-card:hover {
-  transform: translateY(-3px);
+  transform: none;
   border-color: rgba(34, 211, 238, .32);
 }
 
@@ -277,7 +277,7 @@ body.selected-landing-v1393 > * {
 }
 
 .selected-landing-v1393 .landing-plan-card.is-selected {
-  transform: translateY(-6px);
+  transform: none;
   outline: none;
   border-color: rgba(34, 211, 238, .72);
   background: linear-gradient(180deg, rgba(20, 57, 81, .72), rgba(7, 18, 34, .92));

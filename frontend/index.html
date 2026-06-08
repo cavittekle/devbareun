@@ -13,23 +13,12 @@
   <meta property="og:url" content="https://devbareun.com/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="theme-color" content="#0B0C10" />
+  <meta name="theme-color" content="#050B1A" />
   <link rel="icon" href="assets/favicon.png?v=2" type="image/png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
-  <script>
-    (function () {
-      try {
-        var savedLang = localStorage.getItem("devbareun_lang") || "en";
-        localStorage.setItem("devbareun_theme", "dark");
-        document.documentElement.setAttribute("data-theme", "dark");
-        document.documentElement.setAttribute("lang", savedLang);
-      } catch (e) {
-        document.documentElement.setAttribute("data-theme", "dark");
-      }
-    })();
-  </script>
-  <link rel="stylesheet" href="css/modern-landing.css?v=14008" />
+  <script src="js/theme-init.js?v=14035"></script>
+  <link rel="stylesheet" href="css/modern-landing.css?v=14034" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -58,8 +47,9 @@
         <a href="#platform" data-i18n="navPlatform">Platform</a>
         <a href="#upload" data-i18n="navUpload">Upload</a>
         <a href="#pricing" data-i18n="navPricing">Pricing</a>
-        <a href="reports.html" data-i18n="navReports">Reports</a>
-        <a href="#faq" data-i18n="navFAQ">FAQ</a>
+        <a href="about.html" data-i18n="navAbout">About</a>
+        <a href="faq.html" data-i18n="navFAQ">FAQ</a>
+        <a href="contact.html" data-i18n="navContact">Contact</a>
       </nav>
 
       <div class="nav-actions">
@@ -78,8 +68,9 @@
       <a href="#platform" data-i18n="navPlatform">Platform</a>
       <a href="#upload" data-i18n="navUpload">Upload</a>
       <a href="#pricing" data-i18n="navPricing">Pricing</a>
-      <a href="reports.html" data-i18n="navReports">Reports</a>
-      <a href="#faq" data-i18n="navFAQ">FAQ</a>
+      <a href="about.html" data-i18n="navAbout">About</a>
+      <a href="faq.html" data-i18n="navFAQ">FAQ</a>
+      <a href="contact.html" data-i18n="navContact">Contact</a>
       <a href="login.html?next=dashboard.html" data-i18n="login">Login</a>
       <a href="#upload" data-i18n="startAnalysis">Start Analysis</a>
     </div>
@@ -88,49 +79,85 @@
   <main id="main">
     <section class="hero section-shell">
       <div class="grid-bg" aria-hidden="true"></div>
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <p class="section-label" data-i18n="heroLabel">Project control SaaS for construction teams</p>
-          <h1 data-i18n="heroTitle">Upload project files. Confirm mapping. Get a management dashboard.</h1>
-          <p class="hero-lead" data-i18n="heroLead">DevBareun converts schedules, progress files, cost estimates, material records and risk logs into clean project control dashboards and report-ready outputs.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
-            <a class="btn btn-secondary" href="#dashboard-preview" data-i18n="heroSecondary">View dashboard preview</a>
-          </div>
-          <div class="hero-points" aria-label="Workflow summary">
-            <span data-i18n="heroPointUpload">Upload files</span>
-            <span data-i18n="heroPointMap">Confirm mapping</span>
-            <span data-i18n="heroPointDash">Receive dashboard</span>
-          </div>
+      <div class="wrap hero-showcase">
+        <p class="hero-showcase-pill" data-i18n="heroShowcasePill">4 control packages - schedule, cost, material, risk</p>
+        <h1>
+          <span data-i18n="heroShowcaseTitleOne">Construction project</span>
+          <span data-i18n="heroShowcaseTitleTwo">control,</span>
+          <span class="accent-line" data-i18n="heroShowcaseTitleThree">done right.</span>
+        </h1>
+        <p class="hero-lead" data-i18n="heroShowcaseLead">Upload your project files. Get a precise management dashboard - schedule, cost, payment, material and risk - in one view.</p>
+        <div class="hero-actions hero-showcase-actions">
+          <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
+          <a class="btn btn-secondary" href="templates/devbareun-professional-upload-template-v2.xlsx" download data-i18n="downloadTemplate">Download template</a>
         </div>
+        <div class="hero-decision-strip" aria-label="DevBareun upload workflow">
+          <span>
+            <strong>01</strong>
+            <small data-i18n="heroFlowUpload">Upload project files</small>
+          </span>
+          <i aria-hidden="true"></i>
+          <span>
+            <strong>02</strong>
+            <small data-i18n="heroFlowMap">Confirm detected mapping</small>
+          </span>
+          <i aria-hidden="true"></i>
+          <span>
+            <strong>03</strong>
+            <small data-i18n="heroFlowDashboard">Review dashboard output</small>
+          </span>
+        </div>
+      </div>
+    </section>
 
-        <div class="hero-dashboard" aria-label="Animated DevBareun dashboard preview">
-          <div class="dashboard-head">
-            <span>DevBareun</span>
-            <strong data-i18n="dashTitle">Project Control Dashboard</strong>
+    <section class="output-section wrap section" id="dashboard-preview">
+      <div class="value-copy">
+        <p class="section-label" data-i18n="dashboardLabel">Live executive dashboard</p>
+        <h2 data-i18n="dashboardTitle">Every signal rolled up into one decision view.</h2>
+        <p data-i18n="dashboardText">Schedule, cost and risk are read from your uploads and presented as the same management dashboard your team reviews each week.</p>
+      </div>
+      <div class="executive-preview" aria-label="Example executive dashboard">
+        <div class="preview-browser">
+          <div class="preview-bar">
+            <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <strong>Baku Business Center</strong>
+            <small>01 May 2024 - 31 May 2024</small>
           </div>
-          <div class="kpi-row">
-            <article><span>Progress</span><strong>68%</strong><small>Plan 75%</small></article>
-            <article><span>SPI</span><strong>0.92</strong><small>Schedule</small></article>
-            <article><span>CPI</span><strong>0.97</strong><small>Cost</small></article>
+          <div class="preview-kpis">
+            <article><span>Overall progress</span><strong>68%</strong><i style="--w:68%"></i><small>Plan 72%</small></article>
+            <article><span>Schedule - SPI</span><strong>0.92</strong><i style="--w:74%"></i><small>Plan 1.00</small></article>
+            <article><span>Cost - CPI</span><strong>0.97</strong><i style="--w:86%"></i><small>Plan 1.00</small></article>
+            <article><span>Total cost</span><strong>AZN 2.45M</strong><i style="--w:78%"></i><small>Plan AZN 2.53M</small></article>
           </div>
-          <div class="chart-panel">
-            <div class="chart-title"><strong data-i18n="chartTitle">Baseline vs actual progress</strong><span>Jan - Nov</span></div>
-            <svg class="line-chart" viewBox="0 0 640 300" role="img" aria-label="Animated baseline versus actual progress chart">
-              <g class="chart-grid">
-                <line x1="32" y1="54" x2="608" y2="54"></line>
-                <line x1="32" y1="118" x2="608" y2="118"></line>
-                <line x1="32" y1="182" x2="608" y2="182"></line>
-                <line x1="32" y1="246" x2="608" y2="246"></line>
-              </g>
-              <path class="planned-line" d="M40 236 C125 186 200 148 284 115 C365 82 452 55 600 35"></path>
-              <path class="actual-line" d="M40 252 C128 214 204 185 290 152 C372 122 458 104 600 73"></path>
-            </svg>
-          </div>
-          <div class="mini-grid">
-            <article><span data-i18n="miniDelay">Delay signal</span><strong>14 days</strong></article>
-            <article><span data-i18n="miniPayment">Payment status</span><strong>Tracked</strong></article>
-            <article><span data-i18n="miniReport">Report output</span><strong>PDF / Excel</strong></article>
+          <div class="preview-dashboard-grid">
+            <section class="preview-chart-card">
+              <div><strong>Progress analysis</strong><small>Planned vs actual</small></div>
+              <svg viewBox="0 0 520 220" role="img" aria-label="Progress analysis chart">
+                <g class="chart-grid">
+                  <line x1="20" y1="48" x2="500" y2="48"></line>
+                  <line x1="20" y1="100" x2="500" y2="100"></line>
+                  <line x1="20" y1="152" x2="500" y2="152"></line>
+                </g>
+                <path class="planned-line" d="M24 176 C120 136 206 104 286 82 C360 60 420 50 496 40"></path>
+                <path class="actual-line" d="M24 188 C120 154 206 124 288 104 C366 84 430 72 496 62"></path>
+              </svg>
+              <div class="preview-legend"><span><i class="actual-dot"></i>Actual</span><span><i class="planned-dot"></i>Plan</span></div>
+            </section>
+            <section class="preview-bars-card">
+              <div><strong>Cost analysis</strong><small>Monthly spend run-up</small></div>
+              <div class="bar-chart" aria-hidden="true">
+                <span style="--h:42%"></span><span style="--h:56%"></span><span style="--h:51%"></span><span style="--h:66%"></span><span style="--h:58%"></span><span style="--h:84%"></span>
+              </div>
+            </section>
+            <section class="preview-risk-card">
+              <div><strong>Risk indicators</strong><small>Live register status</small></div>
+              <ul>
+                <li><span class="risk-dot danger"></span>Schedule risk <strong>High</strong></li>
+                <li><span class="risk-dot warning"></span>Financial risk <strong>Medium</strong></li>
+                <li><span class="risk-dot success"></span>Supply risk <strong>Low</strong></li>
+                <li><span class="risk-dot muted"></span>Open risks <strong>8</strong></li>
+              </ul>
+            </section>
           </div>
         </div>
       </div>
@@ -157,16 +184,16 @@
 
       <div class="package-grid" role="tablist" aria-label="Analysis packages">
         <button type="button" class="package-card active" data-package="schedule" role="tab" aria-selected="true">
-          <span>Schedule Recovery</span><strong data-i18n="pkgScheduleTitle">Delay + workforce logic</strong><small data-i18n="pkgScheduleText">Baseline, actual progress and workforce recovery planning.</small>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4.5 9h15M6.5 5h11A2.5 2.5 0 0 1 20 7.5v10A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-10A2.5 2.5 0 0 1 6.5 5Z"/><path d="m8 14 2 2 5-5"/></svg></i><span>Schedule Recovery</span><small data-i18n="pkgScheduleText">Delay, actual progress and workforce recovery planning.</small>
         </button>
         <button type="button" class="package-card" data-package="cost" role="tab" aria-selected="false">
-          <span>Cost Control</span><strong data-i18n="pkgCostTitle">Cost + F-2 tracking</strong><small data-i18n="pkgCostText">Cost estimate, actual cost and progress payment visibility.</small>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/><path d="M6 8.5 12 4l6 7"/></svg></i><span>Cost Control</span><small data-i18n="pkgCostText">Cost estimate, actual cost and progress payment visibility.</small>
         </button>
         <button type="button" class="package-card" data-package="material" role="tab" aria-selected="false">
-          <span>Material Continuity</span><strong data-i18n="pkgMaterialTitle">Stock + consumption logic</strong><small data-i18n="pkgMaterialText">Material stock, consumption and procurement continuity.</small>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="M4 7.5V16l8 5 8-5V7.5"/><path d="M12 12v9"/></svg></i><span>Material Continuity</span><small data-i18n="pkgMaterialText">Material stock, consumption and procurement continuity.</small>
         </button>
         <button type="button" class="package-card" data-package="risk" role="tab" aria-selected="false">
-          <span>Risk &amp; Decisions</span><strong data-i18n="pkgRiskTitle">Risk register + decisions</strong><small data-i18n="pkgRiskText">Risk tracking, decision records and management actions.</small>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3.8 18a2 2 0 0 0 1.7 3h13a2 2 0 0 0 1.7-3L12 3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></i><span>Risk &amp; Decisions</span><small data-i18n="pkgRiskText">Risk tracking, decision records and management actions.</small>
         </button>
       </div>
 
@@ -206,109 +233,93 @@
       </div>
     </section>
 
-    <section class="output-section wrap section" id="dashboard-preview">
-      <div class="value-copy">
-        <p class="section-label" data-i18n="dashboardLabel">Live executive dashboard</p>
-        <h2 data-i18n="dashboardTitle">Every signal rolled up into one decision view.</h2>
-        <p data-i18n="dashboardText">Schedule, cost and risk are read from your uploads and presented as the same management dashboard your team reviews each week.</p>
-      </div>
-      <div class="executive-preview" aria-label="Example executive dashboard">
-        <div class="preview-browser">
-          <div class="preview-bar">
-            <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-            <strong>Baku Business Center</strong>
-            <small>01 May 2024 - 31 May 2024</small>
-          </div>
-          <div class="preview-kpis">
-            <article><span>Overall progress</span><strong>68%</strong><i style="--w:68%"></i><small>Plan 72%</small></article>
-            <article><span>Schedule - SPI</span><strong>0.92</strong><i style="--w:74%"></i><small>Plan 1.00</small></article>
-            <article><span>Cost - CPI</span><strong>0.97</strong><i style="--w:86%"></i><small>Plan 1.00</small></article>
-            <article><span>Total cost</span><strong>₼2.45M</strong><i style="--w:78%"></i><small>Plan ₼2.53M</small></article>
-          </div>
-          <div class="preview-dashboard-grid">
-            <section class="preview-chart-card">
-              <div><strong>Progress analysis</strong><small>Planned vs actual</small></div>
-              <svg viewBox="0 0 520 220" role="img" aria-label="Progress analysis chart">
-                <g class="chart-grid">
-                  <line x1="20" y1="48" x2="500" y2="48"></line>
-                  <line x1="20" y1="100" x2="500" y2="100"></line>
-                  <line x1="20" y1="152" x2="500" y2="152"></line>
-                </g>
-                <path class="planned-line" d="M24 176 C120 136 206 104 286 82 C360 60 420 50 496 40"></path>
-                <path class="actual-line" d="M24 188 C120 154 206 124 288 104 C366 84 430 72 496 62"></path>
-              </svg>
-              <div class="preview-legend"><span><i class="actual-dot"></i>Actual</span><span><i class="planned-dot"></i>Plan</span></div>
-            </section>
-            <section class="preview-bars-card">
-              <div><strong>Cost analysis</strong><small>Monthly spend run-up</small></div>
-              <div class="bar-chart" aria-hidden="true">
-                <span style="--h:42%"></span><span style="--h:56%"></span><span style="--h:51%"></span><span style="--h:66%"></span><span style="--h:58%"></span><span style="--h:84%"></span>
-              </div>
-            </section>
-            <section class="preview-risk-card">
-              <div><strong>Risk indicators</strong><small>Live register status</small></div>
-              <ul>
-                <li><span class="risk-dot danger"></span>Schedule risk <strong>High</strong></li>
-                <li><span class="risk-dot warning"></span>Financial risk <strong>Medium</strong></li>
-                <li><span class="risk-dot success"></span>Supply risk <strong>Low</strong></li>
-                <li><span class="risk-dot muted"></span>Open risks <strong>8</strong></li>
-              </ul>
-            </section>
-          </div>
+    <section class="pricing wrap section" id="pricing">
+      <div class="section-heading pricing-heading">
+        <p class="section-label" data-i18n="pricingLabel">Pricing</p>
+        <h2 data-i18n="pricingTitle">Simple, transparent pricing.</h2>
+        <p data-i18n="pricingText">One project or twenty. Pick the plan that fits. No hidden fees, no lock-in.</p>
+        <div class="billing-toggle" aria-label="Billing options">
+          <button type="button" class="active" data-billing="monthly" aria-pressed="true" data-i18n="monthly">Monthly</button>
+          <button type="button" data-billing="annual" aria-pressed="false" data-i18n="annual">Annual</button>
+          <small data-i18n="saveAnnual">Save 20%</small>
         </div>
       </div>
-    </section>
-
-    <section class="pricing wrap section" id="pricing">
-      <div class="section-heading">
-        <p class="section-label" data-i18n="pricingLabel">Pricing</p>
-        <h2 data-i18n="pricingTitle">Choose one project or monthly project credits.</h2>
-        <p data-i18n="pricingText">Billing is prepared around Lemon Squeezy checkout. No payment details are collected on the DevBareun page.</p>
-      </div>
       <div class="pricing-grid">
-        <article class="price-card"><span data-i18n="oneTime">One-time</span><h3>Single Project</h3><strong>$29</strong><p data-i18n="singleDesc">Upload files, preview mapping, then pay to unlock one full dashboard and report package.</p><a class="btn btn-secondary" href="#upload" data-plan="single" data-i18n="singleCta">Upload one project</a></article>
-        <article class="price-card featured"><span data-i18n="monthly">Monthly</span><h3>Plus</h3><strong>$49</strong><p data-i18n="plusDesc">5 project credits per month for recurring project control and report archive workflows.</p><a class="btn btn-primary" href="#upload" data-plan="plus" data-i18n="plusCta">Start Plus</a></article>
-        <article class="price-card"><span data-i18n="monthly">Monthly</span><h3>Pro</h3><strong>$89</strong><p data-i18n="proDesc">20 project credits per month for teams managing multiple active construction sites.</p><a class="btn btn-secondary" href="#upload" data-plan="pro" data-i18n="proCta">Start Pro</a></article>
+        <article class="price-card">
+          <span data-i18n="oneTime">One-time</span>
+          <h3>Single Project</h3>
+          <div class="price-amount"><strong>29</strong><small data-i18n="priceSingleNote">one-time</small></div>
+          <p data-i18n="pricingSingleShort">Perfect for a single project analysis with full dashboard output.</p>
+          <a class="btn btn-secondary" href="#upload" data-plan="single"><span data-i18n="singleCta">Upload one project</span><b aria-hidden="true">→</b></a>
+        </article>
+        <article class="price-card featured">
+          <span data-i18n="mostPopular">Most popular</span>
+          <i data-i18n="recommended">Recommended</i>
+          <h3>Plus</h3>
+          <div class="price-amount"><strong data-price-plan="plus">49</strong><small data-billing-note="plus" data-i18n="priceMonthlyNote">month</small></div>
+          <p data-i18n="pricingPlusShort">The sweet spot for active project teams managing multiple sites.</p>
+          <a class="btn btn-primary" href="#upload" data-plan="plus"><span data-i18n="plusCta">Start Plus</span><b aria-hidden="true">→</b></a>
+        </article>
+        <article class="price-card">
+          <span data-i18n="highVolume">High volume</span>
+          <h3>Pro</h3>
+          <div class="price-amount"><strong data-price-plan="pro">89</strong><small data-billing-note="pro" data-i18n="priceMonthlyNote">month</small></div>
+          <p data-i18n="pricingProShort">For companies running larger portfolios with admin oversight.</p>
+          <a class="btn btn-secondary" href="#upload" data-plan="pro"><span data-i18n="proCta">Start Pro</span><b aria-hidden="true">→</b></a>
+        </article>
+      </div>
+      <div class="pricing-compare" aria-label="Plan comparison">
+        <div class="compare-row compare-head">
+          <strong data-i18n="pricingIncludes">What's included</strong>
+          <span data-i18n="compareSingle">Single Project</span>
+          <span data-i18n="comparePlus">Plus</span>
+          <span data-i18n="comparePro">Pro</span>
+        </div>
+        <div class="compare-row"><strong data-i18n="rowCredits">Analysis credits</strong><span data-i18n="rowCreditsSingle">1 project</span><span data-credit-plan="plus" data-i18n="rowCreditsPlus">5 / month</span><span data-credit-plan="pro" data-i18n="rowCreditsPro">20 / month</span></div>
+        <div class="compare-row"><strong data-i18n="rowPackages">All 4 control packages</strong><span>✓</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowDashboard">Package-specific dashboard</strong><span>✓</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowExport">PDF + Excel export</strong><span>✓</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowArchive">Report archive</strong><span>-</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowUsage">Credit usage visibility</strong><span>-</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowWorkspace">Multi-project workspace</strong><span>-</span><span>-</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowAdmin">Admin usage tracking</strong><span>-</span><span>-</span><span>✓</span></div>
+      </div>
+      <div class="pricing-trust" aria-label="Pricing safeguards">
+        <span data-i18n="pricingTrustSecure">Secure checkout</span>
+        <span data-i18n="pricingTrustCancel">Cancel anytime</span>
+        <span data-i18n="pricingTrustSetup">No setup fees</span>
+        <span data-i18n="pricingTrustIncluded">All packages included</span>
       </div>
     </section>
 
-    <section class="faq wrap section" id="faq">
-      <div class="section-heading">
-        <p class="section-label">FAQ</p>
-        <h2 data-i18n="faqTitle">Questions before uploading.</h2>
-      </div>
-      <div class="faq-list">
-        <details open><summary data-i18n="faqQ1">What files should I upload?</summary><p data-i18n="faqA1">Upload the files required by the selected package: schedule, progress, cost, payment, material or risk records.</p></details>
-        <details><summary data-i18n="faqQ2">How does Single Project payment work?</summary><p data-i18n="faqA2">You upload files first, review the mapping preview, then use Lemon Squeezy checkout to unlock the full dashboard and reports.</p></details>
-        <details><summary data-i18n="faqQ3">What do Plus and Pro include?</summary><p data-i18n="faqA3">Plus includes 5 monthly project credits. Pro includes 20 monthly project credits for larger teams.</p></details>
-        <details><summary data-i18n="faqQ4">Will empty dashboard blocks appear?</summary><p data-i18n="faqA4">No. The result view is designed to show only dashboard areas supported by uploaded project data.</p></details>
-      </div>
-    </section>
   </main>
-
   <footer class="footer">
-    <div class="wrap footer-grid">
-      <div>
-        <a class="footer-brand" href="index.html" aria-label="DevBareun home">
-          <img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" />
-        </a>
-        <p data-i18n="footerText">Construction analytics, project control and reporting platform.</p>
-      </div>
-      <nav aria-label="Footer navigation">
-        <a href="#platform">Platform</a>
-        <a href="#upload">Upload</a>
-        <a href="#pricing">Pricing</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
+    <div class="wrap footer-shell">
+      <nav class="footer-column" aria-label="Product navigation">
+        <strong data-i18n="footerProduct">Product</strong>
+        <a href="#platform" data-i18n="navPlatform">Platform</a>
+        <a href="#upload" data-i18n="navUpload">Upload</a>
+        <a href="#pricing" data-i18n="navPricing">Pricing</a>
       </nav>
-      <div class="footer-contact">
-        <span>Contact</span>
-        <a href="mailto:info@devbareun.com">info@devbareun.com</a>
+      <nav class="footer-column" aria-label="Company navigation">
+        <strong data-i18n="footerCompany">Company</strong>
+        <a href="about.html" data-i18n="navAbout">About</a>
+        <a href="faq.html" data-i18n="navFAQ">FAQ</a>
+        <a href="contact.html" data-i18n="navContact">Contact</a>
+      </nav>
+      <nav class="footer-column" aria-label="Legal navigation">
+        <strong data-i18n="footerLegal">Legal</strong>
+        <a href="privacy.html" data-i18n="footerPrivacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footerTerms">Terms of Service</a>
+      </nav>
+      <div class="footer-bottom">
+        <span>&copy; 2026 DevBareun</span>
+        <span>info@devbareun.com</span>
       </div>
     </div>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="js/modern-landing.js?v=14008" defer></script>
+  <script src="js/modern-landing.js?v=14034" defer></script>
 </body>
 </html>

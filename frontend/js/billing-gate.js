@@ -98,7 +98,7 @@ v1.3.8 — plan checkout bridge for Single / Plus / Pro packages.
           location.href = data.checkout_url;
           return;
         }
-        location.href = `/checkout.html?plan=${encodeURIComponent(plan)}&checkout_id=${encodeURIComponent(checkoutId || "")}&mode=pilot`;
+        location.href = `/checkout.html?plan=${encodeURIComponent(plan)}&checkout_id=${encodeURIComponent(checkoutId || "")}&mode=payment-provider`;
       } catch (err) {
         if (status) status.textContent = err.message;
         btn.disabled = false;

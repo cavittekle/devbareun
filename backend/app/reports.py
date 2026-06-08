@@ -266,7 +266,7 @@ def build_pdf_bytes(result: Dict[str, Any], lang: str = "en", paper: str = "a4")
 
     premium = dashboard.get("premium_dashboard") or {}
     if premium:
-        story.append(Paragraph("Full Project Control Premium Sections", h2))
+        story.append(Paragraph("Project Control Sections", h2))
         premium_rows = [[Paragraph("Section", header), Paragraph("Metric", header), Paragraph("Value", header)]]
         for row in _premium_section_rows(premium):
             premium_rows.append([
@@ -472,7 +472,7 @@ def build_excel_bytes(result: Dict[str, Any], lang: str = "en") -> bytes:
 
     premium = dashboard.get("premium_dashboard") or {}
     if premium:
-        ws_premium = wb.create_sheet("Premium Sections")
+        ws_premium = wb.create_sheet("Project Control")
         ws_premium.append(["Section", "Metric", "Value"])
         for row in _premium_section_rows(premium):
             ws_premium.append([row.get("section"), row.get("metric"), row.get("value")])
@@ -509,7 +509,7 @@ def _premium_section_rows(premium: Dict[str, Any]) -> List[Dict[str, str]]:
                 continue
             rows.append({"section": section_name, "metric": str(key).replace("_", " ").title(), "value": _text(value)})
     if not rows:
-        rows.append({"section": "Full Project Control Premium", "metric": "Status", "value": "No premium section data available"})
+        rows.append({"section": "Project Control", "metric": "Status", "value": "No project-control section data available"})
     return rows[:80]
 
 

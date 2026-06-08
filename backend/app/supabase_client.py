@@ -85,26 +85,7 @@ def sign_up(email: str, password: str, metadata: Optional[Dict[str, Any]] = None
     try:
         return _request("POST", "/auth/v1/signup", payload, service=False)
     except Exception as public_signup_error:
-        cfg = settings()
-        if not cfg.service_role_key:
-            raise public_signup_error
-        try:
-            admin_payload = {
-                "email": email,
-                "password": password,
-                "email_confirm": True,
-                "user_metadata": metadata or {},
-            }
-            user = _request("POST", "/auth/v1/admin/users", admin_payload, service=True)
-            return {
-                "user": user,
-                "admin_created": True,
-                "message": "User created through backend registration.",
-            }
-        except Exception as admin_signup_error:
-            raise RuntimeError(
-                f"Supabase signup failed: {public_signup_error}; admin create failed: {admin_signup_error}"
-            ) from admin_signup_error
+        raise RuntimeError("Supabase public signup failed. Check Auth settings and email confirmation configuration.") from public_signup_error
 
 
 def sign_in(email: str, password: str) -> Dict[str, Any]:

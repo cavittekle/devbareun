@@ -100,7 +100,7 @@ Professional browser print layer for result dashboards, saved analysis views and
   cursor:pointer;
 }
 .report-mini-btn.primary{background:linear-gradient(135deg,#22d3ee,#3b82f6);border-color:transparent;color:#020817}
-.report-mini-btn:hover{transform:translateY(-1px)}
+.report-mini-btn:hover{transform:none;filter:none;text-shadow:none}
 .report-print-preview{
   border:1px solid rgba(148,163,184,.18);
   border-radius:26px;

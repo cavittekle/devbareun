@@ -5,10 +5,12 @@ v1.3.8 — Report Archive + saved dashboards + authenticated exports + A4/A3 pri
 (function () {
   "use strict";
 
+  const PRODUCTION_HOSTS = new Set(["devbareun.com", "www.devbareun.com"]);
+  const IS_PRODUCTION_HOST = PRODUCTION_HOSTS.has(location.hostname);
   const DEFAULT_REMOTE_API = (location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")
     ? `http://${location.hostname === "localhost" ? "127.0.0.1" : location.hostname}:8000`
     : "https://devbareun-production.up.railway.app";
-  const API_BASE = (localStorage.getItem("devbareun_api_base") || window.DEVBAREUN_API_URL || DEFAULT_REMOTE_API).replace(/\/$/, "");
+  const API_BASE = ((!IS_PRODUCTION_HOST ? localStorage.getItem("devbareun_api_base") : "") || window.DEVBAREUN_API_URL || DEFAULT_REMOTE_API).replace(/\/$/, "");
   const API = () => window.DevBareunAuth?.api;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));

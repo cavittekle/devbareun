@@ -4,13 +4,13 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>DevBareun â€” Project Result Dashboard</title>
+<title>DevBareun — Project Result Dashboard</title>
 <meta content="Generated construction project dashboard with KPI summary, plan and actual execution, risks, actions, and report export." name="description"/>
 <meta content="noindex, nofollow" name="robots"/>
-<meta content="#020817" name="theme-color"/>
+<meta content="#050B1A" name="theme-color"/>
 <link href="assets/favicon.png?v=2" rel="icon" type="image/png"/>
 <link href="assets/apple-touch-icon.png?v=2" rel="apple-touch-icon"/>
-<link href="css/styles.css" rel="stylesheet"/>
+<link href="css/styles.css?v=14025" rel="stylesheet"/>
 <link href="css/result-dashboard.css" rel="stylesheet"/>
 <link href="css/result-schedule-progress.css" rel="stylesheet"/>
 <link href="css/result-analysis-specific.css" rel="stylesheet"/>
@@ -21,16 +21,12 @@
 <header class="site-header result-header">
 <div class="wrap navbar">
 <a aria-label="DevBareun home" class="brand" href="index.html">
-<img alt="DevBareun DB mark" class="brand-mark" src="assets/devbareun-symbol-white.svg?v=2"/>
-<div>
-<div class="brand-word">Dev<span>Bareun</span></div>
-<div class="brand-small">Project Result Dashboard</div>
-</div>
+<img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" class="brand-logo" />
 </a>
 <div class="controls">
 <span class="result-lock" data-r-i18n="paidResult">Paid result</span>
 <button aria-label="Change language" class="icon-btn langBtn" type="button">AZ</button>
-<button aria-label="Toggle color theme" class="icon-btn themeBtn" type="button">â˜€</button>
+<button aria-label="Toggle color theme" class="icon-btn themeBtn" type="button">?</button>
 </div>
 </div>
 </header>
@@ -41,9 +37,9 @@
 <h1 data-r-i18n="resultTitle">Your project dashboard is ready.</h1>
 <p class="lead" data-r-i18n="resultLead">Review the key project indicators, risk register and recommended management actions below.</p>
 <div class="result-meta">
-<span><b data-r-i18n="projectLabel">Project</b>: â€”</span>
-<span><b data-r-i18n="reportIdLabel">Report ID</b>: â€”</span>
-<span><b data-r-i18n="dateLabel">Date</b>: â€”</span>
+<span><b data-r-i18n="projectLabel">Project</b>: —</span>
+<span><b data-r-i18n="reportIdLabel">Report ID</b>: —</span>
+<span><b data-r-i18n="dateLabel">Date</b>: —</span>
 </div>
 </div>
 <div class="result-actions">
@@ -51,7 +47,7 @@
 <span data-r-i18n="reportLanguage">Report language</span>
 <select id="reportLangSelect" aria-label="Report export language">
 <option value="en">English</option>
-<option value="az">AzÉ™rbaycanca</option>
+<option value="az">Az?rbaycanca</option>
 </select>
 </label>
 <label class="report-lang-control print-size-control">
@@ -75,7 +71,7 @@
 </div>
 <div class="status-score">
 <span data-r-i18n="riskScore">Risk Score</span>
-<strong>â€”</strong>
+<strong>—</strong>
 <small data-r-i18n="riskScoreLegend">Risk score not available</small>
 <button aria-expanded="false" class="score-info" data-r-i18n="howCalculated" type="button">How calculated?</button>
 <div class="score-method">
@@ -94,55 +90,55 @@
 <section class="forecast-strip">
 <div>
 <span data-r-i18n="forecastTitle">Estimated completion date</span>
-<strong>â€”</strong>
+<strong>—</strong>
 <p data-r-i18n="forecastText">Completion forecast will appear after generated project data is loaded.</p>
 </div>
 <div>
 <span data-r-i18n="baselineFinish">Baseline finish</span>
-<strong>â€”</strong>
+<strong>—</strong>
 </div>
 <div>
 <span data-r-i18n="delayImpact">Delay impact</span>
-<strong class="danger-text">â€”</strong>
+<strong class="danger-text">—</strong>
 </div>
 </section>
 <section class="result-kpis">
 <article class="result-kpi">
-<span data-r-i18n="plannedExecution">Plan Ã¼zrÉ™ icra</span>
-<strong>â€”</strong>
-<small class="trend neutral"><span>â†’</span><span data-r-i18n="baseline">Baseline target</span></small>
+<span data-r-i18n="plannedExecution">Plan üzr? icra</span>
+<strong>—</strong>
+<small class="trend neutral"><span>?</span><span data-r-i18n="baseline">Baseline target</span></small>
 </article>
 <article class="result-kpi priority">
-<span data-r-i18n="actualExecution">Faktiki icra sÉ™viyyÉ™si</span>
-<strong>â€”</strong>
-<small class="trend down danger-text"><span>â†“</span><span>Gap not available</span></small>
+<span data-r-i18n="actualExecution">Faktiki icra s?viyy?si</span>
+<strong>—</strong>
+<small class="trend down danger-text"><span>?</span><span>Gap not available</span></small>
 </article>
 <article class="result-kpi priority">
-<span data-r-i18n="delay">GecikmÉ™</span>
-<strong>â€”</strong>
-<small class="trend down danger-text"><span>â†“</span><span data-r-i18n="trendDelay">worse than baseline</span></small>
+<span data-r-i18n="delay">Gecikm?</span>
+<strong>—</strong>
+<small class="trend down danger-text"><span>?</span><span data-r-i18n="trendDelay">worse than baseline</span></small>
 </article>
 <article class="result-kpi">
-<span data-r-i18n="costVariance">XÉ™rc fÉ™rqi</span>
-<strong>â€”</strong>
-<small class="trend down danger-text"><span>â†‘</span><span data-r-i18n="aboveBudget">above baseline</span></small>
+<span data-r-i18n="costVariance">X?rc f?rqi</span>
+<strong>—</strong>
+<small class="trend down danger-text"><span>?</span><span data-r-i18n="aboveBudget">above baseline</span></small>
 </article>
 <article class="result-kpi">
-<span data-r-i18n="workforce">Ä°ÅŸÃ§i sayÄ±</span>
-<strong>â€”</strong>
-<small class="trend down danger-text"><span>â†“</span><span data-r-i18n="requiredWorkforce">required: â€”</span></small>
+<span data-r-i18n="workforce">Isçi sayi</span>
+<strong>—</strong>
+<small class="trend down danger-text"><span>?</span><span data-r-i18n="requiredWorkforce">required: —</span></small>
 </article>
 <article class="result-kpi priority">
-<span data-r-i18n="riskLevel">Risk sÉ™viyyÉ™si</span>
-<strong>â€”</strong>
-<small class="trend down danger-text"><span>â†‘</span><span data-r-i18n="actionNeeded">management action needed</span></small>
+<span data-r-i18n="riskLevel">Risk s?viyy?si</span>
+<strong>—</strong>
+<small class="trend down danger-text"><span>?</span><span data-r-i18n="actionNeeded">management action needed</span></small>
 </article>
 </section>
 <section class="result-grid">
 <article class="result-panel result-panel-wide">
 <div class="panel-title">
-<h2 data-r-i18n="planActualChart">Plan vÉ™ faktiki icra</h2>
-<span class="mini-badge">Janâ€“Apr</span>
+<h2 data-r-i18n="planActualChart">Plan v? faktiki icra</h2>
+<span class="mini-badge">Jan–Apr</span>
 </div>
 <div aria-label="Plan and actual execution chart" class="line-chart">
 <svg preserveaspectratio="none" viewbox="0 0 760 280">
@@ -165,9 +161,9 @@
 <path d="M50 210 L210 178 L370 136 L530 92 L690 58 L735 48" fill="none" stroke="#22d3ee" stroke-linecap="round" stroke-width="4"></path>
 <path d="M50 218 L210 194 L370 160 L530 132 L690 104 L735 96" fill="none" stroke="#ef4444" stroke-linecap="round" stroke-width="4"></path>
 <g fill="currentColor" font-size="13">
-<text data-r-i18n="chartPlan" x="55" y="28">Plan â€”</text>
-<text data-r-i18n="chartActual" fill="#ef4444" x="55" y="54">Actual â€”</text>
-<text data-r-i18n="chartGap" fill="#f59e0b" x="620" y="84">Gap â€”</text>
+<text data-r-i18n="chartPlan" x="55" y="28">Plan —</text>
+<text data-r-i18n="chartActual" fill="#ef4444" x="55" y="54">Actual —</text>
+<text data-r-i18n="chartGap" fill="#f59e0b" x="620" y="84">Gap —</text>
 <text x="52" y="262">Jan</text>
 <text x="212" y="262">Feb</text>
 <text x="372" y="262">Mar</text>
@@ -203,11 +199,11 @@
 <text data-r-i18n="riskBarQuality" text-anchor="end" x="22" y="120">Quality</text>
 </svg>
 <div class="radar-legend">
-<span><b></b><em data-r-i18n="riskBarSchedule">Schedule</em> â€”</span>
-<span><b></b><em data-r-i18n="riskBarCost">Cost</em> â€”</span>
-<span><b></b><em data-r-i18n="riskBarLabor">Labor</em> â€”</span>
-<span><b></b><em data-r-i18n="riskBarProcurement">Procurement</em> â€”</span>
-<span><b></b><em data-r-i18n="riskBarQuality">Quality</em> â€”</span>
+<span><b></b><em data-r-i18n="riskBarSchedule">Schedule</em> —</span>
+<span><b></b><em data-r-i18n="riskBarCost">Cost</em> —</span>
+<span><b></b><em data-r-i18n="riskBarLabor">Labor</em> —</span>
+<span><b></b><em data-r-i18n="riskBarProcurement">Procurement</em> —</span>
+<span><b></b><em data-r-i18n="riskBarQuality">Quality</em> —</span>
 </div>
 </div>
 </article>
@@ -217,7 +213,7 @@
 </div>
 <div class="cost-card">
 <span data-r-i18n="forecastOverrun">Forecast overrun</span>
-<strong>â€”</strong>
+<strong>—</strong>
 <p data-r-i18n="costStatusText">Cost variance will appear after generated project data is loaded.</p>
 </div>
 </article>
@@ -226,9 +222,9 @@
 <h2 data-r-i18n="workforceStatus">Workforce Status</h2>
 </div>
 <div class="workforce-meter">
-<div><span data-r-i18n="current">Current</span><strong>â€”</strong></div>
-<div><span data-r-i18n="required">Required</span><strong>â€”</strong></div>
-<div><span data-r-i18n="gap">Gap</span><strong class="danger-text">â€”</strong></div>
+<div><span data-r-i18n="current">Current</span><strong>—</strong></div>
+<div><span data-r-i18n="required">Required</span><strong>—</strong></div>
+<div><span data-r-i18n="gap">Gap</span><strong class="danger-text">—</strong></div>
 </div>
 </article>
 <article class="result-panel result-panel-wide">
@@ -260,7 +256,7 @@
 </main>
 <div aria-live="polite" class="toast" id="toast" role="status"></div>
 <script src="js/az-glossary.js"></script>
-<script src="js/app.js"></script>
+<script src="js/app.js?v=14026"></script>
 <script src="js/result-dashboard.js"></script>
 <script src="js/devbareun-api.js?v=14000"></script>
 <script src="js/api-client.js"></script>

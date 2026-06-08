@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Panel — DevBareun</title>
+  <title>Super Admin - DevBareun</title>
   <meta name="robots" content="noindex,nofollow" />
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/saas-ui.css" />
+  <link rel="stylesheet" href="css/styles.css?v=14025" />
+  <link rel="stylesheet" href="css/saas-ui.css?v=14025" />
   <link rel="stylesheet" href="css/admin-panel.css" />
 </head>
 <body class="theme-dark admin-page">
@@ -14,23 +14,32 @@
     <div class="saas-container admin-container">
       <div class="saas-topbar">
         <a class="saas-brand" href="index.html" aria-label="DevBareun home">
-          <img src="assets/devbareun-symbol-white.svg?v=2" onerror="this.style.display='none'" alt="DevBareun" />
-          <span>DevBareun</span>
+          <img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" class="saas-brand-logo" />
         </a>
-        <nav class="saas-nav" aria-label="Admin navigation">
-          <a href="dashboard.html">Workspace</a>
-          <a href="projects.html">Projects</a>
-          <a href="reports.html">Reports</a>
-          <a class="active" href="admin.html">Admin</a>
-          <a href="billing.html">Billing</a>
-        </nav>
+        <div class="admin-topbar-navs">
+          <div class="admin-topbar-group">
+            <span class="admin-topbar-label">Customer workspace</span>
+            <nav class="saas-nav admin-topbar-links" aria-label="Customer workspace navigation">
+              <a href="dashboard.html">Workspace</a>
+              <a href="projects.html">Projects</a>
+              <a href="reports.html">Reports</a>
+              <a href="billing.html">Billing</a>
+            </nav>
+          </div>
+          <div class="admin-topbar-group admin-topbar-group-active">
+            <span class="admin-topbar-label">Internal area</span>
+            <nav class="saas-nav admin-topbar-links" aria-label="Super admin navigation">
+              <a class="active" href="/super-admin">Super Admin</a>
+            </nav>
+          </div>
+        </div>
       </div>
 
       <section class="saas-hero admin-hero">
         <div>
-          <p class="saas-eyebrow">v1.3.8 Admin Panel</p>
-          <h1>Operational Control Center</h1>
-          <p>Users, companies, projects, payments, reports, failed uploads, credit usage and activity logs in one protected admin workspace.</p>
+          <p class="saas-eyebrow">Super Admin Panel</p>
+          <h1>Platform Control Center</h1>
+          <p>Customers, projects, uploads, reports, payments, credits, support, staff permissions, activity and audit logs in one protected internal workspace.</p>
         </div>
         <div class="admin-session-card" id="adminSessionCard">
           <span class="saas-badge">Checking session</span>
@@ -42,11 +51,14 @@
           <div>
             <p class="saas-eyebrow">Protected Access</p>
             <h2>Admin login required</h2>
-            <p>Use a Supabase user marked with admin metadata, an email in <code>DEVBAREUN_ADMIN_EMAILS</code>, or a pilot admin email ending with <code>@devbareun.com</code>.</p>
+            <p>Use a Supabase owner or staff account in production. For local work, use the pilot owner account with email and password.</p>
           </div>
           <form id="pilotAdminLogin" class="saas-form admin-login-form">
             <label>Admin email
-              <input name="email" type="email" value="admin@devbareun.com" required />
+              <input name="email" type="email" value="info@devbareun.com" autocomplete="username" required />
+            </label>
+            <label>Password
+              <input name="password" type="password" autocomplete="current-password" required />
             </label>
             <label>Pilot plan
               <select name="plan">
@@ -54,7 +66,7 @@
                 <option value="plus">Plus pilot</option>
               </select>
             </label>
-            <button class="saas-btn primary" type="submit">Start pilot admin session</button>
+            <button class="saas-btn primary" type="submit">Login to super admin</button>
             <p id="adminLoginStatus" class="admin-muted"></p>
           </form>
         </div>
@@ -80,27 +92,35 @@
 
         <div class="saas-grid admin-kpis" id="adminKpis"></div>
 
-        <div class="admin-tabs saas-card full" role="tablist" aria-label="Admin modules">
-          <button class="active" data-admin-tab="users">Users</button>
-          <button data-admin-tab="companies">Companies</button>
-          <button data-admin-tab="projects">Projects</button>
-          <button data-admin-tab="payments">Payments</button>
-          <button data-admin-tab="reports">Reports</button>
-          <button data-admin-tab="failed-uploads">Failed uploads</button>
-          <button data-admin-tab="credit-usage">Credit usage</button>
-          <button data-admin-tab="activity-logs">Activity logs</button>
-        </div>
-
-        <section class="saas-card full admin-panel-section">
-          <div class="admin-section-head">
-            <div>
-              <p class="saas-eyebrow" id="adminModuleEyebrow">Users</p>
-              <h2 id="adminModuleTitle">Users</h2>
+        <div class="admin-layout">
+          <aside class="admin-sidebar saas-card" aria-label="Super admin modules">
+            <p class="saas-eyebrow">Internal modules</p>
+            <div class="admin-tabs" role="tablist" aria-label="Super admin modules">
+              <button class="active" data-admin-tab="customers" data-permission="customers">Customers</button>
+              <button data-admin-tab="companies" data-permission="customers">Companies</button>
+              <button data-admin-tab="projects" data-permission="projects">Projects</button>
+              <button data-admin-tab="uploads" data-permission="uploads">Uploads</button>
+              <button data-admin-tab="payments" data-permission="payments">Payments</button>
+              <button data-admin-tab="reports" data-permission="reports">Reports</button>
+              <button data-admin-tab="credit-usage" data-permission="credits">Credits</button>
+              <button data-admin-tab="support-tickets" data-permission="support">Support</button>
+              <button data-admin-tab="activity-logs" data-permission="activity">Activity logs</button>
+              <button data-admin-tab="audit-logs" data-permission="audit">Audit logs</button>
+              <button data-admin-tab="staff" data-permission="staff">Staff</button>
             </div>
-            <span class="saas-badge" id="adminModuleCount">—</span>
-          </div>
-          <div id="adminModuleBody" class="admin-table-wrap"></div>
-        </section>
+          </aside>
+
+          <section class="saas-card full admin-panel-section">
+            <div class="admin-section-head">
+              <div>
+                <p class="saas-eyebrow" id="adminModuleEyebrow">Customers</p>
+                <h2 id="adminModuleTitle">Customers</h2>
+              </div>
+              <span class="saas-badge" id="adminModuleCount">-</span>
+            </div>
+            <div id="adminModuleBody" class="admin-table-wrap"></div>
+          </section>
+        </div>
       </section>
     </div>
   </main>

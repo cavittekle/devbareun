@@ -16,6 +16,10 @@
     return location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
   }
 
+  function isProductionFrontendHost() {
+    return location.hostname === "devbareun.com" || location.hostname === "www.devbareun.com";
+  }
+
   function localDefaultApi() {
     if (localStorage.getItem("devbareun_use_local_backend") !== "true") {
       return DEFAULT_REMOTE_API;
@@ -29,9 +33,12 @@
       (window.DEVBAREUN_CONFIG && window.DEVBAREUN_CONFIG.apiBaseUrl) ||
       window.DEVBAREUN_API_BASE_URL ||
       window.DEVBAREUN_API_URL ||
-      window.DEVBAREUN_API_BASE ||
-      localStorage.getItem("devbareun_api_base") ||
-      localStorage.getItem("devbareun_api_url");
+      window.DEVBAREUN_API_BASE;
+    if (!configured && !isProductionFrontendHost()) {
+      configured =
+        localStorage.getItem("devbareun_api_base") ||
+        localStorage.getItem("devbareun_api_url");
+    }
     var resolved = configured || (isLocalPreview() ? localDefaultApi() : DEFAULT_REMOTE_API);
     resolved = trimSlash(resolved);
     window.DEVBAREUN_API_BASE = resolved;
@@ -141,7 +148,7 @@
     }
 
     try {
-      var response = await fetch(requestUrl(path), Object.assign({}, options, { method: method, headers: headers }));
+      var response = await fetch(requestUrl(path), Object.assign({ credentials: "include" }, options, { method: method, headers: headers }));
       if (options.rawResponse) return response;
       var data = await parseResponse(response);
       if (!response.ok) {
@@ -181,21 +188,11 @@
 
   async function loginUser(email, password, plan) {
     var payload = typeof email === "object" ? email : { email: email, password: password, plan: plan || "plus" };
-    var data;
-    try {
-      data = await apiRequest("/api/auth/supabase/login", {
-        method: "POST",
-        auth: false,
-        body: JSON.stringify(payload)
-      });
-    } catch (error) {
-      if (!isLocalPreview() || !/Supabase is not configured|503/i.test(String(error.message || error))) throw error;
-      data = await apiRequest("/api/auth/pilot-login", {
-        method: "POST",
-        auth: false,
-        body: JSON.stringify(payload)
-      });
-    }
+    var data = await apiRequest("/api/auth/supabase/login", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify(payload)
+    });
     var session = sessionFromAuthPayload(data, payload.plan);
     if (session) saveSession(session);
     return data;

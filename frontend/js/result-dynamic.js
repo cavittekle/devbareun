@@ -1,8 +1,10 @@
 (function () {
   const DEFAULT_REMOTE_API = "https://devbareun-production.up.railway.app";
+  const PRODUCTION_HOSTS = new Set(["devbareun.com", "www.devbareun.com"]);
+  const IS_PRODUCTION_HOST = PRODUCTION_HOSTS.has(location.hostname);
   const API_BASE = (window.DEVBAREUN_API_BASE ||
     ((location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")
-      ? (localStorage.getItem("devbareun_api_base") || `http://${location.hostname === "localhost" ? "127.0.0.1" : location.hostname}:8000`)
+      ? ((!IS_PRODUCTION_HOST ? localStorage.getItem("devbareun_api_base") : "") || `http://${location.hostname === "localhost" ? "127.0.0.1" : location.hostname}:8000`)
       : DEFAULT_REMOTE_API)).replace(/\/$/, "");
 
   let latestDashboard = null;

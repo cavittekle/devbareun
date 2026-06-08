@@ -34,6 +34,8 @@ Use this as the final pre-launch runbook.
 - [ ] `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
 - [ ] `DEVBAREUN_ENABLE_PILOT_LOGIN=false`.
 - [ ] `DEVBAREUN_ENABLE_PILOT_CHECKOUT=false`.
+- [ ] `DEVBAREUN_ALLOW_LEGACY_PROJECT_ROUTES=false`.
+- [ ] `DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD=false`.
 - [ ] `DEVBAREUN_DISABLE_DOCS=true`.
 
 ## 4. Vercel Frontend
@@ -77,6 +79,7 @@ Use this as the final pre-launch runbook.
 
 ## 7. Final QA
 
+- [ ] `tools/smoke_e2e.ps1` passes against the target frontend/backend URLs.
 - [ ] Single Project upload works without account.
 - [ ] Single Project payment unlocks dashboard/report flow.
 - [ ] Plus registration creates workspace access.
@@ -89,5 +92,5 @@ Use this as the final pre-launch runbook.
 
 ## 8. Future Scale
 
-- [ ] In-memory rate limiting is acceptable for one Railway instance.
-- [ ] Redis/Upstash rate limiting is added before multi-instance scale.
+- [ ] In-memory rate limiting is acceptable only for one Railway instance.
+- [ ] `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are configured before multi-instance scale.

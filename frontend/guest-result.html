@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Guest Result â€” DevBareun</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>Guest Result — DevBareun</title>
+  <link rel="stylesheet" href="css/styles.css?v=14025" />
   <link rel="stylesheet" href="css/saas-auth.css?v=13936" />
   <link rel="stylesheet" href="css/persistent-workspace.css?v=13936" />
   <link rel="stylesheet" href="css/report-print.css" />
@@ -15,46 +15,7 @@
       <p class="muted">Loading secure result...</p>
     </section>
   </main>
-  <script>
-    function esc(value){return String(value ?? "").replace(/[&<>\"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch] || ch));}
-    (async function () {
-      const API_BASE = localStorage.getItem("devbareun_api_base") || window.DEVBAREUN_API_URL || "https://devbareun-production.up.railway.app";
-      const token = new URLSearchParams(location.search).get("token");
-      const mount = document.getElementById("guestResultMount");
-      if (!token) { mount.innerHTML = "<h1>Missing token</h1>"; return; }
-      try {
-        const res = await fetch(`${API_BASE}/api/workspace/guest-results/${encodeURIComponent(token)}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Result not found");
-        const row = data.guest_result || {};
-        mount.innerHTML = `
-          <div class="report-action-toolbar db-screen-only">
-            <a class="btn btn-ghost" href="/reports.html">Back to reports</a>
-            <div class="report-archive-filters">
-              <select class="db-print-size-select" aria-label="Print size"><option value="A4">A4</option><option value="A3">A3</option></select>
-              <button class="btn btn-primary db-print-btn" data-print-size="auto">Print result</button>
-            </div>
-          </div>
-          <article class="report-print-preview">
-            <div class="report-print-cover">
-              <div>
-                <p class="eyebrow">Secure guest result</p>
-                <h1>${esc(row.project_name || "Project result")}</h1>
-                <p>Temporary report access is active. Use A4 for formal memo-style print and A3 for wide dashboard review.</p>
-              </div>
-              <span class="report-chip">Guest link</span>
-            </div>
-            <details class="report-json-details" open>
-              <summary>Raw result payload</summary>
-              <pre>${esc(JSON.stringify(row.dashboard || {}, null, 2))}</pre>
-            </details>
-          </article>`;
-        document.dispatchEvent(new CustomEvent("devbareun:reports-rendered"));
-      } catch (err) {
-        mount.innerHTML = `<h1>Result unavailable</h1><p>${esc(err.message)}</p>`;
-      }
-    })();
-  </script>
+  <script src="js/guest-result.js?v=14035"></script>
   <script src="js/report-print-system.js"></script>
 </body>
 </html>

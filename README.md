@@ -83,6 +83,7 @@ Before live launch, complete:
 
 - `docs/LIVE_DEPLOY_CHECKLIST.md`
 - `docs/LIVE_SUPABASE_PAYMENT_CHECKLIST.md`
+- `docs/SUPER_ADMIN_WORKSPACE.md`
 
 Expected live backend health after Supabase is configured:
 

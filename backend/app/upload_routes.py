@@ -172,9 +172,9 @@ async def create_upload_url(
             "updated_at": datetime.utcnow().isoformat(),
         })
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Upload metadata could not be saved."}) from exc
     except Exception as exc:
-        raise HTTPException(status_code=503, detail={"error": "storage_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "storage_unavailable", "message": "Signed upload URL could not be created."}) from exc
 
     return {
         "upload_id": upload_id,
@@ -213,7 +213,7 @@ async def mark_uploaded(payload: MarkUploadedRequest, current_user: CurrentUser 
     try:
         file_row = _find_file(file_id)
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Upload record could not be loaded."}) from exc
     if not file_row:
         raise HTTPException(status_code=404, detail={"error": "not_found", "message": "Upload record not found."})
     if not _file_belongs_to_user(file_row, current_user):
@@ -231,7 +231,7 @@ async def mark_uploaded(payload: MarkUploadedRequest, current_user: CurrentUser 
     try:
         updated = _update_file(file_id, patch)
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Upload record could not be updated."}) from exc
     return {"file": updated or file_row}
 
 
@@ -247,7 +247,7 @@ async def list_project_uploads(project_id: str, current_user: CurrentUser = Depe
     try:
         rows = select_rows("uploaded_files", {"project_id": project_id}, limit=500) if is_configured() else []
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Project uploads could not be listed."}) from exc
     rows = [row for row in rows if str(row.get("status") or row.get("upload_status") or "").lower() != "deleted"]
     return {"project_id": project_id, "uploaded_files": rows}
 
@@ -274,7 +274,7 @@ async def delete_upload(file_id: str, current_user: CurrentUser = Depends(get_cu
     try:
         file_row = _find_file(file_id)
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Upload record could not be loaded."}) from exc
     if not file_row:
         raise HTTPException(status_code=404, detail={"error": "not_found", "message": "Upload record not found."})
     if not _file_belongs_to_user(file_row, current_user):
@@ -285,8 +285,8 @@ async def delete_upload(file_id: str, current_user: CurrentUser = Depends(get_cu
         try:
             delete_storage_object(file_row["storage_path"])
             storage_delete_status = "deleted"
-        except Exception as exc:
-            storage_delete_status = f"storage_delete_failed: {exc}"
+        except Exception:
+            storage_delete_status = "storage_delete_failed"
     patch = {
         "upload_status": "deleted",
         "status": "deleted",
@@ -297,5 +297,5 @@ async def delete_upload(file_id: str, current_user: CurrentUser = Depends(get_cu
     try:
         updated = _update_file(file_id, patch)
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Upload record could not be deleted."}) from exc
     return {"status": "deleted", "storage_delete_status": storage_delete_status, "file": updated or file_row}

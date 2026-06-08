@@ -53,7 +53,7 @@ def create_analysis_job(
     try:
         job = insert_row("analysis_jobs", payload)
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Analysis job could not be created."}) from exc
 
     job_id = str(job.get("id"))
     background_tasks.add_task(run_analysis_job, job_id=job_id, project_id=project_id, user_payload=user.payload(), analysis_type=analysis_type)
@@ -332,6 +332,8 @@ def _row_belongs_to_user(row: Dict[str, Any], user: CurrentUser) -> bool:
 
 
 def _safe_error(exc: Exception) -> str:
+    if production_security_enabled():
+        return "Analysis job failed. Please review uploaded files and try again."
     text = str(exc) or exc.__class__.__name__
     blocked = ["SUPABASE_SERVICE_ROLE_KEY", "LEMON_SQUEEZY_API_KEY", "LEMON_SQUEEZY_WEBHOOK_SECRET", "Authorization", "Bearer "]
     for item in blocked:
