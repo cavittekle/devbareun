@@ -432,7 +432,7 @@ def _dashboard_label(analysis_type: str) -> tuple[str, str]:
             "Risk register, decision prompts, open issues and recommended management actions are prioritized.",
         ),
         "all": (
-            "Full Project Control Premium Dashboard",
+            "Project Control Dashboard",
             "Complete project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions.",
         ),
     }
@@ -1188,8 +1188,8 @@ def _premium_panels(premium: Dict[str, Any]) -> List[Dict[str, Any]]:
     panels.append({
         "title": "PDF / Excel Export",
         "rows": [
-            _metric("PDF", "Premium sections included"),
-            _metric("Excel", "Premium sheets included"),
+            _metric("PDF", "Project-control sections included"),
+            _metric("Excel", "Project-control sheets included"),
         ],
     })
     return panels

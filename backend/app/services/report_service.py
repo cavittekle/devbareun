@@ -30,7 +30,7 @@ def list_project_reports(project_id: str, project: Dict[str, Any], user: Current
     return {"project_id": project_id, "reports": [_report_api(row, project) for row in rows]}
 
 
-def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Full Project Control Report") -> Dict[str, Any]:
+def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Project Control Report") -> Dict[str, Any]:
     fmt = "excel" if str(report_format).lower() in {"excel", "xlsx"} else "pdf"
     result = get_latest_analysis_result(project_id, project, user)
     if not result:
@@ -95,7 +95,7 @@ def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, An
                 "confidence": analysis_result.get("confidence_score") or dashboard_data.get("confidence_score") or 0,
                 "analysis_type": premium.get("analysis_type") or analysis_result.get("analysis_type") or "project_control",
                 "dashboard_title": premium.get("title") or "Project Control Report",
-                "dashboard_description": "Complete project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions." if premium else "Report generated from saved construction analytics result.",
+                "dashboard_description": "Project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions." if premium else "Report generated from saved construction analytics result.",
             },
             "kpis": {
                 "planned_execution": premium_kpis.get("planned_progress_percent", metrics.get("planned_progress")),
@@ -234,7 +234,7 @@ def _insert_report_row(
         try:
             return insert_row("reports", payload)
         except ProductionStoreError as exc:
-            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Report archive could not be saved."}) from exc
     if local_store_enabled():
         from ..saas_ids import make_public_id
         from ..saas_store import insert
@@ -299,7 +299,7 @@ def _report_api(row: Dict[str, Any], project: Dict[str, Any]) -> Dict[str, Any]:
         "name": row.get("report_name") or row.get("name") or "Project Control Report",
         "project_name": project.get("project_name") or row.get("project_name"),
         "project": project.get("project_name") or row.get("project_name") or "Project",
-        "report_type": row.get("report_type") or "Full Project Control Report",
+        "report_type": row.get("report_type") or "Project Control Report",
         "type": row.get("report_type") or "Project Control",
         "created_date": row.get("created_at"),
         "created": row.get("created_at"),

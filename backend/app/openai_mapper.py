@@ -176,8 +176,13 @@ def run_assisted_mapping(context: Dict[str, Any]) -> Dict[str, Any]:
         normalized["context_hash"] = cache_key
         _save_cached_mapping(cache_key, normalized)
         return normalized
-    except Exception as exc:
-        return {"enabled": True, "error": str(exc), "model": mapping_model_name(), "context_hash": cache_key}
+    except Exception:
+        return {
+            "enabled": True,
+            "error": "Assisted mapping is temporarily unavailable.",
+            "model": mapping_model_name(),
+            "context_hash": cache_key,
+        }
 
 
 def _normalize_mapping_payload(payload: Dict[str, Any]) -> Dict[str, Any]:

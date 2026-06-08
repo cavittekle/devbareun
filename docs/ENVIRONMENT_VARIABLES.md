@@ -25,6 +25,8 @@ DEVBAREUN_ENABLE_LOCAL_STORE=false
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 DEVBAREUN_ENABLE_PILOT_LOGIN=false
 DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
+DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD=false
+DEVBAREUN_ALLOW_LEGACY_PROJECT_ROUTES=false
 
 DEVBAREUN_ADMIN_EMAILS=admin@devbareun.com
 DEVBAREUN_ALLOW_ADMIN_EMAIL_FALLBACK=false
@@ -39,6 +41,8 @@ DEVBAREUN_RATE_LIMIT_ANALYSIS_PER_MIN=20
 DEVBAREUN_RATE_LIMIT_EXPORT_PER_MIN=60
 DEVBAREUN_RATE_LIMIT_ADMIN_PER_MIN=120
 DEVBAREUN_RATE_LIMIT_WEBHOOK_PER_MIN=100
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
 
 DEVBAREUN_GUEST_RESULT_DAYS=7
 DEVBAREUN_GUEST_RESULT_MAX_DAYS=7
@@ -70,6 +74,11 @@ OPENAI_API_KEY=
 
 Set Vercel Root Directory to `frontend`.
 
+Public/customer routes:
+
+- `https://devbareun.com/workspace` -> customer workspace
+- `https://devbareun.com/super-admin` -> owner/staff Super Admin panel
+
 The current frontend is static HTML, so public env variables are mainly a deployment checklist and future build reference. Keep secrets out of Vercel frontend variables.
 
 ```env
@@ -85,3 +94,7 @@ VITE_SUPABASE_ANON_KEY=replace_with_supabase_anon_key
 - Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, and `OPENAI_API_KEY`.
 - Frontend allowed: Supabase anon key, public site URL, public API URL. Lemon Squeezy API and webhook secrets stay backend-only.
 - Production must keep `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
+
+## First Owner
+
+Create the first owner in Supabase Auth, apply the SQL deploy order, then promote the matching `users_profile` row to `role='owner'`. Keep the same email in `DEVBAREUN_ADMIN_EMAILS`.

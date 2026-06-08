@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import Cookie, Depends, Header, HTTPException
 
 from .auth_runtime import AuthError, AuthUser, get_bearer_token, verify_supabase_token
 from .production_store import ProductionStoreError, first_existing, insert_row, is_configured, select_one, uuid_like
@@ -93,14 +93,17 @@ def _profile_from_auth_user(auth_user: AuthUser) -> Optional[Dict[str, Any]]:
         return None
 
 
-async def get_current_user(authorization: Optional[str] = Header(default=None)) -> CurrentUser:
-    token = get_bearer_token(authorization)
+async def get_current_user(
+    authorization: Optional[str] = Header(default=None),
+    auth_cookie: Optional[str] = Cookie(default=None, alias="devbareun_auth"),
+) -> CurrentUser:
+    token = get_bearer_token(authorization) or auth_cookie
     if not token:
         raise _clean_401("Missing bearer token.")
     try:
         auth_user = await verify_supabase_token(token)
     except AuthError as exc:
-        raise _clean_401(str(exc)) from exc
+        raise _clean_401("Invalid or expired session.") from exc
 
     profile = _profile_from_auth_user(auth_user)
     role = str((profile or {}).get("role") or ("admin" if auth_user.is_admin else "user")).lower()
@@ -158,7 +161,7 @@ async def require_project_owner(project_id: str, current_user: CurrentUser = Dep
         try:
             project = first_existing("projects", _project_filters(project_id))
         except ProductionStoreError as exc:
-            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Project ownership could not be verified."}) from exc
         if not project:
             raise HTTPException(status_code=404, detail={"error": "not_found", "message": "Project not found."})
         if not _project_belongs_to_user(project, current_user):

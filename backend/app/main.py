@@ -51,7 +51,7 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 TEMPLATE_MANIFEST = {
     PREMIUM_ANALYSIS_TYPE: {
-        "title": "Full Project Control Premium Template",
+        "title": "Project Control Combined Template",
         "file": "devbareun-full-project-control-template.xlsx",
         "required_sheets": [
             "Project_Info",
@@ -68,10 +68,10 @@ TEMPLATE_MANIFEST = {
         "purpose": "Complete project-control template for schedule, cost, payment, workforce, material, risk and recovery actions.",
     },
     "all": {
-        "title": "Full Project Control Premium Template",
+        "title": "Project Control Combined Template",
         "file": "devbareun-full-project-control-template.xlsx",
         "required_sheets": ["Project_Info", "Baseline_Schedule", "Actual_Progress", "Cost_Estimate", "F2_Progress_Payment", "Actual_Cost", "Workforce", "Material_Stock", "Procurement_Status", "Risk_Register"],
-        "purpose": "Backward-compatible alias for Full Project Control Premium.",
+        "purpose": "Backward-compatible alias for the combined project-control template.",
     },
     "schedule": {
         "title": "Schedule Recovery Template",
@@ -141,6 +141,17 @@ def _require_persistent_project_storage() -> None:
             detail={
                 "error": "persistent_storage_required",
                 "message": "Production uploads require Supabase Storage. Configure the authenticated storage upload flow before using local project upload endpoints.",
+            },
+        )
+
+
+def _require_legacy_project_routes_allowed() -> None:
+    if not bool_env("DEVBAREUN_ALLOW_LEGACY_PROJECT_ROUTES", False):
+        raise HTTPException(
+            status_code=410,
+            detail={
+                "error": "legacy_route_disabled",
+                "message": "This legacy project route is retired. Use authenticated project, signed upload, analysis job and billing routes.",
             },
         )
 
@@ -304,6 +315,7 @@ def download_template(analysis_type: str) -> FileResponse:
 
 @app.post("/api/projects")
 def create_project(payload: ProjectCreate) -> Dict[str, Any]:
+    _require_legacy_project_routes_allowed()
     _require_persistent_project_storage()
     project_id = uuid4().hex[:12]
     project_token = _generate_project_token()
@@ -325,6 +337,7 @@ def create_project(payload: ProjectCreate) -> Dict[str, Any]:
 
 @app.post("/api/projects/{project_id}/upload")
 async def upload_files(project_id: str, files: List[UploadFile] = File(...), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
+    _require_legacy_project_routes_allowed()
     _require_persistent_project_storage()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
@@ -388,6 +401,7 @@ async def upload_files(project_id: str, files: List[UploadFile] = File(...), x_p
 
 @app.post("/api/payments/create-checkout")
 def create_checkout(payload: PaymentRequest, x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
+    _require_legacy_project_routes_allowed()
     project_id = _safe_project_id(payload.project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token)
@@ -413,6 +427,7 @@ def create_checkout(payload: PaymentRequest, x_project_token: str | None = Heade
 
 @app.post("/api/projects/{project_id}/preflight")
 def preflight_project(project_id: str, payload: AnalysisRequest | None = None, x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
+    _require_legacy_project_routes_allowed()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token)
@@ -480,6 +495,7 @@ def preflight_project(project_id: str, payload: AnalysisRequest | None = None, x
 
 @app.post("/api/projects/{project_id}/analyze")
 async def analyze_project(project_id: str, payload: AnalysisRequest | None = None, authorization: str | None = Header(None), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
+    _require_legacy_project_routes_allowed()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token)
@@ -530,6 +546,7 @@ async def analyze_project(project_id: str, payload: AnalysisRequest | None = Non
 
 @app.get("/api/projects/{project_id}/dashboard")
 def get_dashboard(project_id: str, project_token: str | None = None, x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Dict[str, Any]:
+    _require_legacy_project_routes_allowed()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token or project_token)
@@ -540,6 +557,7 @@ def get_dashboard(project_id: str, project_token: str | None = None, x_project_t
 
 @app.get("/api/projects/{project_id}/report/pdf")
 async def get_pdf_report(project_id: str, lang: str = "en", paper: str = "a4", project_token: str | None = None, authorization: str | None = Header(None), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Response:
+    _require_legacy_project_routes_allowed()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token or project_token)
@@ -557,6 +575,7 @@ async def get_pdf_report(project_id: str, lang: str = "en", paper: str = "a4", p
 
 @app.get("/api/projects/{project_id}/report/excel")
 async def get_excel_report(project_id: str, lang: str = "en", project_token: str | None = None, authorization: str | None = Header(None), x_project_token: str | None = Header(None, alias="X-Project-Token")) -> Response:
+    _require_legacy_project_routes_allowed()
     project_id = _safe_project_id(project_id)
     project = _load_project(project_id)
     _require_project_token(project, x_project_token or project_token)
@@ -582,7 +601,7 @@ async def _optional_workspace_user(authorization: str | None):
     try:
         return await verify_supabase_token(token), token
     except AuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
+        raise HTTPException(status_code=401, detail={"error": "unauthorized", "message": "Invalid or expired session."}) from exc
 
 
 async def _ensure_analysis_access(project: Dict[str, Any], authorization: str | None) -> Dict[str, Any]:
@@ -594,7 +613,7 @@ async def _ensure_analysis_access(project: Dict[str, Any], authorization: str | 
         try:
             usage = consume_pilot_credit(token)
         except AuthError as exc:
-            raise HTTPException(status_code=402, detail=str(exc)) from exc
+            raise HTTPException(status_code=402, detail={"error": "credit_required", "message": "A valid workspace credit is required before dashboard generation."}) from exc
         project["workspace_owner_email"] = user.email
         project["workspace_plan"] = user.plan
         project["workspace_payment_status"] = "credit_unlocked"

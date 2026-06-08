@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 class GenerateReportRequest(BaseModel):
     report_format: str = Field(default="pdf", max_length=20)
-    report_type: str = Field(default="Full Project Control Report", max_length=120)
+    report_type: str = Field(default="Project Control Report", max_length=120)
 
 
 @router.get("/project/{project_id}")
@@ -42,4 +42,3 @@ async def download_report(report_id: str, current_user: CurrentUser = Depends(ge
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
-

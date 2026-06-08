@@ -314,11 +314,10 @@ def _report_for_api(row: Dict[str, Any], project: Dict[str, Any]) -> Dict[str, A
         "name": row.get("report_name") or row.get("name") or "Project Control Report",
         "project_name": project.get("project_name") or row.get("project_name"),
         "project": project.get("project_name") or row.get("project_name") or "Project",
-        "report_type": row.get("report_type") or row.get("type") or "Full Project Control Report",
+        "report_type": row.get("report_type") or row.get("type") or "Project Control Report",
         "type": row.get("report_type") or row.get("type") or "Project Control",
         "created_date": row.get("created_at"),
         "created": row.get("created_at"),
         "format": row.get("format") or row.get("report_format") or "PDF",
         "status": row.get("status") or "Ready",
     }
-

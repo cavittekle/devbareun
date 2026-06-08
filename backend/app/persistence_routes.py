@@ -81,7 +81,7 @@ async def require_user(authorization: Optional[str]):
     try:
         return await verify_supabase_token(token)
     except AuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc))
+        raise HTTPException(status_code=401, detail={"error": "unauthorized", "message": "Invalid or expired session."}) from exc
 
 
 @router.get("/entitlements")

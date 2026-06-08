@@ -11,6 +11,7 @@ from ..analysis_types import normalize_analysis_type, parser_analysis_type
 from ..file_validation import validate_magic_signature
 from ..models import ParsedProjectData
 from ..parser import ConstructionFileParser
+from ..security_runtime import int_env
 from ..supabase_client import signed_download_url, settings as supabase_settings
 from .premium_analysis import file_group_status
 
@@ -206,11 +207,37 @@ def _download_storage_object(file_row: Dict[str, Any], base: Path) -> Path | Non
     signed = signed_download_url(storage_path, expires_in=600)
     url = _signed_url_to_absolute(signed)
     target = base / Path(filename).name
+    max_bytes = int_env("DEVBAREUN_MAX_FILE_MB", 30) * 1024 * 1024
+    first_bytes = bytearray()
+    written = 0
     with urllib.request.urlopen(url, timeout=30) as response:
-        content = response.read()
-    if not validate_magic_signature(content[:4096], filename):
+        length_header = response.headers.get("Content-Length")
+        if length_header:
+            try:
+                content_length = int(length_header)
+            except Exception:
+                content_length = None
+            if content_length and content_length > max_bytes:
+                target.unlink(missing_ok=True)
+                raise ValueError(f"File is too large for parser download: {filename}.")
+        with target.open("wb") as handle:
+            while True:
+                chunk = response.read(1024 * 1024)
+                if not chunk:
+                    break
+                written += len(chunk)
+                if written > max_bytes:
+                    target.unlink(missing_ok=True)
+                    raise ValueError(f"File is too large for parser download: {filename}.")
+                if len(first_bytes) < 4096:
+                    first_bytes.extend(chunk[: 4096 - len(first_bytes)])
+                handle.write(chunk)
+    if written <= 0:
+        target.unlink(missing_ok=True)
+        raise ValueError(f"Downloaded file was empty: {filename}")
+    if not validate_magic_signature(bytes(first_bytes), filename):
+        target.unlink(missing_ok=True)
         raise ValueError(f"File signature did not match allowed parser formats: {filename}")
-    target.write_bytes(content)
     return target
 
 
