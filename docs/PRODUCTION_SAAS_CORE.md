@@ -4,7 +4,7 @@ Version: 1.4.0
 
 ## 1. Architecture Overview
 
-DevBareun is split into a public static frontend, a React executive dashboard, and a FastAPI backend. Supabase PostgreSQL is the production source of truth, Supabase Storage holds private project files and reports, Stripe handles checkout and subscriptions, Vercel hosts frontend assets, and Railway hosts the backend.
+DevBareun is split into a public static frontend, a React executive dashboard, and a FastAPI backend. Supabase PostgreSQL is the production source of truth, Supabase Storage holds private project files and reports, Lemon Squeezy handles checkout and subscriptions, Vercel hosts frontend assets, and Railway hosts the backend.
 
 ## 2. Data Flow
 
@@ -38,7 +38,7 @@ If no completed result exists, the UI shows an empty state. In development, demo
 
 ## 7. Billing and Credit Flow
 
-Stripe checkout routes support one-time project analysis, Plus, and Pro plans. Webhooks must be signed in production. Stripe event ids are stored to prevent duplicate processing. Usage checks happen before job start, while usage is consumed after successful job completion.
+Lemon Squeezy checkout routes support one-time project analysis, Plus, and Pro plans. Webhooks must be signed in production. Payment event ids are stored to prevent duplicate processing. Usage checks happen before job start, while usage is consumed after successful job completion.
 
 ## 8. Report Archive Flow
 
@@ -51,7 +51,7 @@ Reports are generated from saved analysis results, stored through the configured
 - Configure Railway backend env from `backend/.env.example`.
 - Configure Vercel frontend env from `frontend/.env.example`.
 - Set allowed origins and checkout redirect origins.
-- Set Stripe price ids and webhook secret.
+- Set Lemon Squeezy API key, store id, variant ids, and webhook secret.
 - Run backend compile/import checks.
 - Run React dashboard build.
 - Verify `/api/health` and `/api/saas/health`.
@@ -64,11 +64,10 @@ Reports are generated from saved analysis results, stored through the configured
 - `DEVBAREUN_ENABLE_LOCAL_STORE=false`
 - `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`
 - `DEVBAREUN_ENABLE_PILOT_CHECKOUT=false`
-- `DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false`
 - `DEVBAREUN_DISABLE_DOCS=true`
 - CORS allowlist configured.
 - Service role key kept backend-only.
-- Stripe webhook signature required.
+- Lemon Squeezy webhook signature required.
 - RLS policies applied.
 - Private dashboard pages marked `noindex`.
 
@@ -86,4 +85,3 @@ Reports are generated from saved analysis results, stored through the configured
 - Add production log drains and alerting.
 - Add report template versioning.
 - Add admin audit views for billing, uploads, and project review events.
-

@@ -10,6 +10,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 from dateutil import parser as date_parser
 from openpyxl import load_workbook
 
+from .analysis_types import parser_analysis_type
 from .models import ParsedProjectData, SheetProfile
 from .productivity import analyze_workforce_productivity
 
@@ -78,7 +79,7 @@ MAX_REASONABLE_MONEY = 1_000_000_000.0
 
 class ConstructionFileParser:
     def __init__(self, analysis_type: str | None = None) -> None:
-        self.analysis_type = (analysis_type or "all").lower()
+        self.analysis_type = parser_analysis_type(analysis_type)
 
     def parse_files(self, paths: Sequence[Path]) -> ParsedProjectData:
         parsed = ParsedProjectData()

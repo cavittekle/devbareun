@@ -44,8 +44,9 @@ create table if not exists public.subscriptions (
   used_project_count integer not null default 0,
   current_period_start timestamptz,
   current_period_end timestamptz,
-  stripe_customer_id text,
-  stripe_subscription_id text,
+  provider text,
+  provider_customer_id text,
+  provider_subscription_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -55,8 +56,9 @@ alter table public.subscriptions add column if not exists monthly_project_limit 
 alter table public.subscriptions add column if not exists used_project_count integer default 0;
 alter table public.subscriptions add column if not exists current_period_start timestamptz;
 alter table public.subscriptions add column if not exists current_period_end timestamptz;
-alter table public.subscriptions add column if not exists stripe_customer_id text;
-alter table public.subscriptions add column if not exists stripe_subscription_id text;
+alter table public.subscriptions add column if not exists provider text;
+alter table public.subscriptions add column if not exists provider_customer_id text;
+alter table public.subscriptions add column if not exists provider_subscription_id text;
 alter table public.subscriptions add column if not exists owner_email text;
 alter table public.subscriptions add column if not exists user_uuid uuid;
 alter table public.subscriptions add column if not exists company_uuid uuid;
@@ -213,9 +215,10 @@ alter table public.reports add column if not exists owner_email text;
 create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
   user_id uuid,
-  stripe_session_id text,
-  stripe_payment_intent_id text,
-  stripe_subscription_id text,
+  provider text,
+  provider_session_id text,
+  provider_payment_id text,
+  provider_subscription_id text,
   plan_name text,
   amount numeric,
   currency text,
@@ -223,16 +226,17 @@ create table if not exists public.payments (
   created_at timestamptz not null default now()
 );
 
-alter table public.payments add column if not exists stripe_session_id text;
-alter table public.payments add column if not exists stripe_payment_intent_id text;
-alter table public.payments add column if not exists stripe_subscription_id text;
+alter table public.payments add column if not exists provider text;
+alter table public.payments add column if not exists provider_session_id text;
+alter table public.payments add column if not exists provider_payment_id text;
+alter table public.payments add column if not exists provider_subscription_id text;
 alter table public.payments add column if not exists plan_name text;
 alter table public.payments add column if not exists owner_email text;
 alter table public.payments add column if not exists user_uuid uuid;
 
-create table if not exists public.stripe_events (
+create table if not exists public.payment_events (
   id uuid primary key default gen_random_uuid(),
-  stripe_event_id text unique not null,
+  provider_event_id text unique not null,
   event_type text,
   processed_at timestamptz not null default now(),
   payload jsonb not null default '{}'::jsonb
@@ -293,7 +297,7 @@ create index if not exists idx_jobs_user_project on public.analysis_jobs(user_id
 create index if not exists idx_results_user_project on public.analysis_results(user_id, project_id);
 create index if not exists idx_risks_user_project on public.risks(user_id, project_id);
 create index if not exists idx_reports_user_project on public.reports(user_id, project_id);
-create index if not exists idx_stripe_events_event_id on public.stripe_events(stripe_event_id);
+create index if not exists idx_payment_events_event_id on public.payment_events(provider_event_id);
 
 -- ---------------------------------------------------------------------------
 -- RLS helper functions
@@ -366,7 +370,7 @@ alter table public.analysis_results enable row level security;
 alter table public.risks enable row level security;
 alter table public.reports enable row level security;
 alter table public.payments enable row level security;
-alter table public.stripe_events enable row level security;
+alter table public.payment_events enable row level security;
 alter table public.activity_logs enable row level security;
 
 -- ---------------------------------------------------------------------------
@@ -469,8 +473,8 @@ with check (
   or public.user_matches(coalesce(user_id::text, user_uuid::text, owner_email))
 );
 
-drop policy if exists stripe_events_admin_only_v140 on public.stripe_events;
-create policy stripe_events_admin_only_v140 on public.stripe_events
+drop policy if exists payment_events_admin_only_v140 on public.payment_events;
+create policy payment_events_admin_only_v140 on public.payment_events
 for all using (public.is_admin_user())
 with check (public.is_admin_user());
 

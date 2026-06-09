@@ -1,0 +1,15 @@
+# Vercel deploys only the static frontend surface from this directory.
+.env
+.env.*
+.env.example
+*.md
+netlify.toml
+member-dashboard-app/
+node_modules/
+dist/
+build/
+.vercel/
+.netlify/
+__pycache__/
+*.log
+*.tmp

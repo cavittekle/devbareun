@@ -1,48 +1,23 @@
 (function () {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const PREMIUM_TYPE = "full_project_control_premium";
+  const DEFAULT_TYPE = "schedule";
 
   const packages = {
-    all: {
-      name: "Full Project Control",
-      combo: "Selected package: Full Project Control",
-      text: "Complete project-control view for management reporting.",
-      requiredTitle: "Full Project Control requires:",
-      required: [
-        "Schedule baseline",
-        "Cost estimate / BOQ",
-        "F-2 / progress payment",
-        "Material and risk records"
-      ],
-      outputs: [
-        "Schedule Dashboard",
-        "Cost Dashboard",
-        "Payment Dashboard",
-        "Material Dashboard",
-        "Risk Dashboard",
-        "Executive Dashboard"
-      ],
-      exampleText: "A complete project-control dashboard with executive KPIs and relevant modules based on uploaded data.",
+    full_project_control_premium: {
+      name: "Full Project Control Premium",
+      combo: "Selected package: Full Project Control Premium",
+      text: "Complete project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions.",
+      exampleText: "A premium management dashboard with executive summary, main KPIs, recovery actions, section cards and PDF / Excel export.",
       kpis: [["Progress", "68%"], ["SPI", "0.92"], ["CPI", "0.97"], ["Open Risks", "8"]],
       bars: [62, 74, 54, 82, 68, 88]
     },
+    all: null,
     schedule: {
       name: "Schedule Recovery",
       combo: "Selected package: Schedule Recovery",
       text: "Delay analysis, critical path visibility and recovery planning.",
-      requiredTitle: "Schedule Recovery requires:",
-      required: [
-        "Baseline Schedule",
-        "Actual Progress",
-        "Workforce Data (optional)"
-      ],
-      outputs: [
-        "Delay Dashboard",
-        "SPI",
-        "Critical Path",
-        "Recovery Plan",
-        "Required Workforce Increase"
-      ],
       exampleText: "A schedule-focused dashboard showing delay movement, critical path pressure and workforce recovery needs.",
       kpis: [["Delay", "21 days"], ["SPI", "0.88"], ["Critical Tasks", "14"], ["Workforce Gap", "+18%"]],
       bars: [42, 50, 58, 63, 70, 79]
@@ -51,19 +26,6 @@
       name: "Cost & Payment Control",
       combo: "Selected package: Cost & Payment Control",
       text: "Commercial control for budget variance, actual cost and payment status.",
-      requiredTitle: "Cost & Payment Control requires:",
-      required: [
-        "Cost Estimate / BOQ",
-        "Actual Cost",
-        "F-2 / Progress Payment"
-      ],
-      outputs: [
-        "Cost Dashboard",
-        "CPI",
-        "Budget Variance",
-        "Payment Status",
-        "Remaining Value"
-      ],
       exampleText: "A commercial dashboard showing cost pressure, payment progress and remaining project value.",
       kpis: [["CPI", "0.94"], ["Variance", "AZN 82K"], ["Paid", "64%"], ["Remaining", "AZN 410K"]],
       bars: [55, 60, 72, 68, 82, 76]
@@ -72,18 +34,6 @@
       name: "Material Continuity",
       combo: "Selected package: Material Continuity",
       text: "Material availability, stock status and procurement continuity.",
-      requiredTitle: "Material Continuity requires:",
-      required: [
-        "Material List / BOQ",
-        "Stock Records",
-        "Delivery / Procurement Updates"
-      ],
-      outputs: [
-        "Material Dashboard",
-        "Shortage Alerts",
-        "Delivery Risk",
-        "Continuity Actions"
-      ],
       exampleText: "A material-control dashboard showing shortages, delivery risk and continuity actions before work slows.",
       kpis: [["Stock Risk", "High"], ["Late Items", "9"], ["Shortage", "14%"], ["Actions", "6"]],
       bars: [68, 44, 74, 58, 82, 66]
@@ -92,24 +42,12 @@
       name: "Risk & Decisions",
       combo: "Selected package: Risk & Decisions",
       text: "Risk register, decision prompts and management actions.",
-      requiredTitle: "Risk & Decisions requires:",
-      required: [
-        "Risk Log",
-        "Site Notes",
-        "Cost / Schedule Signals",
-        "Decision Records"
-      ],
-      outputs: [
-        "Risk Dashboard",
-        "Priority Register",
-        "Decision Prompts",
-        "Management Actions"
-      ],
       exampleText: "An executive risk dashboard showing priority issues, open decisions and recommended management actions.",
       kpis: [["High Risks", "5"], ["Open Decisions", "7"], ["Exposure", "Medium"], ["Actions", "11"]],
       bars: [48, 72, 64, 86, 58, 78]
     }
   };
+  packages.all = packages[PREMIUM_TYPE];
 
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>'"]/g, ch => ({
@@ -123,53 +61,80 @@
 
   function activeType() {
     const active = $(".analysis-type-card.active[data-analysis-type]");
-    return active ? active.dataset.analysisType : "all";
+    return active ? active.dataset.analysisType : DEFAULT_TYPE;
   }
 
-  function renderList(el, items, ordered) {
-    if (!el) return;
-    el.innerHTML = items.map(item => `<li>${escapeHtml(item)}</li>`).join("");
-    el.setAttribute("aria-label", ordered ? "Required files" : "Expected dashboard outputs");
-  }
-
-  function renderGuidance(type, outputsOverride) {
-    const data = packages[type] || packages.all;
-    const requiredTitle = $("#requiredFilesTitle");
-    const outputTitle = $("#expectedOutputTitle");
+  function renderGuidance(type) {
+    const data = packages[type] || packages[DEFAULT_TYPE];
     const comboTitle = $("#packageComboTitle");
     const comboText = $("#packageComboText");
 
-    if (requiredTitle) requiredTitle.textContent = data.requiredTitle;
-    if (outputTitle) outputTitle.textContent = outputsOverride ? "Detected dashboards:" : "Dashboards prepared:";
     if (comboTitle) comboTitle.textContent = data.combo;
     if (comboText) comboText.textContent = data.text;
-
-    renderList($("#packageRequiredFiles"), data.required, true);
-    renderList($("#packageExpectedOutputs"), outputsOverride || data.outputs, false);
   }
 
   function setActivePackage(type) {
-    const data = packages[type] ? packages[type] : packages.all;
+    const selected = type === "all" ? DEFAULT_TYPE : (packages[type] ? type : DEFAULT_TYPE);
+    const data = packages[selected];
     $$(".analysis-type-card[data-analysis-type]").forEach(card => {
-      const active = card.dataset.analysisType === type;
+      const active = card.dataset.analysisType === selected;
       card.classList.toggle("active", active);
       card.setAttribute("aria-pressed", active ? "true" : "false");
       card.setAttribute("aria-checked", active ? "true" : "false");
     });
-    $$(".solve-option[data-solve-package]").forEach(option => {
-      const active = option.dataset.solvePackage === type;
-      option.classList.toggle("active", active);
-      option.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-    renderGuidance(type);
-    document.dispatchEvent(new CustomEvent("devbareun:package-guide", { detail: { type, name: data.name } }));
+    renderGuidance(selected);
+    document.dispatchEvent(new CustomEvent("devbareun:package-guide", { detail: { type: selected, name: data.name } }));
   }
 
   function clickPackage(type) {
-    const card = $(`.analysis-type-card[data-analysis-type="${type}"]`);
+    const selected = type === "all" ? DEFAULT_TYPE : type;
+    const card = $(`.analysis-type-card[data-analysis-type="${selected}"]`);
     if (card) card.click();
-    setTimeout(() => setActivePackage(type), 0);
-    setTimeout(() => setActivePackage(type), 40);
+    setTimeout(() => setActivePackage(selected), 0);
+    setTimeout(() => setActivePackage(selected), 40);
+  }
+
+  function updateHeaderLanguageState() {
+    const current = localStorage.getItem("devbareun_lang") || "en";
+    $$(".header-lang-choice").forEach(btn => {
+      const active = btn.dataset.headerLang === current;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  function bindHeaderDynamics() {
+    $$(".header-lang-choice").forEach(btn => {
+      if (btn.dataset.boundHeaderLang) return;
+      btn.dataset.boundHeaderLang = "true";
+      btn.addEventListener("click", () => {
+        const next = btn.dataset.headerLang || "en";
+        const current = localStorage.getItem("devbareun_lang") || "en";
+        const proxy = $(".header-lang-proxy");
+        if (current !== next && proxy) {
+          proxy.click();
+          setTimeout(updateHeaderLanguageState, 0);
+        } else {
+          localStorage.setItem("devbareun_lang", next);
+          document.dispatchEvent(new CustomEvent("devbareun:lang", { detail: { lang: next } }));
+          updateHeaderLanguageState();
+        }
+      });
+    });
+    $$(".nav-solutions-trigger").forEach(btn => {
+      if (btn.dataset.boundSolutions) return;
+      btn.dataset.boundSolutions = "true";
+      btn.addEventListener("click", () => {
+        const open = btn.getAttribute("aria-expanded") === "true";
+        btn.setAttribute("aria-expanded", open ? "false" : "true");
+      });
+    });
+    $$("[data-solution-jump]").forEach(link => {
+      if (link.dataset.boundSolutionJump) return;
+      link.dataset.boundSolutionJump = "true";
+      link.addEventListener("click", () => clickPackage(link.dataset.solutionJump || DEFAULT_TYPE));
+    });
+    updateHeaderLanguageState();
   }
 
   function fileNames(files) {
@@ -204,38 +169,6 @@
     return { names, flags, detected };
   }
 
-  function outputsForDetected(type, detection) {
-    const flags = detection.flags || {};
-    if (!detection.names.length) return null;
-
-    const outputs = [];
-    const add = items => items.forEach(item => {
-      if (!outputs.includes(item)) outputs.push(item);
-    });
-
-    if (type === "schedule" || type === "all") {
-      if (flags.schedule || flags.progress || flags.workforce) {
-        add(["Delay Dashboard", "Recovery Dashboard"]);
-        if (flags.workforce) add(["Workforce Gap"]);
-      }
-    }
-    if (type === "cost" || type === "all") {
-      if (flags.cost) add(["Cost Dashboard", "Budget Variance"]);
-      if (flags.payment) add(["Payment Dashboard", "Payment Status"]);
-    }
-    if ((type === "material" || type === "all") && flags.material) {
-      add(["Material Dashboard", "Shortage Alerts", "Delivery Risk"]);
-    }
-    if ((type === "risk" || type === "all") && flags.risk) {
-      add(["Risk Dashboard", "Decision Prompts"]);
-    }
-    if (type === "all" && outputs.length >= 4) {
-      add(["Executive Dashboard"]);
-    }
-
-    return outputs.length ? outputs : packages[type].outputs;
-  }
-
   function renderDetection(files) {
     const panel = $("#smartDetectionPanel");
     const chips = $("#smartDetectionChips");
@@ -257,11 +190,11 @@
       .map(label => `<span class="detection-chip"><span aria-hidden="true">&#10003;</span>${escapeHtml(label)}</span>`)
       .join("");
     if (status) status.textContent = "Preparing dashboards...";
-    renderGuidance(type, outputsForDetected(type, detection));
+    renderGuidance(type);
   }
 
   function openExample(type) {
-    const data = packages[type] || packages.all;
+    const data = packages[type] || packages[DEFAULT_TYPE];
     const modal = $("[data-package-example-modal]");
     const title = $("#exampleModalTitle");
     const text = $("#exampleModalText");
@@ -296,24 +229,19 @@
   }
 
   function bind() {
-    $$(".solve-option[data-solve-package]").forEach(option => {
-      if (option.dataset.solveBound) return;
-      option.dataset.solveBound = "true";
-      option.addEventListener("click", () => clickPackage(option.dataset.solvePackage || "all"));
-    });
-
+    bindHeaderDynamics();
     $$(".analysis-type-card[data-analysis-type]").forEach(card => {
       if (!card.hasAttribute("tabindex")) card.setAttribute("tabindex", "0");
       if (card.dataset.guideBound) return;
       card.dataset.guideBound = "true";
       card.addEventListener("click", event => {
         if (event.target.closest(".package-example-link")) return;
-        setTimeout(() => setActivePackage(card.dataset.analysisType || "all"), 0);
+        setTimeout(() => setActivePackage(card.dataset.analysisType || DEFAULT_TYPE), 0);
       });
       card.addEventListener("keydown", event => {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
-        clickPackage(card.dataset.analysisType || "all");
+        clickPackage(card.dataset.analysisType || DEFAULT_TYPE);
       });
     });
 
@@ -322,7 +250,7 @@
       if (example) {
         event.preventDefault();
         event.stopPropagation();
-        openExample(example.dataset.examplePackage || "all");
+        openExample(example.dataset.examplePackage || DEFAULT_TYPE);
         return;
       }
       if (event.target.closest("[data-example-modal-close]")) {

@@ -4,8 +4,8 @@
   "description": "Construction analytics dashboards, risk management and reports.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020817",
-  "theme_color": "#020817",
+  "background_color": "#050B1A",
+  "theme_color": "#050B1A",
   "icons": [
     {
       "src": "assets/devbareun-app-icon-512.png?v=2",

@@ -73,10 +73,7 @@ async def one_time_checkout(payload: CheckoutRequest, current_user: Optional[Cur
 @router.post("/webhook")
 async def billing_webhook(request: Request) -> Dict[str, Any]:
     body = await request.body()
-    lemon_signature = request.headers.get("x-signature")
-    if lemon_signature:
-        return handle_webhook(body, lemon_signature, provider_hint="lemonsqueezy")
-    return handle_webhook(body, request.headers.get("stripe-signature"), provider_hint="stripe")
+    return handle_webhook(body, request.headers.get("x-signature"), provider_hint="lemonsqueezy")
 
 
 @router.get("/status")

@@ -28,7 +28,7 @@ class ReleaseManagerAgent(BaseAgent):
             "summary": "Adds DevBareun Ops Engine with QA, site management, deployment readiness, SEO, security, browser QA, parser accuracy, marketing research and supervisor reporting agents.",
             "manual_approval_required_for": [
                 "production deploy",
-                "payment/Stripe logic changes",
+                "payment provider logic changes",
                 "database deletion or migration",
                 "domain/DNS changes",
                 "secret/token changes",

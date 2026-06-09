@@ -2,22 +2,33 @@
 
 ## Project Identity
 
-This project is DevBareun, a construction analytics and project-control SaaS platform.
+DevBareun is a construction analytics and project-control SaaS platform.
 
-The project must be improved, not recreated.
+Current production model:
 
-Default public language: English.
-Secondary language: Azerbaijani.
+- Public website: static HTML/CSS/JS in `frontend/`
+- Backend API: FastAPI in `backend/`
+- Database/Auth/Storage: Supabase
+- Frontend deploy: Vercel with Root Directory `frontend`
+- Backend deploy: Railway with Root Directory `backend`
+- Payment direction: Lemon Squeezy
+- Repository root is not a deploy target and should not contain a production `index.html`
 
-Public website copy must avoid these words:
+Default public language is English. Azerbaijani is the secondary language.
+
+## Product Language Rules
+
+Public UI copy must not use:
 
 - AI
 - artificial intelligence
-- suni intellekt
 - intelligence
+- machine learning
+- GPT
+- suni intellekt
 - intellekt
 
-Use neutral construction SaaS wording instead:
+Use construction SaaS wording instead:
 
 - construction analytics
 - project control
@@ -25,161 +36,186 @@ Use neutral construction SaaS wording instead:
 - schedule analytics
 - cost analytics
 - risk analytics
-- document control
-- reporting
-- project performance dashboard
+- material continuity
+- progress tracking
 - executive dashboard
-- construction reporting platform
+- construction reporting
+- recovery actions
+- data mapping
 
-## Main Rule
+## Current Public Landing Design
 
-Before making any change, inspect the existing codebase.
+The approved current landing page is the dark/cyan DevBareun design in:
 
-Do not recreate the project from scratch unless explicitly requested.
+- `frontend/index.html`
+- `frontend/css/modern-landing.css`
+- `frontend/js/modern-landing.js`
 
-Do not duplicate existing pages, components, files, styles, APIs, routes, database tables, migrations, or configuration files.
+Preserve:
 
-If a similar implementation already exists, reuse it and improve it instead of creating a second version.
-
-## Required Pre-Work Before Coding
-
-Before editing files, always check:
-
-1. What files and folders already exist.
-2. Which files control the requested feature, bug, or design issue.
-3. Whether the requested feature already exists.
-4. Whether a similar page, component, function, API endpoint, database table, migration, route, or style already exists.
-5. Whether the change affects frontend, backend, database, deployment, authentication, payment, storage, export, reports, or documentation.
-6. Whether the change may break mobile layout, dark-only styling, localization, dashboard behavior, upload flow, print/export behavior, or existing user flows.
-7. Whether the task can be completed with minimal changes.
-
-Do not start coding before identifying the exact files that need to be changed.
-
-## Do Not Repeat Or Rebuild
-
-Do not:
-
-- recreate the whole project
-- create a new version of an existing page
-- create a duplicate dashboard
-- create duplicate components
-- create duplicate CSS or styling systems
-- create duplicate JavaScript logic
-- create duplicate API endpoints
-- create duplicate database tables
-- create duplicate migrations
-- create duplicate configuration files
-- rename files unnecessarily
-- change folder structure unnecessarily
-- replace the approved design direction
-- remove working features without explicit instruction
-- add unrelated sections or features
-- add fake data unless explicitly requested
-- hardcode values that should come from config, database, or environment variables
-- commit secrets, API keys, tokens, passwords, service role keys, or `.env` files
-
-Always:
-
-- edit existing files when possible
-- keep changes small and focused
-- preserve the existing architecture
-- preserve the existing design style
-- preserve existing user flows
-- remove duplication only when safe
-- explain what was changed
-- explain how to test the result
-
-## Design Preservation Rules
-
-Preserve the approved DevBareun visual direction:
-
-- clean cyan/blue branding
-- professional construction SaaS interface
-- dark-only public landing experience unless the user explicitly requests a theme change
-- mobile-first layout
-- compact footer
+- dark-only public landing experience
+- cyan/teal DevBareun styling
+- header with Platform, Upload, Pricing, Reports, FAQ
 - EN/AZ language toggle
+- Login button to the right of language selection
+- Start Analysis CTA
+- compact white DevBareun loader logo: `frontend/assets/devbareun-logo-compact-white.svg`
+- orbit-logo loading screen
+- hero dashboard preview
 - upload section
 - pricing section
-- dashboard preview
-- orbit-logo loading screen or equivalent polished loading state
-- executive construction dashboard style
-- customer dashboard after login
-- public landing page without forced login
-- PDF and Excel export direction
-- Supabase + Vercel + Railway + GitHub deployment direction
+- dashboard preview section
+- compact footer with `info@devbareun.com`
 
-Do not replace the UI with a completely different design unless explicitly requested.
+Do not replace the site with a new design system unless the user explicitly asks to redesign and confirms the direction.
 
-## Logo Rules
+## Current Public Analysis Packages
 
-Use the approved DevBareun logo direction consistently:
+The public upload package selector currently has 4 packages:
 
-- DB monogram
-- white geometric D+B mark
-- blue analytics bars inside the D
-- blue circular connector between D and B
-- DevBareun wordmark where "Dev" is white and "Bareun" is blue
+- Schedule Recovery
+- Cost Control
+- Material Continuity
+- Risk & Decisions
 
-Apply the same logo style in:
+Do not re-add `Full Project Control` to the public upload package selector unless the user explicitly asks for it.
 
-- header
-- loading screen
-- footer
-- dashboard header
-- favicon
-- deployment package
+Dashboard logic must remain dynamic:
+
+- Show only dashboard sections supported by uploaded data.
+- Hide empty blocks.
+- Avoid fake production KPIs.
+- Keep the dashboard preview clearly labeled as an example output.
+
+## Main Engineering Rule
+
+Inspect first. Reuse existing code. Improve only what is needed.
+
+Before editing:
+
+1. Identify the exact file(s) controlling the requested change.
+2. Check whether similar code, styles, routes, API endpoints, or docs already exist.
+3. Keep the change scoped to the request.
+4. Do not duplicate pages, CSS systems, JavaScript logic, endpoints, migrations, or config files.
+5. Do not rename or move files unless necessary.
+6. Do not remove working features without explicit instruction.
 
 ## Frontend Rules
 
-Before creating a new component, check whether an existing component can be reused.
+The production frontend is static HTML/CSS/JS.
 
-Before adding new CSS, check whether existing styles already solve the need.
+Primary files:
 
-Before creating a new page, check whether the page already exists.
-
-Visible text must support localization if the project has EN/AZ language switching.
+- `frontend/index.html` - public landing page
+- `frontend/css/modern-landing.css` - current landing style system
+- `frontend/js/modern-landing.js` - language toggle, package selector, upload feedback, mobile menu
+- `frontend/assets/` - approved logos, icons, favicon, OG image
+- `frontend/vercel.json` - Vercel config
 
 When changing frontend:
 
-- keep responsive behavior
-- check mobile widths around 360px, 390px, and 430px
-- avoid horizontal overflow
-- keep the dark interface readable
-- keep EN/AZ switching working
-- keep spacing and typography consistent
-- preserve approved header, footer, loading screen, and dashboard direction
-- do not add unnecessary visual noise
-- do not show empty cards, empty sections, placeholder charts, or fake dashboard data in production UI
+- Preserve dark readability.
+- Preserve responsive behavior.
+- Check mobile around 360px, 390px, and 430px when layout changes.
+- Avoid horizontal overflow.
+- Keep EN/AZ switching working.
+- Add `data-i18n` and translation strings for new visible landing text.
+- Keep button, card, upload, loader, header, and footer styling consistent with `modern-landing.css`.
+- Do not add social icons or placeholder social links.
+- Do not add Stripe wording to public UI.
+- Use Lemon Squeezy wording for checkout/payment references.
+
+## Logo Rules
+
+Approved current assets include:
+
+- Loader logo: `frontend/assets/devbareun-logo-compact-white.svg`
+- Header/footer symbol: `frontend/assets/devbareun-symbol-white.svg`
+- Favicon: `frontend/assets/favicon.png`
+
+If a user provides a new logo file, copy it into `frontend/assets/` and update only the relevant reference. Do not scatter external Desktop paths into HTML/CSS.
 
 ## Localization Rules
 
-Default language is English.
+Default language: English.
 
-Azerbaijani is the secondary language.
+Secondary language: Azerbaijani.
 
-Do not leave mixed-language UI.
+When adding visible public landing text:
 
-When adding new visible text:
+- Add English copy in the markup.
+- Add English and Azerbaijani keys in `frontend/js/modern-landing.js`.
+- Keep terminology construction-focused.
+- Avoid mixed-language UI in one state.
 
-- add both English and Azerbaijani versions
-- keep construction terminology professional
-- make sure buttons, menus, labels, tooltips, dashboard titles, form errors, and report/export labels are translated
-- selected language should apply to the dashboard and reports/exports where applicable
+## Upload Experience Rules
+
+The upload section should remain guided and understandable.
+
+It should show:
+
+- selected package
+- required files
+- expected outputs
+- uploaded file names
+- upload progress indication
+- smart detection feedback
+- mapping preview
+
+Supported public file wording:
+
+- Excel
+- CSV
+- PDF
+- Primavera XER
+- MS Project XML
+- supporting images
+
+Do not make the upload experience feel like a generic file drop. It must explain what result the user receives.
+
+## Dashboard Rules
+
+Dashboard outputs must be data-driven.
+
+Allowed dashboard areas:
+
+- Executive Summary
+- Schedule Status
+- Delay Analysis
+- Cost Control
+- F-2 / Progress Payment Trend
+- Workforce Productivity
+- Material Continuity
+- Risk Heatmap
+- Critical Activities
+- Recovery Actions
+- Decision Register
+- PDF Export
+- Excel Export
+
+Do not show:
+
+- empty cards
+- fake production results
+- placeholder-only charts
+- duplicate dashboard sections
+- unrelated analytics blocks
+- visible Ref/undefined errors
+
+Example dashboard previews on the public landing are allowed only when clearly presented as examples.
 
 ## Backend Rules
 
-Before creating a new service, module, route, controller, or endpoint, check whether similar backend logic already exists.
+The backend is FastAPI under `backend/app/`.
 
-Do not merge unrelated backend logic into one large file.
+Before creating backend code:
 
-Keep business logic separated from route/controller logic when possible.
-
-Validate inputs.
-
-Return clear errors.
-
-Do not expose internal stack traces or production errors to users.
+- Search for an existing route/service/module first.
+- Keep route/controller logic separate from business logic when possible.
+- Validate inputs.
+- Return clear user-safe errors.
+- Do not expose stack traces in production responses.
+- Keep payment provider logic separate from plan, credit, subscription, and usage-limit logic.
 
 Preferred backend separation:
 
@@ -196,9 +232,9 @@ Preferred backend separation:
 
 ## Parser Rules
 
-Parser must avoid aggressive guessing.
+Parser behavior should be conservative.
 
-Parser should return:
+Parser output should include:
 
 - normalized JSON
 - confidence score
@@ -206,110 +242,57 @@ Parser should return:
 - warnings
 - detected project name
 - detected contract value
-- detected planned progress
-- detected actual progress
-- detected F-2 / progress payment data
-- detected workforce data
-- detected material stock data
-- detected schedule data
-- detected contractor name
-- detected building/block names
+- planned progress
+- actual progress
+- F-2 / progress payment data
+- workforce data
+- material stock data
+- schedule data
+- contractor name
+- building/block names
 
-Do not use section titles as project names if a better project header exists.
+Do not invent values when data is missing. Return warnings instead.
 
-Do not inflate EAC when progress is too low.
+## SaaS And Payment Rules
 
-If data is missing or uncertain, return warnings instead of fake values.
+Current SaaS direction:
 
-## Dashboard Rules
-
-Dashboard must be dynamic.
-
-Show sections only when relevant data exists.
-
-Allowed dashboard sections:
-
-- Executive Summary
-- Schedule Status
-- Delay Analysis
-- Cost Control
-- F-2 / Progress Payment Trend
-- Workforce Productivity
-- Material Continuity
-- Risk Heatmap
-- Critical Activities
-- Recovery Actions
-- Decision Register
-- Export Buttons
-
-Do not show:
-
-- empty cards
-- fake KPIs
-- placeholder charts
-- Ref errors
-- duplicated dashboard sections
-- unrelated analytics blocks
-
-## SaaS Rules
-
-DevBareun should support:
-
-- guest one-time project analysis
-- Plus plan with limited monthly project analyses
-- Pro plan with higher monthly project limits
-- user authentication
-- protected customer dashboard
+- guest one-time Single Project analysis
+- Plus monthly project credits
+- Pro monthly project credits
+- protected login/workspace
 - report archive
 - PDF export
 - Excel export
 - admin panel
-- Supabase database
 - payment provider abstraction
 
-Do not hardcode only one payment provider into the core business logic.
+Production checkout uses Lemon Squeezy.
 
-Keep payment provider logic separated from subscription, plan, credit, and usage-limit logic.
+Known variant IDs:
 
-## Database And Supabase Rules
+- Single Project: `1741208`
+- Plus: `1741246`
+- Pro: `1741254`
 
-Before creating a new table, check whether an existing table can be extended safely.
+Do not hardcode secrets. Do not put Lemon Squeezy API keys or webhook secrets into frontend files.
 
-Do not duplicate database models or tables.
+Stripe-related public website files or references should not be added. If old Stripe references exist, remove them only when they are truly unused or the user asks for cleanup.
 
-Use migrations when the project uses migrations.
+## Supabase And Security Rules
 
-Add indexes where needed.
+Frontend may only use public Supabase values:
 
-Protect user-owned data.
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-Never expose:
+Backend/Railway owns private values:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_JWT_SECRET`
-- database password
-- private storage keys
-- production credentials
-
-Frontend may only use public/anon keys.
-
-Database should use:
-
-- user ownership
-- project ownership
-- protected private files
-- admin-only access where needed
-- Row Level Security policies where applicable
-
-## Authentication And Security Rules
-
-Protect private routes.
-
-Protect admin routes.
-
-Validate file uploads.
-
-Apply rate limiting if the project has public APIs.
+- storage bucket secrets
+- payment API keys
+- webhook secrets
 
 Never commit:
 
@@ -322,94 +305,96 @@ Never commit:
 - payment secrets
 - production credentials
 
-Use `.env.example` only for variable names.
+Use `.env.example` only for variable names and safe placeholder values.
 
 ## Deployment Rules
 
-Deployment targets:
+Deploy roots:
 
-- Frontend: Vercel
-- Backend: Railway
-- Database/Auth/Storage: Supabase
-- Repository: GitHub
+- Vercel Root Directory: `frontend`
+- Railway Root Directory: `backend`
+- Supabase SQL: `database`
 
-Keep deployment files clean.
+Do not deploy repository root.
 
-Do not commit real secrets.
+Keep these docs aligned when deploy behavior changes:
 
-Use:
+- `README.md`
+- `frontend/README.md`
+- `backend/README.md`
+- `docs/DEPLOYMENT_ROOTS.md`
+- `docs/LIVE_DEPLOY_CHECKLIST.md`
+- `docs/LIVE_SUPABASE_PAYMENT_CHECKLIST.md`
 
-- `.env.example`
-- README setup guide
-- deployment guide
-- health check endpoint
-- clear environment variable documentation
+Expected live backend health after Supabase is configured:
+
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "storage": "configured"
+}
+```
+
+If health shows `database: not_configured` or `storage: not_configured`, live Supabase setup is incomplete.
 
 ## Testing Rules
 
-After changes, run the available checks for the project.
+After frontend changes, at minimum:
 
-Use whichever commands exist:
+- Run `node --check frontend/js/modern-landing.js` if landing JS changed.
+- Load `http://localhost:4173/index.html` when a local server is running.
+- Check for console errors.
+- Check desktop and one mobile viewport for layout/overflow when visual layout changes.
 
-- `npm run build`
-- `npm run lint`
-- `npm test`
-- `pnpm build`
-- `pnpm test`
-- `yarn build`
-- `yarn test`
-- `python -m pytest`
-- `python -m compileall`
-- backend health check
+After backend changes, use available checks:
 
-If tests cannot be run, explain why.
+- `python -m compileall backend/app`
+- `python -m pytest` if tests exist
+- backend health check: `/api/health`
+- SaaS health check: `/api/saas/health`
 
 Do not claim tests passed if they were not run.
 
 ## Documentation Rules
 
-Update documentation when the change affects:
+Update docs when changes affect:
 
-- setup
+- deploy roots
 - environment variables
-- deployment
 - API behavior
-- database schema
-- authentication
-- payment
+- payment flow
+- Supabase setup
 - upload flow
 - dashboard behavior
-- user flow
-- important project structure
+- auth or security
+- report export behavior
 
-Keep documentation short and practical.
+Keep documentation practical and short.
 
 ## Task Discipline
 
 Every task must be small and focused.
 
-If the user asks for one fix, only fix that issue.
+Do not:
 
-Do not refactor unrelated files.
+- refactor unrelated areas
+- redesign the entire website for a small copy/layout request
+- add unrelated sections
+- add duplicate files
+- change branding without explicit instruction
+- remove current upload/package behavior unless requested
+- add placeholder production content
 
-Do not improve unrelated areas unless they directly block the requested task.
+## Required Output After Each Task
 
-Do not create a new version or package unless explicitly requested.
-
-Do not rename the project.
-
-Do not change branding without explicit instruction.
-
-## Required Output After Every Task
-
-At the end of every task, report:
+Report:
 
 1. Files changed
 2. What changed
-3. Why it changed
+3. What was tested
 4. What was not changed
-5. How to test
-6. Risks or follow-up tasks
+5. Any remaining risk or follow-up
 
 ## Final Rule
 
@@ -417,12 +402,8 @@ Inspect first.
 
 Reuse existing code.
 
-Improve only what is needed.
+Keep DevBareun dark/cyan, construction-focused, and production-safe.
 
 Do not duplicate.
 
-Do not rebuild.
-
 Do not guess.
-
-If something is unclear, explain the uncertainty before making risky changes.

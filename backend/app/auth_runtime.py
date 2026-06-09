@@ -13,6 +13,7 @@ import os
 import time
 import secrets
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional, Dict, Any
 
 from .security_runtime import bool_env, devbareun_domain_admin_allowed, production_security_enabled
@@ -40,6 +41,7 @@ class AuthError(Exception):
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+PILOT_ADMIN_FILE = Path(__file__).resolve().parent.parent / "data" / "saas" / "pilot_admin_account.json"
 
 # Pilot in-memory session store. Production should rely on Supabase Auth/JWT.
 _PILOT_SESSIONS: Dict[str, AuthUser] = {}
@@ -61,7 +63,7 @@ def plan_credit_limit(plan: Optional[str]) -> int:
 def consume_pilot_credit(token: Optional[str]) -> Dict[str, Any]:
     """Consume one in-memory pilot credit.
 
-    Production subscription usage should be enforced through the database/Stripe
+    Production subscription usage should be enforced through the billing database.
     ledger. This helper keeps the staging workspace realistic before those
     providers are fully wired.
     """
@@ -86,6 +88,8 @@ def set_pilot_plan(token: Optional[str], plan: str) -> Dict[str, Any]:
 def _pilot_enabled() -> bool:
     if production_security_enabled():
         return bool_env("DEVBAREUN_ENABLE_PILOT_LOGIN", False) and not bool_env("DEVBAREUN_PRODUCTION_SECURITY", True)
+    if PILOT_ADMIN_FILE.exists():
+        return True
     if bool_env("DEVBAREUN_ENABLE_DEV_AUTH", False):
         return True
     if bool_env("DEVBAREUN_ENABLE_PILOT_LOGIN", False):
@@ -93,7 +97,7 @@ def _pilot_enabled() -> bool:
     return os.getenv("DEVBAREUN_AUTH_MODE", "disabled").lower() in {"pilot", "mock", "local"}
 
 
-def create_pilot_session(email: str, plan: str = "plus") -> Dict[str, Any]:
+def create_pilot_session(email: str, plan: str = "plus", force_admin: bool = False) -> Dict[str, Any]:
     if not _pilot_enabled():
         raise AuthError("Pilot login is disabled.")
     email = (email or "").strip().lower()
@@ -108,7 +112,7 @@ def create_pilot_session(email: str, plan: str = "plus") -> Dict[str, Any]:
         company_id="CMP-" + secrets.token_hex(5).upper(),
         plan=plan,
         credits_remaining=credits,
-        is_admin=devbareun_domain_admin_allowed() and email.endswith("@devbareun.com"),
+        is_admin=force_admin or (devbareun_domain_admin_allowed() and email.endswith("@devbareun.com")),
     )
     _PILOT_SESSIONS[token] = user
     return {

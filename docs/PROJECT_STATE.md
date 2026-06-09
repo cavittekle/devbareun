@@ -79,7 +79,7 @@ Payments:
 
 - Payment provider abstraction
 - Lemon Squeezy is the current checkout provider
-- Stripe may remain optional legacy support only
+- Lemon Squeezy is the active payment provider
 - Do not hardcode payment business logic only to one provider
 
 Repository:

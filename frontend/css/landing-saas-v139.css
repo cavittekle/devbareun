@@ -7,7 +7,7 @@
 .btn.subtle:hover{color:var(--text);background:var(--card2)}
 .hero-package-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:24px 0 4px;max-width:720px}
 .hero-package-strip a{display:flex;flex-direction:column;gap:4px;text-decoration:none;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));border-radius:18px;padding:14px 15px;transition:.2s ease;min-width:0}
-.hero-package-strip a:hover{transform:translateY(-2px);border-color:var(--line-strong);background:linear-gradient(180deg,rgba(34,211,238,.12),rgba(255,255,255,.045))}
+.hero-package-strip a:hover{transform:none;border-color:var(--line-strong);background:linear-gradient(180deg,rgba(34,211,238,.12),rgba(255,255,255,.045))}
 .hero-package-strip b{font-size:14px;color:var(--text);letter-spacing:-.02em}
 .hero-package-strip span{font-size:12px;color:var(--muted);line-height:1.35}
 .landing-section-kicker{display:inline-flex;align-items:center;gap:8px;color:#9defff;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.22);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
@@ -1809,4 +1809,23 @@ html[data-theme="light"] .selected-landing-v1393 .selected-dash-rail .rail-logo 
 .selected-header-v1393 .selected-utility-pill .selected-lang-btn {
   flex-basis: 100% !important;
   width: 100% !important;
+}
+
+/* Keep hover text crisp across legacy landing surfaces. */
+.landing-login-link:hover,
+.btn.subtle:hover,
+.hero-package-strip a:hover,
+.landing-login-links a:hover,
+.selected-nav-links a:hover,
+.selected-landing-v1393 a:hover,
+.selected-landing-v1393 button:hover {
+  filter: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+}
+
+.landing-plan-card.featured,
+.landing-plan-card:hover,
+.landing-plan-card.is-selected {
+  transform: none !important;
 }

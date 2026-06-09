@@ -1,6 +1,6 @@
 # Lemon Squeezy Setup Guide
 
-Use Lemon Squeezy when Stripe account country support is not available.
+Use Lemon Squeezy for DevBareun checkout and subscription payments.
 
 ## Products And Variants
 
@@ -33,7 +33,6 @@ LEMON_SQUEEZY_SINGLE_VARIANT_ID=replace_with_single_project_variant_id
 LEMON_SQUEEZY_PLUS_VARIANT_ID=replace_with_plus_variant_id
 LEMON_SQUEEZY_PRO_VARIANT_ID=replace_with_pro_variant_id
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
-DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false
 DEVBAREUN_PRODUCTION_SECURITY=true
 PUBLIC_SITE_URL=https://devbareun.com
 ```

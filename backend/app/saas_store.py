@@ -15,9 +15,10 @@ SAAS_DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_FILE = SAAS_DATA_DIR / "saas_pilot_store.json"
 
 TABLES = [
-    "users", "companies", "projects", "uploaded_files", "analysis_results", "reports",
+    "users", "companies", "projects", "uploaded_files", "analysis_jobs", "analysis_results", "reports",
     "plans", "subscriptions", "payments", "guest_orders", "checkout_sessions",
-    "analysis_credits", "subscription_usage", "activity_logs"
+    "analysis_credits", "subscription_usage", "credit_transactions", "support_tickets",
+    "admin_notes", "activity_logs", "audit_logs"
 ]
 
 

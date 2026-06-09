@@ -2,71 +2,95 @@
 
 Use this as the final pre-launch runbook.
 
-## 1. Domains
+## 1. Deploy Roots
 
-- [ ] Frontend domain points to Vercel: `devbareun.com`
-- [ ] `www.devbareun.com` redirects to `devbareun.com`
-- [ ] Backend domain points to Railway
-- [ ] Backend URL is included in frontend config and docs
-- [ ] Frontend domains are included in `DEVBAREUN_ALLOWED_ORIGINS`
-- [ ] Frontend domains are included in `DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS`
+- [ ] Repository root is not deployed.
+- [ ] Root `index.html` does not exist.
+- [ ] Vercel Root Directory is `frontend`.
+- [ ] Railway Root Directory is `backend`.
+- [ ] `frontend/vercel.json` is detected by Vercel.
+- [ ] `backend/railway.json` is detected by Railway.
 
-## 2. Railway Backend
+## 2. Domains
 
-- [ ] Root Directory is `backend`
-- [ ] `backend/railway.json` is detected
-- [ ] `/health` returns success
-- [ ] `/api/saas/health` returns success
-- [ ] Logs show no missing production secrets
-- [ ] `DEVBAREUN_PRODUCTION_SECURITY=true`
-- [ ] `DEVBAREUN_ENABLE_DEV_AUTH=false`
-- [ ] `DEVBAREUN_ENABLE_LOCAL_STORE=false`
-- [ ] `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`
-- [ ] `DEVBAREUN_ENABLE_PILOT_LOGIN=false`
-- [ ] `DEVBAREUN_ENABLE_PILOT_CHECKOUT=false`
+- [ ] Frontend domain points to Vercel: `devbareun.com`.
+- [ ] `www.devbareun.com` redirects to `devbareun.com`.
+- [ ] Backend domain points to Railway.
+- [ ] Backend URL is `https://devbareun-production.up.railway.app`.
+- [ ] Frontend domains are included in `DEVBAREUN_ALLOWED_ORIGINS`.
+- [ ] Frontend domains are included in `DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS`.
 
-## 3. Vercel Frontend
+## 3. Railway Backend
 
-- [ ] Root Directory is `frontend`
-- [ ] `frontend/vercel.json` is detected
-- [ ] `index.html` loads
-- [ ] `login.html` loads
-- [ ] `register.html` loads
-- [ ] Pricing buttons route to the correct checkout or account flow
-- [ ] Loader does not get stuck on landing or auth pages
+- [ ] Root Directory is `backend`.
+- [ ] `/api/health` returns success.
+- [ ] `/api/saas/health` returns success.
+- [ ] Health does not show `database: not_configured`.
+- [ ] Health does not show `storage: not_configured`.
+- [ ] Logs show no missing production secrets.
+- [ ] `DEVBAREUN_PRODUCTION_SECURITY=true`.
+- [ ] `DEVBAREUN_ENABLE_DEV_AUTH=false`.
+- [ ] `DEVBAREUN_ENABLE_LOCAL_STORE=false`.
+- [ ] `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
+- [ ] `DEVBAREUN_ENABLE_PILOT_LOGIN=false`.
+- [ ] `DEVBAREUN_ENABLE_PILOT_CHECKOUT=false`.
+- [ ] `DEVBAREUN_ALLOW_LEGACY_PROJECT_ROUTES=false`.
+- [ ] `DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD=false`.
+- [ ] `DEVBAREUN_DISABLE_DOCS=true`.
 
-## 4. Supabase
+## 4. Vercel Frontend
 
-- [ ] `database/2026_05_29_v140_production_saas_core.sql` is applied after earlier migrations
-- [ ] RLS policies are reviewed
-- [ ] Private bucket `project-files` exists
-- [ ] `SUPABASE_URL` is set in Railway
-- [ ] `SUPABASE_ANON_KEY` is set in Railway
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` is set only in Railway
-- [ ] `SUPABASE_STORAGE_BUCKET=project-files`
-- [ ] No service role key exists in frontend files, Vercel vars or browser code
+- [ ] Root Directory is `frontend`.
+- [ ] `index.html` loads.
+- [ ] `login.html` loads.
+- [ ] `register.html` loads.
+- [ ] Pricing buttons route to the correct checkout or account flow.
+- [ ] Loader does not get stuck on landing or auth pages.
+- [ ] No backend-only secret exists in Vercel environment variables.
+- [ ] No service role key exists in frontend source.
 
-## 5. Stripe
+## 5. Supabase
 
-- [ ] Single Project price exists: `$29`
-- [ ] Plus price exists: `$49/month`
-- [ ] Pro price exists: `$89/month`
-- [ ] Railway has all Stripe price IDs
-- [ ] Railway has `STRIPE_WEBHOOK_SECRET`
-- [ ] Webhook endpoint is `/api/payments/webhook`
-- [ ] Test checkout succeeds
-- [ ] Webhook signature verification succeeds
-- [ ] Live keys are used only after test mode passes
+- [ ] SQL files are applied using `database/SUPABASE_DEPLOY_ORDER.md`.
+- [ ] RLS policies are reviewed.
+- [ ] Private bucket `project-files` exists.
+- [ ] Private bucket `reports` exists if report archive storage is used.
+- [ ] `SUPABASE_URL` is set in Railway.
+- [ ] `SUPABASE_ANON_KEY` is set in Railway.
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` is set only in Railway.
+- [ ] `SUPABASE_STORAGE_BUCKET=project-files`.
+- [ ] Upload test reaches Supabase Storage.
+- [ ] No service role key exists in frontend files, Vercel vars, browser code, or screenshots.
 
-## 6. Final QA
+## 6. Lemon Squeezy
 
-- [ ] Single Project upload works without account
-- [ ] Single Project payment unlocks dashboard/report flow
-- [ ] Plus registration creates workspace access
-- [ ] Plus billing redirects correctly
-- [ ] Pro registration creates workspace access
-- [ ] Dashboard, projects, reports and billing pages are protected
-- [ ] PDF export opens
-- [ ] Excel export opens
-- [ ] Light mode remains readable
-- [ ] Mobile layout remains usable
+- [ ] Store is active for live payments.
+- [ ] `DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy`.
+- [ ] `LEMON_SQUEEZY_STORE_ID=396148`.
+- [ ] `LEMON_SQUEEZY_SINGLE_VARIANT_ID=1741208`.
+- [ ] `LEMON_SQUEEZY_PLUS_VARIANT_ID=1741246`.
+- [ ] `LEMON_SQUEEZY_PRO_VARIANT_ID=1741254`.
+- [ ] `LEMON_SQUEEZY_API_KEY` is set only in Railway.
+- [ ] `LEMON_SQUEEZY_WEBHOOK_SECRET` is set only in Railway.
+- [ ] Webhook endpoint is `/api/billing/webhook`.
+- [ ] Test checkout succeeds.
+- [ ] Webhook signature verification succeeds.
+- [ ] Billing status updates after webhook delivery.
+
+## 7. Final QA
+
+- [ ] `tools/smoke_e2e.ps1` passes against the target frontend/backend URLs.
+- [ ] Single Project upload works without account.
+- [ ] Single Project payment unlocks dashboard/report flow.
+- [ ] Plus registration creates workspace access.
+- [ ] Plus billing redirects correctly.
+- [ ] Pro registration creates workspace access.
+- [ ] Dashboard, projects, reports, and billing pages are protected.
+- [ ] PDF export opens.
+- [ ] Excel export opens.
+- [ ] Mobile layout remains usable.
+
+## 8. Future Scale
+
+- [ ] In-memory rate limiting is acceptable only for one Railway instance.
+- [ ] `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are configured before multi-instance scale.

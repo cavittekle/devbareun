@@ -7,19 +7,24 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Sequence
 
 from ..analyzer import apply_baseline_actual_guardrails
+from ..analysis_types import normalize_analysis_type, parser_analysis_type
 from ..file_validation import validate_magic_signature
 from ..models import ParsedProjectData
 from ..parser import ConstructionFileParser
+from ..security_runtime import int_env
 from ..supabase_client import signed_download_url, settings as supabase_settings
+from .premium_analysis import file_group_status
 
 
 def normalize_parsed_project(
     parsed: ParsedProjectData,
     file_rows: Sequence[Dict[str, Any]] | None = None,
     project: Dict[str, Any] | None = None,
+    analysis_type: str = "all",
 ) -> Dict[str, Any]:
     """Convert parser output into the v1.4.0 normalized analytics schema."""
     files = list(file_rows or [])
+    canonical_type = normalize_analysis_type(analysis_type)
     confidence = _confidence_score(parsed)
     planned = parsed.planned_execution
     actual = parsed.actual_execution
@@ -39,29 +44,55 @@ def normalize_parsed_project(
         if str(row.get("parser_status") or row.get("status") or "").lower() in {"parsed", "approved", "completed"}
     ]
 
-    return {
+    f2_amount = parsed.evidence.get("f2_completed_amount")
+    approved_payment = f2_amount if f2_amount not in (None, "") else parsed.actual_cost
+    contract_value = parsed.total_cost or (project or {}).get("contract_value")
+    remaining_cost = None
+    if contract_value not in (None, "") and approved_payment not in (None, ""):
+        try:
+            remaining_cost = round(float(contract_value) - float(approved_payment), 2)
+        except Exception:
+            remaining_cost = None
+
+    result = {
         "project_info": {
             "project_id": (project or {}).get("id") or (project or {}).get("project_id"),
             "project_name": parsed.project_name or (project or {}).get("project_name") or "DevBareun Project",
             "project_code": (project or {}).get("project_code"),
             "location": (project or {}).get("location"),
-            "client_name": (project or {}).get("client_name"),
-            "contractor_name": (project or {}).get("contractor_name"),
+            "client": (project or {}).get("client") or (project or {}).get("client_name"),
+            "client_name": (project or {}).get("client_name") or (project or {}).get("client"),
+            "contractor": (project or {}).get("contractor") or (project or {}).get("contractor_name"),
+            "contractor_name": (project or {}).get("contractor_name") or (project or {}).get("contractor"),
+            "report_date": (project or {}).get("report_date"),
             "currency": parsed.currency or (project or {}).get("currency") or "USD",
             "language_hint": parsed.language_hint,
             "source_file_count": len(uploaded_files),
+            "analysis_type": canonical_type,
+            "requested_analysis_type": analysis_type or "all",
         },
         "cost_data": [
+            _metric("total_cost", contract_value),
+            _metric("contract_value", contract_value),
             _metric("total_budget", parsed.total_cost or (project or {}).get("contract_value")),
             _metric("planned_cost", parsed.planned_cost),
             _metric("actual_cost", parsed.actual_cost),
+            _metric("approved_payment", approved_payment),
+            _metric("remaining_cost", remaining_cost),
+            _metric("cost_variance", _safe_difference(parsed.actual_cost, contract_value)),
             _metric("cost_variance_percent", parsed.cost_variance_percent),
         ],
         "schedule_data": [
             {
+                "baseline_start": None,
                 "baseline_finish": parsed.baseline_finish,
+                "planned_progress_percent": planned,
+                "actual_progress_percent": actual,
                 "forecast_finish": parsed.estimated_finish,
+                "estimated_finish": parsed.estimated_finish,
                 "delay_days": parsed.delay_days,
+                "activity_name": None,
+                "activity_status": None,
                 "source_sheets": [sheet.to_dict() for sheet in schedule_sheets[:8]],
             }
         ],
@@ -73,13 +104,30 @@ def normalize_parsed_project(
         "manpower_data": [
             _metric("current_workforce", parsed.workforce_current),
             _metric("required_workforce", parsed.workforce_required),
+            _metric("current_workers", parsed.workforce_current),
+            _metric("required_workers", parsed.workforce_required),
+            _metric("trade", None),
+            _metric("productivity_rate", None),
+            _metric("daily_output", None),
+            _metric("planned_output", None),
+            _metric("actual_output", None),
         ],
         "material_data": [
             {
                 "detected_material_sources": len(material_sheets),
+                "material_name": None,
+                "required_quantity": None,
+                "available_quantity": None,
+                "used_quantity": None,
+                "unit": None,
+                "daily_consumption": None,
+                "delivery_date": None,
+                "supplier": None,
+                "stock_status": None,
                 "source_sheets": [sheet.to_dict() for sheet in material_sheets[:8]],
             }
         ],
+        "risk_register_data": [],
         "milestones": _milestones_from_parsed(parsed),
         "document_control": {
             "uploaded_files": len(uploaded_files),
@@ -96,6 +144,8 @@ def normalize_parsed_project(
         "warnings": list(dict.fromkeys(parsed.warnings)),
         "confidence_score": confidence,
     }
+    result["file_group_status"] = file_group_status(result)
+    return result
 
 
 def parse_project_files(
@@ -119,11 +169,12 @@ def parse_project_files(
                 warnings=["No readable project files were available for parser execution."],
             )
         else:
+            parser_type = parser_analysis_type(analysis_type)
             parser = ConstructionFileParser(analysis_type=analysis_type)
             parsed = parser.parse_files(paths)
-            apply_baseline_actual_guardrails(parsed, analysis_type)
+            apply_baseline_actual_guardrails(parsed, parser_type)
         parsed.warnings.extend(w for w in warnings if w not in parsed.warnings)
-        return normalize_parsed_project(parsed, files, project)
+        return normalize_parsed_project(parsed, files, project, analysis_type=analysis_type)
 
 
 @contextmanager
@@ -156,11 +207,37 @@ def _download_storage_object(file_row: Dict[str, Any], base: Path) -> Path | Non
     signed = signed_download_url(storage_path, expires_in=600)
     url = _signed_url_to_absolute(signed)
     target = base / Path(filename).name
+    max_bytes = int_env("DEVBAREUN_MAX_FILE_MB", 30) * 1024 * 1024
+    first_bytes = bytearray()
+    written = 0
     with urllib.request.urlopen(url, timeout=30) as response:
-        content = response.read()
-    if not validate_magic_signature(content[:4096], filename):
+        length_header = response.headers.get("Content-Length")
+        if length_header:
+            try:
+                content_length = int(length_header)
+            except Exception:
+                content_length = None
+            if content_length and content_length > max_bytes:
+                target.unlink(missing_ok=True)
+                raise ValueError(f"File is too large for parser download: {filename}.")
+        with target.open("wb") as handle:
+            while True:
+                chunk = response.read(1024 * 1024)
+                if not chunk:
+                    break
+                written += len(chunk)
+                if written > max_bytes:
+                    target.unlink(missing_ok=True)
+                    raise ValueError(f"File is too large for parser download: {filename}.")
+                if len(first_bytes) < 4096:
+                    first_bytes.extend(chunk[: 4096 - len(first_bytes)])
+                handle.write(chunk)
+    if written <= 0:
+        target.unlink(missing_ok=True)
+        raise ValueError(f"Downloaded file was empty: {filename}")
+    if not validate_magic_signature(bytes(first_bytes), filename):
+        target.unlink(missing_ok=True)
         raise ValueError(f"File signature did not match allowed parser formats: {filename}")
-    target.write_bytes(content)
     return target
 
 
@@ -181,6 +258,15 @@ def _signed_url_to_absolute(raw: Dict[str, Any]) -> str:
 
 def _metric(name: str, value: Any) -> Dict[str, Any]:
     return {"name": name, "value": value}
+
+
+def _safe_difference(left: Any, right: Any) -> float | None:
+    if left in (None, "") or right in (None, ""):
+        return None
+    try:
+        return round(float(left) - float(right), 2)
+    except Exception:
+        return None
 
 
 def _file_summary(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -232,4 +318,3 @@ def _milestones_from_parsed(parsed: ParsedProjectData) -> List[Dict[str, Any]]:
         status = "Delayed" if parsed.delay_days and parsed.delay_days > 0 else "Upcoming"
         milestones.append({"name": "Forecast Finish", "due_date": parsed.estimated_finish, "status": status})
     return milestones
-

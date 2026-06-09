@@ -30,3 +30,6 @@ reports/
 Thumbs.db
 *.log
 *.tmp
+
+# Local Codex desktop/session metadata
+.codex/

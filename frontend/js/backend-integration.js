@@ -3,22 +3,24 @@
 (function () {
   const API = window.DevBareunAPI;
   let isRunning = false;
-  let selectedAnalysisType = "all";
+  const PREMIUM_TYPE = "full_project_control_premium";
+  const DEFAULT_ANALYSIS_TYPE = "schedule";
+  let selectedAnalysisType = DEFAULT_ANALYSIS_TYPE;
   let lastProjectId = null;
   let lastPreflight = null;
   let flowStage = "idle"; // idle | mapping-ready
 
   const analysisMeta = {
     en: {
-      all: {
-        title: "Full Project Control",
-        text: "Complete project-control package combining Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions and PDF/Excel reporting.",
+      full_project_control_premium: {
+        title: "Full Project Control Premium",
+        text: "Complete project-control dashboard combining schedule, cost, payment, workforce, material, risk, and recovery actions.",
         template: "templates/devbareun-full-project-control-template.xlsx",
-        focus: "schedule, workforce, cost, progress payment, material continuity, risk and management reporting",
-        reqTitle: "Full Project Control requires all core project-control datasets",
-        baseline: ["Cost estimate / smeta or contract baseline", "Baseline schedule / planned progress", "Material/procurement baseline if available"],
-        actual: ["Progress payment or actual cost", "Actual progress / actual finish / forecast update", "Actual workforce, material, site notes or risk records"],
-        guardrail: "Full Project Control consolidates schedule recovery, cost/payment control, material continuity and executive risk. Missing actual data is shown as missing; comparison values are not invented."
+        focus: "schedule, cost, payment, workforce, material, risk and recovery actions",
+        reqTitle: "Full Project Control Premium requires complete project-control input files",
+        baseline: ["Baseline schedule", "Cost estimate / BOQ", "Material stock list", "Risk register"],
+        actual: ["Actual progress", "F-2 / progress payment", "Actual cost report", "Workforce report", "Procurement status"],
+        guardrail: "Premium creates a consolidated management dashboard from available file groups. Missing sections stay marked as missing; comparison values are not invented."
       },
       cost: {
         title: "Cost & Payment Control",
@@ -62,7 +64,7 @@
       }
     },
     az: {
-      all: {
+      full_project_control_premium: {
         title: "Tam layihə nəzarəti",
         text: "Qrafik bərpası, xərc və F-2 nəzarəti, material davamlılığı, risk və qərarlar, rəhbərlik xülasəsi və PDF/Excel hesabatlarını birləşdirən tam layihə nəzarət paneli.",
         template: "templates/devbareun-full-project-control-template.xlsx",
@@ -114,6 +116,8 @@
       }
     }
   };
+  analysisMeta.en.all = analysisMeta.en[PREMIUM_TYPE];
+  analysisMeta.az.all = analysisMeta.az[PREMIUM_TYPE];
 
   const fieldLabels = {
     en: {
@@ -324,7 +328,8 @@
 
   function metaFor(type) {
     const current = lang();
-    return (analysisMeta[current] && analysisMeta[current][type]) || analysisMeta.en[type] || analysisMeta.en.all;
+    const key = type === "all" ? DEFAULT_ANALYSIS_TYPE : type;
+    return (analysisMeta[current] && analysisMeta[current][key]) || analysisMeta.en[key] || analysisMeta.en[DEFAULT_ANALYSIS_TYPE];
   }
 
   function labelFor(field, map) {
@@ -390,6 +395,87 @@
     if (Array.isArray(window.DevBareunSelectedFiles) && window.DevBareunSelectedFiles.length) return window.DevBareunSelectedFiles;
     const input = fileInput();
     return input && input.files ? Array.from(input.files) : [];
+  }
+
+  function formatUploadSize(bytes) {
+    const n = Number(bytes || 0);
+    if (n >= 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + " MB";
+    if (n >= 1024) return (n / 1024).toFixed(1) + " KB";
+    return n + " B";
+  }
+
+  function renderUploadFileStatus(files, options = {}) {
+    const list = qs("#fileList");
+    if (!list) return;
+    const allFiles = Array.from(files || getSelectedFiles() || []);
+    const stage = options.stage || "selected";
+    const progress = Math.max(0, Math.min(100, Number(options.progress ?? (stage === "selected" ? 0 : 12))));
+    const activeIndex = Number.isFinite(Number(options.activeIndex)) ? Number(options.activeIndex) : -1;
+    const labels = {
+      selected: "Selected",
+      creating: "Creating project",
+      uploading: "Uploading",
+      uploaded: "Uploaded",
+      reading: "Reading data",
+      mapping: "Mapping detected fields",
+      checkout: "Opening checkout",
+      analyzing: "Preparing dashboard",
+      ready: "Ready"
+    };
+    const chips = Array.from(list.querySelectorAll(".file-chip"));
+    if (!chips.length && allFiles.length) {
+      list.innerHTML = allFiles.map((file, index) => {
+        const ext = String((file.name || "").split(".").pop() || "FILE").toUpperCase();
+        return `<div class="file-chip file-chip-v125 upload-status-enhanced"><div class="file-chip-main"><b title="${escapeHtml(file.name || "Unnamed file")}">${escapeHtml(file.name || "Unnamed file")}</b><span>${escapeHtml(formatUploadSize(file.size))} · ${escapeHtml(ext)}</span></div><span class="pill">${escapeHtml(ext)}</span></div>`;
+      }).join("");
+    }
+    Array.from(list.querySelectorAll(".file-chip")).forEach((chip, index) => {
+      const file = allFiles[index];
+      const currentStage = activeIndex >= 0 ? (index < activeIndex ? "uploaded" : index === activeIndex ? stage : "selected") : stage;
+      const currentProgress = currentStage === "selected" ? 0 : currentStage === "uploaded" || currentStage === "ready" ? 100 : progress;
+      chip.classList.add("upload-status-enhanced");
+      chip.dataset.uploadStage = currentStage;
+      let main = chip.querySelector(".file-chip-main") || chip.firstElementChild || chip;
+      if (file) {
+        const title = main.querySelector("b");
+        if (title) {
+          title.textContent = file.name || "Unnamed file";
+          title.setAttribute("title", file.name || "Unnamed file");
+        }
+      }
+      let statusLine = chip.querySelector(".file-upload-status");
+      if (!statusLine) {
+        statusLine = document.createElement("div");
+        statusLine.className = "file-upload-status";
+        main.appendChild(statusLine);
+      }
+      statusLine.innerHTML = `
+        <span class="file-upload-dot" aria-hidden="true"></span>
+        <span>${escapeHtml(labels[currentStage] || labels.selected)}</span>
+        <small>${Math.round(currentProgress)}%</small>
+      `;
+      let bar = chip.querySelector(".file-upload-progress");
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.className = "file-upload-progress";
+        bar.innerHTML = "<span></span>";
+        main.appendChild(bar);
+      }
+      const fill = bar.querySelector("span");
+      if (fill) fill.style.width = Math.max(5, currentProgress) + "%";
+    });
+  }
+
+  function checkoutEmail() {
+    try {
+      const session = JSON.parse(localStorage.getItem("devbareun_session") || "null");
+      const stored = session && session.email ? session.email : localStorage.getItem("devbareun_checkout_email");
+      if (stored && String(stored).includes("@")) return String(stored).trim();
+    } catch (_) {}
+    const email = window.prompt("Enter your email for checkout receipts:", "") || "";
+    if (!email || !email.includes("@")) throw new Error("Email is required to open checkout.");
+    try { localStorage.setItem("devbareun_checkout_email", email.trim()); } catch (_) {}
+    return email.trim();
   }
 
   function escapeHtml(value) {
@@ -534,14 +620,14 @@
     const actualList = qs("#actualRequirements");
     const guard = qs("#requirementsGuardrail");
     if (!meta) return;
-    if (title) title.textContent = meta.reqTitle || metaFor("all").reqTitle;
+    if (title) title.textContent = meta.reqTitle || metaFor(DEFAULT_ANALYSIS_TYPE).reqTitle;
     if (baseList) baseList.innerHTML = (meta.baseline || []).map(item => `<li>${escapeHtml(item)}</li>`).join("");
     if (actualList) actualList.innerHTML = (meta.actual || []).map(item => `<li>${escapeHtml(item)}</li>`).join("");
-    if (guard) guard.textContent = meta.guardrail || metaFor("all").guardrail;
+    if (guard) guard.textContent = meta.guardrail || metaFor(DEFAULT_ANALYSIS_TYPE).guardrail;
   }
 
   function updateAnalysisType(type) {
-    selectedAnalysisType = type || "all";
+    selectedAnalysisType = type === "all" ? DEFAULT_ANALYSIS_TYPE : (type || DEFAULT_ANALYSIS_TYPE);
     analysisCards().forEach(btn => {
       btn.classList.add("analysis-type-card");
       const active = btn.dataset.analysisType === selectedAnalysisType;
@@ -586,6 +672,26 @@
           const ok = (p.confidence || 0) >= 75 ? "ok" : "warn";
           rows.insertAdjacentHTML("beforeend", `<div class="mapping-row"><b>${escapeHtml(localizeText(p.sheet_name || t("sheet")))}</b><span>${escapeHtml(localizeDetectedType(p.detected_type))}</span><small class="${ok}">${p.confidence || 0}%</small><small>${escapeHtml(mapped)}</small></div>`);
         });
+      }
+      const groupStatus = preflight.file_group_status || {};
+      const groupEntries = ["Schedule", "Cost", "Payment", "Workforce", "Material", "Risk"]
+        .map(name => [name, groupStatus[name] || groupStatus[name.toLowerCase()]])
+        .filter(([_, info]) => info);
+      if (groupEntries.length) {
+        rows.insertAdjacentHTML("beforeend", `
+          <div class="mapping-wizard-card">
+            <div><b>Available file groups</b><p>Partial analysis can continue; missing sections stay marked as missing.</p></div>
+            <div class="mapping-required-grid">
+              ${groupEntries.map(([name, info]) => {
+                const status = String((info && info.status) || (info && info.available ? "available" : "missing")).toLowerCase();
+                const ok = status === "active" || status === "available";
+                const partial = status === "partial";
+                const cls = ok ? "ok" : partial ? "warn" : "miss";
+                return `<span class="mapping-field-pill ${cls}">${ok ? "✓" : partial ? "~" : "!"} ${escapeHtml(name)}: ${escapeHtml(status)}</span>`;
+              }).join("")}
+            </div>
+          </div>
+        `);
       }
       const wizard = preflight.mapping_wizard || {};
       const required = Array.isArray(wizard.required_fields) ? wizard.required_fields : [];
@@ -688,13 +794,17 @@
     const project = await API.createProject(draftProjectName, "info@devbareun.com", selectedAnalysisType);
     const projectId = project.project_id;
     lastProjectId = projectId;
+    renderUploadFileStatus(files, { stage: "creating", progress: 20 });
 
     renderProcessingPanel({ step: 1, progress: hasPdf(files) ? 38 : 45, phase: t("uploadingFiles", {count: files.length, projectId}), detail: hasPdf(files) ? t("pdfQueued") : t("filesUploaded"), files });
     status(t("uploadingFiles", {count: files.length, projectId}), "info");
+    renderUploadFileStatus(files, { stage: "uploading", progress: 48 });
     await API.uploadFiles(projectId, files);
+    renderUploadFileStatus(files, { stage: "uploaded", progress: 100 });
 
     renderProcessingPanel({ step: 2, progress: 72, phase: t("detectingFields"), detail: hasPdf(files) ? t("pdfQueued") : t("preparingMapping"), files });
     status(t("detectingFields"), "info");
+    renderUploadFileStatus(files, { stage: "reading", progress: 72 });
     let preflight = null;
     try {
       preflight = await API.preflightProject(projectId, selectedAnalysisType);
@@ -705,16 +815,18 @@
     renderMappingPreview(preflight);
     flowStage = "mapping-ready";
     renderProcessingPanel({ step: 3, progress: 96, phase: t("mappingCompleted"), detail: t("mappingReady"), files });
+    renderUploadFileStatus(files, { stage: "mapping", progress: 96 });
     status(t("mappingReady"), "success");
   }
 
   async function finalizeDashboard() {
     if (!lastProjectId) throw new Error(t("noPreparedProject"));
     renderProcessingPanel({ step: 0, progress: 22, phase: t("confirmingUnlock"), detail: t("resultGenerating") });
+    renderUploadFileStatus(getSelectedFiles(), { stage: "checkout", progress: 98 });
     status(t("confirmingUnlock"), "info");
     const successUrl = `${location.origin}/payment-success.html?plan=single&guest=1&project_id=${encodeURIComponent(lastProjectId)}&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${location.origin}/payment-failed.html?plan=single&guest=1&project_id=${encodeURIComponent(lastProjectId)}`;
-    const payment = await API.mockPayment(lastProjectId, { success_url: successUrl, cancel_url: cancelUrl });
+    const payment = await API.mockPayment(lastProjectId, { customer_email: checkoutEmail(), success_url: successUrl, cancel_url: cancelUrl });
     if (payment && payment.checkout_url) {
       try {
         localStorage.setItem("devbareun_pending_single_project", JSON.stringify({
@@ -727,9 +839,11 @@
       return;
     }
     renderProcessingPanel({ step: 3, progress: 84, phase: t("calculatingDashboard", {type: selectedAnalysisType}), detail: t("resultGenerating") });
+    renderUploadFileStatus(getSelectedFiles(), { stage: "analyzing", progress: 84 });
     status(t("calculatingDashboard", {type: selectedAnalysisType}), "info");
     await API.analyzeProject(lastProjectId, selectedAnalysisType, collectManualInputs());
     completeProcessingPanel(t("dashboardReady"));
+    renderUploadFileStatus(getSelectedFiles(), { stage: "ready", progress: 100 });
     status(t("dashboardReady"), "success");
     window.location.href = "result-dashboard.html?project_id=" + encodeURIComponent(lastProjectId);
   }
@@ -829,7 +943,11 @@
 
   document.addEventListener("DOMContentLoaded", bind);
   window.addEventListener("load", bind);
-  document.addEventListener("devbareun:files", () => { resetFlow(); updateGenerateState(); });
+  document.addEventListener("devbareun:files", event => {
+    resetFlow();
+    renderUploadFileStatus(event.detail && event.detail.files ? event.detail.files : getSelectedFiles(), { stage: "selected", progress: 0 });
+    updateGenerateState();
+  });
   document.addEventListener("devbareun:lang", () => setTimeout(refreshDynamicLanguage, 0));
   bind();
 

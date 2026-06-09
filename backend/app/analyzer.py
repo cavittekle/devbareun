@@ -4,7 +4,9 @@ from datetime import date
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+from .analysis_types import PREMIUM_ANALYSIS_TYPE, normalize_analysis_type, parser_analysis_type
 from .models import ParsedProjectData
+from .services.premium_analysis import analyze_full_project_control_premium
 from .statistics_engine import build_statistical_analytics
 
 
@@ -400,31 +402,7 @@ def build_actions(parsed: ParsedProjectData, risk: Dict[str, Any]) -> List[str]:
 
 
 def _clean_analysis_type(analysis_type: str | None) -> str:
-    value = (analysis_type or "all").strip().lower().replace("-", "_")
-    aliases = {
-        "full": "all",
-        "executive": "all",
-        "dashboard": "all",
-        "cost_analysis": "cost",
-        "schedule_delay": "schedule",
-        "planning": "schedule",
-        "qrafik": "schedule",
-        "manpower": "workforce",
-        "labor": "workforce",
-        "isci": "workforce",
-        "progress_report": "progress",
-        "material_continuity": "material",
-        "procurement": "material",
-        "materials": "material",
-        "decision": "risk",
-        "decisions": "risk",
-        "risk_decisions": "risk",
-        "f2": "progress",
-        "f_2": "progress",
-        "forma2": "progress",
-    }
-    value = aliases.get(value, value)
-    return value if value in {"all", "cost", "schedule", "workforce", "progress", "material", "risk"} else "all"
+    return parser_analysis_type(analysis_type)
 
 
 def _dashboard_label(analysis_type: str) -> tuple[str, str]:
@@ -454,8 +432,8 @@ def _dashboard_label(analysis_type: str) -> tuple[str, str]:
             "Risk register, decision prompts, open issues and recommended management actions are prioritized.",
         ),
         "all": (
-            "Full Project Control Dashboard",
-            "Schedule Recovery, Cost & Payment Control, Material Continuity, Risk & Decisions and data quality are consolidated for management review.",
+            "Project Control Dashboard",
+            "Complete project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions.",
         ),
     }
     return labels.get(analysis_type, labels["all"])
@@ -1093,7 +1071,146 @@ def build_analysis_dashboard_sections(parsed: ParsedProjectData, risk: Dict[str,
     }
 
 
+def _normalized_for_premium(parsed: ParsedProjectData, analysis_type: str) -> Dict[str, Any]:
+    contract_value = parsed.total_cost or parsed.planned_cost
+    approved_payment = parsed.evidence.get("f2_completed_amount") or parsed.actual_cost
+    remaining_cost = None
+    if contract_value not in (None, "") and approved_payment not in (None, ""):
+        try:
+            remaining_cost = round(float(contract_value) - float(approved_payment), 2)
+        except Exception:
+            remaining_cost = None
+    return {
+        "project_info": {
+            "project_name": parsed.project_name or "DevBareun Uploaded Project",
+            "currency": parsed.currency or "USD",
+            "analysis_type": normalize_analysis_type(analysis_type),
+        },
+        "cost_data": [
+            _metric("total_budget", contract_value),
+            _metric("total_cost", contract_value),
+            _metric("contract_value", contract_value),
+            _metric("planned_cost", parsed.planned_cost),
+            _metric("actual_cost", parsed.actual_cost),
+            _metric("approved_payment", approved_payment),
+            _metric("remaining_cost", remaining_cost),
+            _metric("cost_variance_percent", parsed.cost_variance_percent),
+        ],
+        "schedule_data": [{
+            "baseline_finish": parsed.baseline_finish,
+            "forecast_finish": parsed.estimated_finish,
+            "estimated_finish": parsed.estimated_finish,
+            "delay_days": parsed.delay_days,
+        }],
+        "progress_data": [
+            _metric("planned_progress_percent", parsed.planned_execution),
+            _metric("actual_progress_percent", parsed.actual_execution),
+        ],
+        "manpower_data": [
+            _metric("current_workforce", parsed.workforce_current),
+            _metric("required_workforce", parsed.workforce_required),
+        ],
+        "material_data": [{
+            "detected_material_sources": len([s for s in parsed.sheets if s.detected_type in {"material", "procurement"}]),
+            "source_sheets": [s.to_dict() for s in parsed.sheets if s.detected_type in {"material", "procurement"}],
+        }],
+        "risk_signals": [{"category": "Data quality risk", "value": warning} for warning in parsed.warnings],
+        "evidence": {
+            "parser_evidence": parsed.evidence,
+            "sheet_profiles": [s.to_dict() for s in parsed.sheets],
+        },
+        "warnings": parsed.warnings,
+        "confidence_score": 0,
+    }
+
+
+def _risks_for_premium(parsed: ParsedProjectData, risk: Dict[str, Any]) -> List[Dict[str, Any]]:
+    rows = build_risk_register(parsed, risk)
+    return [
+        {
+            "risk_title": row.get("risk"),
+            "category": row.get("risk"),
+            "severity": row.get("level"),
+            "impact": row.get("reason"),
+            "explanation": row.get("reason"),
+            "recommended_action": row.get("action"),
+            "action": row.get("action"),
+            "status": "Open",
+        }
+        for row in rows
+    ]
+
+
+def _premium_primary_kpis(premium: Dict[str, Any]) -> List[Dict[str, Any]]:
+    kpis = premium.get("kpis") or {}
+    workforce_gap = None
+    try:
+        if kpis.get("current_workforce") not in (None, "") and kpis.get("required_workforce") not in (None, ""):
+            workforce_gap = float(kpis.get("required_workforce")) - float(kpis.get("current_workforce"))
+    except Exception:
+        workforce_gap = None
+    return [
+        _metric("Project status", kpis.get("project_status"), note="Executive Summary"),
+        _metric("Actual progress", kpis.get("actual_progress_percent"), "%", note="Schedule Delay"),
+        _metric("Delay days", kpis.get("delay_days"), "days", note="Schedule Delay"),
+        _metric("Actual cost", kpis.get("actual_cost"), kpis.get("currency"), note="Cost & Payment"),
+        _metric("Approved payment", kpis.get("approved_payment"), kpis.get("currency"), note="Cost & Payment"),
+        _metric("Workforce gap", workforce_gap, "workers", note="Workforce Productivity"),
+        _metric("Top risks", kpis.get("top_risk_count"), "", note="Risk Register"),
+    ]
+
+
+def _premium_panels(premium: Dict[str, Any]) -> List[Dict[str, Any]]:
+    panels: List[Dict[str, Any]] = []
+    section_map = [
+        ("Project Status", premium.get("executive_summary") or {}),
+        ("Schedule Delay", premium.get("schedule_analysis") or {}),
+        ("Cost & Payment", premium.get("cost_payment_analysis") or {}),
+        ("Workforce Productivity", premium.get("workforce_analysis") or {}),
+        ("Material Continuity", premium.get("material_continuity") or {}),
+        ("Risk Register", premium.get("risk_register_analysis") or {}),
+        ("Data Quality", premium.get("data_quality") or {}),
+    ]
+    for title, section in section_map:
+        rows = []
+        for key, value in section.items():
+            if isinstance(value, (dict, list)):
+                continue
+            rows.append(_metric(key.replace("_", " ").title(), value))
+        if rows:
+            panels.append({"title": title, "rows": rows[:8]})
+    actions = premium.get("recovery_actions") or []
+    if actions:
+        panels.append({
+            "title": "Recovery Actions",
+            "rows": [_metric(item.get("module") or "Action", item.get("action"), note=item.get("priority")) for item in actions[:8]],
+        })
+    panels.append({
+        "title": "PDF / Excel Export",
+        "rows": [
+            _metric("PDF", "Project-control sections included"),
+            _metric("Excel", "Project-control sheets included"),
+        ],
+    })
+    return panels
+
+
+def _premium_summary_text(premium: Dict[str, Any]) -> str:
+    summary = premium.get("executive_summary") or {}
+    parts = [
+        summary.get("overall_project_status"),
+        summary.get("main_delay_issue"),
+        summary.get("main_cost_issue"),
+        summary.get("main_material_issue"),
+        summary.get("main_risk_issue"),
+        summary.get("recommended_next_decision"),
+    ]
+    return " ".join(str(part) for part in parts if part not in (None, ""))
+
+
 def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: str | None = "all") -> Dict[str, Any]:
+    requested_analysis_type = analysis_type
+    canonical_analysis_type = normalize_analysis_type(analysis_type)
     analysis_type = _clean_analysis_type(analysis_type)
     apply_baseline_actual_guardrails(parsed, analysis_type)
     risk = compute_risk(parsed)
@@ -1107,6 +1224,45 @@ def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: s
     report_id = result_id
 
     dashboard_sections = build_analysis_dashboard_sections(parsed, risk, confidence, analysis_type)
+    premium_dashboard = None
+    if canonical_analysis_type == PREMIUM_ANALYSIS_TYPE:
+        premium_dashboard = analyze_full_project_control_premium(
+            _normalized_for_premium(parsed, requested_analysis_type or "all"),
+            {
+                "metrics": {
+                    "total_budget": _cost_baseline(parsed),
+                    "planned_cost": parsed.planned_cost,
+                    "actual_cost": parsed.actual_cost,
+                    "cost_variance": _cost_variance_value(parsed),
+                    "planned_progress": parsed.planned_execution,
+                    "actual_progress": parsed.actual_execution,
+                    "schedule_variance": risk.get("schedule_gap_percent"),
+                    "delay_days": parsed.delay_days,
+                    "forecast_completion": parsed.estimated_finish,
+                }
+            },
+            _risks_for_premium(parsed, risk),
+        )
+        dashboard_sections = {
+            **dashboard_sections,
+            "mode": PREMIUM_ANALYSIS_TYPE,
+            "title": premium_dashboard["title"],
+            "description": "Complete project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions.",
+            "primary_kpis": _filter_metrics(_premium_primary_kpis(premium_dashboard)),
+            "panels": _filter_panels(_premium_panels(premium_dashboard)),
+            "premium_sections": [
+                "Executive Summary",
+                "Project Status",
+                "Schedule Delay",
+                "Cost & Payment",
+                "Workforce Productivity",
+                "Material Continuity",
+                "Risk Register",
+                "Recovery Actions",
+                "Data Quality",
+                "PDF / Excel Export",
+            ],
+        }
     dashboard = {
         "project": {
             "name": parsed.project_name or "DevBareun Uploaded Project",
@@ -1116,7 +1272,7 @@ def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: s
             "status": status,
             "currency": parsed.currency or "Not detected",
             "confidence": confidence,
-            "analysis_type": analysis_type,
+            "analysis_type": canonical_analysis_type,
             "dashboard_title": dashboard_sections.get("title"),
             "dashboard_description": dashboard_sections.get("description"),
         },
@@ -1158,4 +1314,8 @@ def build_dashboard(project_id: str, parsed: ParsedProjectData, analysis_type: s
         },
         "raw_extracted": parsed.to_dict(),
     }
+    if premium_dashboard:
+        dashboard["premium_dashboard"] = premium_dashboard
+        dashboard["executive_summary"] = _premium_summary_text(premium_dashboard)
+        dashboard["recommended_actions"] = [item.get("action") for item in premium_dashboard.get("recovery_actions", []) if item.get("action")]
     return {"project_id": project_id, "dashboard": dashboard}

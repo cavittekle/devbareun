@@ -9,7 +9,7 @@ The purpose is to add the first real SaaS foundation layer around the existing p
 - guest one-time analysis flow
 - project/file/analysis/report IDs
 - Supabase-ready database schema
-- Stripe-ready checkout and webhook skeleton
+- Lemon Squeezy checkout and webhook skeleton
 - admin API skeleton
 - credit and plan model
 - secure guest result token model
@@ -30,4 +30,4 @@ Public website copy should use construction analytics, project control, manageme
 
 ## Current status
 
-v1.3.0 is a foundation layer. It adds SaaS-ready routes, data schema and documentation. Production Supabase Auth, Supabase Storage and Stripe secrets must be configured before commercial launch.
+v1.3.0 is a foundation layer. It adds SaaS-ready routes, data schema and documentation. Production Supabase Auth, Supabase Storage and Lemon Squeezy secrets must be configured before commercial launch.

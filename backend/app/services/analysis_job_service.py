@@ -6,11 +6,13 @@ from typing import Any, Dict, List, Optional
 from fastapi import BackgroundTasks, HTTPException
 
 from ..auth_dependencies import CurrentUser, local_store_enabled
+from ..analysis_types import normalize_analysis_type
 from ..production_store import ProductionStoreError, first_existing, first_update, insert_row, is_configured, select_rows, uuid_like
 from ..security_runtime import production_security_enabled
 from .analytics_service import build_analytics
 from .billing_service import consume_after_success, ensure_analysis_available
 from .parser_service import parse_project_files
+from .premium_analysis import analyze_full_project_control_premium
 from .risk_engine import generate_risk_register
 
 
@@ -25,6 +27,7 @@ def create_analysis_job(
     background_tasks: BackgroundTasks,
     analysis_type: str = "all",
 ) -> Dict[str, Any]:
+    analysis_type = normalize_analysis_type(analysis_type)
     ensure_analysis_available(user, project_id)
     files = list_project_files_for_analysis(project_id, project)
     if not files:
@@ -50,7 +53,7 @@ def create_analysis_job(
     try:
         job = insert_row("analysis_jobs", payload)
     except ProductionStoreError as exc:
-        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Analysis job could not be created."}) from exc
 
     job_id = str(job.get("id"))
     background_tasks.add_task(run_analysis_job, job_id=job_id, project_id=project_id, user_payload=user.payload(), analysis_type=analysis_type)
@@ -58,6 +61,7 @@ def create_analysis_job(
 
 
 def run_analysis_job(*, job_id: str, project_id: str, user_payload: Dict[str, Any], analysis_type: str = "all") -> None:
+    analysis_type = normalize_analysis_type(analysis_type)
     user = CurrentUser(**user_payload)
     try:
         _update_job(job_id, {"status": "running", "progress": 15, "started_at": datetime.utcnow().isoformat(), "error_message": None})
@@ -72,6 +76,9 @@ def run_analysis_job(*, job_id: str, project_id: str, user_payload: Dict[str, An
         analytics = build_analytics(normalized, project)
         risks = generate_risk_register(normalized, analytics)
         analytics.setdefault("metrics", {})["high_risk_count"] = len([risk for risk in risks if risk.get("severity") in {"High", "Critical"}])
+        premium_dashboard = analyze_full_project_control_premium(normalized, analytics, risks)
+        analytics["analysis_type"] = premium_dashboard["analysis_type"]
+        analytics["premium_dashboard"] = premium_dashboard
         _update_job(job_id, {"progress": 78})
         result = _save_result(user, project, project_id, job_id, normalized, analytics, risks)
         _save_risks(user, project, project_id, result, risks)
@@ -221,6 +228,7 @@ def _save_result(
             "dashboard_data": analytics,
             "risk_data": risks,
             "confidence_score": normalized.get("confidence_score") or 0,
+            "analysis_type": (normalized.get("project_info") or {}).get("analysis_type") or "all",
             "status": "completed",
             "created_at": datetime.utcnow().isoformat(),
         })
@@ -324,8 +332,10 @@ def _row_belongs_to_user(row: Dict[str, Any], user: CurrentUser) -> bool:
 
 
 def _safe_error(exc: Exception) -> str:
+    if production_security_enabled():
+        return "Analysis job failed. Please review uploaded files and try again."
     text = str(exc) or exc.__class__.__name__
-    blocked = ["SUPABASE_SERVICE_ROLE_KEY", "STRIPE_SECRET_KEY", "Authorization", "Bearer "]
+    blocked = ["SUPABASE_SERVICE_ROLE_KEY", "LEMON_SQUEEZY_API_KEY", "LEMON_SQUEEZY_WEBHOOK_SECRET", "Authorization", "Bearer "]
     for item in blocked:
         text = text.replace(item, "[redacted]")
     return text[:500]

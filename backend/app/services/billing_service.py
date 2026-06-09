@@ -9,14 +9,8 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
-from uuid import uuid4
 
 from fastapi import HTTPException
-
-try:
-    import stripe
-except Exception:  # pragma: no cover - Stripe SDK is optional until configured.
-    stripe = None
 
 from ..auth_dependencies import CurrentUser, local_store_enabled
 from ..production_store import ProductionStoreError, first_update, insert_row, is_configured, select_one, select_rows, uuid_like
@@ -24,9 +18,9 @@ from ..security_runtime import bool_env, production_security_enabled
 
 
 PLAN_LIMITS = {
-    "single": {"limit": 1, "kind": "one_time", "price_env": "STRIPE_SINGLE_PROJECT_PRICE_ID"},
-    "plus": {"limit": 5, "kind": "subscription", "price_env": "STRIPE_PLUS_PRICE_ID"},
-    "pro": {"limit": 20, "kind": "subscription", "price_env": "STRIPE_PRO_PRICE_ID"},
+    "single": {"limit": 1, "kind": "one_time"},
+    "plus": {"limit": 5, "kind": "subscription"},
+    "pro": {"limit": 20, "kind": "subscription"},
 }
 
 
@@ -47,8 +41,6 @@ def get_billing_status(user: CurrentUser) -> Dict[str, Any]:
             "remaining": max(0, limit - used),
             "current_period_start": sub.get("current_period_start"),
             "current_period_end": sub.get("current_period_end"),
-            "stripe_customer_id": sub.get("stripe_customer_id"),
-            "stripe_subscription_id": sub.get("stripe_subscription_id"),
             "unlimited": False,
             "credits": credits,
         }
@@ -139,40 +131,7 @@ def handle_webhook(raw_body: bytes, signature: Optional[str], provider_hint: Opt
     provider = str(provider_hint or _payment_provider()).strip().lower()
     if provider == "lemonsqueezy":
         return _handle_lemon_webhook(raw_body, signature)
-
-    if not _stripe_ready():
-        raise HTTPException(status_code=503, detail={"error": "stripe_not_configured", "message": "Stripe secret key is not configured."})
-    webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
-    if not webhook_secret:
-        raise HTTPException(status_code=503, detail={"error": "stripe_webhook_not_configured", "message": "STRIPE_WEBHOOK_SECRET is required."})
-    if not signature and not bool_env("DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK", False):
-        raise HTTPException(status_code=400, detail={"error": "missing_signature", "message": "Missing Stripe-Signature header."})
-    if stripe is None:
-        raise HTTPException(status_code=503, detail={"error": "stripe_sdk_missing", "message": "Stripe SDK is not installed."})
-
-    try:
-        event = stripe.Webhook.construct_event(raw_body, signature or "", webhook_secret)
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": str(exc)}) from exc
-
-    event_id = event.get("id")
-    event_type = event.get("type")
-    if not event_id:
-        raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Webhook event id is missing."})
-    if _stripe_event_seen(event_id):
-        return {"status": "duplicate_ignored", "event_id": event_id, "event_type": event_type}
-
-    _record_stripe_event(event_id, event_type, event)
-    obj = event.get("data", {}).get("object", {})
-    if event_type == "checkout.session.completed":
-        return _handle_checkout_completed(obj, event_id)
-    if event_type in {"invoice.paid", "customer.subscription.created", "customer.subscription.updated"}:
-        return _handle_subscription_update(obj, event_id, status="active")
-    if event_type in {"invoice.payment_failed"}:
-        return _handle_subscription_update(obj, event_id, status="past_due")
-    if event_type == "customer.subscription.deleted":
-        return _handle_subscription_update(obj, event_id, status="canceled")
-    return {"status": "ignored", "event_id": event_id, "event_type": event_type}
+    raise HTTPException(status_code=400, detail={"error": "unsupported_payment_provider", "message": "Only Lemon Squeezy webhooks are supported."})
 
 
 def _create_checkout(
@@ -188,44 +147,9 @@ def _create_checkout(
         raise HTTPException(status_code=400, detail={"error": "invalid_plan", "message": f"Unsupported plan: {plan}"})
     if _payment_provider() == "lemonsqueezy" and _lemon_ready():
         return _create_lemon_checkout(user=user, plan=plan, mode=mode, project_id=project_id, success_url=success_url, cancel_url=cancel_url)
-
-    if not _stripe_ready():
-        if production_security_enabled() or not bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", False):
-            raise HTTPException(status_code=503, detail={"error": "stripe_not_configured", "message": "Stripe Checkout is not configured."})
+    if not production_security_enabled() and bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", False):
         return {"mode": "mock_disabled_by_default", "checkout_url": None, "plan": plan}
-
-    price_id = os.getenv(PLAN_LIMITS[plan]["price_env"])
-    if not price_id and plan != "single":
-        raise HTTPException(status_code=503, detail={"error": "stripe_price_missing", "message": f"{PLAN_LIMITS[plan]['price_env']} is required."})
-
-    session_id = str(uuid4())
-    success = _safe_checkout_url(success_url or f"{_base_url()}/billing.html?checkout=success&session_id={{CHECKOUT_SESSION_ID}}")
-    cancel = _safe_checkout_url(cancel_url or f"{_base_url()}/billing.html?checkout=cancelled")
-    metadata = {"plan": plan, "user_id": user.id, "auth_user_id": user.auth_user_id, "email": user.email, "project_id": project_id or ""}
-    data: Dict[str, Any] = {
-        "mode": mode,
-        "success_url": success,
-        "cancel_url": cancel,
-        "customer_email": user.email,
-    }
-    for key, value in metadata.items():
-        data[f"metadata[{key}]"] = value
-    if price_id:
-        data["line_items[0][price]"] = price_id
-        data["line_items[0][quantity]"] = "1"
-    else:
-        data["line_items[0][price_data][currency]"] = os.getenv("STRIPE_CURRENCY", "usd")
-        data["line_items[0][price_data][unit_amount]"] = os.getenv("STRIPE_SINGLE_PROJECT_AMOUNT_CENTS", "2900")
-        data["line_items[0][price_data][product_data][name]"] = "DevBareun Single Project Review"
-        data["line_items[0][quantity]"] = "1"
-
-    try:
-        session = _stripe_post("/v1/checkout/sessions", data)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail={"error": "stripe_checkout_failed", "message": str(exc)}) from exc
-
-    _insert_payment(user, plan, session, project_id)
-    return {"checkout_url": session.get("url"), "session_id": session.get("id") or session_id, "mode": mode, "plan": plan}
+    raise HTTPException(status_code=503, detail={"error": "lemon_not_configured", "message": "Lemon Squeezy checkout is not configured. Set LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_STORE_ID and variant IDs."})
 
 
 def _active_subscriptions(user: CurrentUser) -> List[Dict[str, Any]]:
@@ -272,10 +196,11 @@ def _insert_payment(user: CurrentUser, plan: str, session: Dict[str, Any], proje
         "user_id": user.id if uuid_like(user.id) else (user.auth_user_id if uuid_like(user.auth_user_id) else None),
         "owner_email": user.email,
         "project_id": project_id if uuid_like(str(project_id or "")) else None,
-        "stripe_session_id": session.get("id"),
+        "provider": "lemonsqueezy",
+        "provider_session_id": session.get("id"),
         "plan_name": plan,
         "amount": None,
-        "currency": os.getenv("STRIPE_CURRENCY", "usd"),
+        "currency": os.getenv("LEMON_SQUEEZY_CURRENCY", "usd"),
         "status": "checkout_created",
         "created_at": datetime.utcnow().isoformat(),
     }
@@ -286,48 +211,22 @@ def _insert_payment(user: CurrentUser, plan: str, session: Dict[str, Any], proje
             return
 
 
-def _stripe_event_seen(event_id: str) -> bool:
+def _payment_event_seen(event_id: str) -> bool:
     if not is_configured():
         return False
-    return bool(select_one("stripe_events", {"stripe_event_id": event_id}))
+    return bool(select_one("payment_events", {"provider_event_id": event_id}))
 
 
-def _record_stripe_event(event_id: str, event_type: str, payload: Dict[str, Any]) -> None:
+def _record_payment_event(event_id: str, event_type: str, payload: Dict[str, Any]) -> None:
     if not is_configured():
         return
-    insert_row("stripe_events", {"stripe_event_id": event_id, "event_type": event_type, "payload": payload, "processed_at": datetime.utcnow().isoformat()})
-
-
-def _handle_checkout_completed(obj: Dict[str, Any], event_id: str) -> Dict[str, Any]:
-    metadata = obj.get("metadata") or {}
-    plan = str(metadata.get("plan") or "single").lower()
-    email = metadata.get("email") or obj.get("customer_email")
-    user_id = metadata.get("user_id") or metadata.get("auth_user_id")
-    project_id = metadata.get("project_id") or None
-    if plan not in PLAN_LIMITS:
-        return {"status": "ignored", "reason": "unknown_plan", "event_id": event_id}
-    if plan == "single":
-        _grant_credit(user_id, email, project_id, source="stripe_one_time", stripe_session_id=obj.get("id"))
-    else:
-        _upsert_subscription(user_id, email, plan, obj, status="active")
-    return {"status": "handled", "event": "checkout.session.completed", "plan": plan, "event_id": event_id}
-
-
-def _handle_subscription_update(obj: Dict[str, Any], event_id: str, status: str) -> Dict[str, Any]:
-    metadata = obj.get("metadata") or {}
-    plan = str(metadata.get("plan") or metadata.get("plan_name") or "").lower()
-    if plan not in {"plus", "pro"}:
-        plan = "plus"
-    email = metadata.get("email") or metadata.get("owner_email")
-    user_id = metadata.get("user_id") or metadata.get("auth_user_id")
-    _upsert_subscription(user_id, email, plan, obj, status=status)
-    return {"status": "handled", "event_id": event_id, "subscription_status": status, "plan": plan}
+    insert_row("payment_events", {"provider_event_id": event_id, "event_type": event_type, "payload": payload, "processed_at": datetime.utcnow().isoformat()})
 
 
 def _upsert_subscription(user_id: Optional[str], email: Optional[str], plan: str, obj: Dict[str, Any], status: str) -> None:
     if not is_configured():
         return
-    existing = select_one("subscriptions", {"stripe_subscription_id": obj.get("subscription") or obj.get("id")}) if (obj.get("subscription") or obj.get("id")) else None
+    existing = select_one("subscriptions", {"provider_subscription_id": obj.get("subscription") or obj.get("id")}) if (obj.get("subscription") or obj.get("id")) else None
     period_start = datetime.utcnow()
     period_end = period_start + timedelta(days=30)
     payload = {
@@ -339,8 +238,9 @@ def _upsert_subscription(user_id: Optional[str], email: Optional[str], plan: str
         "used_project_count": int((existing or {}).get("used_project_count") or 0),
         "current_period_start": period_start.isoformat(),
         "current_period_end": period_end.isoformat(),
-        "stripe_customer_id": obj.get("customer"),
-        "stripe_subscription_id": obj.get("subscription") or obj.get("id"),
+        "provider": "lemonsqueezy",
+        "provider_customer_id": obj.get("customer"),
+        "provider_subscription_id": obj.get("subscription") or obj.get("id"),
         "updated_at": datetime.utcnow().isoformat(),
     }
     if existing:
@@ -350,10 +250,10 @@ def _upsert_subscription(user_id: Optional[str], email: Optional[str], plan: str
         insert_row("subscriptions", payload)
 
 
-def _grant_credit(user_id: Optional[str], email: Optional[str], project_id: Optional[str], source: str, stripe_session_id: Optional[str]) -> None:
+def _grant_credit(user_id: Optional[str], email: Optional[str], project_id: Optional[str], source: str, provider_session_id: Optional[str]) -> None:
     if not is_configured():
         return
-    existing = select_one("payments", {"stripe_session_id": stripe_session_id}) if stripe_session_id else None
+    existing = select_one("payments", {"provider_session_id": provider_session_id}) if provider_session_id else None
     if existing and str(existing.get("status")) == "paid_credit_granted":
         return
     insert_row("analysis_credits", {
@@ -386,21 +286,13 @@ def _log_activity(user: CurrentUser, project_id: Optional[str], action: str, met
         return
 
 
-def _stripe_ready() -> bool:
-    secret = os.getenv("STRIPE_SECRET_KEY")
-    if secret and stripe is not None:
-        stripe.api_key = secret
-        return True
-    return bool(secret)
-
-
 def _payment_provider() -> str:
     provider = os.getenv("DEVBAREUN_PAYMENT_PROVIDER", "").strip().lower()
     if provider:
         return provider
     if os.getenv("LEMON_SQUEEZY_API_KEY") and os.getenv("LEMON_SQUEEZY_STORE_ID"):
         return "lemonsqueezy"
-    return "stripe"
+    return "lemonsqueezy"
 
 
 def _lemon_variant_env(plan: str) -> str:
@@ -468,7 +360,7 @@ def _create_lemon_checkout(
     try:
         checkout = _lemon_post("/v1/checkouts", payload)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail={"error": "lemon_checkout_failed", "message": str(exc)}) from exc
+        raise HTTPException(status_code=502, detail={"error": "lemon_checkout_failed", "message": "Lemon Squeezy checkout could not be created. Please verify billing configuration and try again."}) from exc
 
     attrs = checkout.get("data", {}).get("attributes", {})
     session = {"id": checkout.get("data", {}).get("id"), "url": attrs.get("url")}
@@ -496,10 +388,10 @@ def _handle_lemon_webhook(raw_body: bytes, signature: Optional[str]) -> Dict[str
     event_type = str(event.get("meta", {}).get("event_name") or "")
     if not event_type:
         raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Webhook event name is missing."})
-    if event_id and _stripe_event_seen(f"lemon:{event_id}"):
+    if event_id and _payment_event_seen(f"lemon:{event_id}"):
         return {"status": "duplicate_ignored", "event_id": event_id, "event_type": event_type, "provider": "lemonsqueezy"}
     if event_id:
-        _record_stripe_event(f"lemon:{event_id}", event_type, event)
+        _record_payment_event(f"lemon:{event_id}", event_type, event)
 
     obj = event.get("data", {}) or {}
     attrs = obj.get("attributes", {}) or {}
@@ -511,7 +403,7 @@ def _handle_lemon_webhook(raw_body: bytes, signature: Optional[str]) -> Dict[str
 
     if event_type == "order_created":
         if plan == "single":
-            _grant_credit(user_id, email, project_id, source="lemon_one_time", stripe_session_id=str(obj.get("id") or ""))
+            _grant_credit(user_id, email, project_id, source="lemon_one_time", provider_session_id=str(obj.get("id") or ""))
         return {"status": "handled", "event": event_type, "plan": plan, "provider": "lemonsqueezy"}
     if event_type in {"subscription_created", "subscription_updated", "subscription_resumed", "subscription_payment_success"}:
         _upsert_subscription(user_id, email, plan if plan in {"plus", "pro"} else "plus", _lemon_subscription_object(obj), status="active")
@@ -564,25 +456,6 @@ def _lemon_post(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         raise RuntimeError(raw) from exc
 
 
-def _stripe_post(path: str, data: Dict[str, Any]) -> Dict[str, Any]:
-    secret = os.getenv("STRIPE_SECRET_KEY")
-    if not secret:
-        raise RuntimeError("STRIPE_SECRET_KEY is not configured.")
-    encoded = urllib.parse.urlencode(data).encode("utf-8")
-    req = urllib.request.Request(
-        f"https://api.stripe.com{path}",
-        data=encoded,
-        method="POST",
-        headers={"Authorization": f"Bearer {secret}", "Content-Type": "application/x-www-form-urlencoded"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        raw = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(raw) from exc
-
-
 def _base_url() -> str:
     return os.getenv("PUBLIC_SITE_URL", "https://devbareun.com").rstrip("/")
 
@@ -595,7 +468,7 @@ def _safe_checkout_url(url: str) -> str:
     if not allowed:
         allowed = ["https://devbareun.com", "https://www.devbareun.com", "https://devbareun.vercel.app"]
         if not production_security_enabled():
-            allowed.extend(["http://localhost:5173", "http://127.0.0.1:5173", "http://127.0.0.1:4173"])
+            allowed.extend(["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173"])
     origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
     if origin not in allowed:
         raise HTTPException(status_code=400, detail={"error": "invalid_url", "message": "Checkout redirect origin is not allowed."})

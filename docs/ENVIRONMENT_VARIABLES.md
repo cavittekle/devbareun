@@ -25,7 +25,8 @@ DEVBAREUN_ENABLE_LOCAL_STORE=false
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 DEVBAREUN_ENABLE_PILOT_LOGIN=false
 DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
-DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false
+DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD=false
+DEVBAREUN_ALLOW_LEGACY_PROJECT_ROUTES=false
 
 DEVBAREUN_ADMIN_EMAILS=admin@devbareun.com
 DEVBAREUN_ALLOW_ADMIN_EMAIL_FALLBACK=false
@@ -40,6 +41,8 @@ DEVBAREUN_RATE_LIMIT_ANALYSIS_PER_MIN=20
 DEVBAREUN_RATE_LIMIT_EXPORT_PER_MIN=60
 DEVBAREUN_RATE_LIMIT_ADMIN_PER_MIN=120
 DEVBAREUN_RATE_LIMIT_WEBHOOK_PER_MIN=100
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
 
 DEVBAREUN_GUEST_RESULT_DAYS=7
 DEVBAREUN_GUEST_RESULT_MAX_DAYS=7
@@ -50,17 +53,6 @@ SUPABASE_SERVICE_ROLE_KEY=replace_with_service_role_key_backend_only
 SUPABASE_JWT_SECRET=replace_with_supabase_jwt_secret_if_using_local_jwt_verification
 SUPABASE_STORAGE_BUCKET=project-files
 
-STRIPE_SECRET_KEY=replace_with_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=replace_with_stripe_webhook_secret
-STRIPE_SINGLE_PROJECT_PRICE_ID=price_single_project
-STRIPE_PLUS_PRICE_ID=price_plus_monthly
-STRIPE_PRO_PRICE_ID=price_pro_monthly
-STRIPE_SINGLE_PROJECT_AMOUNT_CENTS=2900
-STRIPE_CURRENCY=usd
-
-STRIPE_PRICE_ID=price_single_project
-DEVBAREUN_STRIPE_AMOUNT_CENTS=2900
-DEVBAREUN_STRIPE_CURRENCY=usd
 FRONTEND_SUCCESS_URL=https://devbareun.com/result-dashboard.html?payment=success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}
 FRONTEND_CANCEL_URL=https://devbareun.com/?payment=cancelled&project_id={project_id}
 
@@ -82,6 +74,11 @@ OPENAI_API_KEY=
 
 Set Vercel Root Directory to `frontend`.
 
+Public/customer routes:
+
+- `https://devbareun.com/workspace` -> customer workspace
+- `https://devbareun.com/super-admin` -> owner/staff Super Admin panel
+
 The current frontend is static HTML, so public env variables are mainly a deployment checklist and future build reference. Keep secrets out of Vercel frontend variables.
 
 ```env
@@ -90,12 +87,14 @@ VITE_DEVBAREUN_API_BASE=https://devbareun-production.up.railway.app
 VITE_PUBLIC_SITE_URL=https://devbareun.com
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=replace_with_supabase_anon_key
-VITE_STRIPE_PUBLISHABLE_KEY=pk_live_or_test_replace_me
 ```
 
 ## Secret Boundary
 
-- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, Stripe secrets if legacy Stripe is enabled, and `OPENAI_API_KEY`.
-- Frontend allowed: Supabase anon key, Stripe publishable key if Stripe is enabled, public site URL, public API URL. Lemon Squeezy API and webhook secrets stay backend-only.
+- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, and `OPENAI_API_KEY`.
+- Frontend allowed: Supabase anon key, public site URL, public API URL. Lemon Squeezy API and webhook secrets stay backend-only.
 - Production must keep `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
-- Production must keep `DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false`.
+
+## First Owner
+
+Create the first owner in Supabase Auth, apply the SQL deploy order, then promote the matching `users_profile` row to `role='owner'`. Keep the same email in `DEVBAREUN_ADMIN_EMAILS`.

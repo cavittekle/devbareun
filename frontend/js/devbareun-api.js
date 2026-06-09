@@ -6,6 +6,7 @@
   var SESSION_KEY = "devbareun_session";
   var LEGACY_SESSION_KEY = "devbareun_supabase_session";
   var PROJECT_TOKEN_PREFIX = "devbareun_project_token_";
+  var PREMIUM_ANALYSIS_TYPE = "schedule";
 
   function trimSlash(value) {
     return String(value || "").replace(/\/+$/, "");
@@ -13,6 +14,10 @@
 
   function isLocalPreview() {
     return location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  }
+
+  function isProductionFrontendHost() {
+    return location.hostname === "devbareun.com" || location.hostname === "www.devbareun.com";
   }
 
   function localDefaultApi() {
@@ -28,9 +33,12 @@
       (window.DEVBAREUN_CONFIG && window.DEVBAREUN_CONFIG.apiBaseUrl) ||
       window.DEVBAREUN_API_BASE_URL ||
       window.DEVBAREUN_API_URL ||
-      window.DEVBAREUN_API_BASE ||
-      localStorage.getItem("devbareun_api_base") ||
-      localStorage.getItem("devbareun_api_url");
+      window.DEVBAREUN_API_BASE;
+    if (!configured && !isProductionFrontendHost()) {
+      configured =
+        localStorage.getItem("devbareun_api_base") ||
+        localStorage.getItem("devbareun_api_url");
+    }
     var resolved = configured || (isLocalPreview() ? localDefaultApi() : DEFAULT_REMOTE_API);
     resolved = trimSlash(resolved);
     window.DEVBAREUN_API_BASE = resolved;
@@ -140,7 +148,7 @@
     }
 
     try {
-      var response = await fetch(requestUrl(path), Object.assign({}, options, { method: method, headers: headers }));
+      var response = await fetch(requestUrl(path), Object.assign({ credentials: "include" }, options, { method: method, headers: headers }));
       if (options.rawResponse) return response;
       var data = await parseResponse(response);
       if (!response.ok) {
@@ -180,21 +188,11 @@
 
   async function loginUser(email, password, plan) {
     var payload = typeof email === "object" ? email : { email: email, password: password, plan: plan || "plus" };
-    var data;
-    try {
-      data = await apiRequest("/api/auth/supabase/login", {
-        method: "POST",
-        auth: false,
-        body: JSON.stringify(payload)
-      });
-    } catch (error) {
-      if (!isLocalPreview() || !/Supabase is not configured|503/i.test(String(error.message || error))) throw error;
-      data = await apiRequest("/api/auth/pilot-login", {
-        method: "POST",
-        auth: false,
-        body: JSON.stringify(payload)
-      });
-    }
+    var data = await apiRequest("/api/auth/supabase/login", {
+      method: "POST",
+      auth: false,
+      body: JSON.stringify(payload)
+    });
     var session = sessionFromAuthPayload(data, payload.plan);
     if (session) saveSession(session);
     return data;
@@ -254,7 +252,7 @@
       body: JSON.stringify({
         project_name: payloadOrName || "DevBareun Uploaded Project",
         customer_email: customerEmail || "info@devbareun.com",
-        analysis_type: analysisType || "all"
+        analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE
       })
     });
     if (data && data.project_id && data.project_token) setProjectToken(data.project_id, data.project_token);
@@ -335,7 +333,7 @@
   async function startAnalysis(projectId, payload) {
     return apiRequest("/api/analysis/start/" + encodeURIComponent(projectId), {
       method: "POST",
-      body: JSON.stringify(Object.assign({ analysis_type: "all" }, payload || {}))
+      body: JSON.stringify(Object.assign({ analysis_type: PREMIUM_ANALYSIS_TYPE }, payload || {}))
     });
   }
 
@@ -406,28 +404,31 @@
       method: "POST",
       auth: false,
       headers: projectHeaders(projectId, true),
-      body: JSON.stringify({ analysis_type: analysisType || "all" })
+      body: JSON.stringify({ analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE })
     });
   }
 
   async function mockPayment(projectId, options) {
-    return apiRequest("/api/payments/create-checkout", {
+    var data = await apiRequest("/api/billing/create-one-time-checkout", {
       method: "POST",
       auth: false,
-      headers: projectHeaders(projectId, true),
       body: JSON.stringify({
+        plan: "single",
         project_id: projectId,
+        customer_email: options && options.customer_email,
         success_url: options && options.success_url,
         cancel_url: options && options.cancel_url
       })
     });
+    if (data && data.checkout_url && !data.url) data.url = data.checkout_url;
+    return data;
   }
 
   async function analyzeProject(projectId, analysisType, manualInputs) {
     return apiRequest("/api/projects/" + encodeURIComponent(projectId) + "/analyze", {
       method: "POST",
       headers: projectHeaders(projectId, true),
-      body: JSON.stringify({ analysis_type: analysisType || "all", manual_inputs: manualInputs || {} })
+      body: JSON.stringify({ analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE, manual_inputs: manualInputs || {} })
     });
   }
 

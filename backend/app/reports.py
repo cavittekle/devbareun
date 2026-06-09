@@ -264,6 +264,29 @@ def build_pdf_bytes(result: Dict[str, Any], lang: str = "en", paper: str = "a4")
         ]))
         story.append(view_table)
 
+    premium = dashboard.get("premium_dashboard") or {}
+    if premium:
+        story.append(Paragraph("Project Control Sections", h2))
+        premium_rows = [[Paragraph("Section", header), Paragraph("Metric", header), Paragraph("Value", header)]]
+        for row in _premium_section_rows(premium):
+            premium_rows.append([
+                _paragraph(row.get("section"), small),
+                _paragraph(row.get("metric"), small),
+                _paragraph(row.get("value"), small),
+            ])
+        premium_table = Table(premium_rows, colWidths=[42 * mm, 54 * mm, 72 * mm], repeatRows=1)
+        premium_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0f172a")),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#cbd5e1")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+            ("LEFTPADDING", (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+            ("TOPPADDING", (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ]))
+        story.append(premium_table)
+
     story.append(Paragraph(_label("key_indicators", lang), h2))
     kpi_data = [
         [_paragraph(_label("planned_execution", lang), label), _paragraph(_format_percent(kpis.get("planned_execution"), lang), body)],
@@ -447,10 +470,47 @@ def build_excel_bytes(result: Dict[str, Any], lang: str = "en") -> bytes:
         ws5.append([warning])
     _style_sheet(ws5)
 
+    premium = dashboard.get("premium_dashboard") or {}
+    if premium:
+        ws_premium = wb.create_sheet("Project Control")
+        ws_premium.append(["Section", "Metric", "Value"])
+        for row in _premium_section_rows(premium):
+            ws_premium.append([row.get("section"), row.get("metric"), row.get("value")])
+        _style_sheet(ws_premium)
+
+        ws_actions = wb.create_sheet("Recovery Actions")
+        ws_actions.append(["Module", "Action", "Priority", "Status"])
+        for row in premium.get("recovery_actions") or []:
+            ws_actions.append([row.get("module"), row.get("action"), row.get("priority"), row.get("status")])
+        _style_sheet(ws_actions)
+
     buffer = BytesIO()
     wb.save(buffer)
     buffer.seek(0)
     return buffer.getvalue()
+
+
+def _premium_section_rows(premium: Dict[str, Any]) -> List[Dict[str, str]]:
+    rows: List[Dict[str, str]] = []
+    for section_name, section in [
+        ("Executive Summary", premium.get("executive_summary") or {}),
+        ("KPI Summary", premium.get("kpis") or {}),
+        ("Schedule Analysis", premium.get("schedule_analysis") or {}),
+        ("Cost & Payment Analysis", premium.get("cost_payment_analysis") or {}),
+        ("Workforce Analysis", premium.get("workforce_analysis") or {}),
+        ("Material Continuity", premium.get("material_continuity") or {}),
+        ("Risk Register", premium.get("risk_register_analysis") or {}),
+        ("Data Quality", premium.get("data_quality") or {}),
+    ]:
+        if not isinstance(section, dict):
+            continue
+        for key, value in section.items():
+            if isinstance(value, (dict, list)):
+                continue
+            rows.append({"section": section_name, "metric": str(key).replace("_", " ").title(), "value": _text(value)})
+    if not rows:
+        rows.append({"section": "Project Control", "metric": "Status", "value": "No project-control section data available"})
+    return rows[:80]
 
 
 def _styled_table(rows: List[List[Any]], widths: List[float]) -> Table:
@@ -479,6 +539,7 @@ def _style_sheet(ws) -> None:
         values = [cell.value for cell in row]
         if values and values[0] in {"KPI", "Forecast", "Risk", "No", "File", "Warning",
             "Metric", "Value", "Note", "Panel", "Sheet", "Type", "Rows",
+            "Section", "Module", "Action", "Priority", "Status",
             "Proqnoz", "Fayl", "Xəbərdarlıq", "Göstərici",
             "Məlumat keyfiyyəti qeydləri", "Dəyər", "Qeyd", "Vərəq", "Növ",
             "Tövsiyə olunan tədbirlər", "Risk reyestri",

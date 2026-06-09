@@ -3,6 +3,9 @@ from __future__ import annotations
 import os
 import re
 import time
+import json
+import urllib.error
+import urllib.request
 from collections import defaultdict, deque
 from typing import Any, Deque, Dict, Optional, Tuple
 
@@ -52,7 +55,7 @@ def devbareun_domain_admin_allowed() -> bool:
 
 
 def mock_payment_allowed() -> bool:
-    return bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", not is_production()) and not production_security_enabled()
+    return bool_env("DEVBAREUN_ENABLE_MOCK_PAYMENT", False) and not production_security_enabled()
 
 
 def require_production_secret(name: str) -> None:
@@ -60,13 +63,7 @@ def require_production_secret(name: str) -> None:
         raise HTTPException(status_code=503, detail=f"Production security requires {name} to be configured.")
 
 
-class InMemoryRateLimiter:
-    """Small process-local rate limiter for Railway/Render pilot production.
-
-    For multi-instance deployments, replace this with Redis or a managed edge
-    limiter. The goal here is to prevent obvious abuse before v1.4.0 launch.
-    """
-
+class RateLimiter:
     def __init__(self) -> None:
         self._hits: Dict[str, Deque[float]] = defaultdict(deque)
 
@@ -88,17 +85,51 @@ class InMemoryRateLimiter:
             return "export", int_env("DEVBAREUN_RATE_LIMIT_EXPORT_PER_MIN", 60), window
         return "default", int_env("DEVBAREUN_RATE_LIMIT_DEFAULT_PER_MIN", 180), window
 
-    def check(self, request: Request) -> None:
-        if not bool_env("DEVBAREUN_RATE_LIMIT_ENABLED", True):
-            return
-        path = request.url.path or "/"
-        if path in {"/", "/health", "/api/health"}:
-            return
-        bucket, limit, window = self._bucket(request.method, path)
-        if limit <= 0:
-            return
-        client = client_ip(request)
-        key = f"{client}:{bucket}"
+    def _check_upstash(self, key: str, bucket: str, limit: int, window: int) -> bool:
+        url = (os.getenv("UPSTASH_REDIS_REST_URL") or "").rstrip("/")
+        token = os.getenv("UPSTASH_REDIS_REST_TOKEN") or ""
+        if not url or not token:
+            return False
+        body = json.dumps([
+            ["INCR", key],
+            ["EXPIRE", key, window, "NX"],
+        ]).encode("utf-8")
+        req = urllib.request.Request(
+            f"{url}/pipeline",
+            data=body,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=4) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+            if production_security_enabled():
+                raise HTTPException(
+                    status_code=503,
+                    detail={
+                        "message": "Rate limiter is temporarily unavailable.",
+                        "bucket": bucket,
+                    },
+                ) from exc
+            return False
+        count = int(((payload or [{}])[0] or {}).get("result") or 0)
+        if count > limit:
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "message": "Too many requests. Please retry shortly.",
+                    "bucket": bucket,
+                    "retry_after_seconds": window,
+                },
+                headers={"Retry-After": str(window)},
+            )
+        return True
+
+    def _check_memory(self, key: str, bucket: str, limit: int, window: int) -> None:
         now = time.time()
         hits = self._hits[key]
         while hits and hits[0] <= now - window:
@@ -115,8 +146,23 @@ class InMemoryRateLimiter:
             )
         hits.append(now)
 
+    def check(self, request: Request) -> None:
+        if not bool_env("DEVBAREUN_RATE_LIMIT_ENABLED", True):
+            return
+        path = request.url.path or "/"
+        if path in {"/", "/health", "/api/health"}:
+            return
+        bucket, limit, window = self._bucket(request.method, path)
+        if limit <= 0:
+            return
+        client = client_ip(request)
+        key = f"{client}:{bucket}"
+        if self._check_upstash(key, bucket, limit, window):
+            return
+        self._check_memory(key, bucket, limit, window)
 
-rate_limiter = InMemoryRateLimiter()
+
+rate_limiter = RateLimiter()
 
 
 def client_ip(request: Request) -> str:
@@ -180,7 +226,3 @@ def assert_storage_path_access(file_row: Optional[Dict[str, Any]], user_email: O
     if owner and not requester:
         raise HTTPException(status_code=401, detail="Authorization is required for protected file access.")
     return file_row
-
-
-def stripe_webhook_must_verify() -> bool:
-    return not bool_env("DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK", False)

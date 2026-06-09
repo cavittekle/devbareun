@@ -1,18 +1,25 @@
-# DevBareun Backend v1.4.0
+# DevBareun Backend
 
-FastAPI backend for DevBareun construction analytics, project control uploads, background project review jobs, executive dashboard APIs, billing, and report exports.
+FastAPI backend target for Railway.
 
-## Railway Start Command
+## Deploy
 
-```bash
-python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+- Railway Root Directory: `backend`
+- Config file: `railway.json`
+- Start command: `python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Health check: `/api/health`
+- Ignore rules: `.railwayignore`
+
+## Local Run
+
+```powershell
+cd backend
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
-
-Railway config is stored in `railway.json` and uses `/api/health` as the healthcheck path.
 
 ## Required Production Environment
 
-Copy values from `.env.example` into Railway. Keep these security flags set for production:
+Copy values from `.env.example` into Railway. Keep these flags set for production:
 
 ```text
 DEVBAREUN_ENV=production
@@ -23,11 +30,13 @@ DEVBAREUN_ENABLE_LOCAL_STORE=false
 DEVBAREUN_ENABLE_MOCK_PAYMENT=false
 DEVBAREUN_ENABLE_PILOT_LOGIN=false
 DEVBAREUN_ENABLE_PILOT_CHECKOUT=false
-DEVBAREUN_ALLOW_UNSIGNED_STRIPE_WEBHOOK=false
+DEVBAREUN_ALLOW_EPHEMERAL_PROJECT_UPLOAD=false
 DEVBAREUN_DISABLE_DOCS=true
 ```
 
-Supabase backend variables:
+## Supabase
+
+Backend-only variables:
 
 ```text
 SUPABASE_URL=
@@ -37,7 +46,26 @@ SUPABASE_JWT_SECRET=
 SUPABASE_STORAGE_BUCKET=project-files
 ```
 
-Production checkout currently uses Lemon Squeezy:
+Expected live health after configuration:
+
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "storage": "configured"
+}
+```
+
+If `database` or `storage` returns `not_configured`, live Supabase setup is incomplete.
+
+Railway filesystem storage is ephemeral. Production uploads must use Supabase
+Storage signed upload URLs through `/api/uploads/create-url` and
+`/api/uploads/mark-uploaded`. Keep the legacy local project upload endpoints
+disabled in production unless you are running a temporary private test.
+
+## Payment
+
+Production checkout uses Lemon Squeezy:
 
 ```text
 DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
@@ -49,35 +77,12 @@ LEMON_SQUEEZY_PLUS_VARIANT_ID=
 LEMON_SQUEEZY_PRO_VARIANT_ID=
 ```
 
-Stripe variables may stay empty unless legacy Stripe checkout is enabled again.
-
-## Health Checks
+Webhook URL:
 
 ```text
-GET /api/health
-GET /api/saas/health
+https://devbareun-production.up.railway.app/api/billing/webhook
 ```
 
-Expected backend health shape:
+## Rate Limiting
 
-```json
-{
-  "status": "ok",
-  "service": "DevBareun Backend",
-  "database": "connected",
-  "storage": "configured",
-  "version": "1.4.0"
-}
-```
-
-Without Supabase env values, `database` and `storage` show `not_configured`.
-
-## Supabase Setup
-
-Apply database SQL files from the repository root `database/` folder. For a clean v1.4.0 setup, use:
-
-1. `2026_05_29_v140_production_saas_core.sql`
-2. `2026_05_29_v140_part2_jobs_billing_reports.sql`
-3. `seed_plans.sql`
-
-Then create a private Supabase Storage bucket named `project-files`.
+Current rate limiting is in-memory and acceptable for one Railway instance. Before scaling to multiple instances, add Redis/Upstash-backed rate limiting.

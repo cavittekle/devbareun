@@ -239,7 +239,7 @@ Suggested columns:
 | user_id | uuid | Owner |
 | plan_code | text | guest/plus/pro |
 | status | text | active/cancelled/past_due/trial |
-| provider | text | stripe/other |
+| provider | text | lemonsqueezy/other |
 | provider_customer_id | text | Payment provider customer |
 | provider_subscription_id | text | Payment provider subscription |
 | current_period_start | timestamptz | Period start |
@@ -270,7 +270,7 @@ Suggested columns:
 |---|---|---|
 | id | uuid | Primary key |
 | user_id | uuid | Owner |
-| provider | text | stripe/other |
+| provider | text | lemonsqueezy/other |
 | provider_payment_id | text | Provider payment id |
 | amount | numeric | Amount |
 | currency | text | Currency |

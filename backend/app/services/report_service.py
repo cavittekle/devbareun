@@ -30,7 +30,7 @@ def list_project_reports(project_id: str, project: Dict[str, Any], user: Current
     return {"project_id": project_id, "reports": [_report_api(row, project) for row in rows]}
 
 
-def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Full Project Control Report") -> Dict[str, Any]:
+def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Project Control Report") -> Dict[str, Any]:
     fmt = "excel" if str(report_format).lower() in {"excel", "xlsx"} else "pdf"
     result = get_latest_analysis_result(project_id, project, user)
     if not result:
@@ -71,6 +71,7 @@ def get_report_download(report_id: str, user: CurrentUser) -> Tuple[bytes, str, 
 
 def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, Any]) -> Dict[str, Any]:
     dashboard_data = analysis_result.get("dashboard_data") or {}
+    premium = dashboard_data.get("premium_dashboard") or {}
     metrics = dashboard_data.get("metrics") or {}
     risks = analysis_result.get("risk_data") or []
     if isinstance(risks, dict):
@@ -78,6 +79,9 @@ def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, An
     project_name = project.get("project_name") or (dashboard_data.get("project") or {}).get("name") or "DevBareun Project"
     currency = (dashboard_data.get("project") or {}).get("currency") or project.get("currency") or "USD"
     summary = _summary_text(dashboard_data, risks)
+    if premium:
+        summary = _premium_summary_text(premium)
+    premium_kpis = premium.get("kpis") or {}
     return {
         "project_id": str(project.get("id") or project.get("project_id") or analysis_result.get("project_id") or ""),
         "dashboard": {
@@ -89,23 +93,23 @@ def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, An
                 "status": "Completed",
                 "currency": currency,
                 "confidence": analysis_result.get("confidence_score") or dashboard_data.get("confidence_score") or 0,
-                "analysis_type": "project_control",
-                "dashboard_title": "Project Control Report",
-                "dashboard_description": "Report generated from saved construction analytics result.",
+                "analysis_type": premium.get("analysis_type") or analysis_result.get("analysis_type") or "project_control",
+                "dashboard_title": premium.get("title") or "Project Control Report",
+                "dashboard_description": "Project-control dashboard combining schedule, cost, payment, workforce, material, risk and recovery actions." if premium else "Report generated from saved construction analytics result.",
             },
             "kpis": {
-                "planned_execution": metrics.get("planned_progress"),
-                "actual_execution": metrics.get("actual_progress"),
-                "schedule_gap_percent": metrics.get("schedule_variance"),
-                "delay_days": metrics.get("delay_days"),
-                "total_cost": metrics.get("total_budget"),
+                "planned_execution": premium_kpis.get("planned_progress_percent", metrics.get("planned_progress")),
+                "actual_execution": premium_kpis.get("actual_progress_percent", metrics.get("actual_progress")),
+                "schedule_gap_percent": premium_kpis.get("schedule_gap_percent", metrics.get("schedule_variance")),
+                "delay_days": premium_kpis.get("delay_days", metrics.get("delay_days")),
+                "total_cost": premium_kpis.get("contract_value", metrics.get("total_budget")),
                 "planned_cost": metrics.get("planned_cost"),
-                "actual_cost": metrics.get("actual_cost"),
-                "remaining_cost": None,
+                "actual_cost": premium_kpis.get("actual_cost", metrics.get("actual_cost")),
+                "remaining_cost": premium_kpis.get("remaining_cost"),
                 "cost_variance_amount": metrics.get("cost_variance"),
-                "cost_variance_percent": None,
-                "workforce_current": None,
-                "workforce_required": None,
+                "cost_variance_percent": premium_kpis.get("cost_variance_percent"),
+                "workforce_current": premium_kpis.get("current_workforce"),
+                "workforce_required": premium_kpis.get("required_workforce"),
                 "risk_score": len([risk for risk in risks if risk.get("severity") in {"High", "Critical"}]) * 10,
                 "risk_level": _highest_risk_level(risks),
                 "currency": currency,
@@ -120,9 +124,10 @@ def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, An
                     {"label": "CPI", "value": metrics.get("cpi"), "unit": "", "status": "neutral", "note": "Cost Performance Index"},
                     {"label": "SPI", "value": metrics.get("spi"), "unit": "", "status": "neutral", "note": "Schedule Performance Index"},
                     {"label": "Document completeness", "value": metrics.get("document_completeness_score"), "unit": "%", "status": "neutral", "note": "Document Control"},
-                ],
-                "panels": [],
+                ] + _premium_primary_kpis(premium),
+                "panels": _premium_panels(premium),
             },
+            "premium_dashboard": premium,
             "executive_summary": summary,
             "risk_register": [
                 {
@@ -133,14 +138,72 @@ def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, An
                 }
                 for risk in risks
             ],
-            "recommended_actions": [risk.get("recommended_action") or risk.get("action") for risk in risks if risk.get("recommended_action") or risk.get("action")],
+            "recommended_actions": [item.get("action") for item in premium.get("recovery_actions", []) if item.get("action")] if premium else [risk.get("recommended_action") or risk.get("action") for risk in risks if risk.get("recommended_action") or risk.get("action")],
             "data_quality": {
                 "confidence": analysis_result.get("confidence_score") or 0,
+                "premium": premium.get("data_quality"),
                 "warnings": (analysis_result.get("normalized_data") or {}).get("warnings") or [],
                 "sheet_profiles": ((analysis_result.get("normalized_data") or {}).get("evidence") or {}).get("sheet_profiles") or [],
             },
         },
     }
+
+
+def _premium_summary_text(premium: Dict[str, Any]) -> str:
+    summary = premium.get("executive_summary") or {}
+    parts = [
+        summary.get("overall_project_status"),
+        summary.get("main_delay_issue"),
+        summary.get("main_cost_issue"),
+        summary.get("main_material_issue"),
+        summary.get("main_risk_issue"),
+        summary.get("recommended_next_decision"),
+    ]
+    return " ".join(str(part) for part in parts if part not in (None, ""))
+
+
+def _premium_primary_kpis(premium: Dict[str, Any]) -> List[Dict[str, Any]]:
+    if not premium:
+        return []
+    kpis = premium.get("kpis") or {}
+    rows = [
+        ("Project status", kpis.get("project_status"), "", "Executive Summary"),
+        ("Planned progress", kpis.get("planned_progress_percent"), "%", "Schedule Analysis"),
+        ("Actual progress", kpis.get("actual_progress_percent"), "%", "Schedule Analysis"),
+        ("Delay days", kpis.get("delay_days"), "days", "Schedule Analysis"),
+        ("Contract value", kpis.get("contract_value"), kpis.get("currency"), "KPI Summary"),
+        ("Actual cost", kpis.get("actual_cost"), kpis.get("currency"), "Cost & Payment Analysis"),
+        ("Approved payment", kpis.get("approved_payment"), kpis.get("currency"), "Cost & Payment Analysis"),
+        ("Critical low-stock items", kpis.get("critical_low_stock_items"), "", "Material Continuity"),
+        ("Top risks", kpis.get("top_risk_count"), "", "Risk Register"),
+    ]
+    return [{"label": label, "value": value, "unit": unit or "", "status": "neutral", "note": note} for label, value, unit, note in rows if value not in (None, "")]
+
+
+def _premium_panels(premium: Dict[str, Any]) -> List[Dict[str, Any]]:
+    if not premium:
+        return []
+    panels: List[Dict[str, Any]] = []
+    for title, section in [
+        ("Executive Summary", premium.get("executive_summary") or {}),
+        ("Schedule Analysis", premium.get("schedule_analysis") or {}),
+        ("Cost & Payment Analysis", premium.get("cost_payment_analysis") or {}),
+        ("Workforce Analysis", premium.get("workforce_analysis") or {}),
+        ("Material Continuity", premium.get("material_continuity") or {}),
+        ("Risk Register", premium.get("risk_register_analysis") or {}),
+        ("Data Quality", premium.get("data_quality") or {}),
+    ]:
+        rows = []
+        for key, value in section.items():
+            if isinstance(value, (dict, list)):
+                continue
+            rows.append({"label": key.replace("_", " ").title(), "value": value, "unit": "", "status": "neutral"})
+        if rows:
+            panels.append({"title": title, "rows": rows[:10]})
+    actions = premium.get("recovery_actions") or []
+    if actions:
+        panels.append({"title": "Recovery Actions", "rows": [{"label": item.get("module"), "value": item.get("action"), "unit": "", "status": item.get("priority")} for item in actions]})
+    return panels
 
 
 def _insert_report_row(
@@ -171,7 +234,7 @@ def _insert_report_row(
         try:
             return insert_row("reports", payload)
         except ProductionStoreError as exc:
-            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": str(exc)}) from exc
+            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Report archive could not be saved."}) from exc
     if local_store_enabled():
         from ..saas_ids import make_public_id
         from ..saas_store import insert
@@ -236,7 +299,7 @@ def _report_api(row: Dict[str, Any], project: Dict[str, Any]) -> Dict[str, Any]:
         "name": row.get("report_name") or row.get("name") or "Project Control Report",
         "project_name": project.get("project_name") or row.get("project_name"),
         "project": project.get("project_name") or row.get("project_name") or "Project",
-        "report_type": row.get("report_type") or "Full Project Control Report",
+        "report_type": row.get("report_type") or "Project Control Report",
         "type": row.get("report_type") or "Project Control",
         "created_date": row.get("created_at"),
         "created": row.get("created_at"),
@@ -290,4 +353,3 @@ def _highest_risk_level(risks: List[Dict[str, Any]]) -> str:
     if not risks:
         return "Low"
     return max((risk.get("severity") or "Low" for risk in risks), key=lambda item: order.get(item, 0))
-

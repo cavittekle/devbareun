@@ -14,7 +14,7 @@ alter table public.reports add column if not exists media_type text;
 alter table public.reports add column if not exists report_payload jsonb default '{}'::jsonb;
 
 alter table public.payments add column if not exists project_id uuid;
-alter table public.payments add column if not exists payment_provider text default 'stripe';
+alter table public.payments add column if not exists payment_provider text default 'lemonsqueezy';
 
 create index if not exists idx_analysis_jobs_owner_email on public.analysis_jobs(owner_email);
 create index if not exists idx_analysis_results_owner_email on public.analysis_results(owner_email);
@@ -41,4 +41,3 @@ for select using (
   or user_id = auth.uid()
   or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role = 'admin')
 );
-
