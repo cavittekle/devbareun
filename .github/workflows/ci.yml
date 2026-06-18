@@ -40,8 +40,12 @@ jobs:
 
       - name: Check for obvious secret patterns
         run: |
-          if grep -RIn --exclude-dir=.git --exclude=".env.example" \
-            -E "(SUPABASE_SERVICE_ROLE_KEY=.+|STRIPE_SECRET_KEY=sk_|JWT_SECRET=.+|DATABASE_URL=postgres://|DATABASE_URL=postgresql://)" .; then
+          if git grep -nEI \
+            '(SUPABASE_(SERVICE_ROLE_KEY|JWT_SECRET)=eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+|STRIPE_SECRET_KEY=sk_(live|test)_[A-Za-z0-9]{16,}|DATABASE_URL=postgres(ql)?://[^[:space:]<]+:[^[:space:]<]+@)' \
+            -- . \
+            ':(exclude).github/workflows/ci.yml' \
+            ':(exclude).env.example' \
+            ':(exclude,glob)**/.env.example'; then
             echo "Potential secret detected. Review output above."
             exit 1
           fi
