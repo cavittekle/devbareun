@@ -11,6 +11,7 @@ from .services.billing_service import (
     create_one_time_checkout,
     create_subscription_checkout,
     get_billing_status,
+    get_checkout_status,
     get_usage,
     handle_webhook,
 )
@@ -84,3 +85,13 @@ async def billing_status(current_user: CurrentUser = Depends(get_current_user)) 
 @router.get("/usage")
 async def billing_usage(current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
     return {"usage": get_usage(current_user)}
+
+
+@router.get("/checkouts/{checkout_id}")
+async def checkout_status(checkout_id: str, current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
+    """Return a safe, owner-scoped checkout lifecycle summary.
+
+    The response intentionally excludes provider URLs, customer email, raw
+    payment events and provider payloads.
+    """
+    return get_checkout_status(current_user, checkout_id)

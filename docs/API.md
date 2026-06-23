@@ -409,15 +409,36 @@ Response:
 }
 ```
 
-### GET `/api/reports`
+### GET `/api/reports/project/{project_id}`
 
-Purpose: List user reports.
+Purpose: List report archive metadata for a project the current user owns. New
+reports expose `snapshot_available`, `snapshot_version`, checksum metadata and
+download audit fields; raw report payload is never returned by this endpoint.
 
 Authentication: Required.
 
-### GET `/api/reports/{report_id}`
+### POST `/api/reports/generate/{project_id}`
 
-Purpose: Get report metadata and signed download URL.
+Purpose: Generate a PDF or Excel report from the latest completed analysis and
+store a frozen report snapshot.
+
+Body:
+
+```json
+{
+  "report_format": "pdf",
+  "report_type": "Project Control Report"
+}
+```
+
+`report_format` accepts `pdf`, `excel`, or `xlsx`.
+
+Authentication: Required.
+
+### GET `/api/reports/{report_id}/download`
+
+Purpose: Download a user-authorized report. The response is rendered from the
+stored snapshot where available and returns private no-store headers.
 
 Authentication: Required.
 
@@ -518,3 +539,70 @@ Purpose: Inspect payments.
 - Do not expose internal error traces.
 - Use signed URLs for private files and reports.
 - Apply rate limiting to public endpoints.
+
+
+## Analysis worker operations (staff only)
+
+```text
+GET /api/analysis/operations
+```
+
+Returns secret-safe queue counts and worker liveness. Requires an owner/staff authenticated user. It never returns customer analysis payloads or storage paths.
+
+
+### Failed/dead-letter recovery (staff only)
+
+```text
+GET  /api/analysis/operations/recovery-jobs?limit=50
+POST /api/analysis/operations/jobs/{job_id}/retry
+```
+
+The retry request accepts `{ "reset_attempts": true|false }`. A dead-lettered job requires `true`; the API rejects any job that already has a persisted result.
+
+
+## Audit archive operations (v1.4.25)
+
+These endpoints require the Super Admin `audit` capability. The retry endpoint is additionally restricted to `owner`. Responses never contain audit archive webhook URLs, HMAC secrets or outbox payload bodies.
+
+```text
+GET  /api/super-admin/audit-archive
+POST /api/super-admin/audit-archive/{archive_id}/retry
+```
+
+A dead-lettered archive delivery requires `{ "reset_attempts": true }` for explicit requeue.
+
+## Operational health (owner/operator only)
+
+### GET `/api/operations/health`
+
+Returns a staff-safe aggregate of runtime readiness, analysis worker state and audit archive delivery state. It is limited to `owner` and `operator` roles through the `operations` capability. The response contains incident codes and counts only; it never exposes customer records, signed URLs, webhook URLs, or secrets.
+
+### GET `/api/super-admin/operations-health`
+
+Super Admin panel alias for the same staff-safe health summary. The browser panel uses this endpoint for the **Operations health** tab.
+
+
+
+## Company workspace API
+
+Company roster management is authenticated and deliberately separate from project access.
+
+```text
+GET   /api/company/workspace
+POST  /api/company/workspace
+POST  /api/company/invitations
+POST  /api/company/invitations/accept
+POST  /api/company/invitations/{invitation_id}/revoke
+PATCH /api/company/members/{membership_id}
+```
+
+Invitation delivery is manual in v1.4.32. The response shows a one-time URL; DevBareun stores only a SHA-256 token digest. Company membership does not itself grant cross-user access to projects, uploads, analyses or reports.
+
+
+## Explicit Project Sharing (v1.4.33)
+
+- `GET /api/project-access/projects` — owned plus explicitly shared projects.
+- `GET /api/project-access/{project_id}/members` — access roster; owner/project manager only.
+- `POST /api/project-access/{project_id}/members` — grant access to an active company member.
+- `PATCH /api/project-access/{project_id}/members/{grant_id}` — change role or revoke status.
+- `DELETE /api/project-access/{project_id}/members/{grant_id}` — revoke access.

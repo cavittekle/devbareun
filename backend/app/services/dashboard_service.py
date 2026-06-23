@@ -62,6 +62,10 @@ def build_executive_dashboard(
             "approved_documents": int(document_control.get("approved_documents") or 0),
             "missing_documents": int(document_control.get("missing_documents") or 0),
         },
+        # The executive response carries a safe snapshot of the exact sources
+        # used for the latest analysis. It intentionally excludes storage URLs
+        # and user/provider metadata.
+        "analysis_provenance": result.get("input_manifest") or dashboard_data.get("analysis_provenance") or ((result.get("normalized_data") or {}).get("analysis_provenance")) or {},
         "management_summary": _management_summary(metrics, risk_data, dashboard_data),
         "reports": [_report_for_api(row, project) for row in list(reports or [])[:20]],
         "project": {

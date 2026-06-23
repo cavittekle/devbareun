@@ -12,7 +12,9 @@ APP_ENV=production
 DEVBAREUN_VERSION=1.4.0-production-saas-core
 PUBLIC_SITE_URL=https://devbareun.com
 DEVBAREUN_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
+CORS_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
 DEVBAREUN_CHECKOUT_ALLOWED_ORIGINS=https://devbareun.com,https://www.devbareun.com,https://devbareun.vercel.app
+FRONTEND_PUBLIC_API_BASE_URL=https://devbareun-production.up.railway.app
 
 DEVBAREUN_MAX_FILES=12
 DEVBAREUN_MAX_FILE_MB=30
@@ -33,6 +35,7 @@ DEVBAREUN_ALLOW_ADMIN_EMAIL_FALLBACK=false
 DEVBAREUN_ALLOW_DEVBAREUN_DOMAIN_ADMINS=false
 
 DEVBAREUN_RATE_LIMIT_ENABLED=true
+DEVBAREUN_ALLOW_IN_MEMORY_RATE_LIMIT=false
 DEVBAREUN_RATE_LIMIT_WINDOW_SECONDS=60
 DEVBAREUN_RATE_LIMIT_DEFAULT_PER_MIN=180
 DEVBAREUN_RATE_LIMIT_AUTH_PER_MIN=20
@@ -53,7 +56,7 @@ SUPABASE_SERVICE_ROLE_KEY=replace_with_service_role_key_backend_only
 SUPABASE_JWT_SECRET=replace_with_supabase_jwt_secret_if_using_local_jwt_verification
 SUPABASE_STORAGE_BUCKET=project-files
 
-FRONTEND_SUCCESS_URL=https://devbareun.com/result-dashboard.html?payment=success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}
+FRONTEND_SUCCESS_URL=https://devbareun.com/workspace/?view=payment-success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}
 FRONTEND_CANCEL_URL=https://devbareun.com/?payment=cancelled&project_id={project_id}
 
 DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
@@ -83,6 +86,7 @@ The current frontend is static HTML, so public env variables are mainly a deploy
 
 ```env
 VITE_DEVBAREUN_API_BASE_URL=https://devbareun-production.up.railway.app
+FRONTEND_PUBLIC_API_BASE_URL=https://devbareun-production.up.railway.app
 VITE_DEVBAREUN_API_BASE=https://devbareun-production.up.railway.app
 VITE_PUBLIC_SITE_URL=https://devbareun.com
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -98,3 +102,7 @@ VITE_SUPABASE_ANON_KEY=replace_with_supabase_anon_key
 ## First Owner
 
 Create the first owner in Supabase Auth, apply the SQL deploy order, then promote the matching `users_profile` row to `role='owner'`. Keep the same email in `DEVBAREUN_ADMIN_EMAILS`.
+
+## Production Rate Limit Gate
+
+`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are required when `DEVBAREUN_PRODUCTION_SECURITY=true`. Leave `DEVBAREUN_ALLOW_IN_MEMORY_RATE_LIMIT=false` for launch so a missing Redis setup fails closed instead of silently using Railway memory.

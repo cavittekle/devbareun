@@ -58,7 +58,13 @@ def _has_progress_payment_source(parsed: ParsedProjectData) -> bool:
     evidence = parsed.evidence or {}
     if evidence.get("f2_completed_amount") or evidence.get("f2_sheets"):
         return True
-    if evidence.get("actual_execution_source") or evidence.get("az_f2_parser"):
+    az_f2 = evidence.get("az_f2_parser") or {}
+    if evidence.get("actual_execution_source"):
+        return True
+    # The deterministic Azerbaijani parser can record smeta-only metadata even
+    # when no F-2/progress payment amount was found. Treat it as actual evidence
+    # only when it contains a confirmed completed total or execution percent.
+    if isinstance(az_f2, dict) and (az_f2.get("completed_total") or az_f2.get("actual_execution") is not None):
         return True
     if any(s.detected_type == "progress" for s in parsed.sheets):
         return True

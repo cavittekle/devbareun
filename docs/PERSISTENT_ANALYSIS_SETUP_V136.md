@@ -21,10 +21,10 @@ database/2026_05_27_v136_persistent_analysis.sql
 ```
 
 ## Frontend
-New pages:
-- `analysis-view.html`
-- `guest-result.html`
+React workspace views:
+- `/workspace/?view=result`
+- `/workspace/?view=guest-result`
 
 Updated:
-- `projects.html`
-- `reports.html`
+- `/workspace/?view=projects`
+- `/workspace/?view=reports`

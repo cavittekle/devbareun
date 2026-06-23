@@ -21,7 +21,7 @@ async def portfolio_dashboard(current_user: CurrentUser = Depends(get_current_us
 
 @router.get("/executive/{project_id}")
 async def executive_dashboard(project_id: str, current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
-    project = await require_project_owner(project_id, current_user)
+    project = await require_project_owner(project_id, current_user, section="dashboard")
     result = get_latest_analysis_result(project_id, project, current_user)
     projects = list_user_projects(current_user)
     return build_executive_dashboard(project=project, analysis_result=result, projects=projects)

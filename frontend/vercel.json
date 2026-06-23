@@ -23,7 +23,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://*.railway.app https://*.up.railway.app https://api.lemonsqueezy.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+          "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self'; connect-src 'self' https://*.supabase.co https://*.railway.app https://*.up.railway.app https://api.lemonsqueezy.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
         }
       ]
     },
@@ -46,6 +46,93 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/dashboard.html",
+      "destination": "/workspace/",
+      "permanent": false
+    },
+    {
+      "source": "/upload.html",
+      "destination": "/workspace/?view=upload",
+      "permanent": false
+    },
+    {
+      "source": "/projects.html",
+      "destination": "/workspace/?view=projects",
+      "permanent": false
+    },
+    {
+      "source": "/project-detail.html",
+      "destination": "/workspace/?view=projects",
+      "permanent": false
+    },
+    {
+      "source": "/reports.html",
+      "destination": "/workspace/?view=reports",
+      "permanent": false
+    },
+    {
+      "source": "/billing.html",
+      "destination": "/workspace/?view=billing",
+      "permanent": false
+    },
+    {
+      "source": "/settings.html",
+      "destination": "/workspace/?view=settings",
+      "permanent": false
+    },
+    {
+      "source": "/login.html",
+      "destination": "/workspace/?view=login",
+      "permanent": false
+    },
+    {
+      "source": "/register.html",
+      "destination": "/workspace/?view=register",
+      "permanent": false
+    },
+    {
+      "source": "/checkout.html",
+      "destination": "/workspace/?view=checkout",
+      "permanent": false
+    },
+    {
+      "source": "/payment-success.html",
+      "destination": "/workspace/?view=payment-success",
+      "permanent": false
+    },
+    {
+      "source": "/payment-failed.html",
+      "destination": "/workspace/?view=payment-failed",
+      "permanent": false
+    },
+    {
+      "source": "/profile.html",
+      "destination": "/workspace/?view=settings",
+      "permanent": false
+    },
+    {
+      "source": "/analysis-view.html",
+      "destination": "/workspace/?view=result",
+      "permanent": false
+    },
+    {
+      "source": "/result-dashboard.html",
+      "destination": "/workspace/?view=result",
+      "permanent": false
+    },
+    {
+      "source": "/guest-result.html",
+      "destination": "/workspace/?view=guest-result",
+      "permanent": false
+    },
+    {
+      "source": "/single-project.html",
+      "destination": "/index.html",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/",
@@ -53,43 +140,47 @@
     },
     {
       "source": "/login",
-      "destination": "/login.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/register",
-      "destination": "/register.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/dashboard",
-      "destination": "/dashboard.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/workspace",
-      "destination": "/dashboard.html"
+      "destination": "/workspace/index.html"
+    },
+    {
+      "source": "/workspace/:path*",
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/upload",
-      "destination": "/upload.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/projects",
-      "destination": "/projects.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/projects/:id",
-      "destination": "/project-detail.html?id=:id"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/reports",
-      "destination": "/reports.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/billing",
-      "destination": "/billing.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/settings",
-      "destination": "/settings.html"
+      "destination": "/workspace/index.html"
     },
     {
       "source": "/super-admin",

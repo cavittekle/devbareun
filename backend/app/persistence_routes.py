@@ -178,7 +178,7 @@ async def create_guest_result_route(payload: GuestResultRequest):
     record = await create_guest_result(payload.dict(), ttl_days=safe_guest_ttl_days(payload.ttl_days))
     return {
         "guest_result": record,
-        "secure_url": f"/guest-result.html?token={record['guest_token']}",
+        "secure_url": f"/workspace/?view=guest-result&token={record['guest_token']}",
     }
 
 

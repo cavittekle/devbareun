@@ -9,6 +9,8 @@ from uuid import UUID
 from fastapi import Cookie, Depends, Header, HTTPException
 
 from .auth_runtime import AuthError, AuthUser, get_bearer_token, verify_supabase_token
+from .access_control import STAFF_ROLES, can_access_project_scope, has_permission, is_staff_role, normalize_role
+from .services.project_sharing_service import can_access_project_resource
 from .production_store import ProductionStoreError, first_existing, insert_row, is_configured, select_one, uuid_like
 from .security_runtime import bool_env, production_security_enabled
 
@@ -19,7 +21,7 @@ class CurrentUser:
     auth_user_id: str
     email: str
     full_name: Optional[str] = None
-    role: str = "user"
+    role: str = "customer"
     status: str = "active"
     company_id: Optional[str] = None
     plan: str = "free"
@@ -68,6 +70,17 @@ def _clean_403(message: str) -> HTTPException:
     return HTTPException(status_code=403, detail={"error": "forbidden", "message": message})
 
 
+# Compatibility exports for existing imports. New permission checks should use
+# the canonical policy functions from ``access_control``.
+def normalize_user_role(role: str | None, is_admin: bool = False) -> str:
+    return normalize_role(role, is_admin)
+
+
+def require_staff_permission(current_user: CurrentUser, section: str) -> None:
+    if not is_staff_role(current_user.role) or not has_permission(current_user.role, section):
+        raise _clean_403(f"Staff permission '{section}' is required.")
+
+
 def _profile_from_auth_user(auth_user: AuthUser) -> Optional[Dict[str, Any]]:
     if not is_configured():
         return None
@@ -82,7 +95,7 @@ def _profile_from_auth_user(auth_user: AuthUser) -> Optional[Dict[str, Any]]:
     payload: Dict[str, Any] = {
         "email": auth_user.email,
         "full_name": None,
-        "role": "admin" if auth_user.is_admin else "user",
+        "role": "owner" if auth_user.is_admin else "customer",
         "status": "active",
     }
     if auth_uuid:
@@ -106,7 +119,7 @@ async def get_current_user(
         raise _clean_401("Invalid or expired session.") from exc
 
     profile = _profile_from_auth_user(auth_user)
-    role = str((profile or {}).get("role") or ("admin" if auth_user.is_admin else "user")).lower()
+    role = normalize_user_role((profile or {}).get("role"), auth_user.is_admin)
     status = str((profile or {}).get("status") or "active").lower()
     if status != "active":
         raise _clean_403("User account is not active.")
@@ -121,13 +134,13 @@ async def get_current_user(
         status=status,
         company_id=str((profile or {}).get("company_id") or auth_user.company_id or "") or None,
         plan=auth_user.plan,
-        is_admin=bool(auth_user.is_admin or role == "admin"),
+        is_admin=bool(auth_user.is_admin or role == "owner"),
     )
 
 
 async def require_admin(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
-    if not current_user.is_admin and current_user.role != "admin":
-        raise _clean_403("Admin role is required.")
+    if not is_staff_role(current_user.role):
+        raise _clean_403("Staff role is required.")
     return current_user
 
 
@@ -139,24 +152,26 @@ def _project_filters(project_id: str) -> list[Dict[str, Any]]:
     return filters
 
 
-def _project_belongs_to_user(project: Dict[str, Any], user: CurrentUser) -> bool:
-    if user.is_admin:
-        return True
-    candidates = {
-        str(user.id).lower(),
-        str(user.auth_user_id).lower(),
-        str(user.email).lower(),
-    }
-    owner_values = {
-        str(project.get("user_id") or "").lower(),
-        str(project.get("owner_user_id") or "").lower(),
-        str(project.get("uploaded_by_user_id") or "").lower(),
-        str(project.get("owner_email") or "").lower(),
-    }
-    return bool(candidates.intersection(owner_values))
+def _project_belongs_to_user(project: Dict[str, Any], user: CurrentUser, section: str = "projects") -> bool:
+    """Check scoped project access without treating company membership as access.
+
+    Staff access stays capability-bound. Customer access is owner-based unless
+    an explicit active project grant exists for the requested resource.
+    """
+    if is_staff_role(user.role):
+        return can_access_project_scope(user.role, section)
+    try:
+        return can_access_project_resource(project, user, section)
+    except ProductionStoreError:
+        # Callers convert database verification failures into a safe 503.
+        raise
 
 
-async def require_project_owner(project_id: str, current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
+async def require_project_owner(
+    project_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+    section: str = "projects",
+) -> Dict[str, Any]:
     if is_configured():
         try:
             project = first_existing("projects", _project_filters(project_id))
@@ -164,8 +179,12 @@ async def require_project_owner(project_id: str, current_user: CurrentUser = Dep
             raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Project ownership could not be verified."}) from exc
         if not project:
             raise HTTPException(status_code=404, detail={"error": "not_found", "message": "Project not found."})
-        if not _project_belongs_to_user(project, current_user):
-            raise _clean_403("You can access only your own project.")
+        try:
+            allowed = _project_belongs_to_user(project, current_user, section=section)
+        except ProductionStoreError as exc:
+            raise HTTPException(status_code=503, detail={"error": "database_unavailable", "message": "Project access could not be verified."}) from exc
+        if not allowed:
+            raise _clean_403("You do not have permission to access this project resource.")
         return project
 
     if local_store_enabled():
@@ -174,8 +193,8 @@ async def require_project_owner(project_id: str, current_user: CurrentUser = Dep
         project = find_one("projects", project_id=project_id)
         if not project:
             raise HTTPException(status_code=404, detail={"error": "not_found", "message": "Project not found."})
-        if not _project_belongs_to_user(project, current_user):
-            raise _clean_403("You can access only your own project.")
+        if not _project_belongs_to_user(project, current_user, section=section):
+            raise _clean_403("You do not have permission to access this project resource.")
         return project
 
     if production_security_enabled():

@@ -3,30 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Payment Success — DevBareun</title>
-  <link rel="stylesheet" href="css/styles.css?v=14025" />
-  <link rel="stylesheet" href="css/saas-auth.css?v=13936" />
-  <link rel="stylesheet" href="css/persistent-workspace.css?v=13936" />
+  <title>Payment Success - DevBareun</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="assets/favicon.png?v=2" />
+  <script>
+    const target = new URL('/workspace/', location.origin);
+    target.searchParams.set('view', 'payment-success');
+    new URLSearchParams(location.search).forEach((value, key) => target.searchParams.set(key, value));
+    location.replace(target.pathname + target.search);
+  </script>
 </head>
-<body class="workspace-page">
-  <main class="section" style="min-height:100vh;padding:48px 20px;">
-    <div class="container" style="max-width:980px;margin:0 auto;">
-      <a href="index.html" class="brand-link" style="margin-bottom:28px;">DevBareun</a>
-      <section class="workspace-panel wide checkout-review-card">
-        <p class="eyebrow">Payment status</p>
-        <h1>Payment successful</h1>
-        <p>Your payment access is being confirmed. Single Project purchases do not require an account.</p>
-        <p id="paymentSuccessStatus" class="auth-status">Checking payment access...</p>
-        <div class="workspace-actions">
-          <a class="btn btn-primary" href="index.html#upload">Upload project data</a>
-          <a class="btn btn-ghost" href="index.html#pricing">Back to packages</a>
-        </div>
-      </section>
-    </div>
-  </main>
-  <script src="js/devbareun-api.js?v=14000"></script>
-  <script src="js/auth-workspace.js?v=13936"></script>
-  <script src="js/api-client.js"></script>
-  <script src="js/payment-flow.js"></script>
-</body>
+<body><p>Opening DevBareun payment status...</p></body>
 </html>

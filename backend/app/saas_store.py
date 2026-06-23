@@ -18,7 +18,7 @@ TABLES = [
     "users", "companies", "projects", "uploaded_files", "analysis_jobs", "analysis_results", "reports",
     "plans", "subscriptions", "payments", "guest_orders", "checkout_sessions",
     "analysis_credits", "subscription_usage", "credit_transactions", "support_tickets",
-    "admin_notes", "activity_logs", "audit_logs"
+    "admin_notes", "activity_logs", "audit_logs", "data_lifecycle_requests", "project_activity_events"
 ]
 
 

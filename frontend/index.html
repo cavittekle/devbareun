@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
   <script src="js/theme-init.js?v=14035"></script>
-  <link rel="stylesheet" href="css/modern-landing.css?v=14034" />
+  <link rel="stylesheet" href="css/modern-landing.css?v=14038" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -57,7 +57,7 @@
           <span data-current-lang>EN</span>
           <i aria-hidden="true"></i>
         </button>
-        <a class="header-login" href="login.html?next=dashboard.html" data-i18n="login">Login</a>
+        <a class="header-login" href="/workspace/?view=login&next=/workspace/" data-i18n="login">Login</a>
         <a class="btn btn-primary nav-cta" href="#upload" data-i18n="startAnalysis">Start Analysis</a>
         <button class="mobile-menu-btn" type="button" aria-label="Open menu" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -71,7 +71,7 @@
       <a href="about.html" data-i18n="navAbout">About</a>
       <a href="faq.html" data-i18n="navFAQ">FAQ</a>
       <a href="contact.html" data-i18n="navContact">Contact</a>
-      <a href="login.html?next=dashboard.html" data-i18n="login">Login</a>
+      <a href="/workspace/?view=login&next=/workspace/" data-i18n="login">Login</a>
       <a href="#upload" data-i18n="startAnalysis">Start Analysis</a>
     </div>
   </header>
@@ -79,33 +79,56 @@
   <main id="main">
     <section class="hero section-shell">
       <div class="grid-bg" aria-hidden="true"></div>
-      <div class="wrap hero-showcase">
-        <p class="hero-showcase-pill" data-i18n="heroShowcasePill">4 control packages - schedule, cost, material, risk</p>
-        <h1>
-          <span data-i18n="heroShowcaseTitleOne">Construction project</span>
-          <span data-i18n="heroShowcaseTitleTwo">control,</span>
-          <span class="accent-line" data-i18n="heroShowcaseTitleThree">done right.</span>
-        </h1>
-        <p class="hero-lead" data-i18n="heroShowcaseLead">Upload your project files. Get a precise management dashboard - schedule, cost, payment, material and risk - in one view.</p>
-        <div class="hero-actions hero-showcase-actions">
-          <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
-          <a class="btn btn-secondary" href="templates/devbareun-professional-upload-template-v2.xlsx" download data-i18n="downloadTemplate">Download template</a>
+      <div class="wrap hero-showcase hero-command">
+        <div class="hero-command-copy">
+          <p class="hero-showcase-pill" data-i18n="heroShowcasePill">4 control packages - schedule, cost, material, risk</p>
+          <h1>
+            <span data-i18n="heroShowcaseTitleOne">Control project</span>
+            <span data-i18n="heroShowcaseTitleTwo">signals before</span>
+            <span class="accent-line" data-i18n="heroShowcaseTitleThree">delays grow.</span>
+          </h1>
+          <p class="hero-lead" data-i18n="heroShowcaseLead">Upload schedules, progress files, cost data and site records. DevBareun turns them into a management-ready project control view.</p>
+          <div class="hero-actions hero-showcase-actions">
+            <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
+            <a class="btn btn-secondary" href="templates/devbareun-professional-upload-template-v2.xlsx" download data-i18n="downloadTemplate">Download template</a>
+          </div>
         </div>
-        <div class="hero-decision-strip" aria-label="DevBareun upload workflow">
-          <span>
-            <strong>01</strong>
-            <small data-i18n="heroFlowUpload">Upload project files</small>
-          </span>
-          <i aria-hidden="true"></i>
-          <span>
-            <strong>02</strong>
-            <small data-i18n="heroFlowMap">Confirm detected mapping</small>
-          </span>
-          <i aria-hidden="true"></i>
-          <span>
-            <strong>03</strong>
-            <small data-i18n="heroFlowDashboard">Review dashboard output</small>
-          </span>
+
+        <aside class="hero-control-card" aria-label="Project control output preview">
+          <div class="hero-control-head">
+            <span data-i18n="heroControlLabel">Management view</span>
+            <strong data-i18n="heroControlTitle">Ready after mapping</strong>
+          </div>
+          <div class="hero-control-flow">
+            <article>
+              <i aria-hidden="true">01</i>
+              <div>
+                <strong data-i18n="heroFlowUpload">Upload project files</strong>
+                <small data-i18n="heroFlowUploadText">Schedule, cost, material and risk records.</small>
+              </div>
+            </article>
+            <article>
+              <i aria-hidden="true">02</i>
+              <div>
+                <strong data-i18n="heroFlowMap">Confirm detected mapping</strong>
+                <small data-i18n="heroFlowMapText">Review columns before the dashboard is prepared.</small>
+              </div>
+            </article>
+            <article>
+              <i aria-hidden="true">03</i>
+              <div>
+                <strong data-i18n="heroFlowDashboard">Review dashboard output</strong>
+                <small data-i18n="heroFlowDashboardText">See only the dashboards supported by your files.</small>
+              </div>
+            </article>
+          </div>
+        </aside>
+
+        <div class="hero-signal-strip" aria-label="DevBareun project control signals">
+          <span><b>4</b><small data-i18n="heroMetricPackages">Control packages</small></span>
+          <span><b>6</b><small data-i18n="heroMetricFormats">File formats</small></span>
+          <span><b>PDF</b><small data-i18n="heroMetricReports">Report export</small></span>
+          <span><b>EN/AZ</b><small data-i18n="heroMetricLanguages">Languages</small></span>
         </div>
       </div>
     </section>
@@ -124,10 +147,10 @@
             <small>01 May 2024 - 31 May 2024</small>
           </div>
           <div class="preview-kpis">
-            <article><span>Overall progress</span><strong>68%</strong><i style="--w:68%"></i><small>Plan 72%</small></article>
-            <article><span>Schedule - SPI</span><strong>0.92</strong><i style="--w:74%"></i><small>Plan 1.00</small></article>
-            <article><span>Cost - CPI</span><strong>0.97</strong><i style="--w:86%"></i><small>Plan 1.00</small></article>
-            <article><span>Total cost</span><strong>AZN 2.45M</strong><i style="--w:78%"></i><small>Plan AZN 2.53M</small></article>
+            <article><span>Overall progress</span><strong>68%</strong><i class="kpi-fill kpi-fill-68"></i><small>Plan 72%</small></article>
+            <article><span>Schedule - SPI</span><strong>0.92</strong><i class="kpi-fill kpi-fill-74"></i><small>Plan 1.00</small></article>
+            <article><span>Cost - CPI</span><strong>0.97</strong><i class="kpi-fill kpi-fill-86"></i><small>Plan 1.00</small></article>
+            <article><span>Total cost</span><strong>AZN 2.45M</strong><i class="kpi-fill kpi-fill-78"></i><small>Plan AZN 2.53M</small></article>
           </div>
           <div class="preview-dashboard-grid">
             <section class="preview-chart-card">
@@ -146,7 +169,7 @@
             <section class="preview-bars-card">
               <div><strong>Cost analysis</strong><small>Monthly spend run-up</small></div>
               <div class="bar-chart" aria-hidden="true">
-                <span style="--h:42%"></span><span style="--h:56%"></span><span style="--h:51%"></span><span style="--h:66%"></span><span style="--h:58%"></span><span style="--h:84%"></span>
+                <span class="bar-h-42"></span><span class="bar-h-56"></span><span class="bar-h-51"></span><span class="bar-h-66"></span><span class="bar-h-58"></span><span class="bar-h-84"></span>
               </div>
             </section>
             <section class="preview-risk-card">
@@ -320,6 +343,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="js/modern-landing.js?v=14034" defer></script>
+  <script src="js/modern-landing.js?v=14036" defer></script>
 </body>
 </html>

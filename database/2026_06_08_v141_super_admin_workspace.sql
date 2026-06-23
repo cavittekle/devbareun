@@ -11,6 +11,7 @@ alter table public.users_profile add column if not exists user_id text;
 alter table public.users_profile add column if not exists auth_provider text;
 alter table public.users_profile add column if not exists company_id uuid;
 alter table public.users_profile add column if not exists plan text default 'free';
+alter table public.users_profile alter column role set default 'customer';
 
 alter table public.users_profile drop constraint if exists users_profile_role_check;
 alter table public.users_profile add constraint users_profile_role_check
@@ -137,6 +138,8 @@ as $$
     select 1
     from public.users_profile up
     where up.auth_user_id = auth.uid()
+      -- Legacy compatibility: role='admin' is accepted for old rows only.
+      -- New staff accounts should use owner/support/analyst/finance/operator.
       and up.role in ('admin', 'owner', 'support', 'analyst', 'finance', 'operator')
       and up.status = 'active'
   );

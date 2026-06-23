@@ -13,7 +13,7 @@ create table if not exists public.users_profile (
   auth_user_id uuid unique,
   email text unique not null,
   full_name text,
-  role text not null default 'user' check (role in ('user', 'admin')),
+  role text not null default 'customer' check (role in ('user', 'customer', 'admin', 'owner', 'support', 'analyst', 'finance', 'operator')),
   status text not null default 'active' check (status in ('active', 'suspended')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -351,7 +351,9 @@ as $$
     select 1
     from public.users_profile up
     where up.auth_user_id = auth.uid()
-      and up.role = 'admin'
+      -- Legacy compatibility: role='admin' is accepted for old rows only.
+      -- New staff accounts should use owner/support/analyst/finance/operator.
+      and up.role in ('admin', 'owner', 'support', 'analyst', 'finance', 'operator')
       and up.status = 'active'
   );
 $$;

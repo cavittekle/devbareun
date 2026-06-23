@@ -152,27 +152,30 @@ class ConstructionFileParser:
         candidates: List[str] = []
         sheets: List[SheetProfile] = []
         sheet_bundles: List[Tuple[str, List[List[Any]]]] = []
-        for ws in wb.worksheets:
-            sheet_rows: List[List[Any]] = []
-            for idx, row in enumerate(ws.iter_rows(values_only=True), start=1):
-                values = [self._clean_cell(v) for v in row]
-                if any(v not in (None, "") for v in values):
-                    sheet_rows.append(values)
-                if idx >= 2000:
-                    break
-            rows.extend(sheet_rows)
-            sheet_bundles.append((ws.title, sheet_rows))
-            dashboard_evidence = self._extract_full_dashboard_input_evidence(path.name, ws.title, sheet_rows)
-            if dashboard_evidence:
-                self._dashboard_input_evidence.append(dashboard_evidence)
-            candidates += self._project_candidates_from_rows(sheet_rows[:25])
-            if self._looks_like_project_name(ws.title):
-                candidates.append(ws.title)
-            sheets.append(self._profile_sheet(path.name, ws.title, sheet_rows))
-        evidence = self._extract_workbook_metric_evidence(path.name, sheet_bundles)
-        if evidence:
-            self._workbook_metric_evidence.append(evidence)
-        return rows, candidates, sheets
+        try:
+            for ws in wb.worksheets:
+                sheet_rows: List[List[Any]] = []
+                for idx, row in enumerate(ws.iter_rows(values_only=True), start=1):
+                    values = [self._clean_cell(v) for v in row]
+                    if any(v not in (None, "") for v in values):
+                        sheet_rows.append(values)
+                    if idx >= 2000:
+                        break
+                rows.extend(sheet_rows)
+                sheet_bundles.append((ws.title, sheet_rows))
+                dashboard_evidence = self._extract_full_dashboard_input_evidence(path.name, ws.title, sheet_rows)
+                if dashboard_evidence:
+                    self._dashboard_input_evidence.append(dashboard_evidence)
+                candidates += self._project_candidates_from_rows(sheet_rows[:25])
+                if self._looks_like_project_name(ws.title):
+                    candidates.append(ws.title)
+                sheets.append(self._profile_sheet(path.name, ws.title, sheet_rows))
+            evidence = self._extract_workbook_metric_evidence(path.name, sheet_bundles)
+            if evidence:
+                self._workbook_metric_evidence.append(evidence)
+            return rows, candidates, sheets
+        finally:
+            wb.close()
 
     def _parse_csv(self, path: Path) -> Tuple[List[List[Any]], List[str], List[SheetProfile]]:
         rows: List[List[Any]] = []
@@ -182,6 +185,8 @@ class ConstructionFileParser:
             try:
                 dialect = csv.Sniffer().sniff(sample)
             except Exception:
+                dialect = csv.excel
+            if getattr(dialect, "delimiter", ",") not in {",", ";", "\t", "|"} and "," in sample:
                 dialect = csv.excel
             reader = csv.reader(f, dialect)
             for idx, row in enumerate(reader):
@@ -197,24 +202,24 @@ class ConstructionFileParser:
         candidates: List[str] = []
         sheets: List[SheetProfile] = []
         sheet_bundles: List[Tuple[str, List[List[Any]]]] = []
-        xls = pd.ExcelFile(path)
-        for sheet in xls.sheet_names:
-            frame = xls.parse(sheet, header=None, nrows=2000)
-            sheet_rows = [[self._clean_cell(v) for v in row] for row in frame.values.tolist()]
-            sheet_rows = [r for r in sheet_rows if any(v not in (None, "") for v in r)]
-            rows.extend(sheet_rows)
-            sheet_bundles.append((sheet, sheet_rows))
-            dashboard_evidence = self._extract_full_dashboard_input_evidence(path.name, sheet, sheet_rows)
-            if dashboard_evidence:
-                self._dashboard_input_evidence.append(dashboard_evidence)
-            candidates += self._project_candidates_from_rows(sheet_rows[:25])
-            if self._looks_like_project_name(sheet):
-                candidates.append(sheet)
-            sheets.append(self._profile_sheet(path.name, sheet, sheet_rows))
-        evidence = self._extract_workbook_metric_evidence(path.name, sheet_bundles)
-        if evidence:
-            self._workbook_metric_evidence.append(evidence)
-        return rows, candidates, sheets
+        with pd.ExcelFile(path) as xls:
+            for sheet in xls.sheet_names:
+                frame = xls.parse(sheet, header=None, nrows=2000)
+                sheet_rows = [[self._clean_cell(v) for v in row] for row in frame.values.tolist()]
+                sheet_rows = [r for r in sheet_rows if any(v not in (None, "") for v in r)]
+                rows.extend(sheet_rows)
+                sheet_bundles.append((sheet, sheet_rows))
+                dashboard_evidence = self._extract_full_dashboard_input_evidence(path.name, sheet, sheet_rows)
+                if dashboard_evidence:
+                    self._dashboard_input_evidence.append(dashboard_evidence)
+                candidates += self._project_candidates_from_rows(sheet_rows[:25])
+                if self._looks_like_project_name(sheet):
+                    candidates.append(sheet)
+                sheets.append(self._profile_sheet(path.name, sheet, sheet_rows))
+            evidence = self._extract_workbook_metric_evidence(path.name, sheet_bundles)
+            if evidence:
+                self._workbook_metric_evidence.append(evidence)
+            return rows, candidates, sheets
 
     def _parse_pdf(self, path: Path) -> Tuple[List[List[Any]], List[str], List[SheetProfile]]:
         """Extract text from text-based PDFs when possible.
@@ -552,11 +557,13 @@ class ConstructionFileParser:
                 continue
             for standard, keywords in COLUMN_KEYWORDS.items():
                 if any(self._norm(k) in text for k in keywords):
+                    if standard == "planned_execution" and any(token in text for token in ("start", "finish", "date", "tarix", "bitme", "bitmə")):
+                        continue
                     mapped.setdefault(standard, self._excel_column_name(col_index + 1))
         return mapped
 
     def _extract_metrics(self, parsed: ParsedProjectData, rows: Sequence[Sequence[Any]], text: str) -> None:
-        parsed.planned_execution = self._extract_percent_by_labels(text, ("planned execution", "plan üzrə icra", "plan uzre icra", "plan %", "planned"))
+        parsed.planned_execution = self._extract_percent_by_labels(text, ("planned execution", "plan üzrə icra", "plan uzre icra", "planned %"))
         parsed.actual_execution = self._extract_percent_by_labels(text, ("actual execution", "faktiki icra", "actual %", "faktiki %", "icra səviyyəsi", "icra seviyesi"))
         parsed.cost_variance_percent = self._extract_percent_by_labels(text, ("cost variance", "xərc fərqi", "xerc ferqi", "variance", "overrun"))
         parsed.delay_days = self._extract_int_by_labels(text, ("delay", "gecikmə", "gecikme", "delay impact"))
@@ -1179,11 +1186,13 @@ class ConstructionFileParser:
                 smeta_sheet_name = sheet_names[i]
                 break
         if smeta_ws is None:
+            wb.close()
             return None
 
         smeta_rows = [list(r) for r in smeta_ws.iter_rows(max_row=700, values_only=True)]
         smeta_rows = [r for r in smeta_rows if any(v not in (None, "") for v in r)]
         if not smeta_rows:
+            wb.close()
             return None
 
         project_name = self._extract_az_project_name_from_smeta(smeta_rows)
@@ -1224,7 +1233,9 @@ class ConstructionFileParser:
 
         if smeta_total:
             result["section_breakdown"] = self._extract_az_section_breakdown(smeta_rows)
+            wb.close()
             return result
+        wb.close()
         return None
 
     def _extract_az_project_name_from_smeta(self, rows: List[List[Any]]) -> Optional[str]:

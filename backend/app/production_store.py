@@ -5,6 +5,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
+import re
 from typing import Any, Dict, Iterable, List, Optional
 
 
@@ -89,6 +90,40 @@ def select_one(table: str, filters: Dict[str, Any], *, columns: str = "*") -> Op
 
 def insert_row(table: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     data = _request("POST", table, payload, headers={"Prefer": "return=representation"})
+    if isinstance(data, list) and data:
+        return data[0]
+    if isinstance(data, dict):
+        return data
+    return payload
+
+
+def call_rpc(function_name: str, payload: Dict[str, Any]) -> Any:
+    """Call a PostgREST-exposed Supabase function with a safe identifier.
+
+    The backend uses this for database-side atomic operations that cannot be
+    represented safely as separate REST reads and updates.
+    """
+    name = str(function_name or "").strip()
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+        raise ProductionStoreError("RPC function name must be a safe SQL identifier.")
+    return _request("POST", f"rpc/{name}", payload)
+
+
+def upsert_row(table: str, payload: Dict[str, Any], *, on_conflict: str) -> Dict[str, Any]:
+    """Insert or update one row using a declared unique key.
+
+    This intentionally accepts only a simple column identifier for ``on_conflict``
+    so operational callers cannot interpolate arbitrary PostgREST query strings.
+    """
+    key = str(on_conflict or "").strip()
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key):
+        raise ProductionStoreError("Upsert requires a safe on_conflict column name.")
+    data = _request(
+        "POST",
+        f"{table}?on_conflict={urllib.parse.quote(key, safe='')}",
+        payload,
+        headers={"Prefer": "resolution=merge-duplicates,return=representation"},
+    )
     if isinstance(data, list) and data:
         return data[0]
     if isinstance(data, dict):

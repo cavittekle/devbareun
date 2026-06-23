@@ -17,7 +17,24 @@ Super Admin staff roles are stored in `users_profile.role`:
 - `finance` - payments, credits, activity
 - `operator` - projects, reports, activity
 
-Customer users stay as `user` or `customer`.
+Customer users should use `customer`. The older `user` and `admin` role names are accepted only for legacy compatibility; new production staff should use `owner`, `support`, `analyst`, `finance`, or `operator`.
+
+## Permission Matrix
+
+| Module | owner | support | analyst | finance | operator | customer |
+| --- | --- | --- | --- | --- | --- | --- |
+| Overview | yes | yes | yes | yes | yes | no |
+| Customers | yes | yes | no | no | no | no |
+| Projects | yes | no | yes | no | yes | no |
+| Uploads | yes | no | yes | no | no | no |
+| Reports | yes | no | yes | no | yes | no |
+| Payments | yes | no | no | yes | no | no |
+| Credits | yes | no | no | yes | no | no |
+| Support | yes | yes | no | no | no | no |
+| Activity | yes | yes | yes | yes | yes | no |
+| Audit | yes | no | no | no | no | no |
+| Staff management | yes | no | no | no | no | no |
+| Analysis operations / recovery | yes | no | no | no | yes | no |
 
 ## First Owner Setup
 
@@ -75,3 +92,7 @@ The Super Admin panel reads protected backend endpoints for:
 - Staff
 
 Admin/staff actions are written to `audit_logs` when possible.
+
+## Boundary rule
+
+A staff label does not grant unrestricted customer-data access. Backend project, upload, analysis and report routes check the capability for their own resource area. Customer status endpoints cannot modify staff users; use the owner-only Staff module for staff role/status changes. See `PANEL_ACCESS_BOUNDARIES_V1423.md`.

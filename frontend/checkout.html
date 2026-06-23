@@ -3,28 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Checkout — DevBareun</title>
-  <link rel="stylesheet" href="css/styles.css?v=14025" />
-  <link rel="stylesheet" href="css/saas-auth.css?v=13936" />
-  <link rel="stylesheet" href="css/persistent-workspace.css?v=13936" />
+  <title>Checkout - DevBareun</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="assets/favicon.png?v=2" />
+  <script>
+    const target = new URL('/workspace/', location.origin);
+    target.searchParams.set('view', 'checkout');
+    new URLSearchParams(location.search).forEach((value, key) => target.searchParams.set(key, value));
+    location.replace(target.pathname + target.search);
+  </script>
 </head>
-<body data-protected="true" class="workspace-page">
-  <main class="workspace-layout">
-    <aside class="workspace-sidebar">
-      <a class="brand-link" href="/">DevBareun</a>
-      <nav>
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/projects.html">Projects</a>
-        <a href="/reports.html">Reports</a>
-        <a class="active" href="/billing.html">Billing</a>
-      </nav>
-    </aside>
-    <section class="workspace-main" id="checkoutPanel">
-      <p class="muted">Loading checkout...</p>
-    </section>
-  </main>
-  <script src="js/devbareun-api.js?v=14000"></script>
-  <script src="js/auth-workspace.js?v=13936"></script>
-  <script src="js/payment-flow.js"></script>
-</body>
+<body><p>Opening DevBareun checkout...</p></body>
 </html>
