@@ -17,6 +17,7 @@ node_modules/
 dist/
 build/
 frontend/workspace/
+frontend/public/
 .vercel/
 .netlify/
 
