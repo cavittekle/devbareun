@@ -42,7 +42,7 @@ async def start_analysis(
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    project = await require_project_owner(project_id, current_user, section="analysis_run")
+    project = await require_project_owner(project_id, current_user, section="projects")
     analysis_type = (payload.analysis_type if payload else "all") or "all"
     response = create_analysis_job(
         project_id=project_id,
@@ -74,7 +74,7 @@ async def analysis_job(job_id: str, current_user: CurrentUser = Depends(get_curr
 
 @router.get("/results/{project_id}")
 async def analysis_results(project_id: str, current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
-    project = await require_project_owner(project_id, current_user, section="analysis_view")
+    project = await require_project_owner(project_id, current_user, section="projects")
     result = get_latest_analysis_result(project_id, project, current_user)
     return {"project_id": project_id, "analysis_result": result}
 
