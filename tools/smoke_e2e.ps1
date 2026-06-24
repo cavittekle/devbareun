@@ -34,6 +34,7 @@ Assert-Ok "$FrontendBase/faq.html"
 Assert-Ok "$FrontendBase/login.html"
 Assert-Ok "$BackendBase/api/health"
 Assert-Ok "$BackendBase/api/saas/health"
+Assert-Ok "$BackendBase/api/version"
 Assert-LegacyGone "$BackendBase/api/projects/test-project/preflight"
 
 Write-Output "DevBareun smoke E2E passed."

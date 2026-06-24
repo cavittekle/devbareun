@@ -2,6 +2,8 @@
 
 Use this as the final pre-launch runbook.
 
+Provider-specific live values are listed in `docs/LIVE_PROVIDER_SETUP_LIST.md`.
+
 ## 1. Deploy Roots
 
 - [ ] Repository root is not deployed.
@@ -9,6 +11,8 @@ Use this as the final pre-launch runbook.
 - [ ] Vercel Root Directory is `frontend`.
 - [ ] Railway Root Directory is `backend`.
 - [ ] `frontend/vercel.json` is detected by Vercel.
+- [ ] Vercel build command runs `npm run build` from `frontend`.
+- [ ] `/workspace/` serves the generated React customer workspace.
 - [ ] `backend/railway.json` is detected by Railway.
 
 ## 2. Domains
@@ -42,8 +46,9 @@ Use this as the final pre-launch runbook.
 
 - [ ] Root Directory is `frontend`.
 - [ ] `index.html` loads.
-- [ ] `login.html` loads.
-- [ ] `register.html` loads.
+- [ ] `/workspace/?view=login` loads the React login screen.
+- [ ] `/workspace/?view=register` loads the React account screen.
+- [ ] Legacy auth URLs redirect to the React workspace auth screens.
 - [ ] Pricing buttons route to the correct checkout or account flow.
 - [ ] Loader does not get stuck on landing or auth pages.
 - [ ] No backend-only secret exists in Vercel environment variables.
@@ -52,6 +57,7 @@ Use this as the final pre-launch runbook.
 ## 5. Supabase
 
 - [ ] SQL files are applied using `database/SUPABASE_DEPLOY_ORDER.md`.
+- [ ] `database/production_rls_audit.sql` has been run and reviewed.
 - [ ] RLS policies are reviewed.
 - [ ] Private bucket `project-files` exists.
 - [ ] Private bucket `reports` exists if report archive storage is used.
@@ -80,6 +86,7 @@ Use this as the final pre-launch runbook.
 ## 7. Final QA
 
 - [ ] `tools/smoke_e2e.ps1` passes against the target frontend/backend URLs.
+- [ ] `tools/production_readiness_check.ps1 -FrontendUrl https://devbareun.com -BackendUrl https://devbareun-production.up.railway.app` passes.
 - [ ] Single Project upload works without account.
 - [ ] Single Project payment unlocks dashboard/report flow.
 - [ ] Plus registration creates workspace access.
@@ -90,7 +97,8 @@ Use this as the final pre-launch runbook.
 - [ ] Excel export opens.
 - [ ] Mobile layout remains usable.
 
-## 8. Future Scale
+## 8. Production Rate Limit
 
-- [ ] In-memory rate limiting is acceptable only for one Railway instance.
-- [ ] `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are configured before multi-instance scale.
+- [ ] `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are configured in Railway.
+- [ ] `DEVBAREUN_ALLOW_IN_MEMORY_RATE_LIMIT=false` in production.
+- [ ] A request without Redis in production returns `rate_limiter_not_configured` instead of silently using in-memory limits.

@@ -8,16 +8,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Optional
-from fastapi import APIRouter, Cookie, Header, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 
-from .security_runtime import bool_env, production_security_enabled
+from .security_runtime import bool_env, production_security_enabled, set_csrf_cookie
 from .auth_runtime import (
     AuthError,
     create_pilot_session,
-    verify_supabase_token,
-    get_bearer_token,
-    auth_user_payload,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -37,6 +34,7 @@ def _set_auth_cookie(response: Response, token: str | None) -> None:
         max_age=60 * 60 * 24 * 7,
         path="/",
     )
+    set_csrf_cookie(response)
 
 
 class LoginRequest(BaseModel):
@@ -69,6 +67,8 @@ async def pilot_login(payload: LoginRequest, response: Response):
     Pilot login for staging/demo environments.
     Production should use Supabase Auth on the frontend and pass the Supabase JWT.
     """
+    if not bool_env("DEVBAREUN_ENABLE_PILOT_LOGIN", False):
+        raise HTTPException(status_code=403, detail="Pilot login is disabled. Enable DEVBAREUN_ENABLE_PILOT_LOGIN only for local development.")
     if production_security_enabled():
         raise HTTPException(status_code=403, detail="Pilot login is disabled in production security mode.")
     try:
@@ -86,19 +86,7 @@ async def pilot_login(payload: LoginRequest, response: Response):
         raise HTTPException(status_code=400, detail={"error": "pilot_login_failed", "message": "Pilot login could not be completed."}) from exc
 
 
-@router.get("/me")
-async def me(authorization: Optional[str] = Header(None), auth_cookie: Optional[str] = Cookie(default=None, alias=AUTH_COOKIE)):
-    token = get_bearer_token(authorization) or auth_cookie
-    if not token:
-        raise HTTPException(status_code=401, detail="Missing bearer token.")
-    try:
-        user = await verify_supabase_token(token)
-    except AuthError as exc:
-        raise HTTPException(status_code=401, detail={"error": "unauthorized", "message": "Invalid or expired session."}) from exc
-    return {"user": auth_user_payload(user), "authenticated": True}
-
-
-@router.post("/logout")
-async def logout(response: Response):
-    response.delete_cookie(AUTH_COOKIE, path="/")
-    return {"ok": True}
+@router.get("/csrf")
+async def csrf(response: Response):
+    token = set_csrf_cookie(response)
+    return {"csrf_token": token}

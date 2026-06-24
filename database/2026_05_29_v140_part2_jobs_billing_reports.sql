@@ -26,12 +26,12 @@ create policy analysis_jobs_owner_or_admin_v140_part2 on public.analysis_jobs
 for all using (
   owner_email = auth.jwt() ->> 'email'
   or user_id = auth.uid()
-  or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role = 'admin')
+  or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role in ('admin', 'owner', 'support', 'analyst', 'finance', 'operator'))
 )
 with check (
   owner_email = auth.jwt() ->> 'email'
   or user_id = auth.uid()
-  or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role = 'admin')
+  or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role in ('admin', 'owner', 'support', 'analyst', 'finance', 'operator'))
 );
 
 drop policy if exists payments_owner_or_admin_v140_part2 on public.payments;
@@ -39,5 +39,5 @@ create policy payments_owner_or_admin_v140_part2 on public.payments
 for select using (
   owner_email = auth.jwt() ->> 'email'
   or user_id = auth.uid()
-  or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role = 'admin')
+  or exists (select 1 from public.users_profile p where p.auth_user_id = auth.uid() and p.role in ('admin', 'owner', 'support', 'analyst', 'finance', 'operator'))
 );

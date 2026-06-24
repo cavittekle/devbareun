@@ -14,6 +14,9 @@ DANGEROUS_UPLOAD_EXTENSIONS = {
     ".exe", ".dll", ".bat", ".cmd", ".com", ".ps1", ".vbs", ".js", ".mjs", ".sh", ".php", ".py", ".jar", ".msi"
 }
 
+SHA256_HEX_RE = re.compile(r"^[a-fA-F0-9]{64}$")
+
+
 ALLOWED_MIME_TYPES = {
     "",
     "application/octet-stream",
@@ -94,3 +97,17 @@ def validate_magic_signature(sample: bytes, filename: str) -> bool:
     if ext in {".csv", ".xml", ".xer"}:
         return b"\x00" not in sample[:4096]
     return False
+
+
+def normalize_sha256_checksum(value: str | None) -> str | None:
+    """Normalize an optional SHA-256 digest supplied by the browser.
+
+    The value is only trusted after the worker re-computes it from the private
+    storage object before parser execution.
+    """
+    if value in (None, ""):
+        return None
+    checksum = str(value).strip().lower()
+    if not SHA256_HEX_RE.fullmatch(checksum):
+        raise ValueError("checksum must be a 64-character SHA-256 hex digest.")
+    return checksum

@@ -8,7 +8,7 @@ Project type: Construction analytics, project control, reporting, and management
 
 Main goal: Allow users to upload construction project data and receive structured project control dashboards, reports, risk summaries, schedule/cost analysis, and exportable PDF/Excel outputs.
 
-Current status: Fill this section with the latest accepted version after each major change.
+Current status: v1.4.29 source package prepared. Production provider deployment, external object-copy backup and an isolated restore drill remain pending.
 
 ## Approved Product Direction
 

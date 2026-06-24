@@ -16,3 +16,6 @@ pypdf==5.1.0
 
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+
+# Optional external error telemetry (enabled only when DEVBAREUN_SENTRY_DSN is configured)
+sentry-sdk>=2.0,<3.0

@@ -23,7 +23,7 @@ create table if not exists public.users (
   auth_user_id uuid,
   company_id text references public.companies(company_id),
   email text unique not null,
-  role text default 'owner',
+  role text default 'customer',
   status text default 'active',
   created_at timestamptz default now(),
   updated_at timestamptz default now()

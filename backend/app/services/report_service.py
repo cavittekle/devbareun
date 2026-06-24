@@ -1,18 +1,26 @@
 from __future__ import annotations
 
 from datetime import datetime
+import hashlib
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from fastapi import HTTPException
 
 from ..auth_dependencies import CurrentUser, local_store_enabled
-from ..production_store import ProductionStoreError, first_existing, insert_row, is_configured, select_rows, uuid_like
+from ..access_control import can_access_project_scope, is_staff_role
+from .project_sharing_service import can_access_project_resource
+from .project_activity_service import record_project_activity
+from ..production_store import ProductionStoreError, call_rpc, first_existing, insert_row, is_configured, select_rows, uuid_like
 from ..reports import build_excel_bytes, build_pdf_bytes
 from .analysis_job_service import get_latest_analysis_result
 
 
 REPORT_DIR = Path(__file__).resolve().parents[2] / "data" / "reports"
+REPORT_SNAPSHOT_VERSION = "v1"
+PDF_MEDIA_TYPE = "application/pdf"
+EXCEL_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
 def list_project_reports(project_id: str, project: Dict[str, Any], user: CurrentUser) -> Dict[str, Any]:
@@ -25,13 +33,21 @@ def list_project_reports(project_id: str, project: Dict[str, Any], user: Current
         rows = list_rows("reports", project_id=project_id)
     else:
         rows = []
-    rows = [row for row in rows if _row_belongs_to_user(row, user)]
+    # Route-level project authorization already verified the caller. Filtering
+    # by report owner here would hide frozen reports from explicitly shared
+    # project viewers.
     rows.sort(key=lambda row: str(row.get("created_at") or ""), reverse=True)
     return {"project_id": project_id, "reports": [_report_api(row, project) for row in rows]}
 
 
 def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Project Control Report") -> Dict[str, Any]:
-    fmt = "excel" if str(report_format).lower() in {"excel", "xlsx"} else "pdf"
+    """Create an immutable report snapshot from the latest completed analysis.
+
+    Production report rows retain the dashboard payload used at generation time.
+    A later analysis cannot silently change what an existing report downloads.
+    """
+    fmt = normalize_report_format(report_format)
+    safe_report_type = normalize_report_type(report_type)
     result = get_latest_analysis_result(project_id, project, user)
     if not result:
         raise HTTPException(status_code=404, detail={"error": "analysis_missing", "message": "Run project performance review before generating a report."})
@@ -39,35 +55,84 @@ def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser,
     payload = legacy_report_payload(project, result)
     content = build_excel_bytes(payload, lang="en") if fmt == "excel" else build_pdf_bytes(payload, lang="en", paper="a4")
     extension = "xlsx" if fmt == "excel" else "pdf"
-    media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if fmt == "excel" else "application/pdf"
-    report_name = f"{project.get('project_name') or 'DevBareun Project'} {report_type}"
+    media_type = EXCEL_MEDIA_TYPE if fmt == "excel" else PDF_MEDIA_TYPE
+    report_name = f"{project.get('project_name') or 'DevBareun Project'} {safe_report_type}"
     storage_path = _store_local_report(content, project_id, extension) if local_store_enabled() else None
-    row = _insert_report_row(user, project, project_id, result, report_name, report_type, fmt.upper(), storage_path, media_type)
-    return {"report": _report_api(row, project), "download_ready": True}
-
+    row = _insert_report_row(
+        user=user,
+        project=project,
+        project_id=project_id,
+        result=result,
+        report_name=report_name,
+        report_type=safe_report_type,
+        fmt=fmt.upper(),
+        storage_path=storage_path,
+        media_type=media_type,
+        report_payload=payload,
+        payload_sha256=_payload_sha256(payload),
+        content_sha256=_content_sha256(content),
+    )
+    try:
+        record_project_activity(
+            project,
+            user,
+            "report.generated",
+            "report",
+            str(row.get("report_id") or row.get("id") or "") or None,
+            {"format": fmt, "report_type": safe_report_type, "snapshot_version": REPORT_SNAPSHOT_VERSION},
+        )
+    except Exception:
+        pass
+    return {"report": _report_api(row, project), "download_ready": True, "snapshot_version": REPORT_SNAPSHOT_VERSION}
 
 def get_report_download(report_id: str, user: CurrentUser) -> Tuple[bytes, str, str]:
+    """Return a user-authorized report file and record a successful download.
+
+    Stored file content is preferred for local/pilot operation. In production,
+    reports can be rendered again from the frozen ``report_payload`` snapshot.
+    Legacy rows created before snapshot support retain a compatibility fallback.
+    """
     report = _find_report(report_id)
     if not report:
         raise HTTPException(status_code=404, detail={"error": "not_found", "message": "Report was not found."})
-    if not _row_belongs_to_user(report, user):
-        raise HTTPException(status_code=403, detail={"error": "forbidden", "message": "You can download only your own report."})
-    storage_path = report.get("storage_path")
-    fmt = str(report.get("format") or report.get("report_format") or "PDF").lower()
-    media_type = report.get("media_type") or ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if fmt in {"excel", "xlsx"} else "application/pdf")
-    filename = _safe_filename(report.get("report_name") or report.get("name") or "DevBareun_Report", "xlsx" if fmt in {"excel", "xlsx"} else "pdf")
-    if storage_path and Path(str(storage_path)).exists():
-        return Path(str(storage_path)).read_bytes(), media_type, filename
-
     project = _find_project_for_report(report)
-    result = _find_result_for_report(report)
-    if not result:
-        raise HTTPException(status_code=404, detail={"error": "analysis_missing", "message": "Saved analysis result was not found for this report."})
-    payload = legacy_report_payload(project or {}, result)
-    if fmt in {"excel", "xlsx"}:
-        return build_excel_bytes(payload, lang="en"), media_type, filename
-    return build_pdf_bytes(payload, lang="en", paper="a4"), media_type, filename
+    # Legacy snapshots without a recoverable project row retain the original
+    # direct-owner check. New/shared reports always authorize against the
+    # project-scoped grant before file content is rendered.
+    allowed = _report_project_access_allowed(project, user) if project else _row_belongs_to_user(report, user)
+    if not allowed:
+        raise HTTPException(status_code=403, detail={"error": "forbidden", "message": "You do not have permission to download this report."})
 
+    fmt = normalize_report_format(report.get("format") or report.get("report_format") or "pdf")
+    media_type = report.get("media_type") or (EXCEL_MEDIA_TYPE if fmt == "excel" else PDF_MEDIA_TYPE)
+    filename = _safe_filename(report.get("report_name") or report.get("name") or "DevBareun_Report", "xlsx" if fmt == "excel" else "pdf")
+    storage_path = report.get("storage_path")
+    if storage_path and Path(str(storage_path)).exists():
+        content = Path(str(storage_path)).read_bytes()
+    else:
+        payload = report.get("report_payload")
+        if not isinstance(payload, dict) or not payload:
+            project = _find_project_for_report(report)
+            result = _find_result_for_report(report)
+            if not result:
+                raise HTTPException(status_code=404, detail={"error": "analysis_missing", "message": "Saved analysis result was not found for this report."})
+            payload = legacy_report_payload(project or {}, result)
+        content = build_excel_bytes(payload, lang="en") if fmt == "excel" else build_pdf_bytes(payload, lang="en", paper="a4")
+
+    _record_report_download(report, user)
+    if project:
+        try:
+            record_project_activity(
+                project,
+                user,
+                "report.downloaded",
+                "report",
+                str(report.get("report_id") or report.get("id") or report_id) or None,
+                {"format": fmt, "snapshot_available": bool(report.get("report_payload"))},
+            )
+        except Exception:
+            pass
+    return content, media_type, filename
 
 def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, Any]) -> Dict[str, Any]:
     dashboard_data = analysis_result.get("dashboard_data") or {}
@@ -145,6 +210,7 @@ def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, An
                 "warnings": (analysis_result.get("normalized_data") or {}).get("warnings") or [],
                 "sheet_profiles": ((analysis_result.get("normalized_data") or {}).get("evidence") or {}).get("sheet_profiles") or [],
             },
+            "analysis_provenance": analysis_result.get("input_manifest") or ((analysis_result.get("normalized_data") or {}).get("analysis_provenance")) or dashboard_data.get("analysis_provenance") or {},
         },
     }
 
@@ -216,7 +282,11 @@ def _insert_report_row(
     fmt: str,
     storage_path: str | None,
     media_type: str,
+    report_payload: Dict[str, Any],
+    payload_sha256: str,
+    content_sha256: str,
 ) -> Dict[str, Any]:
+    generated_at = datetime.utcnow().isoformat()
     payload = {
         "user_id": _user_uuid(user),
         "project_id": _project_db_id(project, project_id),
@@ -227,8 +297,15 @@ def _insert_report_row(
         "format": fmt,
         "media_type": media_type,
         "storage_path": storage_path,
+        "report_payload": report_payload,
+        "payload_sha256": payload_sha256,
+        "content_sha256": content_sha256,
+        "snapshot_version": REPORT_SNAPSHOT_VERSION,
+        "generated_at": generated_at,
+        "download_count": 0,
         "status": "ready",
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": generated_at,
+        "updated_at": generated_at,
     }
     if is_configured():
         try:
@@ -241,6 +318,69 @@ def _insert_report_row(
 
         return insert("reports", {**payload, "id": make_public_id("report"), "report_id": make_public_id("report"), "project_id": project_id})
     raise HTTPException(status_code=503, detail={"error": "database_not_configured", "message": "Report archive requires Supabase PostgreSQL or explicit local fallback."})
+
+def normalize_report_format(value: Any) -> str:
+    normalized = str(value or "pdf").strip().lower()
+    aliases = {"pdf": "pdf", "xlsx": "excel", "excel": "excel"}
+    if normalized not in aliases:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": "unsupported_report_format", "message": "report_format must be one of: pdf, excel, xlsx."},
+        )
+    return aliases[normalized]
+
+
+def normalize_report_type(value: Any) -> str:
+    normalized = " ".join(str(value or "Project Control Report").split())
+    if not normalized:
+        normalized = "Project Control Report"
+    if len(normalized) > 120:
+        raise HTTPException(status_code=422, detail={"error": "invalid_report_type", "message": "report_type must not exceed 120 characters."})
+    return normalized
+
+
+def _canonical_payload_bytes(payload: Dict[str, Any]) -> bytes:
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+
+
+def _payload_sha256(payload: Dict[str, Any]) -> str:
+    return hashlib.sha256(_canonical_payload_bytes(payload)).hexdigest()
+
+
+def _content_sha256(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def _record_report_download(report: Dict[str, Any], user: CurrentUser) -> None:
+    """Best-effort audit increment after authorization and file generation.
+
+    The DB RPC increments the counter atomically. A failure to write telemetry
+    must not turn an otherwise valid report download into an error.
+    """
+    report_db_id = str(report.get("id") or "")
+    if is_configured() and uuid_like(report_db_id):
+        try:
+            call_rpc("record_report_download", {"p_report_id": report_db_id})
+        except ProductionStoreError:
+            return
+        return
+    if local_store_enabled():
+        from ..saas_store import update_one
+
+        key = "id" if report.get("id") else "report_id"
+        value = str(report.get(key) or "")
+        if not value:
+            return
+        now = datetime.utcnow().isoformat()
+        update_one(
+            "reports",
+            key,
+            value,
+            {
+                "download_count": int(report.get("download_count") or 0) + 1,
+                "last_downloaded_at": now,
+            },
+        )
 
 
 def _find_report(report_id: str) -> Dict[str, Any] | None:
@@ -293,8 +433,12 @@ def _store_local_report(content: bytes, project_id: str, extension: str) -> str:
 
 
 def _report_api(row: Dict[str, Any], project: Dict[str, Any]) -> Dict[str, Any]:
+    report_id = row.get("id") or row.get("report_id")
+    payload = row.get("report_payload")
+    snapshot_available = isinstance(payload, dict) and bool(payload)
     return {
-        "id": row.get("id") or row.get("report_id"),
+        "id": report_id,
+        "report_id": row.get("report_id") or report_id,
         "report_name": row.get("report_name") or row.get("name") or "Project Control Report",
         "name": row.get("report_name") or row.get("name") or "Project Control Report",
         "project_name": project.get("project_name") or row.get("project_name"),
@@ -303,14 +447,32 @@ def _report_api(row: Dict[str, Any], project: Dict[str, Any]) -> Dict[str, Any]:
         "type": row.get("report_type") or "Project Control",
         "created_date": row.get("created_at"),
         "created": row.get("created_at"),
-        "format": row.get("format") or "PDF",
+        "generated_at": row.get("generated_at") or row.get("created_at"),
+        "format": str(row.get("format") or "PDF").upper(),
         "status": row.get("status") or "ready",
+        "snapshot_version": row.get("snapshot_version") or (REPORT_SNAPSHOT_VERSION if snapshot_available else None),
+        "snapshot_available": snapshot_available,
+        "payload_sha256": row.get("payload_sha256"),
+        "content_sha256": row.get("content_sha256"),
+        "download_count": int(row.get("download_count") or 0),
+        "last_downloaded_at": row.get("last_downloaded_at"),
+        "download_path": f"/api/reports/{report_id}/download" if report_id else None,
     }
+
+def _report_project_access_allowed(project: Dict[str, Any], user: CurrentUser) -> bool:
+    if is_staff_role(user.role):
+        return can_access_project_scope(user.role, "reports")
+    try:
+        return can_access_project_resource(project, user, "reports")
+    except ProductionStoreError:
+        return False
 
 
 def _row_belongs_to_user(row: Dict[str, Any], user: CurrentUser) -> bool:
-    if user.is_admin:
-        return True
+    # Report downloads expose customer project findings, so staff need the
+    # explicit reports permission rather than a broad staff bypass.
+    if is_staff_role(user.role):
+        return can_access_project_scope(user.role, "reports")
     values = {str(row.get("user_id") or "").lower(), str(row.get("owner_email") or "").lower()}
     return bool(values.intersection({str(user.id).lower(), str(user.auth_user_id).lower(), str(user.email).lower()}))
 

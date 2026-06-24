@@ -1,0 +1,11 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "python -m app.analysis_worker --loop --interval ${DEVBAREUN_ANALYSIS_WORKER_INTERVAL:-10} --batch-size ${DEVBAREUN_ANALYSIS_WORKER_BATCH_SIZE:-1}",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}

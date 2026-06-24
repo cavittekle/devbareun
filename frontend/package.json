@@ -1,0 +1,11 @@
+{
+  "name": "devbareun-frontend",
+  "version": "1.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-workspace.mjs",
+    "build:workspace": "node scripts/build-workspace.mjs",
+    "check": "node scripts/build-workspace.mjs --check-only"
+  }
+}

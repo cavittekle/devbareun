@@ -10,6 +10,8 @@ DevBareun has two deploy targets. The repository root is not a deploy target.
 - Do not deploy the repository root.
 - Do not copy backend-only secrets into Vercel.
 
+The React customer workspace lives in `frontend/member-dashboard-app/`. The Vercel build command for `frontend` builds it into generated output at `/workspace/`. Legacy workspace/auth/payment/result URLs are redirect shells only and should not render separate static workspace UI.
+
 ## Railway
 
 - Root Directory: `backend`

@@ -3,22 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login - DevBareun Member Workspace</title>
-  <meta name="description" content="Secure sign-in for the DevBareun member workspace." />
+  <title>Login - DevBareun Workspace</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="canonical" href="https://devbareun.com/login.html" />
-  <meta property="og:title" content="Login - DevBareun Member Workspace" />
-  <meta property="og:description" content="Secure sign-in for the DevBareun member workspace." />
-  <meta property="og:url" content="https://devbareun.com/login.html" />
-  <meta name="theme-color" content="#050B1A" />
   <link rel="icon" href="assets/favicon.png?v=2" />
-  <link rel="stylesheet" href="css/member-workspace.css?v=14032" />
+  <script>
+    const query = new URLSearchParams(location.search);
+    const target = new URL('/workspace/', location.origin);
+    target.searchParams.set('view', 'login');
+    if (query.get('next')) target.searchParams.set('next', query.get('next'));
+    location.replace(target.pathname + target.search);
+  </script>
 </head>
-<body class="member-auth-page" data-member-page="login">
-  <noscript>DevBareun Member Workspace requires JavaScript.</noscript>
-  <div id="memberWorkspaceApp"></div>
-  <script src="js/devbareun-api.js?v=14000"></script>
-  <script src="js/member-upload-client.js?v=14035"></script>
-  <script src="js/member-workspace.js?v=13940"></script>
-</body>
+<body><p>Opening DevBareun workspace login...</p></body>
 </html>

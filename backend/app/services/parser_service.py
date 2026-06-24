@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import tempfile
 import urllib.request
+import hashlib
+from datetime import datetime, timezone
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Sequence
 
 from ..analyzer import apply_baseline_actual_guardrails
 from ..analysis_types import normalize_analysis_type, parser_analysis_type
-from ..file_validation import validate_magic_signature
+from ..file_validation import normalize_sha256_checksum, validate_magic_signature
+from ..upload_security import screen_materialized_upload
 from ..models import ParsedProjectData
 from ..parser import ConstructionFileParser
 from ..security_runtime import int_env
@@ -186,7 +189,10 @@ def _materialized_files(file_rows: Sequence[Dict[str, Any]]) -> Iterator[List[Pa
         for row in file_rows:
             local_path = row.get("local_path")
             if local_path and Path(str(local_path)).exists():
-                paths.append(Path(str(local_path)))
+                local = Path(str(local_path))
+                _verify_materialized_checksum(row, local)
+                screen_materialized_upload(row, local)
+                paths.append(local)
                 continue
             storage_path = row.get("storage_path")
             if not storage_path:
@@ -210,6 +216,7 @@ def _download_storage_object(file_row: Dict[str, Any], base: Path) -> Path | Non
     max_bytes = int_env("DEVBAREUN_MAX_FILE_MB", 30) * 1024 * 1024
     first_bytes = bytearray()
     written = 0
+    digest = hashlib.sha256()
     with urllib.request.urlopen(url, timeout=30) as response:
         length_header = response.headers.get("Content-Length")
         if length_header:
@@ -231,6 +238,7 @@ def _download_storage_object(file_row: Dict[str, Any], base: Path) -> Path | Non
                     raise ValueError(f"File is too large for parser download: {filename}.")
                 if len(first_bytes) < 4096:
                     first_bytes.extend(chunk[: 4096 - len(first_bytes)])
+                digest.update(chunk)
                 handle.write(chunk)
     if written <= 0:
         target.unlink(missing_ok=True)
@@ -238,7 +246,52 @@ def _download_storage_object(file_row: Dict[str, Any], base: Path) -> Path | Non
     if not validate_magic_signature(bytes(first_bytes), filename):
         target.unlink(missing_ok=True)
         raise ValueError(f"File signature did not match allowed parser formats: {filename}")
+    _verify_materialized_checksum(file_row, target, actual_checksum=digest.hexdigest())
+    screen_materialized_upload(file_row, target)
     return target
+
+
+def _checksum_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _verify_materialized_checksum(file_row: Dict[str, Any], path: Path, *, actual_checksum: str | None = None) -> None:
+    """Verify source bytes against browser-provided SHA-256 before parsing.
+
+    Mutable row fields are later persisted by the analysis job service; that keeps
+    parser code storage-agnostic while still exposing integrity state in the UI.
+    """
+    filename = str(file_row.get("original_filename") or file_row.get("original_name") or path.name)
+    try:
+        expected = normalize_sha256_checksum(file_row.get("checksum"))
+    except ValueError as exc:
+        file_row.update({
+            "checksum_status": "invalid",
+            "checksum_error": "invalid_registered_checksum",
+            "checksum_verified_at": _checksum_timestamp(),
+        })
+        raise ValueError(f"Invalid SHA-256 checksum metadata for {filename}.") from exc
+    if actual_checksum is None:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        actual_checksum = digest.hexdigest()
+    file_row["verified_checksum"] = actual_checksum
+    file_row["checksum_verified_at"] = _checksum_timestamp()
+    if not expected:
+        file_row["checksum_status"] = "not_provided"
+        return
+    if expected != actual_checksum:
+        file_row.update({
+            "checksum_status": "mismatch",
+            "checksum_error": "checksum_mismatch",
+        })
+        raise ValueError(f"File checksum did not match the registered upload record: {filename}")
+    file_row.update({
+        "checksum_status": "verified",
+        "checksum_error": None,
+    })
 
 
 def _signed_url_to_absolute(raw: Dict[str, Any]) -> str:
@@ -277,6 +330,13 @@ def _file_summary(row: Dict[str, Any]) -> Dict[str, Any]:
         "size_bytes": row.get("size_bytes") or row.get("file_size_bytes"),
         "status": row.get("upload_status") or row.get("status"),
         "parser_status": row.get("parser_status"),
+        "checksum_status": row.get("checksum_status") or "not_provided",
+        "checksum_verified_at": row.get("checksum_verified_at"),
+        "security_scan_status": row.get("security_scan_status") or "pending",
+        "security_scan_engine": row.get("security_scan_engine"),
+        "security_scan_completed_at": row.get("security_scan_completed_at"),
+        "security_scan_findings": row.get("security_scan_findings") or [],
+        "quarantine_status": row.get("quarantine_status") or "pending_scan",
     }
 
 

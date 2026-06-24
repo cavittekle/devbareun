@@ -20,6 +20,12 @@
     return location.hostname === "devbareun.com" || location.hostname === "www.devbareun.com";
   }
 
+  function shouldPersistBearerToken() {
+    // Bearer-token persistence is restricted to local/dev previews. Production
+    // hosts must rely on the backend-managed HTTP-only auth cookie.
+    return !isProductionFrontendHost();
+  }
+
   function localDefaultApi() {
     if (localStorage.getItem("devbareun_use_local_backend") !== "true") {
       return DEFAULT_REMOTE_API;
@@ -53,6 +59,29 @@
     }
   }
 
+  function readCookie(name) {
+    return document.cookie.split(";").map(function (item) { return item.trim(); }).filter(Boolean).map(function (item) { return item.split("="); }).reduce(function (found, parts) {
+      if (found) return found;
+      return decodeURIComponent(parts[0] || "") === name ? parts.slice(1).join("=") : "";
+    }, "");
+  }
+
+  async function ensureCsrfTokenHeader(headers, method) {
+    var unsafe = ["GET", "HEAD", "OPTIONS", "TRACE"].indexOf(String(method || "GET").toUpperCase()) === -1;
+    if (!unsafe || headers.has("X-CSRF-Token")) return;
+    var token = readCookie("devbareun_csrf");
+    if (!token) {
+      try {
+        var response = await fetch(requestUrl("/api/auth/csrf"), { credentials: "include" });
+        var payload = await parseResponse(response);
+        token = readCookie("devbareun_csrf") || (payload && payload.csrf_token) || "";
+      } catch (_) {
+        token = "";
+      }
+    }
+    if (token) headers.set("X-CSRF-Token", decodeURIComponent(token));
+  }
+
   function normalizeSession(session) {
     if (!session) return null;
     if (!session.access_token && session.auth && session.auth.access_token) {
@@ -62,6 +91,9 @@
   }
 
   function readSession() {
+    if (isProductionFrontendHost() && !shouldPersistBearerToken()) {
+      return safeJsonParse(localStorage.getItem(SESSION_KEY)) || null;
+    }
     return normalizeSession(
       safeJsonParse(localStorage.getItem(SESSION_KEY)) ||
       safeJsonParse(localStorage.getItem(LEGACY_SESSION_KEY))
@@ -71,14 +103,30 @@
   function saveSession(session) {
     if (!session) return;
     var normalized = normalizeSession(session);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(normalized));
-    localStorage.setItem(LEGACY_SESSION_KEY, JSON.stringify(normalized));
-    if (normalized && normalized.access_token) {
+    var persisted = Object.assign({}, normalized || {});
+    if (!shouldPersistBearerToken()) {
+      delete persisted.access_token;
+      delete persisted.refresh_token;
+      if (persisted.auth) {
+        persisted.auth = Object.assign({}, persisted.auth);
+        delete persisted.auth.access_token;
+        delete persisted.auth.refresh_token;
+      }
+    }
+    localStorage.setItem(SESSION_KEY, JSON.stringify(persisted));
+    if (shouldPersistBearerToken()) {
+      localStorage.setItem(LEGACY_SESSION_KEY, JSON.stringify(persisted));
+    } else {
+      localStorage.removeItem(LEGACY_SESSION_KEY);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+    if (normalized && normalized.access_token && shouldPersistBearerToken()) {
       localStorage.setItem(AUTH_TOKEN_KEY, normalized.access_token);
     }
   }
 
   function getAuthToken() {
+    if (!shouldPersistBearerToken()) return null;
     var direct = localStorage.getItem(AUTH_TOKEN_KEY);
     if (direct) return direct;
     var session = readSession();
@@ -87,6 +135,7 @@
 
   function setAuthToken(token, sessionPatch) {
     if (!token) return;
+    if (!shouldPersistBearerToken()) return;
     localStorage.setItem(AUTH_TOKEN_KEY, token);
     var session = Object.assign({}, readSession() || {}, sessionPatch || {}, { access_token: token });
     saveSession(session);
@@ -146,6 +195,7 @@
       var token = getAuthToken();
       if (token) headers.set("Authorization", "Bearer " + token);
     }
+    await ensureCsrfTokenHeader(headers, method);
 
     try {
       var response = await fetch(requestUrl(path), Object.assign({ credentials: "include" }, options, { method: method, headers: headers }));
@@ -239,24 +289,28 @@
     return apiRequest("/api/projects/list");
   }
 
-  async function createProject(payloadOrName, customerEmail, analysisType) {
-    if (payloadOrName && typeof payloadOrName === "object" && !(payloadOrName instanceof String)) {
-      return apiRequest("/api/projects/create", {
-        method: "POST",
-        body: JSON.stringify(payloadOrName)
-      });
+  async function calculateSha256(file) {
+    if (!file || typeof file.arrayBuffer !== "function" || !window.crypto || !window.crypto.subtle) {
+      throw new Error("Your browser cannot calculate the required SHA-256 file integrity check.");
     }
-    var data = await apiRequest("/api/projects", {
+    var digest = await window.crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+    return Array.prototype.map.call(new Uint8Array(digest), function (value) {
+      return value.toString(16).padStart(2, "0");
+    }).join("");
+  }
+
+  async function createProject(payloadOrName, customerEmail, analysisType) {
+    var payload = payloadOrName && typeof payloadOrName === "object" && !(payloadOrName instanceof String)
+      ? payloadOrName
+      : {
+          project_name: payloadOrName || "DevBareun Uploaded Project",
+          owner_email: customerEmail || undefined,
+          analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE
+        };
+    return apiRequest("/api/projects/create", {
       method: "POST",
-      auth: false,
-      body: JSON.stringify({
-        project_name: payloadOrName || "DevBareun Uploaded Project",
-        customer_email: customerEmail || "info@devbareun.com",
-        analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE
-      })
+      body: JSON.stringify(payload)
     });
-    if (data && data.project_id && data.project_token) setProjectToken(data.project_id, data.project_token);
-    return data;
   }
 
   async function getProject(projectId) {
@@ -276,13 +330,16 @@
 
   async function createUploadUrl(projectId, fileMeta) {
     var file = fileMeta || {};
+    var checksum = file.checksum || file.sha256 || null;
+    if (!checksum && typeof file.arrayBuffer === "function") checksum = await calculateSha256(file);
     return apiRequest("/api/uploads/create-url", {
       method: "POST",
       body: JSON.stringify({
         project_id: projectId || file.project_id,
         filename: file.filename || file.file_name || file.name,
         mime_type: file.mime_type || file.content_type || file.type || "application/octet-stream",
-        size_bytes: file.size_bytes || file.size || 0
+        size_bytes: file.size_bytes || file.size || 0,
+        checksum: checksum
       })
     });
   }
@@ -326,14 +383,24 @@
       file_id: uploadPayload.file_id || (uploadPayload.file && uploadPayload.file.file_id),
       project_id: uploadPayload.project_id || (uploadPayload.file && uploadPayload.file.project_id),
       storage_path: uploadPayload.storage_path || (uploadPayload.file && uploadPayload.file.storage_path),
-      uploaded: true
+      uploaded: true,
+      checksum: uploadPayload.checksum || (uploadPayload.file && uploadPayload.file.checksum) || null
     });
   }
 
+  function createIdempotencyKey() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+    return "analysis-" + Date.now() + "-" + Math.random().toString(36).slice(2, 12);
+  }
+
   async function startAnalysis(projectId, payload) {
+    var request = Object.assign({}, payload || {});
+    var idempotencyKey = request.idempotency_key || createIdempotencyKey();
+    delete request.idempotency_key;
     return apiRequest("/api/analysis/start/" + encodeURIComponent(projectId), {
       method: "POST",
-      body: JSON.stringify(Object.assign({ analysis_type: PREMIUM_ANALYSIS_TYPE }, payload || {}))
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: JSON.stringify(Object.assign({ analysis_type: PREMIUM_ANALYSIS_TYPE }, request))
     });
   }
 
@@ -359,9 +426,13 @@
       payload = projectId;
       projectId = payload.project_id || null;
     }
+    var auth = !(payload && payload.auth === false);
+    var body = Object.assign({ plan: "single", project_id: projectId || null }, payload || {});
+    delete body.auth;
     var data = await apiRequest("/api/billing/create-one-time-checkout", {
       method: "POST",
-      body: JSON.stringify(Object.assign({ plan: "single", project_id: projectId || null }, payload || {}))
+      auth: auth,
+      body: JSON.stringify(body)
     });
     if (data && data.checkout_url && !data.url) data.url = data.checkout_url;
     return data;
@@ -389,47 +460,32 @@
   }
 
   async function uploadFiles(projectId, files) {
-    var fd = new FormData();
-    Array.prototype.forEach.call(files || [], function (file) { fd.append("files", file); });
-    return apiRequest("/api/projects/" + encodeURIComponent(projectId) + "/upload", {
-      method: "POST",
-      auth: false,
-      headers: projectHeaders(projectId, false),
-      body: fd
-    });
+    var uploaded = [];
+    for (var i = 0; i < (files || []).length; i += 1) {
+      var file = files[i];
+      var ticket = await createUploadUrl(projectId, file);
+      await uploadToSignedUrl(ticket, file);
+      uploaded.push(ticket.file || ticket);
+    }
+    return { project_id: projectId, uploaded_files: uploaded };
   }
 
   async function preflightProject(projectId, analysisType) {
-    return apiRequest("/api/projects/" + encodeURIComponent(projectId) + "/preflight", {
-      method: "POST",
-      auth: false,
-      headers: projectHeaders(projectId, true),
-      body: JSON.stringify({ analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE })
-    });
+    var uploads = await listProjectUploads(projectId);
+    return {
+      project_id: projectId,
+      analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE,
+      uploaded_files: uploads.uploaded_files || [],
+      ready: Boolean((uploads.uploaded_files || []).length)
+    };
   }
 
   async function mockPayment(projectId, options) {
-    var data = await apiRequest("/api/billing/create-one-time-checkout", {
-      method: "POST",
-      auth: false,
-      body: JSON.stringify({
-        plan: "single",
-        project_id: projectId,
-        customer_email: options && options.customer_email,
-        success_url: options && options.success_url,
-        cancel_url: options && options.cancel_url
-      })
-    });
-    if (data && data.checkout_url && !data.url) data.url = data.checkout_url;
-    return data;
+    return createOneTimeCheckout(projectId, Object.assign({ auth: false }, options || {}));
   }
 
   async function analyzeProject(projectId, analysisType, manualInputs) {
-    return apiRequest("/api/projects/" + encodeURIComponent(projectId) + "/analyze", {
-      method: "POST",
-      headers: projectHeaders(projectId, true),
-      body: JSON.stringify({ analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE, manual_inputs: manualInputs || {} })
-    });
+    return startAnalysis(projectId, { analysis_type: analysisType || PREMIUM_ANALYSIS_TYPE, manual_inputs: manualInputs || {} });
   }
 
   async function getDashboard(projectId) {
@@ -471,6 +527,7 @@
     health: getHealth,
     uploadFiles: uploadFiles,
     preflightProject: preflightProject,
+    createOneTimeCheckout: createOneTimeCheckout,
     mockPayment: mockPayment,
     analyzeProject: analyzeProject,
     getDashboard: getDashboard,

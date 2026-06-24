@@ -34,6 +34,26 @@ For local backend testing, set this in the browser console or local storage:
 localStorage.setItem("devbareun_use_local_backend", "true")
 ```
 
+## Customer Workspace App
+
+The framework-based customer workspace is in `member-dashboard-app/`.
+
+```powershell
+cd member-dashboard-app
+npm install
+npm run dev
+```
+
+To build the workspace into the Vercel-served `/workspace/` route:
+
+```powershell
+npm run build
+```
+
+The generated `workspace/` directory is build output and should not be committed.
+
+Retired workspace HTML routes such as `/dashboard.html`, `/upload.html`, `/projects.html`, `/reports.html`, `/billing.html`, and `/settings.html` redirect to `/workspace/` through `vercel.json`.
+
 ## Environment
 
 Use `.env.example` only as a public Vercel reference. Do not add backend secrets to Vercel.
@@ -48,7 +68,10 @@ Allowed frontend values:
 
 Forbidden frontend values:
 
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `SUPABASE_JWT_SECRET`
-- `LEMON_SQUEEZY_API_KEY`
-- `LEMON_SQUEEZY_WEBHOOK_SECRET`
+- backend-only private keys
+- webhook secrets
+- service role keys
+- JWT secrets
+- database passwords
+- Redis tokens
+- payment API keys

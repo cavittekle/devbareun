@@ -15,9 +15,10 @@ $stage = Join-Path $outRoot "$Name-$stamp"
 $zip = "$stage.zip"
 
 $includeDirs = @("frontend", "backend", "database", "docs", "tools", ".github")
-$includeFiles = @("README.md", "AGENTS.md", ".env.example", ".gitignore")
-$excludeDirNames = @(".git", ".codex", ".agents", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache", "dist")
-$excludeFileNames = @(".env", ".env.local", ".env.production", ".DS_Store")
+$includeFiles = @("README.md", "AGENTS.md", ".env.example", ".gitignore", ".dockerignore")
+$excludeDirNames = @(".git", ".codex", ".agents", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "dist", "data", "storage", "agent_reports", "reports")
+$excludeFileNames = @(".env", ".env.local", ".env.production", ".env.development", ".DS_Store", "Thumbs.db")
+$excludeExtensions = @(".log", ".tmp", ".bak", ".dump", ".sqlitedb", ".sqlite", ".db")
 
 New-Item -ItemType Directory -Force -Path $outRoot | Out-Null
 if (Test-Path $stage) {
@@ -36,7 +37,7 @@ function Copy-ReleaseItem {
       $relative = $item.FullName.Substring($source.Length).TrimStart("\", "/")
       $parts = $relative -split "[\\/]"
       if ($parts | Where-Object { $excludeDirNames -contains $_ }) { return }
-      if (!$item.PSIsContainer -and ($excludeFileNames -contains $item.Name -or $item.Name.EndsWith(".log"))) { return }
+      if (!$item.PSIsContainer -and ($excludeFileNames -contains $item.Name -or $excludeExtensions -contains $item.Extension.ToLowerInvariant())) { return }
       $dest = Join-Path $target $relative
       if ($item.PSIsContainer) {
         New-Item -ItemType Directory -Force -Path $dest | Out-Null
@@ -53,6 +54,16 @@ function Copy-ReleaseItem {
 
 foreach ($dir in $includeDirs) { Copy-ReleaseItem $dir }
 foreach ($file in $includeFiles) { Copy-ReleaseItem $file }
+
+$forbidden = @(".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".env", ".env.local", ".env.production")
+$foundForbidden = Get-ChildItem -LiteralPath $stage -Recurse -Force | Where-Object {
+  $name = $_.Name
+  $forbidden -contains $name
+}
+if ($foundForbidden) {
+  $foundForbidden | ForEach-Object { Write-Error "Forbidden release artifact item: $($_.FullName)" }
+  throw "Release package contains forbidden files."
+}
 
 Get-ChildItem -LiteralPath $stage -Force | Compress-Archive -DestinationPath $zip -Force
 Write-Output "Created $zip"

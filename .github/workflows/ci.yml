@@ -18,6 +18,105 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Run release gate
+        run: python tools/release_gate.py --root .
+
+
+      - name: Check frontend assets
+        run: python tools/check_frontend_assets.py --root .
+
+      - name: Check frontend templates
+        run: python tools/check_template_manifest.py --root .
+
+      - name: Check database contract
+        run: python tools/check_database_contract.py --root .
+
+      - name: Check analysis idempotency contract
+        run: python tools/check_analysis_idempotency.py --root .
+
+      - name: Check report snapshot contract
+        run: python tools/check_report_snapshot.py --root .
+
+      - name: Check upload checksum integrity contract
+        run: python tools/check_upload_checksum_integrity.py --root .
+
+      - name: Check upload security screening contract
+        run: python tools/check_upload_security_screening.py --root .
+
+      - name: Check analysis input provenance contract
+        run: python tools/check_analysis_provenance.py --root .
+
+      - name: Check panel access boundaries
+        run: python tools/check_panel_access_boundaries.py --root .
+
+      - name: Check audit integrity
+        run: python tools/check_audit_integrity.py --root .
+
+      - name: Check audit archive outbox
+        run: python tools/check_audit_archive_outbox.py --root .
+
+      - name: Check operational health
+        run: python tools/check_operational_health.py --root .
+
+      - name: Check pilot acceptance safety contract
+        run: python tools/check_pilot_acceptance.py --root .
+
+      - name: Check privacy-safe error telemetry
+        run: python tools/check_error_telemetry.py --root .
+
+      - name: Check backup and recovery contract
+        run: python tools/check_backup_recovery.py --root .
+
+      - name: Check data lifecycle contract
+        run: python tools/check_data_lifecycle.py --root .
+
+      - name: Check billing lifecycle contract
+        run: python tools/check_billing_lifecycle.py --root .
+
+      - name: Check company team foundation
+        run: python tools/check_company_team_foundation.py --root .
+
+      - name: Check project sharing
+        run: python tools/check_project_sharing.py --root .
+
+      - name: Check project activity timeline
+        run: python tools/check_project_activity_timeline.py --root .
+
+
+      - name: Check analysis worker operations documentation
+        run: |
+          test -f docs/ANALYSIS_WORKER_OPERATIONS_V1416.md
+          test -f docs/ANALYSIS_JOB_RECOVERY_V1417.md
+          grep -q "analysis_worker_heartbeats" docs/ANALYSIS_WORKER_OPERATIONS_V1416.md
+          grep -q "/api/analysis/operations" docs/ANALYSIS_WORKER_OPERATIONS_V1416.md
+          grep -q "dead_lettered" docs/ANALYSIS_JOB_RECOVERY_V1417.md
+
+      - name: Check deployment runbook
+        run: python tools/check_deploy_runbook.py --root .
+
+      - name: Validate example env files
+        run: |
+          python tools/validate_production_env.py \
+            --backend-env backend/.env.example \
+            --frontend-env frontend/.env.example \
+            --allow-placeholders
+
+      - name: Check provider configuration templates
+        run: |
+          python tools/check_provider_config.py \
+            --railway-web-env deploy/env/railway-web.env.template \
+            --railway-worker-env deploy/env/railway-worker.env.template \
+            --railway-audit-archive-env deploy/env/railway-audit-archive.env.template \
+            --vercel-env deploy/env/vercel.env.template \
+            --allow-placeholders
+
       - name: Check required project control files
         run: |
           test -f AGENTS.md || (echo "Missing AGENTS.md" && exit 1)
@@ -40,8 +139,12 @@ jobs:
 
       - name: Check for obvious secret patterns
         run: |
-          if grep -RIn --exclude-dir=.git --exclude=".env.example" \
-            -E "(SUPABASE_SERVICE_ROLE_KEY=.+|STRIPE_SECRET_KEY=sk_|JWT_SECRET=.+|DATABASE_URL=postgres://|DATABASE_URL=postgresql://)" .; then
+          if git grep -nEI \
+            '(SUPABASE_(SERVICE_ROLE_KEY|JWT_SECRET)=eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+|STRIPE_SECRET_KEY=sk_(live|test)_[A-Za-z0-9]{16,}|DATABASE_URL=postgres(ql)?://[^[:space:]<]+:[^[:space:]<]+@)' \
+            -- . \
+            ':(exclude).github/workflows/ci.yml' \
+            ':(exclude).env.example' \
+            ':(exclude,glob)**/.env.example'; then
             echo "Potential secret detected. Review output above."
             exit 1
           fi
@@ -60,16 +163,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/member-dashboard-app/package-lock.json
 
       - name: Install dashboard dependencies
         if: steps.detect_frontend.outputs.frontend == 'true'
         working-directory: frontend/member-dashboard-app
-        run: npm install
+        run: npm ci
 
-      - name: Build dashboard frontend
+      - name: Build frontend workspace
         if: steps.detect_frontend.outputs.frontend == 'true'
-        working-directory: frontend/member-dashboard-app
+        working-directory: frontend
         run: npm run build
+
+      - name: Check frontend deploy surface
+        if: steps.detect_frontend.outputs.frontend == 'true'
+        run: python tools/check_frontend_deploy_surface.py --root . --strict
 
       - name: Detect backend
         id: detect_backend
@@ -80,30 +189,31 @@ jobs:
             echo "backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Setup Python
-        if: steps.detect_backend.outputs.backend == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Install backend dependencies
         if: steps.detect_backend.outputs.backend == 'true'
         working-directory: backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          python -m pip install pytest
 
       - name: Python syntax check
         if: steps.detect_backend.outputs.backend == 'true'
-        working-directory: backend
-        run: python -m compileall app
+        run: python -m compileall backend/app agents/devbareun_ops_engine tools
+
+      - name: Check backend API contract
+        if: steps.detect_backend.outputs.backend == 'true'
+        run: python tools/export_api_contract.py --root . --check --output /tmp/devbareun-api-contract.json
 
       - name: Run backend tests if available
         if: steps.detect_backend.outputs.backend == 'true'
         working-directory: backend
         run: |
           if [ -d tests ]; then
-            python -m pytest
+            python -m pytest -q
           else
             echo "No backend tests directory found. Skipping."
           fi
+
+      - name: Build release package manifest
+        run: python tools/package_release.py --root . --output /tmp/devbareun-ci-release.zip --manifest /tmp/devbareun-ci-release.manifest.json

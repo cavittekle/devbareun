@@ -5,6 +5,8 @@ Use this before switching DevBareun to live traffic.
 ## Supabase
 
 - [ ] Apply SQL in `database/` using `database/SUPABASE_DEPLOY_ORDER.md`.
+- [ ] Create `info@devbareun.com` in Supabase Auth and run `database/promote_owner_info_devbareun.sql`.
+- [ ] Run `database/production_rls_audit.sql` and review every `audit_status`.
 - [ ] Confirm RLS is enabled on every exposed table.
 - [ ] Confirm `anon` and `authenticated` grants match the RLS model.
 - [ ] Create private Storage bucket `project-files`.

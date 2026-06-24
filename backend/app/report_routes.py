@@ -19,7 +19,7 @@ class GenerateReportRequest(BaseModel):
 
 @router.get("/project/{project_id}")
 async def project_reports(project_id: str, current_user: CurrentUser = Depends(get_current_user)) -> Dict[str, Any]:
-    project = await require_project_owner(project_id, current_user)
+    project = await require_project_owner(project_id, current_user, section="reports")
     return list_project_reports(project_id, project, current_user)
 
 
@@ -29,7 +29,7 @@ async def generate_project_report(
     payload: GenerateReportRequest | None = None,
     current_user: CurrentUser = Depends(get_current_user),
 ) -> Dict[str, Any]:
-    project = await require_project_owner(project_id, current_user)
+    project = await require_project_owner(project_id, current_user, section="reports_generate")
     request = payload or GenerateReportRequest()
     return generate_report(project_id, project, current_user, request.report_format, request.report_type)
 
@@ -40,5 +40,9 @@ async def download_report(report_id: str, current_user: CurrentUser = Depends(ge
     return Response(
         content,
         media_type=media_type,
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
     )

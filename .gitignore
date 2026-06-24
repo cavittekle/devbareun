@@ -16,6 +16,8 @@ venv/
 node_modules/
 dist/
 build/
+frontend/workspace/
+frontend/public/
 .vercel/
 .netlify/
 
@@ -24,6 +26,7 @@ backend/data/
 backend/storage/
 agent_reports/
 reports/
+artifacts/
 
 # OS/editor
 .DS_Store

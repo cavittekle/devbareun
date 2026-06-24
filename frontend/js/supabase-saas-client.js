@@ -29,7 +29,9 @@
     login: window.DevBareunAPI.loginUser,
     me: window.DevBareunAPI.getCurrentUser,
     createUploadUrl: function (projectId, file) {
-      return window.DevBareunAPI.createUploadUrl(projectId, filePayload(projectId, file));
+      // Pass the original File object so DevBareunAPI can calculate SHA-256
+      // before issuing the signed upload URL.
+      return window.DevBareunAPI.createUploadUrl(projectId, file);
     },
     uploadToSignedUrl: window.DevBareunAPI.uploadToSignedUrl,
     markUploadComplete: window.DevBareunAPI.markUploaded,
