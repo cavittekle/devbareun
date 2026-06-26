@@ -36,3 +36,4 @@ Thumbs.db
 
 # Local Codex desktop/session metadata
 .codex/
+.agents/
