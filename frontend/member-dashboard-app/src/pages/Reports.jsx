@@ -132,7 +132,7 @@ export function Reports({
                     <div><span>Package</span><strong>{report.package_name || "Project report"}</strong></div>
                     <div><span>Format</span><strong>{report.format || "PDF"}</strong></div>
                     <div><span>Generated</span><strong>{formatDate(report.generated_at)}</strong></div>
-                    <div><span>Snapshot</span><strong>{report.snapshot_available ? "Frozen" : "Legacy"}</strong></div>
+                    <div><span>Frozen analysis snapshot</span><strong>{report.snapshot_available ? "Frozen" : "Legacy"}</strong></div>
                   </div>
 
                   {report.sections?.length ? (
