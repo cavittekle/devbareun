@@ -1,0 +1,11 @@
+# Keep generated brand assets safe across Windows/macOS/Linux checkouts.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+
+*.svg text eol=lf
+*.eps text eol=lf
