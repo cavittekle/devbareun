@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Activity, RefreshCw, ShieldCheck } from "lucide-react";
 import { workspaceApi } from "../api/client";
 import { EmptyState, PageHeader } from "../components/Shell";
+import { demoWorkspace } from "../data/demoWorkspace";
 
 const ACTION_LABELS = {
   "project_access.granted": "Project access granted",
@@ -28,11 +29,18 @@ function actorLabel(event) {
   return event?.actor?.email || "Project member";
 }
 
-export function ProjectActivity() {
-  const [projects, setProjects] = useState([]);
+function demoProjects() {
+  return demoWorkspace.projects.map((project) => ({
+    ...project,
+    id: project.project_id || project.id
+  }));
+}
+
+export function ProjectActivity({ demoMode = false }) {
+  const [projects, setProjects] = useState(demoMode ? demoProjects() : []);
   const [selectedProjectId, setSelectedProjectId] = useState("");
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState(demoMode ? demoWorkspace.activity : []);
+  const [loading, setLoading] = useState(!demoMode);
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,6 +50,14 @@ export function ProjectActivity() {
   );
 
   async function loadProjects() {
+    if (demoMode) {
+      const rows = demoProjects();
+      setProjects(rows);
+      setSelectedProjectId((current) => current || String(rows[0]?.project_id || rows[0]?.id || ""));
+      setLoading(false);
+      setError("");
+      return;
+    }
     setLoading(true); setError("");
     try {
       const result = await workspaceApi.projectAccessProjects();
@@ -55,6 +71,10 @@ export function ProjectActivity() {
 
   async function loadTimeline(projectId = selectedProjectId) {
     if (!projectId) { setEvents([]); return; }
+    if (demoMode) {
+      setEvents(demoWorkspace.activity);
+      return;
+    }
     setTimelineLoading(true); setError("");
     try {
       const result = await workspaceApi.projectActivity(projectId);
@@ -64,19 +84,19 @@ export function ProjectActivity() {
     } finally { setTimelineLoading(false); }
   }
 
-  useEffect(() => { loadProjects(); }, []);
+  useEffect(() => { loadProjects(); }, [demoMode]);
   useEffect(() => { if (selectedProjectId) loadTimeline(selectedProjectId); }, [selectedProjectId]);
 
   return (
     <>
       <PageHeader
-        eyebrow="Project traceability"
+        eyebrow={demoMode ? "Project traceability preview" : "Project traceability"}
         title="Project Activity"
-        description="A collaboration-safe timeline of uploads, analyses, reports and project access changes."
+        description={demoMode ? "A local preview timeline of uploads, analyses and reports for the selected sample project." : "A collaboration-safe timeline of uploads, analyses, reports and project access changes."}
         action={<button className="secondary-button" onClick={() => loadTimeline()} disabled={timelineLoading || !selectedProjectId}><RefreshCw size={16} /> Refresh</button>}
       />
       {error ? <div className="status-box warning">{error}</div> : null}
-      {loading ? <div className="status-box info">Loading accessible projects…</div> : null}
+      {loading ? <div className="status-box info">Loading accessible projects...</div> : null}
       {!loading && projects.length === 0 ? <EmptyState title="No accessible projects." description="Project activity appears after you own or receive explicit access to a project." /> : null}
       {!loading && projects.length > 0 ? <>
         <section className="panel project-activity-scope">
@@ -88,7 +108,7 @@ export function ProjectActivity() {
         </section>
         <section className="panel project-activity-panel">
           <div className="team-section-head"><div><span className="workspace-eyebrow">Recent events</span><h2>Collaboration timeline</h2><p>Events are append-only. Sensitive storage paths, signed URLs and credentials are never shown here.</p></div><Activity size={24} /></div>
-          {timelineLoading ? <p className="team-empty">Loading activity timeline…</p> : null}
+          {timelineLoading ? <p className="team-empty">Loading activity timeline...</p> : null}
           {!timelineLoading && events.length === 0 ? <p className="team-empty">No project activity has been recorded since timeline tracking was enabled.</p> : null}
           {!timelineLoading && events.length > 0 ? (
             <div className="project-activity-list">
@@ -97,7 +117,7 @@ export function ProjectActivity() {
                   <div className="project-activity-marker"><Activity size={15} /></div>
                   <div className="project-activity-content">
                     <strong>{ACTION_LABELS[event.action] || event.action}</strong>
-                    <small>{actorLabel(event)} · {displayDate(event.occurred_at)}</small>
+                    <small>{actorLabel(event)} - {displayDate(event.occurred_at)}</small>
                     {event.metadata?.risk_count !== undefined ? <span className="project-activity-detail">{event.metadata.risk_count} risk item(s) recorded</span> : null}
                     {event.metadata?.project_role ? <span className="project-activity-detail">Project role: {event.metadata.project_role}</span> : null}
                     {event.metadata?.format ? <span className="project-activity-detail">Format: {event.metadata.format}</span> : null}

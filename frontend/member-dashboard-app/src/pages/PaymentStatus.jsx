@@ -81,7 +81,7 @@ export function PaymentStatus({ status = "success" }) {
           <a className="primary-button" href="/workspace/">Open workspace</a>
           <a className="secondary-button" href="/workspace/?view=billing">Billing</a>
         </div>
-        {loading && <p className="workspace-muted">Verifying provider confirmation…</p>}
+        {loading && <p className="workspace-muted">Verifying provider confirmation...</p>}
       </section>
     </main>
   );
