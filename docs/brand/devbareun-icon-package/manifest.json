@@ -1,0 +1,19 @@
+{
+  "name": "DevBareun icon package",
+  "version": "1.0",
+  "formats": [
+    "SVG",
+    "PNG",
+    "PDF",
+    "EPS"
+  ],
+  "source": "Generated from crisp vector DevBareun symbol paths; no raster upscaling.",
+  "folders": [
+    "svg",
+    "png",
+    "pdf",
+    "eps",
+    "preview"
+  ],
+  "note": "AI is not included because Illustrator export is required for a real editable AI file."
+}

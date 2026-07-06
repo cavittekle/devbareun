@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-label="DevBareun primary logo">
+  <title>DevBareun primary logo</title>
+  <rect width="900" height="560" rx="0" fill="#0A1228"/>
+  <g transform="translate(286 56) scale(5.1)">
+    <g fill="none" stroke="#FFFFFF" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M24.5 20.5 11 32l13.5 11.5"/>
+      <path d="M39.5 20.5 53 32 39.5 43.5"/>
+      <path d="M29.5 16v32" stroke-width="5.4"/>
+      <path d="M35.5 16v32" stroke-width="5.4"/>
+      <path d="M24.5 32h15"/>
+    </g>
+  </g>
+  <text x="203" y="438" font-family="Arial, Helvetica, sans-serif" font-size="104" font-weight="800" letter-spacing="-2.8" fill="#FFFFFF">Dev<tspan fill="#D4A24C">Bareun</tspan></text>
+</svg>
