@@ -1,6 +1,6 @@
 # Deployment Roots
 
-DevBareun has two deploy targets. The repository root is not a deploy target.
+DevBareun has two production deploy targets. The repository root is not a deploy target.
 
 ## Vercel
 
@@ -22,6 +22,13 @@ DevBareun has two deploy targets. The repository root is not a deploy target.
 
 - SQL files stay in `database/`.
 - Apply migrations before enabling live auth, storage, or billing.
+
+## OpenAI Sites
+
+- Adapter directory: `sites/devbareun`
+- The adapter packages the existing static files from `frontend/`; it does not maintain a second website implementation.
+- Sites deployments are an additional hosted surface and do not replace the approved Vercel `frontend` or Railway `backend` production roots.
+- Private backend values and payment secrets remain outside the Sites bundle.
 
 ## Why this matters
 
