@@ -24,12 +24,20 @@ backend/data/
 backend/storage/
 agent_reports/
 reports/
+artifacts/
 
 # OS/editor
 .DS_Store
 Thumbs.db
+.vscode/
+~$*.docx
 *.log
 *.tmp
 
 # Local Codex desktop/session metadata
 .codex/
+
+# Legacy/untracked duplicates (not part of production deploy)
+frontend/member-dashboard-app/
+frontend/public/
+frontend/workspace/

@@ -1,4 +1,4 @@
-﻿# DevBareun Project State
+# DevBareun Project State
 
 ## Project Overview
 
@@ -8,7 +8,14 @@ Project type: Construction analytics, project control, reporting, and management
 
 Main goal: Allow users to upload construction project data and receive structured project control dashboards, reports, risk summaries, schedule/cost analysis, and exportable PDF/Excel outputs.
 
-Current status: Fill this section with the latest accepted version after each major change.
+Current status: **v1.4.0 Production SaaS Core** (2026-07-27)
+
+- Frontend: static HTML/CSS/JS in `frontend/` (Vercel root: `frontend`)
+- Backend: FastAPI in `backend/` (Railway root: `backend`)
+- Database: Supabase PostgreSQL with RLS in `database/`
+- Payment: Lemon Squeezy checkout (Single / Plus / Pro)
+- Landing: dark/cyan DevBareun design with 4 public packages
+- Legacy `frontend/public/` and `frontend/workspace/` are untracked and excluded from deploys
 
 ## Approved Product Direction
 
@@ -58,15 +65,15 @@ Use these alternatives:
 
 Frontend:
 
-- Current framework:
-- Styling system:
-- Language system:
+- Current framework: static HTML/CSS/JS in `frontend/`
+- Styling system: custom dark/cyan DevBareun CSS, led by `frontend/css/modern-landing.css`
+- Language system: EN default with AZ secondary language support in `frontend/js/modern-landing.js`
 - Deployment platform: Vercel
 
 Backend:
 
-- Current framework:
-- Runtime:
+- Current framework: FastAPI in `backend/app/`
+- Runtime: Python 3.12 on Railway
 - Deployment platform: Railway
 
 Database/Auth/Storage:
@@ -88,20 +95,18 @@ Repository:
 
 ## Existing Main Features
 
-Fill after repository audit:
-
-- Landing page:
-- Dashboard page:
-- Upload UI:
-- Pricing UI:
-- Language switcher:
-- Dark-only public UI:
-- Loading screen:
-- Authentication:
-- Backend API:
-- Database:
-- Export:
-- Admin panel:
+- Landing page: `frontend/index.html`
+- Dashboard/result pages: static member pages in `frontend/`, backed by dynamic backend dashboard/report routes
+- Upload UI: public guided upload/package section and protected upload route direction
+- Pricing UI: Lemon Squeezy-oriented Single / Plus / Pro plan direction
+- Language switcher: EN/AZ public landing toggle
+- Dark-only public UI: approved dark/cyan DevBareun landing experience
+- Loading screen: compact white DevBareun orbit-logo loader
+- Authentication: Supabase-oriented auth routes and runtime helpers
+- Backend API: FastAPI routes under `backend/app/`
+- Database: Supabase SQL and RLS files in `database/`
+- Export: PDF/Excel report direction through backend report services
+- Admin panel: frontend admin page plus backend/admin workspace direction
 
 ## Features In Progress
 
@@ -262,14 +267,14 @@ Database should use user ownership and RLS where applicable.
 
 Update this section after every major accepted change.
 
-Date:
+Date: 2026-09-19
 
-Accepted version/package:
+Accepted version/package: v1.4.0 Production SaaS Core
 
-Accepted frontend state:
+Accepted frontend state: static `frontend/` deployment root, dark/cyan landing, EN/AZ toggle, four public analysis packages.
 
-Accepted backend state:
+Accepted backend state: FastAPI backend under `backend/`, with parser/analyzer guardrails and report/dashboard services.
 
-Accepted deployment state:
+Accepted deployment state: Vercel root is `frontend`; Railway root is `backend`; Supabase SQL remains in `database`.
 
-Notes:
+Notes: Local artifacts, demo bundles, build outputs, and duplicate legacy folders are excluded from source control and deploy packages.
