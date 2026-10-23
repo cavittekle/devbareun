@@ -23,33 +23,33 @@
       faqA10:'Yes. The upload preview and mapping review are available before payment. Payment is required only to unlock the full dashboard and report package.'
     },
     az: {
-      faqQ1:'DevBareun nec? isl?yir?',
-      faqA1:'DevBareun m�st?ril?r? tikinti layih? fayllarini y�kl?y?r?k strukturlasdirilmis dashboard v? hesabat g�r�n�s� ?ld? etm?y? imkan ver?n platforma kimi hazirlanir. Platforma layih? n?zar?ti, isl?rin gedisi �zr? g�r�n�rl�k, x?rc izl?nm?si v? idar?etm? hesabatlarini d?st?kl?m?k ���n n?z?rd? tutulub.',
-      faqQ2:'Hansi layih? fayllarini y�kl?y? bil?r?m?',
-      faqA2:'Strukturlasdirilmis analiz ?sas?n Excel v? CSV fayllari �z?rind?n aparilir. M?tn ?sasli PDF fayllarindan qism?n m?lumat �ixarila bil?r. Primavera XER v? MS Project XML qrafik fayllari beta qrafik �ixarisi kimi d?st?kl?nir. Sah? s?kill?ri vizual s�but / ?lav? s?n?d kimi y�kl?n? bil?r.',
-      faqQ3:'Dashboard nec? yaradilir?',
-      faqA3:'Y�kl?nmis layih? m?lumatlari plan �zr? icra, faktiki icra s?viyy?si, gecikm? v?ziyy?ti, x?rc f?rqi, is�i g�st?ricil?ri v? risk s?viyy?l?ri kimi ?sas layih? n?zar?ti g�st?ricil?rin? �evrilir.',
-      faqQ4:'�d?nis nec? edilir?',
-      faqA4:'Ilk kommersiya modeli h?r yaradilan analiz ���n bird?f?lik �d?nis kimi isl?yir. M�st?ri layih? fayllarini y�kl?yir, n?tic?y? �nbaxis edir, bir d?f? �d?nis edir v? yaradilmis dashboard + hesabat paketini a�ir.',
-      faqQ5:'Hesabat hansi formatlarda olacaq?',
-      faqA5:'Hesabat paketin? dashboard g�r�n�s�, PDF idar?etm? hesabati v? Excel ?sasli analiz n?tic?si daxildir. Bu formatlar sifaris�il?r, tikinti menecerl?ri v? texniki n?zar?t komandalari ���n n?z?rd? tutulur.',
-      faqQ6:'Layih? m?lumatlarim t?hl�k?siz saxlanilirmi?',
-      faqA6:'Layih? m?lumatlarinin t?hl�k?sizliyi platformanin ?sas t?l?bl?rind?n biridir. Y�kl?nmis fayllar giris n?zar?ti, t?hl�k?siz autentifikasiya v? idar? olunan saxlanma qaydalari il? qorunur.'
+      faqQ1:'DevBareun necə işləyir?',
+      faqA1:'DevBareun müştərilərə tikinti layihə fayllarını yükləyərək strukturlaşdırılmış dashboard və hesabat görünüşü əldə etməyə imkan verən platforma kimi hazırlanır. Platforma layihə nəzarəti, işlərin gedişi üzrə görünürlük, xərc izlənməsi və idarəetmə hesabatlarını dəstəkləmək üçün nəzərdə tutulub.',
+      faqQ2:'Hansı layihə fayllarını yükləyə bilərəm?',
+      faqA2:'Strukturlaşdırılmış analiz əsasən Excel və CSV faylları üzərindən aparılır. Mətn əsaslı PDF fayllarından qismən məlumat çıxarıla bilər. Primavera XER və MS Project XML qrafik faylları beta qrafik çıxarışı kimi dəstəklənir. Sahə şəkilləri vizual sübut / əlavə sənəd kimi yüklənə bilər.',
+      faqQ3:'Dashboard necə yaradılır?',
+      faqA3:'Yüklənmiş layihə məlumatları plan üzrə icra, faktiki icra səviyyəsi, gecikmə vəziyyəti, xərc fərqi, işçi göstəriciləri və risk səviyyələri kimi əsas layihə nəzarəti göstəricilərinə çevrilir.',
+      faqQ4:'Ödəniş necə edilir?',
+      faqA4:'İlk kommersiya modeli hər yaradılan analiz üçün birdəfəlik ödəniş kimi işləyir. Müştəri layihə fayllarını yükləyir, nəticəyə önbaxış edir, bir dəfə ödəniş edir və yaradılmış dashboard + hesabat paketini açır.',
+      faqQ5:'Hesabat hansı formatlarda olacaq?',
+      faqA5:'Hesabat paketinə dashboard görünüşü, PDF idarəetmə hesabatı və Excel əsaslı analiz nəticəsi daxildir. Bu formatlar sifarişçilər, tikinti menecerləri və texniki nəzarət komandaları üçün nəzərdə tutulur.',
+      faqQ6:'Layihə məlumatlarım təhlükəsiz saxlanılırmı?',
+      faqA6:'Layihə məlumatlarının təhlükəsizliyi platformanın əsas tələblərindən biridir. Yüklənmiş fayllar giriş nəzarəti, təhlükəsiz autentifikasiya və idarə olunan saxlanma qaydaları ilə qorunur.'
     }
   };
   Object.assign(faqText.az, {
-    faqQ4:'�d?nis nec? edilir?',
-    faqA4:'DevBareun h?m bird?f?lik, h?m d? abun?lik modeli t?klif edir. Single Project ($29) bir analiz ���n bird?f?lik �d?nisdir. Plus ($49/ay) v? Pro ($89/ay) paketl?ri davamli layih? ehtiyaci olan komandalar ���n ayliq analiz kreditl?ri verir. B�t�n hallarda fayllari y�kl?yir, �nbaxisi yoxlayir v? �d?nis t?sdiql?ndikd?n sonra dashboardu a�irsiniz.',
-    faqQ6:'Layih? m?lumatlarim t?hl�k?siz saxlanilirmi?',
-    faqA6:'Layih? m?lumatlarinin t?hl�k?sizliyi platformanin ?sas t?l?bl?rind?n biridir. Y�kl?nmis fayllar giris n?zar?ti, t?hl�k?siz autentifikasiya v? idar? olunan saxlanma qaydalari il? qorunur.',
-    faqQ7:'Hansi �d?nis se�iml?ri m�vcuddur?',
-    faqA7:'Single Project $29 bird?f?lik checkout-dur. Plus $49/ay ���n 5 analiz krediti, Pro is? $89/ay ���n 20 analiz krediti verir.',
-    faqQ8:'Az?rbaycan tikinti fayl formatlari d?st?kl?nirmi?',
-    faqA8:'B?li. DevBareun smeta (BOQ), F-2 / Forma-2 icra aktlari v? is�i q�vv?si c?dv?ll?ri daxil olmaqla Az?rbaycan tikinti is axinlarini d?st?kl?yir. Platforma y�kl?m? zamani �mumi Az?rbaycan s�tun basliqlarini tanimaq ���n hazirlanib.',
-    faqQ9:'Y�kl?n?n layih? m?lumatlari nec? qorunur?',
-    faqA9:'Y�kl?nmis fayllar t?hl�k?siz baglantilarla �t�r�l�r v? hesab s?viyy?li giris n?zar?ti arxasinda saxlanilir. Giris yalniz workspace il? m?hdudlasir; fayllar sorgu ?sasinda v? ya hesab baglandiqda silin? bil?r.',
-    faqQ10:'�d?nissiz �nbaxis var?',
-    faqA10:'B?li. Fayl y�kl?m? �nbaxisi v? mapping yoxlamasi �d?nisd?n ?vv?l m�mk�nd�r. Tam dashboard v? hesabat paketini a�maq ���n �d?nis t?l?b olunur.'
+    faqQ4:'Ödəniş necə edilir?',
+    faqA4:'DevBareun həm birdəfəlik, həm də abunəlik modeli təklif edir. Single Project ($29) bir analiz üçün birdəfəlik ödənişdir. Plus ($49/ay) və Pro ($89/ay) paketləri davamlı layihə ehtiyacı olan komandalar üçün aylıq analiz kreditləri verir. Bütün hallarda faylları yükləyir, önbaxışı yoxlayır və ödəniş təsdiqləndikdən sonra dashboardu açırsınız.',
+    faqQ6:'Layihə məlumatlarım təhlükəsiz saxlanılırmı?',
+    faqA6:'Layihə məlumatlarının təhlükəsizliyi platformanın əsas tələblərindən biridir. Yüklənmiş fayllar giriş nəzarəti, təhlükəsiz autentifikasiya və idarə olunan saxlanma qaydaları ilə qorunur.',
+    faqQ7:'Hansı ödəniş seçimləri mövcuddur?',
+    faqA7:'Single Project $29 birdəfəlik checkout-dur. Plus $49/ay üçün 5 analiz krediti, Pro isə $89/ay üçün 20 analiz krediti verir.',
+    faqQ8:'Azərbaycan tikinti fayl formatları dəstəklənirmi?',
+    faqA8:'Bəli. DevBareun smeta (BOQ), F-2 / Forma-2 icra aktları və işçi qüvvəsi cədvəlləri daxil olmaqla Azərbaycan tikinti iş axınlarını dəstəkləyir. Platforma yükləmə zamanı ümumi Azərbaycan sütun başlıqlarını tanımaq üçün hazırlanıb.',
+    faqQ9:'Yüklənən layihə məlumatları necə qorunur?',
+    faqA9:'Yüklənmiş fayllar təhlükəsiz bağlantılarla ötürülür və hesab səviyyəli giriş nəzarəti arxasında saxlanılır. Giriş yalnız workspace ilə məhdudlaşır; fayllar sorğu əsasında və ya hesab bağlandıqda silinə bilər.',
+    faqQ10:'Ödənişsiz önbaxış var?',
+    faqA10:'Bəli. Fayl yükləmə önbaxışı və mapping yoxlaması ödənişdən əvvəl mümkündür. Tam dashboard və hesabat paketini açmaq üçün ödəniş tələb olunur.'
   });
 
   function currentLang(){
