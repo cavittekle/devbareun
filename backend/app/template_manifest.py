@@ -24,6 +24,9 @@ LEGACY_DASHBOARD_SHEETS = [
     "Lists",
 ]
 
+# The legacy/import workflows share one workbook with the LEGACY_DASHBOARD_SHEETS layout.
+LEGACY_DASHBOARD_TEMPLATE_FILE = "devbareun-professional-upload-template-v2.xlsx"
+
 TEMPLATE_MANIFEST = {
     PREMIUM_ANALYSIS_TYPE: {
         "title": "Project Control Combined Template",
@@ -51,13 +54,13 @@ TEMPLATE_MANIFEST = {
     },
     "progress": {
         "title": "Progress / F-2 Template",
-        "file": "devbareun-progress-template.xlsx",
+        "file": LEGACY_DASHBOARD_TEMPLATE_FILE,
         "required_sheets": LEGACY_DASHBOARD_SHEETS,
         "purpose": "Progress, F-2 payment and dashboard input template for legacy/import workflows.",
     },
     "workforce": {
         "title": "Workforce Productivity Template",
-        "file": "devbareun-workforce-template.xlsx",
+        "file": LEGACY_DASHBOARD_TEMPLATE_FILE,
         "required_sheets": LEGACY_DASHBOARD_SHEETS,
         "purpose": "Workforce productivity, equipment usage and dashboard input template.",
     },
@@ -75,25 +78,25 @@ TEMPLATE_MANIFEST = {
     },
     "professional_upload": {
         "title": "Professional Upload Template v2",
-        "file": "devbareun-professional-upload-template-v2.xlsx",
+        "file": LEGACY_DASHBOARD_TEMPLATE_FILE,
         "required_sheets": LEGACY_DASHBOARD_SHEETS,
         "purpose": "General upload template linked from the public landing page.",
     },
     "executive_dashboard": {
         "title": "Executive Dashboard Template",
-        "file": "devbareun-executive-dashboard-template.xlsx",
+        "file": LEGACY_DASHBOARD_TEMPLATE_FILE,
         "required_sheets": LEGACY_DASHBOARD_SHEETS,
         "purpose": "Executive dashboard input template for legacy/import workflows.",
     },
     "legacy_cost": {
         "title": "Legacy Cost Template",
-        "file": "devbareun-cost-template.xlsx",
+        "file": LEGACY_DASHBOARD_TEMPLATE_FILE,
         "required_sheets": LEGACY_DASHBOARD_SHEETS,
         "purpose": "Legacy cost dashboard template retained for backward-compatible downloads.",
     },
     "legacy_schedule": {
         "title": "Legacy Schedule Template",
-        "file": "devbareun-schedule-template.xlsx",
+        "file": LEGACY_DASHBOARD_TEMPLATE_FILE,
         "required_sheets": LEGACY_DASHBOARD_SHEETS,
         "purpose": "Legacy schedule dashboard template retained for backward-compatible downloads.",
     },

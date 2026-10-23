@@ -132,6 +132,31 @@
       "source": "/single-project.html",
       "destination": "/index.html",
       "permanent": false
+    },
+    {
+      "source": "/templates/devbareun-progress-template.xlsx",
+      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-workforce-template.xlsx",
+      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-executive-dashboard-template.xlsx",
+      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-cost-template.xlsx",
+      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-schedule-template.xlsx",
+      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "permanent": true
     }
   ],
   "rewrites": [
