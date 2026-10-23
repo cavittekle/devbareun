@@ -144,42 +144,118 @@
           <div class="preview-bar">
             <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
             <strong>Baku Business Center</strong>
-            <small>01 May 2024 - 31 May 2024</small>
+            <small>Report period: Sep 2026</small>
           </div>
           <div class="preview-kpis">
-            <article><span>Overall progress</span><strong>68%</strong><i class="kpi-fill kpi-fill-68"></i><small>Plan 72%</small></article>
-            <article><span>Schedule - SPI</span><strong>0.92</strong><i class="kpi-fill kpi-fill-74"></i><small>Plan 1.00</small></article>
-            <article><span>Cost - CPI</span><strong>0.97</strong><i class="kpi-fill kpi-fill-86"></i><small>Plan 1.00</small></article>
-            <article><span>Total cost</span><strong>AZN 2.45M</strong><i class="kpi-fill kpi-fill-78"></i><small>Plan AZN 2.53M</small></article>
+            <article class="kpi-status is-warning">
+              <span>Overall progress</span><strong>68%</strong><em class="kpi-delta">−4 pts vs plan</em>
+              <i class="kpi-track"><b class="kpi-value kpi-w-68"></b><b class="kpi-plan kpi-at-72"></b></i>
+              <small>Plan 72%</small>
+            </article>
+            <article class="kpi-status is-danger">
+              <span>Schedule - SPI</span><strong>0.92</strong><em class="kpi-delta">8% behind schedule</em>
+              <i class="kpi-scale"><b class="kpi-gap kpi-gap-spi"></b></i>
+              <small>Target 1.00</small>
+            </article>
+            <article class="kpi-status is-warning">
+              <span>Cost - CPI</span><strong>0.97</strong><em class="kpi-delta">3% over earned value</em>
+              <i class="kpi-scale"><b class="kpi-gap kpi-gap-cpi"></b></i>
+              <small>Target 1.00</small>
+            </article>
+            <article class="kpi-status is-success">
+              <span>Total cost</span><strong>AZN 2.45M</strong><em class="kpi-delta">AZN 80K under plan</em>
+              <i class="kpi-track"><b class="kpi-value kpi-w-87"></b><b class="kpi-plan kpi-at-90"></b></i>
+              <small>Plan AZN 2.53M</small>
+            </article>
           </div>
           <div class="preview-dashboard-grid">
             <section class="preview-chart-card">
-              <div><strong>Progress analysis</strong><small>Planned vs actual</small></div>
-              <svg viewBox="0 0 520 220" role="img" aria-label="Progress analysis chart">
+              <div><strong>Progress analysis</strong><small>Planned vs actual, cumulative %</small></div>
+              <svg viewBox="0 0 520 230" role="img" aria-label="Progress chart: actual progress 68% against 72% planned at the end of September 2026, forecast 92% by November">
                 <g class="chart-grid">
-                  <line x1="20" y1="48" x2="500" y2="48"></line>
-                  <line x1="20" y1="100" x2="500" y2="100"></line>
-                  <line x1="20" y1="152" x2="500" y2="152"></line>
+                  <line x1="50" y1="30" x2="500" y2="30"></line>
+                  <line x1="50" y1="70" x2="500" y2="70"></line>
+                  <line x1="50" y1="110" x2="500" y2="110"></line>
+                  <line x1="50" y1="150" x2="500" y2="150"></line>
+                  <line class="chart-axis" x1="50" y1="190" x2="500" y2="190"></line>
                 </g>
-                <path class="planned-line" d="M24 176 C120 136 206 104 286 82 C360 60 420 50 496 40"></path>
-                <path class="actual-line" d="M24 188 C120 154 206 124 288 104 C366 84 430 72 496 62"></path>
+                <g class="chart-label chart-label-y">
+                  <text x="40" y="34">100%</text>
+                  <text x="40" y="74">75%</text>
+                  <text x="40" y="114">50%</text>
+                  <text x="40" y="154">25%</text>
+                  <text x="40" y="194">0%</text>
+                </g>
+                <g class="chart-label chart-label-x">
+                  <text x="50" y="214">Apr</text>
+                  <text x="114" y="214">May</text>
+                  <text x="179" y="214">Jun</text>
+                  <text x="243" y="214">Jul</text>
+                  <text x="307" y="214">Aug</text>
+                  <text x="371" y="214">Sep</text>
+                  <text x="436" y="214">Oct</text>
+                  <text x="500" y="214">Nov</text>
+                </g>
+                <line class="today-line" x1="371" y1="22" x2="371" y2="190"></line>
+                <text class="today-label" x="377" y="22">Today</text>
+                <polyline class="planned-line" points="50,177 114,158 179,136 243,113 307,92 371,75 436,52 500,30"></polyline>
+                <polyline class="forecast-line" points="371,81 436,62 500,43"></polyline>
+                <polyline class="actual-line" points="50,180 114,163 179,142 243,121 307,100 371,81"></polyline>
+                <circle class="actual-end" cx="371" cy="81" r="6"></circle>
+                <text class="point-label point-label-start" x="380" y="106">68%</text>
+                <text class="point-label point-label-plan" x="360" y="62">72%</text>
               </svg>
-              <div class="preview-legend"><span><i class="actual-dot"></i>Actual</span><span><i class="planned-dot"></i>Plan</span></div>
+              <div class="preview-legend"><span><i class="actual-dot"></i>Actual</span><span><i class="planned-dot"></i>Plan</span><span><i class="forecast-dot"></i>Forecast</span></div>
             </section>
             <section class="preview-bars-card">
-              <div><strong>Cost analysis</strong><small>Monthly spend run-up</small></div>
-              <div class="bar-chart" aria-hidden="true">
-                <span class="bar-h-42"></span><span class="bar-h-56"></span><span class="bar-h-51"></span><span class="bar-h-66"></span><span class="bar-h-58"></span><span class="bar-h-84"></span>
-              </div>
+              <div><strong>Cost analysis</strong><small>Monthly spend vs budget, AZN K</small></div>
+              <svg viewBox="0 0 300 220" role="img" aria-label="Monthly cost chart: spend stayed under budget from April to August and exceeded it in September, 450K against 440K">
+                <line class="chart-axis" x1="20" y1="180" x2="290" y2="180"></line>
+                <rect class="cost-bar" x="30" y="65" width="28" height="115"></rect>
+                <rect class="cost-bar" x="74" y="49" width="28" height="131"></rect>
+                <rect class="cost-bar" x="118" y="54" width="28" height="126"></rect>
+                <rect class="cost-bar" x="162" y="42" width="28" height="138"></rect>
+                <rect class="cost-bar" x="206" y="50" width="28" height="130"></rect>
+                <rect class="cost-bar cost-bar-over" x="250" y="36" width="28" height="144"></rect>
+                <g class="budget-ticks">
+                  <line x1="26" y1="58" x2="62" y2="58"></line>
+                  <line x1="70" y1="46" x2="106" y2="46"></line>
+                  <line x1="114" y1="46" x2="150" y2="46"></line>
+                  <line x1="158" y1="39" x2="194" y2="39"></line>
+                  <line x1="202" y1="42" x2="238" y2="42"></line>
+                  <line x1="246" y1="39" x2="282" y2="39"></line>
+                </g>
+                <g class="chart-label chart-label-value">
+                  <text x="44" y="51">360</text>
+                  <text x="88" y="39">410</text>
+                  <text x="132" y="39">395</text>
+                  <text x="176" y="32">430</text>
+                  <text x="220" y="35">405</text>
+                  <text x="264" y="28">450</text>
+                </g>
+                <g class="chart-label chart-label-x">
+                  <text x="44" y="200">Apr</text>
+                  <text x="88" y="200">May</text>
+                  <text x="132" y="200">Jun</text>
+                  <text x="176" y="200">Jul</text>
+                  <text x="220" y="200">Aug</text>
+                  <text x="264" y="200">Sep</text>
+                </g>
+              </svg>
+              <div class="preview-legend"><span><i class="actual-dot"></i>Spend</span><span><i class="budget-dot"></i>Budget</span><span><i class="over-dot"></i>Over budget</span></div>
             </section>
             <section class="preview-risk-card">
               <div><strong>Risk indicators</strong><small>Live register status</small></div>
               <ul>
-                <li><span class="risk-dot danger"></span>Schedule risk <strong>High</strong></li>
-                <li><span class="risk-dot warning"></span>Financial risk <strong>Medium</strong></li>
-                <li><span class="risk-dot success"></span>Supply risk <strong>Low</strong></li>
-                <li><span class="risk-dot muted"></span>Open risks <strong>8</strong></li>
+                <li><span class="risk-dot danger"></span>Schedule risk <em class="risk-level danger">High</em></li>
+                <li><span class="risk-dot warning"></span>Financial risk <em class="risk-level warning">Medium</em></li>
+                <li><span class="risk-dot success"></span>Supply risk <em class="risk-level success">Low</em></li>
               </ul>
+              <div class="risk-open">
+                <p><b>8</b> open risks <em>+2 this month</em></p>
+                <i class="risk-stack" aria-hidden="true"><b class="danger risk-share-3"></b><b class="warning risk-share-4"></b><b class="success risk-share-1"></b></i>
+                <p class="risk-open-split">3 high · 4 medium · 1 low</p>
+              </div>
             </section>
           </div>
         </div>

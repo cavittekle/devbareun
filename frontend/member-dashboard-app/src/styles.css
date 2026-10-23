@@ -531,6 +531,15 @@ a {
   background: rgba(255, 255, 255, 0.035);
 }
 
+.auth-points strong,
+.auth-points span {
+  display: block;
+}
+
+.auth-points strong {
+  margin-bottom: 4px;
+}
+
 .auth-points span,
 .auth-switch {
   color: var(--text-muted);

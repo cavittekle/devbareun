@@ -2773,3 +2773,37 @@ html[data-theme="light"] .file-chip-v125{background:#fff!important;border-color:
     min-height: 72px;
   }
 }
+
+/* Brand alignment with the homepage (modern-landing.css) */
+.btn.primary {
+  color: #0A1228;
+  background: linear-gradient(135deg, #D4A24C, #E2B45E);
+  box-shadow: 0 14px 30px rgba(212, 162, 76, .14);
+}
+
+.dot {
+  background: var(--brand);
+  box-shadow: 0 0 16px rgba(212, 162, 76, .55);
+}
+
+#main :is(h1, h2, h3) {
+  letter-spacing: -.01em;
+}
+
+.header-login {
+  width: auto;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.menu-btn {
+  font-size: 20px;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .controls .desktop-cta,
+  .controls .header-login {
+    display: none;
+  }
+}

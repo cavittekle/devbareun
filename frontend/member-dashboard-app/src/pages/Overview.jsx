@@ -11,7 +11,7 @@ export function Overview({ projects, reports, credits, onNavigate }) {
       <PageHeader
         eyebrow="Workspace dashboard"
         title="Control project uploads, dashboards and reports."
-        description="This is the customer workspace after login. It stays empty until the customer uploads real project files."
+        description="Manage your projects, reports and remaining analysis credits in one place."
         action={<button className="primary-button" onClick={() => onNavigate("upload")}>Start New Analysis</button>}
       />
 

@@ -183,7 +183,7 @@ function SummaryPanel({ summary }) {
       {rows.map(([label, value]) => (
         <div key={label}>
           <span>{label}</span>
-          <strong>{value}</strong>
+          <strong>{Array.isArray(value) ? value.map((item) => (typeof item === "string" ? item : item?.action || item?.title || "")).filter(Boolean).join(" · ") : value}</strong>
         </div>
       ))}
     </div>
@@ -223,7 +223,7 @@ function compactHash(value) {
 function InputProvenance({ provenance }) {
   const files = asArray(provenance?.files);
   if (!files.length) {
-    return <div className="status-box info">This result predates source-provenance snapshots or did not retain any readable input files.</div>;
+    return <div className="status-box info">Source file details are not available for this result.</div>;
   }
   return (
     <div className="result-provenance">
@@ -295,6 +295,7 @@ export function ResultViewer({ mode = "result" }) {
   const projectId = params.get("project_id");
   const [state, setState] = useState({ loading: true, error: null, payload: null });
   const [showRaw, setShowRaw] = useState(false);
+  const showDebug = params.get("debug") === "1";
 
   useEffect(() => {
     let active = true;
@@ -428,6 +429,7 @@ export function ResultViewer({ mode = "result" }) {
         </article>
       </section>
 
+      {showDebug && (
       <section className="panel result-viewer">
         <div className="result-viewer-head">
           <FileText size={24} />
@@ -439,6 +441,7 @@ export function ResultViewer({ mode = "result" }) {
         </div>
         {showRaw ? (json ? <pre>{json}</pre> : <div className="status-box warning">No dashboard data was returned for this result.</div>) : null}
       </section>
+      )}
     </>
   );
 }
