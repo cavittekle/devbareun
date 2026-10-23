@@ -4,202 +4,104 @@ DevBareun is a construction analytics and project control SaaS platform.
 
 ## Architecture
 
-The production architecture is:
-
 - Public website: static HTML/CSS/JS in `frontend/`
-- Customer workspace app: React/Vite in `frontend/member-dashboard-app/`
+- Customer workspace: React/Vite in `frontend/member-dashboard-app/`
 - Backend API: FastAPI in `backend/`
-- Database, authentication, and private file storage: Supabase
-- Checkout, subscriptions, and billing webhooks: Lemon Squeezy
+- Database, auth, and private file storage: Supabase
+- Checkout and billing webhooks: Lemon Squeezy
 
-The repository root is not a deploy target. There is intentionally no root `index.html`.
+| Target   | Root directory | Notes                              |
+| -------- | -------------- | ---------------------------------- |
+| Vercel   | `frontend`     | Config in `frontend/vercel.json`   |
+| Railway  | `backend`      | Health check `/api/health`         |
+| Supabase | `database`     | Order in `database/SUPABASE_DEPLOY_ORDER.md` |
 
-## Deploy Roots
-
-- Vercel Root Directory: `frontend`
-- Railway Root Directory: `backend`
-- Supabase SQL: `database`
-
-See `docs/DEPLOYMENT_ROOTS.md` before deploying.
+The repository root is not a deploy target and intentionally has no `index.html`. See `docs/DEPLOYMENT_ROOTS.md`.
 
 ## Repository Layout
 
-- `frontend/` - public website, Vercel configuration, and frontend build orchestration.
-- `frontend/member-dashboard-app/` - production React/Vite customer workspace source.
-- `frontend/workspace/` - generated workspace build output; do not edit or commit it.
-- `backend/app/` - FastAPI backend routes, auth, uploads, analysis jobs, dashboards, billing, and reports.
-- `backend/tests/` - backend release and security tests.
-- `database/` - Supabase PostgreSQL schema, migrations, owner promotion, and RLS policies.
-- `docs/` - deployment, environment, billing, security, and production checklists.
-- `tools/` - release packaging, smoke testing, and production-readiness checks.
+- `frontend/` - public website, Vercel config, and workspace build script.
+- `frontend/member-dashboard-app/` - React workspace source (login, projects, uploads, reports, billing, settings).
+- `frontend/workspace/` - generated build output; do not edit or commit.
+- `backend/app/` - FastAPI routes, auth, uploads, analysis jobs, billing, and reports.
+- `backend/tests/` - backend tests.
+- `database/` - Supabase schema, migrations, and RLS policies.
+- `docs/` - deployment, environment, security, and checklists.
+- `tools/` - release gate, env validation, smoke tests, and packaging.
 
 ## Local Development
 
-Recommended versions:
-
-- Node.js 22
-- Python 3.12
-
-### Public Website
+Requires Node.js 22 and Python 3.12.
 
 ```powershell
+# Public website -> http://127.0.0.1:4173/index.html
 cd frontend
 python -m http.server 4173
-```
 
-Open `http://127.0.0.1:4173/index.html`.
-
-### React Workspace
-
-```powershell
+# React workspace (dev server) -> http://127.0.0.1:5174/workspace/
 cd frontend/member-dashboard-app
 npm ci
 npm run dev
-```
 
-Open the Vite URL printed by the command, normally `http://127.0.0.1:5174/workspace/`.
-
-The React app is the source of truth for login, registration, overview, uploads, projects, reports, billing, settings, and result views. Retired static workspace URLs are redirected through `frontend/vercel.json`.
-
-### Integrated Frontend Build
-
-Run this from `frontend/` to install the workspace dependencies, build the React app, and copy its generated output to `frontend/workspace/`:
-
-```powershell
+# Build the workspace into frontend/workspace/
 cd frontend
 npm ci
 npm run build
-```
 
-Do not edit `frontend/workspace/` directly.
-
-### Backend API
-
-```powershell
+# Backend API -> http://127.0.0.1:8000/api/health
 cd backend
 python -m pip install -r requirements.txt
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Health checks:
+`GET /api/readiness` returns secret-safe release errors and warnings.
 
-- `GET /api/health`
-- `GET /api/saas/health`
-- `GET /api/version`
-- `GET /api/readiness`
-- `GET /api/analysis/operations` (staff only; worker queue/liveness)
+## Environment
 
-## Environment Setup
+- `frontend/.env.example` - public Vercel variables only.
+- `backend/.env.example` - Railway variables and private secrets.
 
-- Use `frontend/.env.example` only for public Vercel/frontend variables.
-- Use `backend/.env.example` for Railway/backend variables and private secrets.
-- Root `.env.example` is only a pointer and should not contain runtime secrets.
+Never put `SUPABASE_SERVICE_ROLE_KEY`, payment API keys, webhook secrets, database passwords, or JWT secrets in frontend files, Vercel variables, or Git. Full list: `docs/ENVIRONMENT_VARIABLES.md`.
 
-Never place `SUPABASE_SERVICE_ROLE_KEY`, payment API keys, webhook secrets, database passwords, or JWT secrets in frontend files or Vercel variables.
+## Supabase
 
-## Supabase Setup
+1. Apply SQL from `database/` in the order given by `database/SUPABASE_DEPLOY_ORDER.md`.
+2. Create private storage buckets `project-files` and (if report archiving is used) `reports`.
+3. Set the service role key in Railway only.
 
-1. Create a Supabase project.
-2. Apply SQL from `database/` using `database/SUPABASE_DEPLOY_ORDER.md`.
-3. Create private storage bucket `project-files`.
-4. Create private storage bucket `reports` if report archive storage is used.
-5. Configure backend-only service role access in Railway.
-6. Keep frontend limited to public Supabase values only.
+Uploads use private Supabase Storage signed URLs; Railway's filesystem is ephemeral and must not hold uploads.
 
-Production uploads use private Supabase Storage signed URLs. Railway filesystem storage is ephemeral and must not be used as the permanent production upload store.
+## Payments
 
-## Payment Setup
-
-Production checkout uses Lemon Squeezy.
-
-Required Railway variables:
+Production uses Lemon Squeezy. Railway variables:
 
 - `DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy`
-- `LEMON_SQUEEZY_API_KEY`
-- `LEMON_SQUEEZY_STORE_ID`
-- `LEMON_SQUEEZY_WEBHOOK_SECRET`
-- `LEMON_SQUEEZY_SINGLE_VARIANT_ID`
-- `LEMON_SQUEEZY_PLUS_VARIANT_ID`
-- `LEMON_SQUEEZY_PRO_VARIANT_ID`
+- `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_STORE_ID`, `LEMON_SQUEEZY_WEBHOOK_SECRET`
+- `LEMON_SQUEEZY_SINGLE_VARIANT_ID`, `LEMON_SQUEEZY_PLUS_VARIANT_ID`, `LEMON_SQUEEZY_PRO_VARIANT_ID`
 
-Webhook URL:
+Webhook URL: `https://devbareun-production.up.railway.app/api/billing/webhook`
 
-```text
-https://devbareun-production.up.railway.app/api/billing/webhook
-```
+Mock payment, pilot checkout, local storage, and development auth must stay disabled in production.
 
-Keep mock payment, pilot checkout, local storage, and development authentication disabled in production. Live provider credentials are configured in provider dashboards and Railway, never in Git.
+## Checks
 
-## Verification
-
-Release gate and env-example validation:
+The same checks run in GitHub Actions (`.github/workflows/ci.yml`):
 
 ```powershell
 python tools/release_gate.py --root .
 python tools/validate_production_env.py --backend-env backend/.env.example --frontend-env frontend/.env.example --allow-placeholders
+cd frontend; npm run check; cd ..
+cd backend; python -m pytest; cd ..
 ```
 
-Frontend build:
+After a deploy, smoke-test the live services:
 
 ```powershell
-cd frontend
-npm run check
-```
-
-Backend checks:
-
-```powershell
-python -m compileall backend/app agents/devbareun_ops_engine tools
-python -m pytest backend/tests
-```
-
-Clean release package:
-
-```powershell
-python tools/package_release.py --root .
-```
-
-GitHub Actions validates the release gate, env examples, committed environment files, obvious secret formats, the React workspace build, Python syntax, and backend tests. The workflow is defined in `.github/workflows/ci.yml`.
-
-## Deployment Checklist
-
-Before live launch, complete:
-
-- `docs/ADMIN_ROLES.md`
-- `docs/DEPLOYMENT.md`
-- `docs/FRONTEND_ARCHITECTURE.md`
-- `docs/SECURITY.md`
-- `docs/QA_CHECKLIST.md`
-- `docs/LIVE_DEPLOY_CHECKLIST.md`
-- `docs/LIVE_SUPABASE_PAYMENT_CHECKLIST.md`
-- `docs/SUPER_ADMIN_WORKSPACE.md`
-
-Expected live backend health after Supabase is configured:
-
-```json
-{
-  "status": "ok",
-  "database": "connected",
-  "storage": "configured"
-}
-```
-
-If health shows `database: not_configured` or `storage: not_configured`, Supabase live setup is not complete.
-
-Live Supabase, Lemon Squeezy, Railway, Vercel, storage, RLS, and owner-account setup must be completed and verified separately. Local checks do not replace provider-side production validation.
-
-## v1.4.8 production readiness checks
-
-Before a public deployment, validate env files and smoke-test live services:
-
-```bash
-python tools/validate_production_env.py --backend-env backend/.env.production --frontend-env frontend/.env.production
 python tools/smoke_deploy.py --frontend-url https://devbareun.com --backend-url https://devbareun-production.up.railway.app --strict --retries 3
 ```
 
-The backend also exposes `GET /api/readiness`, which returns secret-safe release errors and warnings. See `docs/PRODUCTION_READINESS_V148.md`.
+A configured backend reports `"database": "connected"` and `"storage": "configured"` at `/api/health`. `not_configured` means Supabase setup is incomplete.
 
+## Going Live
 
-## Production pilot acceptance
-
-After deployment, run the guarded authenticated acceptance tool with a dedicated pilot account. It is read-only by default; write, analysis and report actions require explicit confirmation flags. See `docs/PILOT_ACCEPTANCE_V1427.md`.
+Follow `docs/LIVE_DEPLOY_CHECKLIST.md` and `docs/LIVE_SUPABASE_PAYMENT_CHECKLIST.md`. Local checks do not replace provider-side validation.
