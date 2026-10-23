@@ -18,7 +18,46 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
   <script src="js/theme-init.js?v=14035"></script>
-  <link rel="stylesheet" href="css/modern-landing.css?v=14038" />
+  <link rel="stylesheet" href="css/modern-landing.css?v=14039" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://devbareun.com/#organization",
+        "name": "DevBareun",
+        "url": "https://devbareun.com/",
+        "logo": "https://devbareun.com/assets/devbareun-app-icon-512.png",
+        "email": "info@devbareun.com",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "info@devbareun.com",
+          "availableLanguage": ["English", "Azerbaijani"]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://devbareun.com/#website",
+        "url": "https://devbareun.com/",
+        "name": "DevBareun",
+        "inLanguage": ["en", "az"],
+        "publisher": { "@id": "https://devbareun.com/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://devbareun.com/#software",
+        "name": "DevBareun",
+        "url": "https://devbareun.com/",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Construction analytics and project control platform that turns schedules, cost, F-2 payment, material and risk files into management dashboards and PDF and Excel reports.",
+        "publisher": { "@id": "https://devbareun.com/#organization" }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -332,6 +371,65 @@
       </div>
     </section>
 
+    <section class="trust-section wrap section" id="security">
+      <div class="section-heading narrow">
+        <p class="section-label" data-i18n="securityLabel">Security and data handling</p>
+        <h2 data-i18n="securityTitle">Your project files stay private.</h2>
+        <p data-i18n="securityIntro">How DevBareun stores, checks and opens the files you upload.</p>
+      </div>
+      <div class="trust-grid">
+        <article>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2"/></svg></i>
+          <h3 data-i18n="secStorageTitle">Private storage</h3>
+          <p data-i18n="secStorageText">Uploaded files are kept in a private storage bucket, never behind a public link. Access rules tie each file to the account and project it belongs to.</p>
+        </article>
+        <article>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></i>
+          <h3 data-i18n="secLinksTitle">Short-lived signed links</h3>
+          <p data-i18n="secLinksText">Files are uploaded and read through signed links that expire after a short time, so a copied link soon stops working.</p>
+        </article>
+        <article>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6L12 3Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></i>
+          <h3 data-i18n="secChecksTitle">File checks before analysis</h3>
+          <p data-i18n="secChecksText">Only project file types are accepted and executable files are rejected. Each file's content is checked against its type before it is read.</p>
+        </article>
+        <article>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M3.5 10h17"/><path d="M7.5 14.5h3"/></svg></i>
+          <h3 data-i18n="secPaymentTitle">Payments through Lemon Squeezy</h3>
+          <p data-i18n="secPaymentText">Checkout runs on Lemon Squeezy. Your card details go to the payment provider and are never stored by DevBareun.</p>
+        </article>
+      </div>
+
+      <div class="formats-panel">
+        <div class="formats-copy">
+          <p class="section-label" data-i18n="filesLabel">Supported files</p>
+          <h3 data-i18n="filesTitle">Works with the files your team already keeps.</h3>
+          <p data-i18n="filesText">No new software to adopt. Upload your existing exports as they are, or start from the DevBareun Excel template.</p>
+        </div>
+        <div class="formats-lists">
+          <ul class="format-chips" aria-label="Accepted file formats">
+            <li><b>Excel</b><small>.xlsx .xls</small></li>
+            <li><b>CSV</b><small>.csv</small></li>
+            <li><b>PDF</b><small>.pdf</small></li>
+            <li><b>Primavera P6</b><small>.xer</small></li>
+            <li><b>MS Project</b><small>.xml</small></li>
+            <li><b data-i18n="fmtImages">Site photos</b><small>.jpg .png .webp</small></li>
+          </ul>
+          <ul class="check-list format-content">
+            <li data-i18n="fileSchedule">Schedules and progress updates</li>
+            <li data-i18n="fileF2">F-2 progress payment acts</li>
+            <li data-i18n="fileCost">Cost estimates and BOQ</li>
+            <li data-i18n="fileMaterial">Material stock and consumption</li>
+            <li data-i18n="fileRisk">Risk registers and decision logs</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TRUST-SLOT: customer references / testimonials.
+           Add only real, approved references (company name or logo + written permission).
+           Keep this slot empty until confirmed by DevBareun. -->
+    </section>
+
     <section class="pricing wrap section" id="pricing">
       <div class="section-heading pricing-heading">
         <p class="section-label" data-i18n="pricingLabel">Pricing</p>
@@ -399,6 +497,7 @@
         <a href="#platform" data-i18n="navPlatform">Platform</a>
         <a href="#upload" data-i18n="navUpload">Upload</a>
         <a href="#pricing" data-i18n="navPricing">Pricing</a>
+        <a href="#security" data-i18n="navSecurity">Security</a>
       </nav>
       <nav class="footer-column" aria-label="Company navigation">
         <strong data-i18n="footerCompany">Company</strong>
@@ -419,6 +518,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="js/modern-landing.js?v=14036" defer></script>
+  <script src="js/modern-landing.js?v=14037" defer></script>
 </body>
 </html>

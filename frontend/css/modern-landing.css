@@ -831,6 +831,34 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
   .pricing-trust { justify-content: flex-start; }
 }
 
+/* Security and supported files */
+.trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.trust-grid article { border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; background: linear-gradient(180deg, rgba(16, 26, 56, .78), rgba(10, 18, 40, .58)); box-shadow: var(--shadow); transition: border-color .18s ease; }
+.trust-grid article:hover { border-color: rgba(212, 162, 76, .45); }
+.trust-grid i { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 14px; border: 1px solid var(--border-cyan); background: var(--accent-cyan-soft); margin-bottom: 18px; }
+.trust-grid svg { width: 22px; height: 22px; fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.trust-grid h3 { margin: 0 0 10px; font-size: 18px; }
+.trust-grid p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 15px; }
+.formats-panel { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 32px; align-items: center; margin-top: 24px; border: 1px solid rgba(212, 162, 76, .18); border-radius: var(--radius); padding: 30px; background: rgba(16, 26, 56, .68); }
+.formats-copy h3 { margin: 0 0 12px; font-size: 24px; line-height: 1.25; }
+.formats-copy p:not(.section-label) { margin: 0; color: var(--muted); line-height: 1.6; }
+.formats-lists { display: grid; gap: 20px; }
+.format-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.format-chips li { display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: rgba(10, 18, 40, .6); }
+.format-chips b { font-size: 14px; }
+.format-chips small { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+.format-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+@media (max-width: 1080px) {
+  .trust-grid { grid-template-columns: repeat(2, 1fr); }
+  .formats-panel { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .trust-grid { grid-template-columns: 1fr; }
+  .formats-panel { padding: 22px; }
+  .format-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .format-content { grid-template-columns: 1fr; }
+}
+
 .btn:hover,
 .header-login:hover,
 .lang-toggle:hover,
