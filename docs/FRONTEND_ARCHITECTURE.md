@@ -58,7 +58,7 @@ Retired static workspace pages:
 - `/payment-success.html`
 - `/payment-failed.html`
 
-These routes are redirected to `/workspace/` or a matching `?view=` state in `frontend/vercel.json`.
+These routes are redirected to `/workspace/` or a matching `?view=` state in `frontend/vercel.json`. The old HTML redirect shells were removed; `vercel.json` is the only place these redirects live, so keep its rules (payment return URLs still use `/result-dashboard.html`).
 
 Rules:
 
@@ -95,7 +95,7 @@ Backend owns:
 2. Build and test `frontend/member-dashboard-app`.
 3. Wire React workspace to real upload and report endpoints.
 4. Keep legacy HTML workspace routes redirected to `/workspace/`.
-5. Keep legacy HTML auth/payment URLs as redirect shells only.
+5. Keep legacy HTML auth/payment URLs as `vercel.json` redirects only; do not re-add HTML shells.
 
 ## Vercel Build
 
