@@ -61,7 +61,7 @@ button { cursor: pointer; }
     radial-gradient(circle at 28% 18%, rgba(212, 162, 76, .16), transparent 32%),
     radial-gradient(circle at 78% 78%, rgba(226, 180, 94, .16), transparent 34%),
     #0A1228;
-  transition: opacity .7s ease, visibility .7s ease;
+  transition: opacity .35s ease, visibility .35s ease;
 }
 .loader.hide { opacity: 0; visibility: hidden; }
 .loader-grid {
@@ -760,9 +760,11 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
   .preview-browser { border-radius: 18px; }
   .bar-chart { gap: 8px; }
   .billing-toggle { width: 100%; justify-content: center; }
-  .pricing-compare { overflow-x: auto; }
-  .compare-row { min-width: 620px; grid-template-columns: minmax(170px, 1.2fr) repeat(3, minmax(100px, .72fr)); }
-  .compare-row > * { padding: 13px 12px; }
+  .compare-row { grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, .75fr)); }
+  .compare-row > * { padding: 12px 6px; overflow-wrap: anywhere; }
+  .compare-row > strong { padding-left: 14px; font-size: 13px; }
+  .compare-row span { font-size: 13px; }
+  .compare-head strong, .compare-head span { font-size: 10px; letter-spacing: .04em; }
   .pricing-trust { justify-content: flex-start; }
 }
 

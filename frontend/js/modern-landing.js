@@ -515,14 +515,12 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    window.setTimeout(() => {
-      const loader = $("#db-loading-screen");
-      if (loader) {
-        loader.classList.add("hide");
-        loader.setAttribute("aria-hidden", "true");
-        window.setTimeout(() => loader.remove(), 800);
-      }
-    }, 2000);
+    const loader = $("#db-loading-screen");
+    if (loader) {
+      loader.classList.add("hide");
+      loader.setAttribute("aria-hidden", "true");
+      window.setTimeout(() => loader.remove(), 800);
+    }
 
     applyLanguage(localStorage.getItem("devbareun_lang") || "en");
     applyTheme();
