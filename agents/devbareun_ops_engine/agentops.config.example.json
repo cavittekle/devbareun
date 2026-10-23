@@ -1,6 +1,6 @@
 {
   "site_url": "https://devbareun.com",
-  "api_url": "https://devbareun-backend-production.up.railway.app",
+  "api_url": "https://devbareun-production.up.railway.app",
   "github_frontend_repo": "cavittekle/devbareun-frontend",
   "github_backend_repo": "cavittekle/devbareun-backend",
   "manual_approval_required": true,

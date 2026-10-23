@@ -17,7 +17,7 @@ class SiteManagerAgent(BaseAgent):
             self.metrics["site_manager"] = "skipped_no_urls"
             return
         site = site or "https://devbareun.com"
-        api = api or "https://devbareun-backend-production.up.railway.app"
+        api = api or "https://devbareun-production.up.railway.app"
         paths = ["/", "/about.html", "/faq.html", "/contact.html", "/privacy.html", "/terms.html", "/result-dashboard.html"]
         checked = 0
         for p in paths:
@@ -39,6 +39,13 @@ class SiteManagerAgent(BaseAgent):
                     self.add("critical", f"Backend health returned HTTP {status}: {url}")
                 if "ok" not in body.lower() and "version" not in body.lower():
                     self.add("warning", f"Backend health response looks unexpected: {url}", recommendation=body[:300])
+            except urllib.error.HTTPError as exc:
+                body = exc.read(2000).decode("utf-8", errors="ignore")
+                if exc.headers.get("x-railway-fallback") or "application not found" in body.lower():
+                    # Railway's edge answers for domains with no running service bound to them.
+                    self.add("critical", f"Railway has no running service for {url} (HTTP {exc.code}, Application not found).", recommendation="Open the Railway backend service: check the latest deployment is Active, Root Directory is backend, and this domain is listed under Settings > Networking. Otherwise update the API_URL secret to the service's current domain.")
+                else:
+                    self.add("critical", f"Backend health returned HTTP {exc.code}: {url}", recommendation=body[:300])
             except Exception as exc:
                 self.add("warning", f"Could not check backend health {url}: {exc}")
         self.metrics["site_url"] = site
