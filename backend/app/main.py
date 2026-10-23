@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .analysis_types import PREMIUM_ANALYSIS_TYPE, normalize_analysis_type
@@ -267,13 +267,15 @@ def list_templates() -> Dict[str, Any]:
 
 
 @app.get("/api/templates/{analysis_type}/download")
-def download_template(analysis_type: str) -> FileResponse:
+def download_template(analysis_type: str):
     key = normalize_analysis_type(analysis_type)
     if key not in TEMPLATE_MANIFEST:
         key = PREMIUM_ANALYSIS_TYPE
     template_file = BASE_DIR.parent / "frontend" / "templates" / TEMPLATE_MANIFEST[key]["file"]
     if not template_file.exists():
-        raise HTTPException(status_code=404, detail="Template file was not found.")
+        # Railway deploys only backend/, so the workbooks live on the static site instead.
+        site = (os.getenv("PUBLIC_SITE_URL") or "https://devbareun.com").strip().rstrip("/")
+        return RedirectResponse(f"{site}/templates/{TEMPLATE_MANIFEST[key]['file']}", status_code=307)
     return FileResponse(
         template_file,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
