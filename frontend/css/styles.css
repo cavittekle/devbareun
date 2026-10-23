@@ -2807,3 +2807,4 @@ html[data-theme="light"] .file-chip-v125{background:#fff!important;border-color:
     display: none;
   }
 }
+.about-wide{grid-column:1/-1}.about-steps{display:grid;gap:12px;margin:0 0 16px;padding-left:22px}.about-steps li::marker{color:var(--accent,#D4A24C);font-weight:900}.about-steps strong{color:var(--text)}.about-wide a{color:var(--accent,#D4A24C)}
