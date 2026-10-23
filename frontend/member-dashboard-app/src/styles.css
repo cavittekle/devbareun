@@ -1,3 +1,6 @@
+/* Inter (self-hosted, SIL OFL 1.1, see /assets/fonts/Inter-OFL.txt) */
+@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:100 900;src:url("/assets/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:100 900;src:url("/assets/fonts/inter-latin-wght-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root {
   color-scheme: dark;
   --bg-main: #0A1228;
@@ -64,6 +67,31 @@ a {
 .workspace-brand img {
   width: 170px;
   height: auto;
+}
+
+.workspace-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workspace-sidebar-panel {
+  display: contents;
+}
+
+.workspace-menu-toggle {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  border: 1px solid var(--border-cyan);
+  border-radius: 14px;
+  padding: 8px 12px;
+  background: var(--accent-cyan-soft);
+  color: var(--text-main);
+  font-weight: 750;
+  cursor: pointer;
 }
 
 .workspace-sidebar nav {
@@ -723,8 +751,33 @@ a {
   }
 
   .workspace-sidebar {
-    position: static;
+    z-index: 20;
     height: auto;
+    gap: 0;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-cyan);
+  }
+
+  .workspace-brand img {
+    width: 140px;
+  }
+
+  .workspace-menu-toggle {
+    display: inline-flex;
+  }
+
+  .workspace-sidebar-panel {
+    display: none;
+  }
+
+  .workspace-sidebar-panel.open {
+    display: grid;
+    gap: 16px;
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+    padding-top: 16px;
   }
 
   .workspace-sidebar nav {
