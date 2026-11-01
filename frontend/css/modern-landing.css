@@ -760,6 +760,11 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+@media (min-width: 1081px) and (max-width: 1240px) {
+  .main-nav { gap: 2px; }
+  .main-nav a { padding: 10px 9px; font-size: 14px; }
+}
+
 @media (max-width: 1080px) {
   .main-nav { display: none; }
   .mobile-menu-btn { display: inline-block; }
