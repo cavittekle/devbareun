@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.5.0 — Execution and Delay Analysis Engine
+
+- Added `backend/app/delay/`: readers for the new Excel template, plan/actual Excel/CSV tables, Primavera XER and MS Project XML.
+- Added the execution and delay engine: weighted progress, SPI, earned-schedule delay, activity forecasts, CPM float and critical path, delay-event responsibility (employer / contractor / neutral / concurrent), monthly delay development, rule-based findings in EN/AZ.
+- Added PDF and Excel execution reports (AZ/EN) and `devbareun-delay-analysis-template.xlsx`.
+- Added `/api/delay-analysis/*` endpoints; every analysis job now also stores `dashboard_data.delay_analysis`.
+
 ## v1.4.34 — Project Activity Timeline
 
 - Added a project-scoped, append-only activity timeline for uploads, analyses, reports and access changes.

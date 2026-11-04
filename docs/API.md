@@ -606,3 +606,9 @@ Invitation delivery is manual in v1.4.32. The response shows a one-time URL; Dev
 - `POST /api/project-access/{project_id}/members` — grant access to an active company member.
 - `PATCH /api/project-access/{project_id}/members/{grant_id}` — change role or revoke status.
 - `DELETE /api/project-access/{project_id}/members/{grant_id}` — revoke access.
+
+## Delay Analysis API
+
+Execution and delay analysis endpoints (`/api/delay-analysis/...`): template,
+public example report, signed-in preview and project reports. See
+`docs/DELAY_ANALYSIS_METHOD.md` for inputs, method and the full endpoint table.

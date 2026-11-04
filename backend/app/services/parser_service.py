@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Sequence
 
 from ..analyzer import apply_baseline_actual_guardrails
-from ..analysis_types import normalize_analysis_type, parser_analysis_type
+from ..analysis_types import DELAY_ANALYSIS_TYPE, PREMIUM_ANALYSIS_TYPE, normalize_analysis_type, parser_analysis_type
 from ..file_validation import normalize_sha256_checksum, validate_magic_signature
 from ..upload_security import screen_materialized_upload
 from ..models import ParsedProjectData
@@ -177,7 +177,30 @@ def parse_project_files(
             parsed = parser.parse_files(paths)
             apply_baseline_actual_guardrails(parsed, parser_type)
         parsed.warnings.extend(w for w in warnings if w not in parsed.warnings)
-        return normalize_parsed_project(parsed, files, project, analysis_type=analysis_type)
+        normalized = normalize_parsed_project(parsed, files, project, analysis_type=analysis_type)
+        if normalize_analysis_type(analysis_type) in DELAY_ENGINE_TYPES:
+            normalized["delay_analysis"] = _delay_analysis(paths, project)
+        return normalized
+
+
+def _delay_analysis(paths: Sequence[Path], project: Dict[str, Any] | None) -> Dict[str, Any]:
+    """Run the execution/delay engine on the same verified files.
+
+    It reads the bytes that already passed checksum and security screening.
+    A failure here never blocks the main analysis job.
+    """
+    if not paths:
+        return {"ok": False, "error": {"en": "No readable project files.", "az": "Oxunan layihə faylı yoxdur."}}
+    try:
+        from ..delay import run_delay_analysis
+
+        return run_delay_analysis(paths, project=project)
+    except Exception as exc:  # pragma: no cover - defensive
+        return {"ok": False, "error": {"en": f"Delay analysis failed ({type(exc).__name__}).", "az": f"Gecikmə analizi alınmadı ({type(exc).__name__})."}}
+
+
+# Job types whose files are schedules/progress: the delay engine runs on them.
+DELAY_ENGINE_TYPES = {DELAY_ANALYSIS_TYPE, PREMIUM_ANALYSIS_TYPE, "schedule", "progress"}
 
 
 @contextmanager
