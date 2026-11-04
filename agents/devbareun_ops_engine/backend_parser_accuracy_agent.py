@@ -1,45 +1,39 @@
 from __future__ import annotations
 
-from pathlib import Path
 from .agent_base import BaseAgent
 
 
 class BackendParserAccuracyAgent(BaseAgent):
     name = "BackendParserAccuracyAgent"
-    description = "Checks DevBareun construction parser coverage using the active AgentOps parser checks."
+    description = "Checks that the execution and delay analysis engine, its readers and its template are in place."
 
-    REQUIRED_TERMS = ["smeta", "boq", "f-2", "forma", "progress", "schedule", "workforce", "currency"]
-    IMPORTANT_FILES = ["parser.py", "analyzer.py", "models.py", "reports.py", "openai_mapper.py"]
+    # Engine modules under backend/app/delay/ and the input formats the reader must name.
+    ENGINE_FILES = ["reader.py", "engine.py", "report.py", "sample.py", "model.py"]
+    READER_TERMS = [".xer", ".xml", ".csv", ".xlsx", "planned_start", "actual_start", "responsible", "predecessors"]
 
     def check(self) -> None:
-        app_dir = self.backend_root / "app"
-        if not app_dir.exists():
-            self.add("critical", "Backend app folder not found.", app_dir)
+        delay_dir = self.backend_root / "app" / "delay"
+        if not delay_dir.exists():
+            self.add("critical", "Delay analysis engine folder not found.", delay_dir)
             return
 
-        combined_text_parts = []
-        for file_name in self.IMPORTANT_FILES:
-            path = app_dir / file_name
-            if path.exists():
-                text = self.read(path)
-                combined_text_parts.append(text.lower())
-                self.metrics[f"has_{file_name}"] = True
-            else:
-                self.metrics[f"has_{file_name}"] = False
-                if file_name in {"parser.py", "analyzer.py", "models.py"}:
-                    self.add("critical", f"Required backend parser file missing: {file_name}", path)
-                else:
-                    self.add("warning", f"Optional backend support file missing: {file_name}", path)
+        for file_name in self.ENGINE_FILES:
+            path = delay_dir / file_name
+            self.metrics[f"has_{file_name}"] = path.exists()
+            if not path.exists():
+                self.add("critical", f"Delay analysis module missing: {file_name}", path)
 
-        combined = "\n".join(combined_text_parts)
-        for term in self.REQUIRED_TERMS:
-            if term not in combined:
-                self.add("warning", f"Parser/analyzer may not explicitly handle construction term: {term}", app_dir)
+        reader = delay_dir / "reader.py"
+        if reader.exists():
+            text = self.read(reader).lower()
+            for term in self.READER_TERMS:
+                if term not in text:
+                    self.add("warning", f"Delay reader may not handle: {term}", reader)
 
-        template = self.frontend_root / "templates" / "devbareun-professional-upload-template-v2.xlsx"
-        self.metrics["has_professional_excel_template"] = template.exists()
+        template = self.frontend_root / "templates" / "devbareun-delay-analysis-template.xlsx"
+        self.metrics["has_delay_template"] = template.exists()
         if not template.exists():
-            self.add("warning", "Professional Excel upload template not found.", template)
+            self.add("warning", "Delay analysis Excel template not found.", template)
 
         if not any(f.severity.lower() in {"critical", "error", "fail"} for f in self.findings):
-            self.add("info", "Backend parser coverage check completed without blocking issues.", app_dir)
+            self.add("info", "Delay analysis engine check completed without blocking issues.", delay_dir)

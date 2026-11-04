@@ -145,7 +145,7 @@ def _prepare(inp: DelayInput, data_date: date, quality: List[Dict[str, Any]]) ->
             activity.planned_start, activity.planned_finish = activity.planned_finish, activity.planned_start
             quality.append(_msg("reversed_dates", "warning",
                                 f"{activity.id}: planned finish was before planned start; the dates were swapped.",
-                                f"{activity.id}: plan bitişi başlanğıcdan əvvəl idi; tarixlər yerində dəyişdirildi.",
+                                f"{activity.id}: plan bitmə tarixi başlanğıcdan əvvəl idi; tarixlər yerində dəyişdirildi.",
                                 activity_id=activity.id))
         duration = max(1, (activity.planned_finish - activity.planned_start).days + 1)
         progress = activity.progress
@@ -243,7 +243,7 @@ def _topological(calcs: List[_Calc], quality: List[Dict[str, Any]]) -> Optional[
         sample = ", ".join(sorted(unknown)[:5])
         quality.append(_msg("unknown_predecessor", "warning",
                             f"Predecessor IDs not found in the schedule and ignored: {sample}.",
-                            f"İş qrafikində tapılmayan öncül iş kodları nəzərə alınmadı: {sample}."))
+                            f"İş qrafikində tapılmayan əvvəlki iş kodları nəzərə alınmadı: {sample}."))
     queue = [k for k, v in indegree.items() if v == 0]
     order: List[_Calc] = []
     while queue:
@@ -256,7 +256,7 @@ def _topological(calcs: List[_Calc], quality: List[Dict[str, Any]]) -> Optional[
     if len(order) != len(calcs):
         quality.append(_msg("logic_loop", "warning",
                             "The predecessor links contain a loop; network logic was not used for the forecast.",
-                            "Öncül iş əlaqələrində dövr (loop) var; proqnozda şəbəkə məntiqi istifadə olunmadı."))
+                            "İşlər arası əlaqələrdə dövr (loop) var; proqnozda şəbəkə məntiqi istifadə olunmadı."))
         return None
     return order
 
@@ -588,7 +588,7 @@ def _findings(kpis: Dict[str, Any], top: List[Dict[str, Any]], wbs: List[Dict[st
     if critical_method == "approximate":
         actions.append(_msg("add_logic", "low",
                             "Add predecessor links to the schedule to get a true critical path and float.",
-                            "Həqiqi kritik yol və ehtiyat vaxtı (float) üçün iş qrafikinə öncül iş əlaqələrini əlavə edin."))
+                            "Həqiqi kritik yol və ehtiyat vaxtı (float) üçün iş qrafikinə işlər arası əlaqələri əlavə edin."))
     return findings, actions
 
 

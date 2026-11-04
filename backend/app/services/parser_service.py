@@ -8,199 +8,121 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Sequence
 
-from ..analyzer import apply_baseline_actual_guardrails
-from ..analysis_types import DELAY_ANALYSIS_TYPE, PREMIUM_ANALYSIS_TYPE, normalize_analysis_type, parser_analysis_type
+from ..analysis_types import DELAY_ANALYSIS_TYPE
 from ..file_validation import normalize_sha256_checksum, validate_magic_signature
 from ..upload_security import screen_materialized_upload
-from ..models import ParsedProjectData
-from ..parser import ConstructionFileParser
 from ..security_runtime import int_env
 from ..supabase_client import signed_download_url, settings as supabase_settings
-from .premium_analysis import file_group_status
-
-
-def normalize_parsed_project(
-    parsed: ParsedProjectData,
-    file_rows: Sequence[Dict[str, Any]] | None = None,
-    project: Dict[str, Any] | None = None,
-    analysis_type: str = "all",
-) -> Dict[str, Any]:
-    """Convert parser output into the v1.4.0 normalized analytics schema."""
-    files = list(file_rows or [])
-    canonical_type = normalize_analysis_type(analysis_type)
-    confidence = _confidence_score(parsed)
-    planned = parsed.planned_execution
-    actual = parsed.actual_execution
-    progress_variance = None
-    if planned is not None and actual is not None:
-        progress_variance = round(float(actual) - float(planned), 2)
-
-    material_sheets = [sheet for sheet in parsed.sheets if sheet.detected_type in {"procurement", "material"}]
-    schedule_sheets = [sheet for sheet in parsed.sheets if sheet.detected_type == "schedule"]
-    uploaded_files = [row for row in files if str(row.get("upload_status") or row.get("status") or "").lower() not in {"deleted", "rejected"}]
-    pending_review = [
-        row for row in uploaded_files
-        if str(row.get("parser_status") or row.get("status") or "pending").lower() in {"pending", "awaiting_upload", "uploaded", "processing"}
-    ]
-    approved = [
-        row for row in uploaded_files
-        if str(row.get("parser_status") or row.get("status") or "").lower() in {"parsed", "approved", "completed"}
-    ]
-
-    f2_amount = parsed.evidence.get("f2_completed_amount")
-    approved_payment = f2_amount if f2_amount not in (None, "") else parsed.actual_cost
-    contract_value = parsed.total_cost or (project or {}).get("contract_value")
-    remaining_cost = None
-    if contract_value not in (None, "") and approved_payment not in (None, ""):
-        try:
-            remaining_cost = round(float(contract_value) - float(approved_payment), 2)
-        except Exception:
-            remaining_cost = None
-
-    result = {
-        "project_info": {
-            "project_id": (project or {}).get("id") or (project or {}).get("project_id"),
-            "project_name": parsed.project_name or (project or {}).get("project_name") or "DevBareun Project",
-            "project_code": (project or {}).get("project_code"),
-            "location": (project or {}).get("location"),
-            "client": (project or {}).get("client") or (project or {}).get("client_name"),
-            "client_name": (project or {}).get("client_name") or (project or {}).get("client"),
-            "contractor": (project or {}).get("contractor") or (project or {}).get("contractor_name"),
-            "contractor_name": (project or {}).get("contractor_name") or (project or {}).get("contractor"),
-            "report_date": (project or {}).get("report_date"),
-            "currency": parsed.currency or (project or {}).get("currency") or "USD",
-            "language_hint": parsed.language_hint,
-            "source_file_count": len(uploaded_files),
-            "analysis_type": canonical_type,
-            "requested_analysis_type": analysis_type or "all",
-        },
-        "cost_data": [
-            _metric("total_cost", contract_value),
-            _metric("contract_value", contract_value),
-            _metric("total_budget", parsed.total_cost or (project or {}).get("contract_value")),
-            _metric("planned_cost", parsed.planned_cost),
-            _metric("actual_cost", parsed.actual_cost),
-            _metric("approved_payment", approved_payment),
-            _metric("remaining_cost", remaining_cost),
-            _metric("cost_variance", _safe_difference(parsed.actual_cost, contract_value)),
-            _metric("cost_variance_percent", parsed.cost_variance_percent),
-        ],
-        "schedule_data": [
-            {
-                "baseline_start": None,
-                "baseline_finish": parsed.baseline_finish,
-                "planned_progress_percent": planned,
-                "actual_progress_percent": actual,
-                "forecast_finish": parsed.estimated_finish,
-                "estimated_finish": parsed.estimated_finish,
-                "delay_days": parsed.delay_days,
-                "activity_name": None,
-                "activity_status": None,
-                "source_sheets": [sheet.to_dict() for sheet in schedule_sheets[:8]],
-            }
-        ],
-        "progress_data": [
-            _metric("planned_progress_percent", planned),
-            _metric("actual_progress_percent", actual),
-            _metric("progress_variance_percent", progress_variance),
-        ],
-        "manpower_data": [
-            _metric("current_workforce", parsed.workforce_current),
-            _metric("required_workforce", parsed.workforce_required),
-            _metric("current_workers", parsed.workforce_current),
-            _metric("required_workers", parsed.workforce_required),
-            _metric("trade", None),
-            _metric("productivity_rate", None),
-            _metric("daily_output", None),
-            _metric("planned_output", None),
-            _metric("actual_output", None),
-        ],
-        "material_data": [
-            {
-                "detected_material_sources": len(material_sheets),
-                "material_name": None,
-                "required_quantity": None,
-                "available_quantity": None,
-                "used_quantity": None,
-                "unit": None,
-                "daily_consumption": None,
-                "delivery_date": None,
-                "supplier": None,
-                "stock_status": None,
-                "source_sheets": [sheet.to_dict() for sheet in material_sheets[:8]],
-            }
-        ],
-        "risk_register_data": [],
-        "milestones": _milestones_from_parsed(parsed),
-        "document_control": {
-            "uploaded_files": len(uploaded_files),
-            "pending_review": len(pending_review),
-            "approved_documents": len(approved),
-            "missing_documents": max(0, 4 - len(uploaded_files)) if uploaded_files else 4,
-            "files": [_file_summary(row) for row in uploaded_files[:50]],
-        },
-        "risk_signals": _risk_signals(parsed),
-        "evidence": {
-            "parser_evidence": parsed.evidence,
-            "sheet_profiles": [sheet.to_dict() for sheet in parsed.sheets],
-        },
-        "warnings": list(dict.fromkeys(parsed.warnings)),
-        "confidence_score": confidence,
-    }
-    result["file_group_status"] = file_group_status(result)
-    return result
 
 
 def parse_project_files(
     file_rows: Sequence[Dict[str, Any]],
     *,
-    analysis_type: str = "all",
+    analysis_type: str = DELAY_ANALYSIS_TYPE,
     project: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
-    """Parse uploaded project files and return normalized data.
+    """Run the execution and delay analysis on a project's uploaded files.
 
     Supabase Storage objects are downloaded through signed URLs when credentials
-    exist. Local development rows may also point to an existing local_path.
+    exist; local development rows may point to an existing ``local_path``. Every
+    file is checksum-verified and security-screened before it is read. The
+    returned dictionary is the saved ``normalized_data``; the full delay result
+    is under ``delay_analysis``.
     """
     files = [row for row in file_rows if str(row.get("upload_status") or row.get("status") or "").lower() not in {"deleted", "rejected"}]
-    warnings: List[str] = []
     with _materialized_files(files) as paths:
-        if not paths:
-            parsed = ParsedProjectData(
-                project_name=(project or {}).get("project_name") or "DevBareun Project",
-                currency=(project or {}).get("currency") or "USD",
-                warnings=["No readable project files were available for parser execution."],
-            )
-        else:
-            parser_type = parser_analysis_type(analysis_type)
-            parser = ConstructionFileParser(analysis_type=analysis_type)
-            parsed = parser.parse_files(paths)
-            apply_baseline_actual_guardrails(parsed, parser_type)
-        parsed.warnings.extend(w for w in warnings if w not in parsed.warnings)
-        normalized = normalize_parsed_project(parsed, files, project, analysis_type=analysis_type)
-        if normalize_analysis_type(analysis_type) in DELAY_ENGINE_TYPES:
-            normalized["delay_analysis"] = _delay_analysis(paths, project)
-        return normalized
+        delay = _delay_analysis(paths, project)
+    return normalize_delay_result(delay, files, project)
 
 
 def _delay_analysis(paths: Sequence[Path], project: Dict[str, Any] | None) -> Dict[str, Any]:
-    """Run the execution/delay engine on the same verified files.
-
-    It reads the bytes that already passed checksum and security screening.
-    A failure here never blocks the main analysis job.
-    """
     if not paths:
         return {"ok": False, "error": {"en": "No readable project files.", "az": "Oxunan layihə faylı yoxdur."}}
-    try:
-        from ..delay import run_delay_analysis
+    from ..delay import run_delay_analysis
 
-        return run_delay_analysis(paths, project=project)
-    except Exception as exc:  # pragma: no cover - defensive
-        return {"ok": False, "error": {"en": f"Delay analysis failed ({type(exc).__name__}).", "az": f"Gecikmə analizi alınmadı ({type(exc).__name__})."}}
+    return run_delay_analysis(paths, project=project)
 
 
-# Job types whose files are schedules/progress: the delay engine runs on them.
-DELAY_ENGINE_TYPES = {DELAY_ANALYSIS_TYPE, PREMIUM_ANALYSIS_TYPE, "schedule", "progress"}
+def normalize_delay_result(
+    delay: Dict[str, Any],
+    file_rows: Sequence[Dict[str, Any]] | None = None,
+    project: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    """Summarise a delay analysis result in the stored ``normalized_data`` shape."""
+    project = project or {}
+    files = list(file_rows or [])
+    kpis = delay.get("kpis") or {}
+    info = delay.get("project") or {}
+    planned = kpis.get("planned_progress_pct")
+    actual = kpis.get("actual_progress_pct")
+    warnings = [item.get("en") for item in delay.get("data_quality") or [] if item.get("en")]
+    if not delay.get("ok"):
+        warnings.insert(0, (delay.get("error") or {}).get("en") or "Delay analysis could not be completed.")
+    return {
+        "project_info": {
+            "project_id": project.get("id") or project.get("project_id"),
+            "project_name": project.get("project_name") or info.get("name") or "DevBareun Project",
+            "project_code": project.get("project_code"),
+            "location": project.get("location") or info.get("location"),
+            "client_name": project.get("client_name") or project.get("client") or info.get("client"),
+            "contractor_name": project.get("contractor_name") or project.get("contractor") or info.get("contractor"),
+            "currency": info.get("currency") or project.get("currency"),
+            "source_file_count": len(files),
+            "analysis_type": DELAY_ANALYSIS_TYPE,
+        },
+        "schedule_data": [
+            {
+                "baseline_start": kpis.get("project_start"),
+                "baseline_finish": kpis.get("planned_finish"),
+                "data_date": kpis.get("data_date"),
+                "planned_progress_percent": planned,
+                "actual_progress_percent": actual,
+                "forecast_finish": kpis.get("forecast_finish"),
+                "delay_days": kpis.get("schedule_delay_days"),
+                "forecast_delay_days": kpis.get("forecast_delay_days"),
+                "spi": kpis.get("spi"),
+                "status": kpis.get("status"),
+            }
+        ],
+        "progress_data": [
+            _metric("planned_progress_percent", planned),
+            _metric("actual_progress_percent", actual),
+            _metric("progress_variance_percent", kpis.get("progress_gap_pct")),
+        ],
+        "milestones": _milestones(kpis),
+        "document_control": {
+            "uploaded_files": len(files),
+            "files": [_file_summary(row) for row in files[:50]],
+        },
+        "warnings": list(dict.fromkeys(warnings)),
+        "confidence_score": _confidence_score(delay),
+        "delay_analysis": delay,
+    }
+
+
+def _confidence_score(delay: Dict[str, Any]) -> float:
+    """Share of the analysis that rests on supplied data, 0-100.
+
+    Starts at 100 and loses points for each data-quality warning; a failed
+    analysis scores 0.
+    """
+    if not delay.get("ok"):
+        return 0.0
+    penalty = {"critical": 25, "warning": 8, "info": 2}
+    score = 100.0
+    for item in delay.get("data_quality") or []:
+        score -= penalty.get(item.get("severity"), 0)
+    return round(max(0.0, min(100.0, score)), 1)
+
+
+def _milestones(kpis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    milestones: List[Dict[str, Any]] = []
+    if kpis.get("planned_finish"):
+        milestones.append({"name": "Contract finish", "due_date": kpis["planned_finish"], "status": "Planned"})
+    if kpis.get("forecast_finish"):
+        late = (kpis.get("forecast_delay_days") or 0) > 0
+        milestones.append({"name": "Forecast finish", "due_date": kpis["forecast_finish"], "status": "Delayed" if late else "Upcoming"})
+    return milestones
 
 
 @contextmanager
@@ -336,15 +258,6 @@ def _metric(name: str, value: Any) -> Dict[str, Any]:
     return {"name": name, "value": value}
 
 
-def _safe_difference(left: Any, right: Any) -> float | None:
-    if left in (None, "") or right in (None, ""):
-        return None
-    try:
-        return round(float(left) - float(right), 2)
-    except Exception:
-        return None
-
-
 def _file_summary(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": row.get("id") or row.get("file_id"),
@@ -361,43 +274,3 @@ def _file_summary(row: Dict[str, Any]) -> Dict[str, Any]:
         "security_scan_findings": row.get("security_scan_findings") or [],
         "quarantine_status": row.get("quarantine_status") or "pending_scan",
     }
-
-
-def _confidence_score(parsed: ParsedProjectData) -> float:
-    score = 0.0
-    if parsed.project_name:
-        score += 10
-    if parsed.currency:
-        score += 8
-    for field in ("planned_execution", "actual_execution", "total_cost", "actual_cost", "baseline_finish", "estimated_finish"):
-        if getattr(parsed, field, None) not in (None, ""):
-            score += 9
-    if parsed.sheets:
-        avg = sum(sheet.confidence for sheet in parsed.sheets) / max(1, len(parsed.sheets))
-        score += min(28, avg * 0.28)
-    if parsed.warnings:
-        score -= min(18, len(parsed.warnings) * 3)
-    return round(max(0, min(100, score)), 1)
-
-
-def _risk_signals(parsed: ParsedProjectData) -> List[Dict[str, Any]]:
-    signals: List[Dict[str, Any]] = []
-    if parsed.delay_days and parsed.delay_days > 0:
-        signals.append({"category": "Schedule delay", "value": parsed.delay_days, "unit": "days"})
-    if parsed.cost_variance_percent and parsed.cost_variance_percent > 0:
-        signals.append({"category": "Cost overrun", "value": parsed.cost_variance_percent, "unit": "%"})
-    if parsed.workforce_current is not None and parsed.workforce_required and parsed.workforce_current < parsed.workforce_required:
-        signals.append({"category": "Low manpower", "value": parsed.workforce_required - parsed.workforce_current, "unit": "workers"})
-    for warning in parsed.warnings[:8]:
-        signals.append({"category": "Data quality risk", "value": warning})
-    return signals
-
-
-def _milestones_from_parsed(parsed: ParsedProjectData) -> List[Dict[str, Any]]:
-    milestones: List[Dict[str, Any]] = []
-    if parsed.baseline_finish:
-        milestones.append({"name": "Baseline Finish", "due_date": parsed.baseline_finish, "status": "Planned"})
-    if parsed.estimated_finish:
-        status = "Delayed" if parsed.delay_days and parsed.delay_days > 0 else "Upcoming"
-        milestones.append({"name": "Forecast Finish", "due_date": parsed.estimated_finish, "status": status})
-    return milestones

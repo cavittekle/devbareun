@@ -276,23 +276,18 @@ Request:
 
 ```json
 {
-  "analysis_type": "full_project_control",
+  "analysis_type": "delay",
   "file_ids": ["uuid"],
   "language": "en"
 }
 ```
 
-Allowed analysis types:
-
-```text
-schedule_analysis
-cost_analysis
-progress_payment_analysis
-workforce_analysis
-material_stock_analysis
-risk_analysis
-full_project_control
-```
+Analysis type: DevBareun runs one analysis, the construction execution and
+delay analysis (`delay`). Older clients may still send retired values such as
+`schedule`, `cost` or `full_project_control`; the backend accepts them and runs
+the delay analysis. Accepted inputs are `.xlsx`, `.xls`, `.xlsm`, `.csv`, `.xer`
+and `.xml`. If the files cannot be read as a schedule, the job fails with
+`delay_analysis_unavailable` before any credit is used.
 
 Response:
 

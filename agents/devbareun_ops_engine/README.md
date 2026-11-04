@@ -5,7 +5,7 @@ This package adds a full agent system for DevBareun.
 ## Included agents
 
 1. `BackendSyntaxAgent`
-2. `BackendParserAccuracyAgent`
+2. `BackendParserAccuracyAgent` (delay analysis engine and template)
 3. `FrontendReadabilityAgent`
 4. `LanguageAuditAgent`
 5. `SeoAuditAgent`
@@ -13,9 +13,8 @@ This package adds a full agent system for DevBareun.
 7. `DeploymentReadinessAgent`
 8. `SiteManagerAgent`
 9. `BrowserQaAgent`
-10. `ConstructionMarketingResearchAgent`
-11. `ReleaseManagerAgent`
-12. `ChiefSupervisorAgent` — controls all agents and writes the final management report.
+10. `ReleaseManagerAgent`
+11. `ChiefSupervisorAgent` — controls all agents and writes the final management report.
 
 ## Run locally
 

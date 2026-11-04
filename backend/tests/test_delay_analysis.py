@@ -422,15 +422,81 @@ class ReviewRegressionTests(unittest.TestCase):
         self.assertEqual(parse_number("12,5"), 12.5)
         self.assertEqual(parse_number("1.234,56"), 1234.56)
 
-    def test_delay_engine_only_runs_for_schedule_job_types(self) -> None:
-        from app.services.parser_service import DELAY_ENGINE_TYPES
-        from app.analysis_types import normalize_analysis_type
+    def test_every_analysis_type_runs_the_delay_analysis(self) -> None:
+        from app.analysis_types import DELAY_ANALYSIS_TYPE, normalize_analysis_type
 
-        self.assertIn(normalize_analysis_type("delay"), DELAY_ENGINE_TYPES)
-        self.assertIn(normalize_analysis_type("schedule-recovery"), DELAY_ENGINE_TYPES)
-        self.assertNotIn(normalize_analysis_type("cost"), DELAY_ENGINE_TYPES)
-        self.assertNotIn(normalize_analysis_type("material"), DELAY_ENGINE_TYPES)
+        for value in ("delay", "schedule-recovery", "cost", "material", "full_project_control_premium", None, ""):
+            self.assertEqual(normalize_analysis_type(value), DELAY_ANALYSIS_TYPE)
 
+
+class DelayPipelineTests(unittest.TestCase):
+    """The analysis job, dashboard metrics, risks and reports all use the delay result."""
+
+    def _template_row(self, tmp: Path) -> dict:
+        from app.delay.sample import build_template_bytes
+
+        path = tmp / "devbareun-delay-analysis-template.xlsx"
+        path.write_bytes(build_template_bytes())
+        return {"id": "f1", "original_filename": path.name, "local_path": str(path), "upload_status": "uploaded"}
+
+    def test_parse_project_files_returns_delay_result_and_summary(self) -> None:
+        from app.services.parser_service import parse_project_files
+
+        with tempfile.TemporaryDirectory() as temp:
+            row = self._template_row(Path(temp))
+            normalized = parse_project_files([row], project={"project_name": "Tower A"})
+
+        delay = normalized["delay_analysis"]
+        self.assertTrue(delay["ok"])
+        self.assertEqual(row["checksum_status"], "not_provided")
+        self.assertEqual(row["security_scan_status"], "clean")
+        self.assertEqual(normalized["project_info"]["project_name"], "Tower A")
+        self.assertEqual(normalized["schedule_data"][0]["delay_days"], delay["kpis"]["schedule_delay_days"])
+        self.assertGreater(normalized["confidence_score"], 0)
+
+    def test_analytics_come_from_the_engine_without_estimates(self) -> None:
+        from app.delay import analyze
+        from app.delay.sample import sample_input
+        from app.services.analytics_service import build_analytics, build_risk_register
+        from app.services.parser_service import normalize_delay_result
+
+        delay = analyze(sample_input())
+        normalized = normalize_delay_result(delay, [], {"project_name": "Sample"})
+        analytics = build_analytics(normalized, {})
+
+        self.assertEqual(analytics["metrics"]["spi"], delay["kpis"]["spi"])
+        self.assertEqual(analytics["metrics"]["delay_days"], delay["kpis"]["schedule_delay_days"])
+        self.assertEqual(analytics["cost_overview"], [])
+        self.assertNotIn("forecast_cost", analytics["metrics"])
+        self.assertEqual([stage["name"] for stage in analytics["schedule_performance"]["stages"]], [row["wbs"] for row in delay["wbs"]])
+        risks = build_risk_register(delay)
+        self.assertTrue(risks)
+        self.assertEqual(risks[0]["severity"], "Critical")
+        self.assertTrue(all(risk["recommended_action"] is None for risk in risks))
+
+    def test_unreadable_files_fail_the_job_with_a_safe_message(self) -> None:
+        from app.services import analysis_job_service as jobs
+
+        exc = jobs.DelayAnalysisUnavailable("No readable project files.")
+        self.assertEqual(jobs._safe_error(exc), "delay_analysis_unavailable: No readable project files.")
+
+    def test_report_snapshot_uses_delay_report_for_delay_results(self) -> None:
+        from app.delay import analyze
+        from app.delay.sample import sample_input
+        from app.services.report_service import DELAY_REPORT_KIND, render_report, report_payload
+
+        delay = analyze(sample_input())
+        payload = report_payload({"id": "p1", "project_name": "Tower A"}, {"dashboard_data": {"delay_analysis": delay}})
+        self.assertEqual(payload["report_kind"], DELAY_REPORT_KIND)
+        self.assertEqual(payload["lang"], "en")
+        self.assertEqual(payload["delay_analysis"]["project"]["name"], "Tower A")
+        self.assertNotEqual(delay["project"]["name"], "Tower A")
+        az = report_payload({"id": "p1", "project_name": "Tower A", "language": "az"}, {"dashboard_data": {"delay_analysis": delay}})
+        self.assertEqual(az["lang"], "az")
+        self.assertTrue(render_report(payload, "pdf").startswith(b"%PDF"))
+        self.assertTrue(render_report(payload, "excel").startswith(b"PK"))
+        legacy = report_payload({"id": "p1"}, {"dashboard_data": {"metrics": {}}})
+        self.assertNotIn("report_kind", legacy)
 
 try:
     from fastapi.testclient import TestClient

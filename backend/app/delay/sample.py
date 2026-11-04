@@ -73,16 +73,16 @@ PROJECT_ROWS = [
     ("Podratçı / Contractor", "Nümunə Podratçı MMC", ""),
     ("Ünvan / Location", "Bakı", ""),
     ("Müqavilə başlanğıcı / Contract start", D(2023, 9, 1), "dd.mm.yyyy"),
-    ("Müqavilə bitişi / Contract finish", D(2024, 12, 15), "Planned completion used for delay"),
+    ("Müqavilə bitmə tarixi / Contract finish", D(2024, 12, 15), "Planned completion used for delay"),
     ("Hesabat tarixi / Data date", D(2024, 5, 31), "Status (cut-off) date of the actual progress"),
     ("Valyuta / Currency", "AZN", ""),
 ]
 
 BASELINE_HEADERS = ["İş kodu / Activity ID", "Bölmə / WBS", "İşin adı / Activity Name", "Plan başlanğıc / Planned Start",
-                    "Plan bitiş / Planned Finish", "Çəki / Weight", "Öncül işlər / Predecessors"]
-ACTUAL_HEADERS = ["İş kodu / Activity ID", "Faktiki başlanğıc / Actual Start", "Faktiki bitiş / Actual Finish",
-                  "Proqnoz bitiş / Forecast Finish", "İcra % / Actual Progress %"]
-EVENT_HEADERS = ["Hadisə ID / Event ID", "Hadisə / Delay Event", "Başlanğıc / Start", "Bitiş / Finish",
+                    "Plan bitmə / Planned Finish", "Çəki / Weight", "Əvvəlki işlər / Predecessors"]
+ACTUAL_HEADERS = ["İş kodu / Activity ID", "Faktiki başlanğıc / Actual Start", "Faktiki bitmə / Actual Finish",
+                  "Proqnoz bitmə / Forecast Finish", "İcra % / Actual Progress %"]
+EVENT_HEADERS = ["Hadisə ID / Event ID", "Hadisə / Delay Event", "Başlanğıc / Start", "Bitmə / Finish",
                  "Təsir etdiyi işlər / Affected Activities", "Səbəb / Cause", "Məsul tərəf / Responsible Party", "Qeyd / Notes"]
 MONTHLY_HEADERS = ["Ay / Month", "Plan kumulyativ % / Planned Cumulative %", "Faktiki kumulyativ % / Actual Cumulative %"]
 
@@ -90,7 +90,7 @@ README_LINES = [
     "DevBareun — Tikinti layihəsinin icra və gecikmə analizi şablonu / Construction execution and delay analysis template",
     "",
     "1. Layihə / Project: layihə məlumatları və hesabat tarixi (data date).",
-    "2. Plan_Qrafik / Baseline: hər iş üçün plan başlanğıc və bitiş. Çəki boşdursa, plan müddəti çəki kimi götürülür. Öncül işləri boşluq və ya vergüllə yazın (məs. A100 A110).",
+    "2. Plan_Qrafik / Baseline: hər iş üçün plan başlanğıc və bitmə. Çəki boşdursa, plan müddəti çəki kimi götürülür. Əvvəlki işləri boşluq və ya vergüllə yazın (məs. A100 A110).",
     "3. Faktiki_Icra / Actual: eyni iş kodları ilə faktiki tarixlər və icra faizi (0-100).",
     "4. Gecikme_Hadiseleri / Delay_Events (istəyə bağlı): gecikmə hadisələri, məsul tərəf = Sifarişçi / Podratçı / Neytral.",
     "5. Ayliq_Icra / Monthly (istəyə bağlı): aylıq kumulyativ plan və faktiki faiz. Boşdursa, işlərdən hesablanır.",

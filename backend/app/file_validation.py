@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Any, Dict
 
 
-ALLOWED_UPLOAD_EXTENSIONS = {
-    ".xlsx", ".xls", ".xlsm", ".csv", ".pdf", ".xer", ".xml", ".png", ".jpg", ".jpeg", ".webp"
-}
+# Formats the delay analysis reads: workbooks, CSV, Primavera P6 XER and MS
+# Project XML. PDFs and photos are no longer accepted as uploads.
+ALLOWED_UPLOAD_EXTENSIONS = {".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml"}
 
 DANGEROUS_UPLOAD_EXTENSIONS = {
     ".exe", ".dll", ".bat", ".cmd", ".com", ".ps1", ".vbs", ".js", ".mjs", ".sh", ".php", ".py", ".jar", ".msi"
