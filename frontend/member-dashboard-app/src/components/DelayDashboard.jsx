@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ExecutiveDetails, ExecutiveKpis, executiveCurve } from "./ExecutiveSummary.jsx";
 import { AlertTriangle, CalendarClock, CheckCircle2, Download, FileSpreadsheet, GitBranch, Printer, Scale, TrendingDown } from "lucide-react";
 
 const LANG_KEY = "devbareun.delay.lang";
@@ -356,7 +357,7 @@ function SCurve({ monthly, dataDate, t }) {
             <text x={L - 6} y={y(v) + 4} textAnchor="end" className="tick">{v}%</text>
           </g>
         ))}
-        {monthly.map((m, i) => (i % step === 0 || i === n - 1) && (
+        {monthly.map((m, i) => (i % step === 0 || (i === n - 1 && (n - 1) % step >= step / 2)) && (
           <text key={m.month} x={x(i)} y={H - 8} textAnchor={i === n - 1 ? "end" : i === 0 ? "start" : "middle"} className="tick">{m.month}</text>
         ))}
         {ddIndex >= 0 && <line x1={x(ddIndex)} x2={x(ddIndex)} y1={TOP} y2={H - B} className="data-date" />}
@@ -471,8 +472,11 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
     );
   }
 
+  const ex = result.executive?.ok ? result.executive : null;
+  const exTexts = ex ? ex.texts?.[lang] || ex.texts?.en || {} : {};
   const activities = showAll ? result.activities : (result.top_delays?.length ? result.top_delays : result.activities.slice(0, 10));
   const statusLabel = t.status[k.status] || k.status;
+  const exStatus = ex ? { on_track: "on_track", minor: "at_risk", serious: "critical", critical: "critical" }[ex.totals.status] : null;
 
   return (
     <div className="delay-dashboard">
@@ -482,7 +486,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
           <h1>{project.name}</h1>
           {isExample && <span className="status-pill neutral">{t.example}</span>}
           <dl className="delay-meta">
-            <div><dt>{t.dataDate}</dt><dd>{formatDay(k.data_date)}</dd></div>
+            <div><dt>{t.dataDate}</dt><dd>{formatDay(ex ? ex.report_date : k.data_date)}</dd></div>
             <div><dt>{t.contract}</dt><dd>{formatDay(project.contract_start || k.project_start)} – {formatDay(project.contract_finish || k.planned_finish)}</dd></div>
             {project.client && <div><dt>{t.client}</dt><dd>{project.client}</dd></div>}
             {project.contractor && <div><dt>{t.contractor}</dt><dd>{project.contractor}</dd></div>}
@@ -490,8 +494,8 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         </div>
         <div className="delay-head-actions">
           <LangToggle lang={lang} onChange={onLangChange} />
-          <span className={`status-pill ${statusTone(k.status)}`}>
-            {k.status === "on_track" ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />} {statusLabel}
+          <span className={`status-pill ${statusTone(exStatus || k.status)}`}>
+            {(exStatus || k.status) === "on_track" ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />} {exStatus ? t.status[exStatus] : statusLabel}
           </span>
           {downloads && (
             <div className="delay-downloads">
@@ -503,6 +507,13 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         </div>
       </section>
 
+      {ex && exTexts.key_message_head && (
+        <section className="ex-banner" role="note">
+          <strong>{exTexts.key_message_head}</strong> {exTexts.key_message_tail}
+        </section>
+      )}
+
+      {ex ? <ExecutiveKpis ex={ex} lang={lang} /> : (
       <section className="delay-kpis">
         <Kpi icon={TrendingDown} label={t.actualProgress} value={pct(k.actual_progress_pct)} note={`${t.plan} ${pct(k.planned_progress_pct)}`}
           tone={k.progress_gap_pct < -5 ? "danger" : k.progress_gap_pct < 0 ? "warning" : "success"} bar={{ actual: k.actual_progress_pct, plan: k.planned_progress_pct }} />
@@ -512,12 +523,13 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         <Kpi icon={GitBranch} label={t.forecastFinish} value={formatDay(k.forecast_finish)} note={`${t.plannedFinish} ${formatDay(k.planned_finish)} · ${signed(k.forecast_delay_days)} ${t.days}`}
           tone={k.forecast_delay_days > 30 ? "danger" : k.forecast_delay_days > 0 ? "warning" : "success"} />
       </section>
+      )}
 
       <section className="delay-grid">
         <article className="panel delay-wide">
           <header className="delay-section-head"><h2>{t.scurve}</h2><span>{t.scurveSub}</span></header>
-          <SCurve monthly={result.monthly || []} dataDate={k.data_date} t={t} />
-          {result.monthly_actual_source === "reconstructed" && <small className="delay-note">{t.reconstructed}</small>}
+          <SCurve monthly={ex ? executiveCurve(ex) : result.monthly || []} dataDate={ex ? ex.report_date : k.data_date} t={t} />
+          {!ex && result.monthly_actual_source === "reconstructed" && <small className="delay-note">{t.reconstructed}</small>}
         </article>
         <article className="panel">
           <header className="delay-section-head"><h2>{t.monthlyDelay}</h2><span>{t.monthlyDelaySub}</span></header>
@@ -529,6 +541,9 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         </article>
       </section>
 
+      {ex && <ExecutiveDetails ex={ex} lang={lang} />}
+
+      {!ex && (
       <section className="card-grid result-section-grid">
         <article className="panel">
           <header className="delay-section-head"><h2>{t.findings}</h2></header>
@@ -543,8 +558,9 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
           </ol>
         </article>
       </section>
+      )}
 
-      {result.wbs?.length > 0 && (
+      {!ex && result.wbs?.length > 0 && (
         <section className="panel">
           <header className="delay-section-head"><h2>{t.wbs}</h2></header>
           <div className="delay-table-wrap">

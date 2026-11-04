@@ -149,6 +149,16 @@ def _party_label(party: str, lang: str) -> str:
 
 # ---------------------------------------------------------------------- PDF
 def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
+    """The two-page A3 execution report; the older A4 layout only when the
+    executive summary could not be built."""
+    if (result.get("executive") or {}).get("ok"):
+        from .report_a3 import build_executive_pdf
+
+        return build_executive_pdf(result, lang)
+    return _build_classic_pdf(result, lang)
+
+
+def _build_classic_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
     from reportlab.graphics.charts.lineplots import LinePlot
     from reportlab.graphics.shapes import Drawing, Line, String
     from reportlab.lib import colors
@@ -488,6 +498,52 @@ def build_delay_excel(result: Dict[str, Any], lang: str = "en") -> bytes:
     quality = result.get("data_quality") or []
     if quality:
         sheet(_l("quality", lang).split(". ", 1)[-1], ["Severity", "Note"], [[q["severity"], q.get(lang) or q["en"]] for q in quality], [12, 120])
+    _executive_sheets(wb, result, lang, sheet)
     buffer = BytesIO()
     wb.save(buffer)
     return buffer.getvalue()
+
+
+def _executive_sheets(wb: Any, result: Dict[str, Any], lang: str, sheet: Any) -> None:
+    """Work types, buildings, monthly plan vs F-2 and finance of the executive report."""
+    from . import categories as cat
+
+    ex = result.get("executive") or {}
+    if not ex.get("ok"):
+        return
+    az = lang == "az"
+    sheet("İş növləri" if az else "Work types",
+          ["İş növü" if az else "Work type", "Smeta (ƏDV-siz)" if az else "Estimate (excl. VAT)", "Plan %", "Fakt %" if az else "Actual %",
+           "Gerilik, f.b." if az else "Gap, pp", "Status"],
+          [[cat.label(r["category"], lang) if r["category"] in cat.LABELS else r["category"], r["value"], r["plan_pct"], r["fact_pct"],
+            r["gap_pp"], r["status"]] for r in ex.get("categories") or []], [30, 20, 10, 10, 14, 14])
+    cats = [cat.FRAME, cat.MASONRY, cat.ENVELOPE, cat.FINISHING, cat.MEP]
+    sheet("Binalar" if az else "Buildings",
+          ["Bina" if az else "Building", "Plan bitmə" if az else "Plan finish", "Plan %", "Fakt %" if az else "Actual %", "Gerilik, f.b." if az else "Gap, pp"]
+          + [cat.label(c, lang, short=True) + " %" for c in cats],
+          [[b.get("building") or ("Ərazi abadlığı" if az else "Site works"), _d(b.get("plan_finish")), b["plan_pct"], b["fact_pct"], b["gap_pp"]]
+           + [b["categories"].get(c) for c in cats] for b in ex.get("buildings") or []], [16, 14, 10, 10, 14] + [12] * 5)
+    sheet("Aylıq plan vs F-2" if az else "Monthly plan vs F-2",
+          ["Ay" if az else "Month", "Plan kumulyativ %" if az else "Plan cumulative %", "Fakt kumulyativ %" if az else "Actual cumulative %",
+           "Plan dəyəri" if az else "Plan value", "F-2 dəyəri" if az else "F-2 value"],
+          [[_d(m["month"]), m.get("plan_pct"), m.get("fact_pct"), m.get("plan_value"), m.get("f2_value")] for m in ex.get("monthly") or []],
+          [14, 18, 18, 16, 16])
+    fin = ex.get("finance") or {}
+    fc = ex.get("forecast") or {}
+    pen = ex.get("penalty") or {}
+    rows = [
+        ("Müqavilə məbləği (ƏDV ilə)" if az else "Contract value (incl. VAT)", fin.get("contract_value")),
+        ("Görülmüş iş, F-2 kumulyativ (ƏDV ilə)" if az else "Work done, F-2 cumulative (incl. VAT)", fin.get("works_cum_with_vat")),
+        ("Alınmış avans" if az else "Advance received", fin.get("advance_received")),
+        ("Tutulmuş avans" if az else "Advance recovered", fin.get("advance_withheld")),
+        ("Qalıq avans" if az else "Outstanding advance", fin.get("advance_remaining")),
+        ("Hesabat ayı üzrə ödəniləcək" if az else "Payable for the month", fin.get("payable_period")),
+        ("Proqnoz (ən tez)" if az else "Forecast (earliest)", _d(fc.get("earliest_finish"))),
+        ("Son aylar tempi (ayda)" if az else "Recent pace (per month)", fc.get("recent_pace")),
+        ("Müqavilə üçün lazım olan temp" if az else "Pace needed for the contract", fc.get("required_pace")),
+        ("Cərimə, gündə %" if az else "Penalty, % per day", pen.get("pct_per_day")),
+        ("Cərimə limiti %" if az else "Penalty cap %", pen.get("cap_pct")),
+        ("Limitin dolma tarixi" if az else "Cap reached on", _d(pen.get("cap_date"))),
+    ]
+    sheet("Maliyyə və proqnoz" if az else "Finance and forecast", ["Göstərici" if az else "Item", "Dəyər" if az else "Value"],
+          [[a, b] for a, b in rows], [44, 22])

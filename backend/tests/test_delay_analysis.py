@@ -233,11 +233,13 @@ class ReaderTests(unittest.TestCase):
             path = Path(temp) / "template.xlsx"
             path.write_bytes(build_template_bytes())
             parsed = read_path(path)
-        self.assertEqual(parsed.project.data_date, D(2024, 5, 31))
-        self.assertEqual(parsed.project.contract_finish, D(2024, 12, 15))
-        self.assertEqual(len(parsed.activities), 16)
-        self.assertEqual(len(parsed.events), 5)
-        self.assertEqual(analyze(parsed)["kpis"], analyze(sample_input())["kpis"])
+        from app.delay.sample_estate import estate_sample_input
+
+        self.assertEqual(parsed.project.data_date, D(2026, 10, 31))
+        self.assertEqual(parsed.project.contract_finish, D(2027, 1, 15))
+        self.assertEqual(len(parsed.activities), 31)
+        self.assertEqual(len(parsed.events), 3)
+        self.assertEqual(analyze(parsed)["kpis"], analyze(estate_sample_input())["kpis"])
 
     def test_turkish_headers_fraction_percent_and_combined_finish_column(self) -> None:
         path = _write_xlsx({
@@ -546,7 +548,7 @@ class DelayApiTests(unittest.TestCase):
         self.app.dependency_overrides[get_current_user] = lambda: CurrentUser(id="u1", auth_user_id="u1", email="test@example.com")
         ok = self.client.post("/api/delay-analysis/preview", files={"files": ("plan.xlsx", build_template_bytes(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")})
         self.assertEqual(ok.status_code, 200, ok.text)
-        self.assertEqual(ok.json()["kpis"]["forecast_delay_days"], 98)
+        self.assertEqual(ok.json()["executive"]["totals"]["delay_days"], 202)
         fake = self.client.post("/api/delay-analysis/preview", files={"files": ("plan.xlsx", b"not a zip", "application/octet-stream")})
         self.assertEqual(fake.status_code, 400)
         script = self.client.post("/api/delay-analysis/preview", files={"files": ("run.py", b"print(1)", "text/plain")})

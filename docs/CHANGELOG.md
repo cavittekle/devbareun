@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.1 — Execution report v2 (A3, estimate-weighted)
+
+- New two-page A3 landscape execution report: key message, KPI tiles, S-curve, monthly plan vs F-2, work-type and building tables, key delays, delay cards, forecast with penalty, finance vs physical progress, contractor actions and director decisions (AZ/EN).
+- Plan % is now weighted by estimate value and spread over the mapped schedule activities; fact % = cumulative F-2 / estimate (before VAT, without the 2% reserve); delay by earned schedule.
+- Readers for the cumulative F-2 sheet (estimate lines by building and section), Forma-3 (advance and payable) and contract terms (terms table, Word or text-based PDF; `pypdf` is back as a dependency).
+- Template gains `Muqavile_Contract`, `Smeta_F2_Nakopitel` and `F3_Forma3` sheets; the example is now a fictional six-building estate.
+- Workspace dashboard shows the execution report sections; the homepage preview uses the new example's numbers.
+
 ## v1.5.0 — Execution and Delay Analysis Engine
 
 - Added `backend/app/delay/`: readers for the new Excel template, plan/actual Excel/CSV tables, Primavera XER and MS Project XML.

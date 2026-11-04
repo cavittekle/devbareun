@@ -18,14 +18,14 @@ ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE = ROOT / "frontend" / "templates" / "devbareun-delay-analysis-template.xlsx"
 
 
-def _f2_simple(path: Path) -> Path:
+def _f2_simple(path: Path, period: str = "01.03.2024 - 31.03.2024") -> Path:
     wb = Workbook()
     ws = wb.active
     ws.title = "F2"
     for row in [
         ["Forma F2"],
         ["Görülmüş işlərin təhvil-təslim aktı № 7"],
-        ["Hesabat dövrü: 01.03.2024 - 31.03.2024"],
+        [f"Hesabat dövrü: {period}"],
         ["Sifarişçi: Nümunə MMC"],
         ["№", "İşlərin adı", "Ölçü vahidi", "Miqdar", "Vahid qiymət", "Məbləğ, AZN"],
         [1, 2, 3, 4, 5, 6],
@@ -220,14 +220,14 @@ class PaymentAnalysisTests(unittest.TestCase):
         result = run_delay_analysis([TEMPLATE])
         payments = result["payments"]
         self.assertTrue(payments["available"])
-        self.assertEqual(payments["certificate_count"], 9)
-        self.assertEqual(payments["contract_value"], 18500000.0)
-        self.assertAlmostEqual(payments["financial_progress_pct"], 37.7)
-        may = next(row for row in result["monthly"] if row["month"] == "2024-05")
-        self.assertEqual(may["certified_amount"], 800000.0)
+        self.assertEqual(payments["certificate_count"], 10)
+        self.assertEqual(payments["contract_value"], 34591000.0)
+        self.assertAlmostEqual(payments["financial_progress_pct"], 18.1)
+        september = next(row for row in result["monthly"] if row["month"] == "2026-09")
+        self.assertEqual(september["certified_amount"], 813085.0)
 
     def test_documents_are_listed_and_f2_files_add_up(self):
-        f2 = _f2_simple(self.dir / "akt7.xlsx")
+        f2 = _f2_simple(self.dir / "akt7.xlsx", "01.03.2026 - 31.03.2026")
         contract = self.dir / "muqavile.pdf"
         contract.write_bytes(b"%PDF-1.4")
         result = run_delay_analysis([TEMPLATE, f2, contract], document_types={
@@ -236,8 +236,8 @@ class PaymentAnalysisTests(unittest.TestCase):
         types = {d["name"]: (d["document_type"], d["status"]) for d in result["documents"]}
         self.assertEqual(types["muqavile.pdf"], ("contract", "reference"))
         self.assertEqual(types["akt7.xlsx"], ("f2", "read"))
-        # 9 template rows + the uploaded F2 for March 2024 (duplicate month).
-        self.assertEqual(result["payments"]["certificate_count"], 10)
+        # 10 template rows + the uploaded F2 for March 2026 (duplicate month).
+        self.assertEqual(result["payments"]["certificate_count"], 11)
         self.assertIn("f2_duplicate_period", {q["code"] for q in result["data_quality"]})
 
     def test_gap_between_certified_value_and_progress_is_flagged(self):

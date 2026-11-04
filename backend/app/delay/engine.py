@@ -754,8 +754,14 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
     info = inp.project
 
     actual_dates = [d for a in inp.activities for d in (a.actual_start, a.actual_finish) if d]
+    f2_dates = [d for d in [c.period for c in inp.payments] + [f.period for f in inp.f3] if d]
     if info.data_date:
         data_date, data_date_source = info.data_date, "supplied"
+    elif f2_dates:
+        data_date, data_date_source = max(f2_dates), "latest_f2"
+        quality.append(_msg("data_date_from_f2", "info",
+                            f"No data date given; the latest F-2 period {_dmy(data_date.isoformat())} is used.",
+                            f"Hesabat tarixi verilməyib; son F-2 dövrü {_dmy(data_date.isoformat())} götürüldü."))
     elif actual_dates:
         data_date, data_date_source = max(actual_dates), "latest_actual"
         quality.append(_msg("data_date_inferred", "info",
@@ -903,9 +909,16 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
     _payment_findings(payments, findings, actions)
     _monthly_payments(monthly, payments)
 
+    from .executive import build_executive
+
+    try:
+        executive = build_executive(inp, data_date, monthly=monthly)
+    except Exception as exc:  # the classic analysis must still be returned
+        executive = {"ok": False, "error": type(exc).__name__}
     return {
         "schema": SCHEMA,
         "ok": True,
+        "executive": executive,
         "project": {
             "name": info.name,
             "client": info.client,

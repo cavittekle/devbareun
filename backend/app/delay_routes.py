@@ -16,6 +16,7 @@ import tempfile
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import Response
@@ -23,7 +24,9 @@ from fastapi.responses import Response
 from .auth_dependencies import CurrentUser, get_current_user, require_project_owner
 from .delay import analyze, run_delay_analysis
 from .delay.report import build_delay_excel, build_delay_pdf
-from .delay.sample import TEMPLATE_FILENAME, build_template_bytes, sample_input
+from .delay.report_a3 import report_filename
+from .delay.sample import TEMPLATE_FILENAME, build_template_bytes
+from .delay.sample_estate import estate_sample_input
 from .file_validation import validate_magic_signature, validate_upload_metadata
 from .services.analysis_job_service import get_latest_analysis_result
 from .upload_security import UploadSecurityScreeningError, screen_materialized_upload
@@ -46,12 +49,17 @@ def _report_response(result: Dict[str, Any], report_format: str, lang: str, stem
     else:
         content, media = build_delay_pdf(result, lang), "application/pdf"
     filename = f"{stem}-{lang}.{fmt}"
-    return Response(content, media_type=media, headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+    disposition = f'attachment; filename="{filename}"'
+    if (result.get("executive") or {}).get("ok"):
+        # "<Project> icra hesabatı -10.2026.pdf"; the ASCII name stays as a fallback.
+        readable = report_filename(result, lang)[:-4] + f".{fmt}"
+        disposition += f"; filename*=UTF-8''{quote(readable)}"
+    return Response(content, media_type=media, headers={"Content-Disposition": disposition})
 
 
 @lru_cache(maxsize=1)
 def _sample_result() -> Dict[str, Any]:
-    result = analyze(sample_input())
+    result = analyze(estate_sample_input())
     result["is_example"] = True
     return result
 
