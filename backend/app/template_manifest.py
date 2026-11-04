@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .analysis_types import PREMIUM_ANALYSIS_TYPE
+from .analysis_types import DELAY_ANALYSIS_TYPE, PREMIUM_ANALYSIS_TYPE
 
 COMBINED_REQUIRED_SHEETS = [
     "Project_Info",
@@ -27,7 +27,22 @@ LEGACY_DASHBOARD_SHEETS = [
 # The legacy/import workflows share one workbook with the LEGACY_DASHBOARD_SHEETS layout.
 LEGACY_DASHBOARD_TEMPLATE_FILE = "devbareun-professional-upload-template-v2.xlsx"
 
+DELAY_ANALYSIS_SHEETS = [
+    "README",
+    "Layihe_Project",
+    "Plan_Qrafik_Baseline",
+    "Faktiki_Icra_Actual",
+    "Gecikme_Hadiseleri_Events",
+    "Ayliq_Icra_Monthly",
+]
+
 TEMPLATE_MANIFEST = {
+    DELAY_ANALYSIS_TYPE: {
+        "title": "Execution and Delay Analysis Template",
+        "file": "devbareun-delay-analysis-template.xlsx",
+        "required_sheets": DELAY_ANALYSIS_SHEETS,
+        "purpose": "Baseline schedule, actual progress, delay events and monthly progress for the execution and delay analysis report.",
+    },
     PREMIUM_ANALYSIS_TYPE: {
         "title": "Project Control Combined Template",
         "file": "devbareun-full-project-control-template.xlsx",

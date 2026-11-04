@@ -27,6 +27,7 @@ from .operations_routes import router as operations_router
 from .persistence_routes import router as persistence_router
 from .production_store import is_configured as production_store_configured
 from .report_routes import router as report_router
+from .delay_routes import router as delay_router
 from .saas_routes import router as saas_router
 from .security_runtime import apply_security_headers, bool_env, enforce_cookie_request_integrity, production_security_enabled, rate_limiter, runtime_readiness, runtime_readiness_report
 from .supabase_client import is_configured as supabase_is_configured
@@ -205,6 +206,7 @@ app.include_router(project_activity_router)
 app.include_router(data_lifecycle_router)
 app.include_router(billing_router)
 app.include_router(report_router)
+app.include_router(delay_router)
 app.include_router(legacy_router)
 
 

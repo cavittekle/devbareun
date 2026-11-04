@@ -229,8 +229,11 @@ def run_analysis_job(
         normalized["analysis_provenance"] = input_manifest
         _update_job(job_id, _provenance_patch(input_manifest))
         _update_job(job_id, {"progress": 58})
+        delay_analysis = normalized.pop("delay_analysis", None)
         analytics = build_analytics(normalized, project)
         analytics["analysis_provenance"] = input_manifest
+        if delay_analysis is not None:
+            analytics["delay_analysis"] = delay_analysis
         risks = generate_risk_register(normalized, analytics)
         analytics.setdefault("metrics", {})["high_risk_count"] = len([risk for risk in risks if risk.get("severity") in {"High", "Critical"}])
         premium_dashboard = analyze_full_project_control_premium(normalized, analytics, risks)
