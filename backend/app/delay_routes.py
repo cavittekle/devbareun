@@ -110,11 +110,11 @@ async def _project_delay_result(project_id: str, current_user: CurrentUser) -> D
     project = await require_project_owner(project_id, current_user, section="projects")
     row = get_latest_analysis_result(project_id, project, current_user)
     if not row:
-        raise HTTPException(status_code=404, detail="No analysis has been completed for this project yet.")
+        raise HTTPException(status_code=404, detail={"error": "analysis_not_ready", "message": "No analysis has been completed for this project yet."})
     dashboard = row.get("dashboard_data") or {}
     result = dashboard.get("delay_analysis")
     if not result:
-        raise HTTPException(status_code=404, detail="This analysis was created before delay analysis was available. Run the analysis again.")
+        raise HTTPException(status_code=404, detail={"error": "legacy_analysis_result", "message": "This analysis was created before delay analysis was available. Run the analysis again."})
     return result
 
 
