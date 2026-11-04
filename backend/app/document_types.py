@@ -60,7 +60,7 @@ def infer_document_type(filename: str) -> str:
     """Best guess for files uploaded without a type (older clients)."""
     name = _norm(Path(filename or "").stem)
     ext = Path(filename or "").suffix.lower()
-    if re.search(r"(^|[^a-z0-9])f[\s_-]?2([^0-9]|$)|forma[\s_-]?2|akt|odenis|qebul", name):
+    if re.search(r"(^|[^a-z0-9])f[\s_-]?2([^0-9]|$)|forma[\s_-]?2|(^|[^a-z])akt(lar|i|[^a-z]|$)|odenis|qebul", name):
         return F2
     if re.search(r"muqavil|contract|sozlesme|dogovor|договор", name):
         return CONTRACT

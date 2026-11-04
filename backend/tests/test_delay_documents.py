@@ -107,6 +107,11 @@ class DocumentTypeTests(unittest.TestCase):
         self.assertEqual(infer_document_type("F2_2024_05.xlsx"), "f2")
         self.assertEqual(infer_document_type("Muqavile_123.pdf"), "contract")
         self.assertEqual(infer_document_type("baseline.xer"), "schedule")
+        self.assertEqual(infer_document_type("akt_7.xlsx"), "f2")
+        self.assertEqual(infer_document_type("Aktlar 2024.xlsx"), "f2")
+        # "faktiki" (actual progress) must stay a schedule file
+        self.assertEqual(infer_document_type("Faktiki icra.csv"), "schedule")
+        self.assertEqual(infer_document_type("aktual_plan.xlsx"), "schedule")
 
 
 class F2ReaderTests(unittest.TestCase):
@@ -154,6 +159,35 @@ class F2ReaderTests(unittest.TestCase):
         ])], "F2_2024-02.xlsx")
         self.assertEqual(certs[0].amount, 3500)
         self.assertEqual(certs[0].period, date(2024, 2, 29))
+
+    def test_section_subtotals_do_not_hide_the_overall_total(self):
+        certs = f2_from_tables([("s", [
+            ("İşin adı", "Məbləğ"),
+            ("Concrete", 1000),
+            ("Total concrete", 1000),
+            ("Rebar", 2000),
+            ("Grand total", 3000),
+        ])], "F2_2024-02.xlsx")
+        self.assertEqual(certs[0].amount, 3000)
+
+    def test_section_subtotals_without_grand_total_add_up(self):
+        certs = f2_from_tables([("s", [
+            ("İşin adı", "Məbləğ"),
+            ("Concrete", 1000),
+            ("Cəmi beton", 1000),
+            ("Rebar", 2000),
+            ("Cəmi armatur", 2000),
+        ])], "F2_2024-02.xlsx")
+        self.assertEqual(certs[0].amount, 3000)
+
+    def test_register_with_one_certificate(self):
+        certs = f2_from_tables([("Register", [
+            ("F2 No", "Period", "Amount"),
+            (1, "2024-03", 30000),
+        ])], "register.xlsx")
+        self.assertEqual(len(certs), 1)
+        self.assertEqual(certs[0].amount, 30000)
+        self.assertEqual(certs[0].period, date(2024, 3, 31))
 
     def test_old_doc_and_contract_are_references(self):
         doc = self.dir / "f2.doc"

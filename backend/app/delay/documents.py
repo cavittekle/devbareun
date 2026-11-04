@@ -37,7 +37,7 @@ CUMULATIVE_WORDS = ("evvelinden", "baslanmasindan", "baslangicdan", "kumulyativ"
 PERIOD_WORDS = ("hesabatdovr", "caridovr", "cariay", "budovr", "thisperiod", "dovrerzinde", "hesabatay", "отчетн", "period", "dovr")
 CONTRACT_WORDS = ("muqavile", "smeta", "contract", "budget", "договор", "смет", "sozlesme")
 DATE_WORDS = ("dovr", "period", "month", "ay", "tarix", "date", "период", "месяц", "donem")
-TOTAL_WORDS = ("cemi", "yekun", "total", "итого", "всего", "umumi", "toplam", "hamisi")
+TOTAL_WORDS = ("cemi", "yekun", "total", "grand", "overall", "итого", "всего", "umumi", "toplam", "hamisi")
 VAT_WORDS = ("edv", "vat", "ндс", "kdv")
 WITH_WORDS = ("ile", "daxil", "includ", "incl", "сучетом", "свключ", "dahil")
 
@@ -260,6 +260,32 @@ def _is_column_number_row(row: Sequence[Any]) -> bool:
     return len(numbers) >= 4 and all(n is not None and float(n).is_integer() and 0 < n <= 40 for n in numbers)
 
 
+def _close(a: float, b: float) -> bool:
+    return abs(a - b) <= max(1.0, abs(b) * 0.01)
+
+
+def _overall_total(totals: List[tuple], line_sum: Optional[float]) -> tuple:
+    """Pick the certificate total when a works table has section subtotals.
+
+    The overall total is normally the last total row: it equals the sum of the
+    work lines or of the subtotals above it. When every total row is a section
+    subtotal (they add up to the work lines), their sum is the certificate.
+    """
+    if not totals:
+        return (round(line_sum, 2) if line_sum is not None else None), None
+    if len(totals) == 1:
+        return totals[0]
+    last_value, last_cumulative = totals[-1]
+    earlier = sum(value for value, _ in totals[:-1])
+    if _close(last_value, earlier) or (line_sum is not None and _close(last_value, line_sum)):
+        return last_value, last_cumulative
+    everything = sum(value for value, _ in totals)
+    if line_sum is not None and _close(everything, line_sum):
+        cumulatives = [c for _, c in totals]
+        return round(everything, 2), (round(sum(cumulatives), 2) if all(c is not None for c in cumulatives) else None)
+    return last_value, last_cumulative
+
+
 def _certificate_from_rows(rows: List[Sequence[Any]], source: str) -> Optional[PaymentCertificate]:
     header = _amount_header(rows)
     if not header:
@@ -270,7 +296,8 @@ def _certificate_from_rows(rows: List[Sequence[Any]], source: str) -> Optional[P
     if period_col is None:
         return None
     cumulative_col = columns["cumulative"]
-    amount = with_vat = cumulative = None
+    with_vat = None
+    totals: List[tuple] = []  # (value, cumulative) of each total row, in order
     line_sum = 0.0
     lines = 0
     for row in rows[header_index + 1:]:
@@ -283,19 +310,18 @@ def _certificate_from_rows(rows: List[Sequence[Any]], source: str) -> Optional[P
             if value is None:
                 continue
             if _has(text, VAT_WORDS):
-                if _has(text, WITH_WORDS) and with_vat is None:
-                    with_vat = value
+                if _has(text, WITH_WORDS):
+                    with_vat = value  # the last VAT-inclusive line is the overall one
                 continue  # a VAT-only line is not the works total
-            if amount is None:
-                amount = value
-                if cumulative_col is not None and cumulative_col < len(row):
-                    cumulative = parse_number(row[cumulative_col])
+            cumulative = None
+            if cumulative_col is not None and cumulative_col < len(row):
+                cumulative = parse_number(row[cumulative_col])
+            totals.append((value, cumulative))
             continue
-        if value is not None and text and amount is None:
+        if value is not None and text:
             line_sum += value
             lines += 1
-    if amount is None and lines:
-        amount = round(line_sum, 2)
+    amount, cumulative = _overall_total(totals, line_sum if lines else None)
     if amount is None or amount <= 0:
         return None
     head_rows = rows[:header_index]
@@ -342,7 +368,7 @@ def _register_rows(rows: List[Sequence[Any]], source: str) -> List[PaymentCertif
             with_vat = parse_number(data[vat_col]) if vat_col is not None and vat_col < len(data) else None
             out.append(PaymentCertificate(source=source, period=_month_end(period), number=number or None,
                                           amount=value, amount_with_vat=with_vat, cumulative=cumulative))
-        if len(out) >= 2:
+        if out:
             return out
     return []
 
