@@ -12,6 +12,9 @@
 - Legacy pre-SaaS project routes keep answering `410 Gone`; they are hidden from the OpenAPI schema.
 - Only the delay analysis template is shipped; the old template URLs redirect to it.
 - Workspace menu: delay analysis first; team and sharing pages moved to a secondary group.
+- Uploads are grouped as contract (PDF, Word, image), planning (Excel/CSV, XER, MS Project XML/MPP, PDF) and F2 certificates (Excel/CSV, Word). `uploaded_files.document_type` stores the type (migration `2026_11_04_v150_upload_document_types.sql`).
+- New F2 reader: period, number, totals before/with VAT and cumulative value from Excel and Word forms. Reports and the dashboard show F2 certified value against physical progress and a list of documents reviewed.
+- The template gains a contract value row and an optional `F2_Odenisler_Payments` sheet.
 - Removed the GitHub auto-upload workflow and the marketing research and GitHub sync agents, and 18 outdated docs.
 
 ## v1.4.34 — Project Activity Timeline

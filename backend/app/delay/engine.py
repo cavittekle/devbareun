@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-from .model import Activity, DelayEvent, DelayInput
+from .model import Activity, DelayEvent, DelayInput, PaymentCertificate
 from .reader import resolve_id
 
 SCHEMA = "devbareun.delay-analysis/v1"
@@ -592,11 +592,164 @@ def _findings(kpis: Dict[str, Any], top: List[Dict[str, Any]], wbs: List[Dict[st
     return findings, actions
 
 
+# ------------------------------------------------------- documents and F2
+FINANCIAL_GAP_WARNING_PCT = 10.0
+
+
+def _documents(inp: DelayInput) -> List[Dict[str, Any]]:
+    return [
+        {"name": d.name, "document_type": d.document_type, "format": d.file_format, "status": d.status,
+         "note_en": d.note_en, "note_az": d.note_az}
+        for d in inp.documents
+    ]
+
+
+def _document_quality(inp: DelayInput, quality: List[Dict[str, Any]]) -> None:
+    for doc in inp.documents:
+        if doc.status in {"reference", "read"} and doc.document_type == "contract":
+            continue
+        if doc.note_en:
+            severity = "warning" if doc.status in {"unreadable", "no_data"} else "info"
+            quality.append(_msg(f"document_{doc.status}", severity, f"{doc.name}: {doc.note_en}", f"{doc.name}: {doc.note_az or doc.note_en}"))
+
+
+def _fmt_money(value: float) -> str:
+    return f"{value:,.2f}".replace(",", " ")
+
+
+def _money(value: Optional[float]) -> Optional[float]:
+    return None if value is None else round(float(value), 2)
+
+
+def _payments(inp: DelayInput, kpis: Optional[Dict[str, Any]], quality: List[Dict[str, Any]]) -> Dict[str, Any]:
+    certs: List[PaymentCertificate] = [c for c in inp.payments if c.amount is not None]
+    contract_value = inp.project.contract_value
+    if not certs:
+        return {"available": False, "contract_value": _money(contract_value), "currency": inp.project.currency, "certificates": []}
+    dated = sorted((c for c in certs if c.period), key=lambda c: c.period)  # type: ignore[arg-type, return-value]
+    undated = [c for c in certs if not c.period]
+    seen: Dict[str, int] = defaultdict(int)
+    for cert in dated:
+        seen[cert.period.strftime("%Y-%m")] += 1  # type: ignore[union-attr]
+    duplicates = sorted(month for month, count in seen.items() if count > 1)
+    if duplicates:
+        quality.append(_msg("f2_duplicate_period", "warning",
+                            f"More than one F2 covers {', '.join(duplicates)}; check that no certificate is counted twice.",
+                            f"{', '.join(duplicates)} dövrü üçün birdən çox F2 var; heç bir aktın iki dəfə sayılmadığını yoxlayın."))
+    if undated:
+        names = ", ".join(sorted({c.source for c in undated}))
+        quality.append(_msg("f2_no_period", "warning",
+                            f"The reporting period of these F2 files was not found, so they are left out of the monthly table: {names}.",
+                            f"Bu F2 fayllarının hesabat dövrü tapılmadı, ona görə aylıq cədvələ daxil edilmədi: {names}."))
+    rows: List[Dict[str, Any]] = []
+    running = 0.0
+    for cert in dated + undated:
+        running += cert.amount or 0.0
+        rows.append({
+            "number": cert.number,
+            "period": cert.period.strftime("%Y-%m") if cert.period else None,
+            "period_end": _iso(cert.period),
+            "amount": _money(cert.amount),
+            "amount_with_vat": _money(cert.amount_with_vat),
+            "cumulative_stated": _money(cert.cumulative),
+            "cumulative": _money(running),
+            "cumulative_pct_of_contract": _r(running / contract_value * 100) if contract_value else None,
+            "source": cert.source,
+        })
+    total = running
+    stated = [c.cumulative for c in dated if c.cumulative]
+    if stated and dated[-1].cumulative and abs(dated[-1].cumulative - total) > max(1.0, total * 0.005):
+        quality.append(_msg("f2_cumulative_mismatch", "info",
+                            f"The latest F2 states {_fmt_money(dated[-1].cumulative)} since the start of the works; the uploaded certificates add up to {_fmt_money(total)}. Some earlier F2s may be missing.",
+                            f"Son F2-də işlərin əvvəlindən {_fmt_money(dated[-1].cumulative)} göstərilib; yüklənmiş aktların cəmi {_fmt_money(total)} təşkil edir. Bəzi əvvəlki F2-lər çatışmaya bilər."))
+    gaps: List[str] = []
+    if len(dated) >= 2:
+        months = _months_between(dated[0].period, dated[-1].period)  # type: ignore[arg-type]
+        covered = {c.period.strftime("%Y-%m") for c in dated}  # type: ignore[union-attr]
+        gaps = [m.strftime("%Y-%m") for m in months if m.strftime("%Y-%m") not in covered]
+    if gaps:
+        quality.append(_msg("f2_missing_months", "info",
+                            f"No F2 was uploaded for {', '.join(gaps[:12])}.",
+                            f"{', '.join(gaps[:12])} ayları üçün F2 yüklənməyib."))
+    financial_pct = _r(total / contract_value * 100) if contract_value else None
+    physical = (kpis or {}).get("actual_progress_pct")
+    gap = _r(financial_pct - physical) if financial_pct is not None and physical is not None else None
+    if not contract_value:
+        quality.append(_msg("contract_value_missing", "info",
+                            "No contract value was given, so certified value cannot be compared with physical progress. Add it to the project sheet of the template.",
+                            "Müqavilə dəyəri verilməyib, ona görə təsdiqlənmiş dəyər fiziki icra ilə müqayisə edilə bilmir. Onu şablonun Layihə vərəqinə əlavə edin."))
+    return {
+        "available": True,
+        "currency": inp.project.currency,
+        "contract_value": _money(contract_value),
+        "certificate_count": len(certs),
+        "total_certified": _money(total),
+        "total_certified_with_vat": _money(sum(c.amount_with_vat for c in certs if c.amount_with_vat)) if all(c.amount_with_vat for c in certs) else None,
+        "financial_progress_pct": financial_pct,
+        "physical_progress_pct": physical,
+        "financial_minus_physical_pct": gap,
+        "last_period": dated[-1].period.strftime("%Y-%m") if dated else None,  # type: ignore[union-attr]
+        "missing_months": gaps,
+        "certificates": rows,
+    }
+
+
+def _payment_findings(payments: Dict[str, Any], findings: List[Dict[str, Any]], actions: List[Dict[str, Any]]) -> None:
+    if not payments.get("available"):
+        return
+    total = payments["total_certified"]
+    currency = payments.get("currency") or ""
+    count = payments["certificate_count"]
+    if payments.get("financial_progress_pct") is not None:
+        fin = payments["financial_progress_pct"]
+        phys = payments.get("physical_progress_pct")
+        findings.append(_msg("f2_progress", "info",
+                             f"{count} F2 certificates total {_fmt_money(total)} {currency}, {fin}% of the contract value; physical progress is {phys}%.",
+                             f"{count} F2 aktı üzrə cəmi {_fmt_money(total)} {currency}, müqavilə dəyərinin {fin}%-i; fiziki icra {phys}%."))
+        gap = payments.get("financial_minus_physical_pct")
+        if gap is not None and gap > FINANCIAL_GAP_WARNING_PCT:
+            findings.append(_msg("f2_ahead_of_progress", "warning",
+                                 f"Certified value is {gap} points ahead of physical progress; check F2 quantities against the work actually completed.",
+                                 f"Təsdiqlənmiş dəyər fiziki icradan {gap} bənd irəlidədir; F2 həcmlərini faktiki görülmüş işlərlə yoxlayın."))
+            actions.append(_msg("f2_measurement", "medium",
+                                "Reconcile the F2 quantities with site measurements before the next certificate.",
+                                "Növbəti aktdan əvvəl F2 həcmlərini obyektdəki ölçmələrlə tutuşdurun."))
+        elif gap is not None and gap < -FINANCIAL_GAP_WARNING_PCT:
+            findings.append(_msg("f2_behind_progress", "info",
+                                 f"Certified value is {abs(gap)} points behind physical progress; completed work may not yet be certified for payment.",
+                                 f"Təsdiqlənmiş dəyər fiziki icradan {abs(gap)} bənd geridədir; görülmüş işlərin bir hissəsi hələ ödəniş üçün aktlaşdırılmayıb."))
+            actions.append(_msg("f2_certify", "medium",
+                                "Prepare F2 certificates for the completed but uncertified work.",
+                                "Görülmüş, lakin aktlaşdırılmamış işlər üçün F2 aktları hazırlayın."))
+    else:
+        findings.append(_msg("f2_total", "info",
+                             f"{count} F2 certificates total {_fmt_money(total)} {currency}.",
+                             f"{count} F2 aktı üzrə cəmi {_fmt_money(total)} {currency}."))
+
+
+def _monthly_payments(monthly: List[Dict[str, Any]], payments: Dict[str, Any]) -> None:
+    if not payments.get("available"):
+        return
+    by_month: Dict[str, float] = defaultdict(float)
+    for row in payments["certificates"]:
+        if row["period"]:
+            by_month[row["period"]] += row["amount"] or 0.0
+    contract_value = payments.get("contract_value")
+    running = 0.0
+    for row in monthly:
+        amount = by_month.get(row["month"])
+        running += amount or 0.0
+        row["certified_amount"] = _money(amount) if amount else None
+        row["certified_cumulative"] = _money(running) if running else None
+        row["certified_cumulative_pct"] = _r(running / contract_value * 100) if contract_value and running else None
+
+
 # --------------------------------------------------------------------- main
 def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
     quality: List[Dict[str, Any]] = [
         _msg("reader_warning", "warning", text, text) for text in inp.warnings
     ]
+    _document_quality(inp, quality)
     today = today or date.today()
     info = inp.project
 
@@ -630,6 +783,8 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
             },
             "data_quality": quality,
             "sources": inp.sources,
+            "documents": _documents(inp),
+            "payments": _payments(inp, None, []),
         }
     if not any(a.progress is not None or a.actual_start or a.actual_finish for a in inp.activities):
         quality.append(_msg("no_actuals", "critical",
@@ -744,6 +899,9 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
         "status": _overall_status(forecast_delay, _r(spi, 2)),
     }
     findings, actions = _findings(kpis, delayed_rows[:10] if delayed_rows else [], wbs, events, critical_method)
+    payments = _payments(inp, kpis, quality)
+    _payment_findings(payments, findings, actions)
+    _monthly_payments(monthly, payments)
 
     return {
         "schema": SCHEMA,
@@ -756,6 +914,7 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
             "contract_start": _iso(info.contract_start),
             "contract_finish": _iso(info.contract_finish),
             "currency": info.currency,
+            "contract_value": _money(info.contract_value),
         },
         "kpis": kpis,
         "status_counts": dict(status_counts),
@@ -771,6 +930,8 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
         "events": events,
         "findings": findings,
         "actions": actions,
+        "payments": payments,
+        "documents": _documents(inp),
         "data_quality": quality,
         "sources": sorted(set(inp.sources)),
         "method": {

@@ -11,6 +11,7 @@ DELAY_ANALYSIS_SHEETS = [
     "Faktiki_Icra_Actual",
     "Gecikme_Hadiseleri_Events",
     "Ayliq_Icra_Monthly",
+    "F2_Odenisler_Payments",
 ]
 
 TEMPLATE_MANIFEST = {
@@ -18,6 +19,6 @@ TEMPLATE_MANIFEST = {
         "title": "Execution and Delay Analysis Template",
         "file": DELAY_ANALYSIS_TEMPLATE_FILE,
         "required_sheets": DELAY_ANALYSIS_SHEETS,
-        "purpose": "Baseline schedule, actual progress, delay events and monthly progress for the execution and delay analysis report.",
+        "purpose": "Baseline schedule, actual progress, delay events, monthly progress and F2 payments for the execution and delay analysis report.",
     },
 }

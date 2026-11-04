@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from .auth_dependencies import CurrentUser, get_current_user, local_store_enabled, require_project_owner
 from .access_control import can_access_project_scope, is_staff_role
+from .document_types import DOCUMENT_TYPES, infer_document_type, normalize_document_type, validate_document_format
 from .file_validation import normalize_sha256_checksum, validate_upload_metadata
 from .production_store import ProductionStoreError, first_existing, first_update, insert_row, is_configured, select_rows, uuid_like
 from .supabase_client import delete_storage_object, settings as supabase_settings, signed_upload_url
@@ -48,6 +49,32 @@ class CreateUploadUrlRequest(BaseModel):
     mime_type: Optional[str] = None
     size_bytes: Optional[int] = Field(default=0, ge=0)
     checksum: Optional[str] = Field(default=None, max_length=64)
+    # contract | schedule | f2. Older clients send none; the type is then
+    # guessed from the file name.
+    document_type: Optional[str] = Field(default=None, max_length=40)
+
+
+def _document_type(payload: CreateUploadUrlRequest, filename: str) -> str:
+    if payload.document_type in (None, ""):
+        return infer_document_type(filename)
+    document_type = normalize_document_type(payload.document_type)
+    if document_type not in DOCUMENT_TYPES:
+        raise ValueError(f"Unknown document type: {payload.document_type}. Use contract, schedule or f2.")
+    validate_document_format(document_type, filename)
+    return document_type
+
+
+def _insert_upload_row(record: Dict[str, Any]) -> Dict[str, Any]:
+    """Insert an upload row; retry without ``document_type`` when the v1.5.0
+    migration has not been applied yet (the analysis then infers the type)."""
+    try:
+        return insert_row("uploaded_files", record)
+    except ProductionStoreError as exc:
+        if "document_type" not in str(exc):
+            raise
+        fallback = {key: value for key, value in record.items() if key != "document_type"}
+        row = insert_row("uploaded_files", fallback)
+        return {**row, "document_type": record.get("document_type")}
 
 
 class MarkUploadedRequest(BaseModel):
@@ -126,7 +153,7 @@ def _update_file(file_id: str, patch: Dict[str, Any]) -> Optional[Dict[str, Any]
     return first_update("uploaded_files", {"file_id": file_id}, patch)
 
 
-def _local_upload_record(payload: CreateUploadUrlRequest, user: CurrentUser, meta: Dict[str, Any], checksum: str | None = None) -> Dict[str, Any]:
+def _local_upload_record(payload: CreateUploadUrlRequest, user: CurrentUser, meta: Dict[str, Any], checksum: str | None = None, document_type: str | None = None) -> Dict[str, Any]:
     from .saas_store import insert
 
     upload_id = str(uuid4())
@@ -142,6 +169,7 @@ def _local_upload_record(payload: CreateUploadUrlRequest, user: CurrentUser, met
         "file_ext": meta["file_ext"],
         "mime_type": meta["mime_type"],
         "size_bytes": meta["size_bytes"],
+        "document_type": document_type or infer_document_type(meta["original_filename"]),
         "checksum": checksum,
         "checksum_algorithm": "sha256" if checksum else None,
         "checksum_status": "pending_verification" if checksum else "not_provided",
@@ -175,6 +203,7 @@ async def create_upload_url(
     try:
         meta = validate_upload_metadata(payload.filename, payload.mime_type, payload.size_bytes, _max_upload_bytes())
         checksum = normalize_sha256_checksum(payload.checksum)
+        document_type = _document_type(payload, meta["original_filename"])
     except ValueError as exc:
         raise HTTPException(status_code=400, detail={"error": "invalid_upload", "message": str(exc)}) from exc
     if _checksum_required() and not checksum:
@@ -182,7 +211,7 @@ async def create_upload_url(
 
     if not is_configured():
         if local_store_enabled():
-            response = _local_upload_record(payload, current_user, meta, checksum)
+            response = _local_upload_record(payload, current_user, meta, checksum, document_type)
             _timeline(project, current_user, "upload.prepared", response.get("file"))
             return response
         raise HTTPException(status_code=503, detail={"error": "storage_not_configured", "message": "Supabase Storage is not configured."})
@@ -194,7 +223,7 @@ async def create_upload_url(
     try:
         signed = signed_upload_url(path)
         absolute_url = _signed_url_to_absolute(signed)
-        row = insert_row("uploaded_files", {
+        row = _insert_upload_row({
             "id": upload_id,
             "file_id": upload_id,
             "user_id": current_user.id if uuid_like(current_user.id) else current_user.auth_user_id,
@@ -210,6 +239,7 @@ async def create_upload_url(
             "content_type": meta["mime_type"],
             "size_bytes": meta["size_bytes"],
             "file_size_bytes": meta["size_bytes"],
+            "document_type": document_type,
             "checksum": checksum,
             "checksum_algorithm": "sha256" if checksum else None,
             "checksum_status": "pending_verification" if checksum else "not_provided",

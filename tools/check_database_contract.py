@@ -53,6 +53,7 @@ EXPECTED_TABLE_COLUMNS: Dict[str, Set[str]] = {
         "owner_email", "uploaded_by_user_id", "deleted_at", "purge_after_at", "retention_status", "storage_delete_status", "created_at", "updated_at",
         "security_scan_status", "security_scan_engine", "security_scan_started_at", "security_scan_completed_at",
         "security_scan_error", "security_scan_findings", "quarantine_status", "quarantine_reason", "quarantined_at",
+        "document_type",
     },
     "analysis_jobs": {
         "id", "job_id", "user_id", "project_id", "owner_email", "analysis_type", "status", "progress",
@@ -127,6 +128,7 @@ REQUIRED_DEPLOY_ORDER = [
     "2026_06_21_v1431_billing_lifecycle_integrity.sql",
     "2026_06_21_v1432_company_team_foundation.sql",
     "2026_06_21_v1433_project_sharing.sql",
+    "2026_11_04_v150_upload_document_types.sql",
 ]
 
 RLS_REQUIRED_TABLES = set(EXPECTED_TABLE_COLUMNS)

@@ -79,6 +79,8 @@ PROJECT_FIELD_ALIASES: Dict[str, Sequence[str]] = {
     "contract_finish": ("contractfinish", "completiondate", "contractcompletion", "finishdate", "muqavilebitisi", "muqavilebitis", "muqavilebitmetarixi", "muqavilebitme", "bitistarixi", "bitmetarixi", "sozlesmebitis", "окончаниедоговора"),
     "data_date": ("datadate", "statusdate", "reportdate", "cutoffdate", "hesabattarixi", "statustarixi", "raportarihi", "отчетнаядата"),
     "currency": ("currency", "valyuta", "parabirimi", "валюта"),
+    "contract_value": ("contractvalue", "contractamount", "contractprice", "contractsum", "muqavilemeblegi", "muqaviledeyeri",
+                       "muqaviledeyer", "muqavileqiymeti", "sozlesmebedeli", "sozlesmetutari", "стоимостьдоговора", "суммадоговора"),
 }
 
 PARTY_ALIASES = {
@@ -396,6 +398,11 @@ def _project_from_table(rows: List[Sequence[Any]], source: str, result: DelayInp
             if parsed:
                 setattr(info, field_name, parsed)
                 hits += 1
+        elif field_name == "contract_value":
+            number = parse_number(value)
+            if number and number > 0:
+                info.contract_value = number
+                hits += 1
         else:
             setattr(info, field_name, str(value).strip())
             hits += 1
@@ -457,6 +464,10 @@ def _merge_duplicate_activities(result: DelayInput) -> None:
 
 # ------------------------------------------------------------- file readers
 def read_workbook(path: Path) -> DelayInput:
+    return parse_tables(workbook_tables(path))
+
+
+def workbook_tables(path: Path) -> List[Tuple[str, List[Sequence[Any]]]]:
     from openpyxl import load_workbook
 
     workbook = load_workbook(path, read_only=True, data_only=True)
@@ -469,10 +480,14 @@ def read_workbook(path: Path) -> DelayInput:
             tables.append((f"{path.name}:{sheet.title}", rows))
     finally:
         workbook.close()
-    return parse_tables(tables)
+    return tables
 
 
 def read_xls(path: Path) -> DelayInput:
+    return parse_tables(xls_tables(path))
+
+
+def xls_tables(path: Path) -> List[Tuple[str, List[Sequence[Any]]]]:
     import xlrd  # type: ignore
 
     book = xlrd.open_workbook(str(path))
@@ -489,10 +504,14 @@ def read_xls(path: Path) -> DelayInput:
                     row.append(cell.value)
             rows.append(tuple(row))
         tables.append((f"{path.name}:{sheet.name}", rows))
-    return parse_tables(tables)
+    return tables
 
 
 def read_csv(path: Path) -> DelayInput:
+    return parse_tables(csv_tables(path))
+
+
+def csv_tables(path: Path) -> List[Tuple[str, List[Sequence[Any]]]]:
     raw = path.read_bytes()
     for encoding in ("utf-8-sig", "cp1254", "cp1251", "latin-1"):
         try:
@@ -506,7 +525,7 @@ def read_csv(path: Path) -> DelayInput:
     except csv.Error:
         dialect = csv.excel
     rows = [tuple(r) for r in csv.reader(io.StringIO(text), dialect)]
-    return parse_tables([(path.name, rows)])
+    return [(path.name, rows)]
 
 
 def read_xer(path: Path) -> DelayInput:

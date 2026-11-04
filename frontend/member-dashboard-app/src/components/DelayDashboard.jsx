@@ -74,6 +74,20 @@ export const T = {
       completed: "Bitib", completed_late: "Gec bitib", on_track: "Qrafik üzrə", not_started: "Başlanmayıb",
       late_start: "Gec başlanğıc", delayed: "Gecikir", major_delay: "Böyük gecikmə", critical_delay: "Kritik gecikmə"
     },
+    payments: "F2 aktları və ödənişlər",
+    paymentsSub: "Aktlaşdırılmış dəyər fiziki icra ilə müqayisədə",
+    contractValue: "Müqavilə dəyəri",
+    certified: "Cəmi aktlaşdırılıb",
+    financial: "Maliyyə icrası",
+    physical: "Fiziki icra",
+    f2No: "F2 №",
+    amount: "Məbləğ (ƏDV-siz)",
+    withVat: "ƏDV ilə",
+    cumulative: "Kumulyativ",
+    ofContract: "Müqavilədən %",
+    documents: "Baxılan sənədlər",
+    docType: { contract: "Müqavilə", schedule: "Planlama", f2: "F2 aktı" },
+    docStatus: { read: "Oxundu", reference: "İstinad", no_data: "Məlumat tapılmadı", unreadable: "Oxunmadı" },
     error: "Analiz alınmadı"
   },
   en: {
@@ -146,9 +160,87 @@ export const T = {
       completed: "Completed", completed_late: "Completed late", on_track: "On track", not_started: "Not started",
       late_start: "Late start", delayed: "Delayed", major_delay: "Major delay", critical_delay: "Critical delay"
     },
+    payments: "F2 certificates and payments",
+    paymentsSub: "Certified value against physical progress",
+    contractValue: "Contract value",
+    certified: "Total certified",
+    financial: "Financial progress",
+    physical: "Physical progress",
+    f2No: "F2 No",
+    amount: "Amount excl. VAT",
+    withVat: "Incl. VAT",
+    cumulative: "Cumulative",
+    ofContract: "% of contract",
+    documents: "Documents reviewed",
+    docType: { contract: "Contract", schedule: "Planning", f2: "F2 certificate" },
+    docStatus: { read: "Read", reference: "Reference", no_data: "No data found", unreadable: "Not readable" },
     error: "Analysis failed"
   }
 };
+
+function money(value, currency) {
+  if (value === null || value === undefined) return "—";
+  const text = Number(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/,/g, " ");
+  return currency ? `${text} ${currency}` : text;
+}
+
+function Payments({ payments, t }) {
+  const currency = payments.currency || "";
+  const gap = payments.financial_minus_physical_pct;
+  return (
+    <section className="panel">
+      <header className="delay-section-head"><h2>{t.payments}</h2><span>{t.paymentsSub}</span></header>
+      <div className="delay-kpis">
+        <Kpi label={t.contractValue} value={money(payments.contract_value, currency)} />
+        <Kpi label={t.certified} value={money(payments.total_certified, currency)} note={`${payments.certificate_count} F2`} />
+        <Kpi
+          label={t.financial}
+          value={pct(payments.financial_progress_pct)}
+          note={`${t.physical} ${pct(payments.physical_progress_pct)}${gap === null || gap === undefined ? "" : ` · ${signed(gap)}`}`}
+          tone={gap !== null && gap !== undefined && Math.abs(gap) > 10 ? "warning" : "neutral"}
+        />
+      </div>
+      <div className="delay-table-wrap">
+        <table className="delay-table">
+          <thead><tr><th>{t.f2No}</th><th>{t.period}</th><th>{t.amount}</th><th>{t.withVat}</th><th>{t.cumulative}</th><th>{t.ofContract}</th></tr></thead>
+          <tbody>
+            {payments.certificates.map((c, index) => (
+              <tr key={`${c.source}-${c.period}-${index}`}>
+                <td>{c.number || "—"}</td>
+                <td>{c.period || "—"}</td>
+                <td>{money(c.amount)}</td>
+                <td>{money(c.amount_with_vat)}</td>
+                <td>{money(c.cumulative)}</td>
+                <td>{pct(c.cumulative_pct_of_contract)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function Documents({ documents, lang, t }) {
+  return (
+    <section className="panel">
+      <header className="delay-section-head"><h2>{t.documents}</h2></header>
+      <div className="delay-table-wrap">
+        <table className="delay-table">
+          <tbody>
+            {documents.map((d, index) => (
+              <tr key={`${d.name}-${index}`}>
+                <td>{d.name}{(d[`note_${lang}`] || d.note_en) && <small>{d[`note_${lang}`] || d.note_en}</small>}</td>
+                <td>{t.docType[d.document_type] || d.document_type}</td>
+                <td>{t.docStatus[d.status] || d.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
 
 const PARTIES = [
   { key: "employer", label: "employer", color: "var(--party-employer)" },
@@ -524,6 +616,10 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
           </div>
         </section>
       )}
+
+      {result.payments?.available && <Payments payments={result.payments} t={t} />}
+
+      {result.documents?.length > 0 && <Documents documents={result.documents} lang={lang} t={t} />}
 
       <section className="panel">
         <header className="delay-section-head"><h2>{t.quality}</h2></header>

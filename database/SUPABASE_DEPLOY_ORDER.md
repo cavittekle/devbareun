@@ -23,9 +23,10 @@ For a clean DevBareun v1.4.34 production setup, run these files in the Supabase 
 19. `2026_06_21_v1432_company_team_foundation.sql`
 20. `2026_06_21_v1433_project_sharing.sql`
 21. `2026_06_21_v1434_project_activity_timeline.sql`
-22. `seed_plans.sql`
-23. `promote_owner_info_devbareun.sql` after `info@devbareun.com` exists in Supabase Auth
-24. `production_rls_audit.sql` as a read-only verification query
+22. `2026_11_04_v150_upload_document_types.sql`
+23. `seed_plans.sql`
+24. `promote_owner_info_devbareun.sql` after `info@devbareun.com` exists in Supabase Auth
+25. `production_rls_audit.sql` as a read-only verification query
 
 Then create a private storage bucket:
 
@@ -161,3 +162,12 @@ provider payloads or customer data.
 ## Project activity timeline
 
 After v1.4.34, project collaborators can use `GET /api/project-activity/{project_id}`. Apply `2026_06_21_v1434_project_activity_timeline.sql` after v1.4.33 and deploy the web service plus analysis worker together; analysis completion events are emitted by the worker. The timeline is append-only and project-scoped. It is not a replacement for the global audit hash chain.
+
+
+## Upload document types
+
+After v1.5.0, apply `2026_11_04_v150_upload_document_types.sql` after v1.4.34
+and before deploying the web service. Uploads then record whether a file is the
+contract, the schedule or an F2 certificate. If the web service runs before the
+migration, uploads still work: the row is saved without the type and the
+analysis infers it from the file name.

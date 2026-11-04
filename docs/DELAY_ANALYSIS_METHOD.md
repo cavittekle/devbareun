@@ -6,7 +6,21 @@ report (Tikinti layihəsinin icra və gecikmə analizi hesabatı). Code lives in
 
 ## Inputs
 
-Upload one or more of:
+Uploads are grouped by document type:
+
+| Type | Formats | What happens |
+| --- | --- | --- |
+| Contract (müqavilə) | PDF, Word, image | Kept with the analysis and listed in the report. Contract dates and value come from the template's project sheet. |
+| Planning (planlama) | Excel/CSV, Primavera XER, MS Project XML, `.mpp`, PDF | Excel/CSV/XER/XML are read as below; `.mpp` and PDF are kept as references (export to XML/Excel for the calculation). |
+| F2 certificates | Excel/CSV, Word `.docx` (`.doc` kept as reference) | Reporting period, certificate number, total before VAT, total with VAT and value since the start of works. A register sheet with one row per period also works. |
+
+F2 totals are summed per month and compared with physical progress:
+financial progress = certified value / contract value. A gap above 10 points is
+flagged (certified ahead: check measurements; behind: work not yet certified).
+Duplicate months, missing months and F2s without a period are listed as data
+quality notes.
+
+Schedule files, one or more of:
 
 | Format | What is read |
 | --- | --- |
@@ -19,11 +33,12 @@ Template sheets:
 
 | Sheet | Required | Columns |
 | --- | --- | --- |
-| `Layihe_Project` | yes | project name, client, contractor, contract start/finish, data date, currency |
+| `Layihe_Project` | yes | project name, client, contractor, contract start/finish, data date, currency, contract value |
 | `Plan_Qrafik_Baseline` | yes | activity ID, WBS/section, name, planned start, planned finish, weight, predecessors |
 | `Faktiki_Icra_Actual` | yes | activity ID, actual start, actual finish, forecast finish, actual % |
 | `Gecikme_Hadiseleri_Events` | no | event ID, description, start, finish, affected activities, cause, responsible party |
 | `Ayliq_Icra_Monthly` | no | month, planned cumulative %, actual cumulative % |
+| `F2_Odenisler_Payments` | no | month, F2 number, amount excl. VAT, amount incl. VAT |
 
 Regenerate the template with `cd backend && python -m app.delay.sample`.
 

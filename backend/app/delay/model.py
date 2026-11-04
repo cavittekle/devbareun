@@ -23,6 +23,7 @@ class ProjectInfo:
     contract_finish: Optional[date] = None
     data_date: Optional[date] = None
     currency: Optional[str] = None
+    contract_value: Optional[float] = None
 
 
 @dataclass
@@ -61,11 +62,36 @@ class MonthlyProgress:
 
 
 @dataclass
+class PaymentCertificate:
+    """One F2 certificate: value of work accepted for one reporting period."""
+    source: str
+    period: Optional[date] = None  # last day of the reporting period
+    number: Optional[str] = None
+    amount: Optional[float] = None  # period total before VAT
+    amount_with_vat: Optional[float] = None
+    cumulative: Optional[float] = None  # value since the start of the works, if stated
+    line_count: int = 0
+
+
+@dataclass
+class SupportingDocument:
+    """An uploaded file and how the analysis used it."""
+    name: str
+    document_type: str  # contract | schedule | f2
+    file_format: str
+    status: str  # read | reference
+    note_en: Optional[str] = None
+    note_az: Optional[str] = None
+
+
+@dataclass
 class DelayInput:
     project: ProjectInfo = field(default_factory=ProjectInfo)
     activities: List[Activity] = field(default_factory=list)
     events: List[DelayEvent] = field(default_factory=list)
     monthly: List[MonthlyProgress] = field(default_factory=list)
+    payments: List[PaymentCertificate] = field(default_factory=list)
+    documents: List[SupportingDocument] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     sources: List[str] = field(default_factory=list)
 
@@ -89,5 +115,7 @@ class DelayInput:
                     setattr(existing, attr, value)
         self.events.extend(other.events)
         self.monthly.extend(other.monthly)
+        self.payments.extend(other.payments)
+        self.documents.extend(other.documents)
         self.warnings.extend(other.warnings)
         self.sources.extend(other.sources)

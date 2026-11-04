@@ -5,10 +5,11 @@ import re
 from pathlib import Path
 from typing import Any, Dict
 
+from .document_types import ALL_FORMATS
 
-# Formats the delay analysis reads: workbooks, CSV, Primavera P6 XER and MS
-# Project XML. PDFs and photos are no longer accepted as uploads.
-ALLOWED_UPLOAD_EXTENSIONS = {".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml"}
+# Contract (PDF, Word, photo), schedule (Excel/CSV, XER, MS Project XML/MPP,
+# PDF) and F2 (Excel/CSV, Word) formats. See ``document_types``.
+ALLOWED_UPLOAD_EXTENSIONS = set(ALL_FORMATS)
 
 DANGEROUS_UPLOAD_EXTENSIONS = {
     ".exe", ".dll", ".bat", ".cmd", ".com", ".ps1", ".vbs", ".js", ".mjs", ".sh", ".php", ".py", ".jar", ".msi"
@@ -32,6 +33,10 @@ ALLOWED_MIME_TYPES = {
     "image/png",
     "image/jpeg",
     "image/webp",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-project",
+    "application/x-project",
 }
 
 
@@ -84,9 +89,9 @@ def validate_magic_signature(sample: bytes, filename: str) -> bool:
     prefix = sample[:16]
     if ext == ".pdf":
         return prefix.startswith(b"%PDF")
-    if ext in {".xlsx", ".xlsm"}:
+    if ext in {".xlsx", ".xlsm", ".docx"}:
         return prefix.startswith(b"PK\x03\x04")
-    if ext == ".xls":
+    if ext in {".xls", ".doc", ".mpp"}:
         return prefix.startswith(bytes.fromhex("D0CF11E0A1B11AE1"))
     if ext in {".png"}:
         return prefix.startswith(b"\x89PNG\r\n\x1a\n")
