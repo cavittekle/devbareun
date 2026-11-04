@@ -252,9 +252,10 @@ const PARTIES = [
 export function useDelayLang() {
   const [lang, setLangState] = useState(() => {
     try {
-      return localStorage.getItem(LANG_KEY) === "en" ? "en" : "az";
+      // English is the default public language; Azerbaijani only when chosen.
+      return localStorage.getItem(LANG_KEY) === "az" ? "az" : "en";
     } catch {
-      return "az";
+      return "en";
     }
   });
   function setLang(next) {

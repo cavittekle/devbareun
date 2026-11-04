@@ -448,6 +448,9 @@ function LegacyResultViewer({ mode = "result" }) {
 }
 
 
+const RESULT_POLL_INTERVAL_MS = 5000;
+const RESULT_POLL_LIMIT_MS = 10 * 60 * 1000;
+
 /**
  * Project result: the execution and delay analysis when the project has one,
  * otherwise the earlier project-control view (results saved before v1.5.0).
@@ -456,21 +459,51 @@ export function ResultViewer({ mode = "result" }) {
   const params = useMemo(() => new URLSearchParams(location.search), []);
   const projectId = params.get("project_id");
   const [lang, setLang] = useDelayLang();
-  const [state, setState] = useState({ loading: Boolean(projectId) && mode !== "guest", result: null, fallback: !projectId || mode === "guest" });
+  const [state, setState] = useState({ loading: Boolean(projectId) && mode !== "guest", result: null, fallback: !projectId || mode === "guest", pending: false, timedOut: false });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!projectId || mode === "guest") return undefined;
     let active = true;
-    workspaceApi.delayAnalysis(projectId)
-      .then((result) => active && setState({ loading: false, result, fallback: false }))
-      .catch(() => active && setState({ loading: false, result: null, fallback: true }));
+    let timer = null;
+    const started = Date.now();
+    const load = () => {
+      workspaceApi.delayAnalysis(projectId)
+        .then((result) => active && setState({ loading: false, result, fallback: false, pending: false, timedOut: false }))
+        .catch((error) => {
+          if (!active) return;
+          if (error?.code === "analysis_not_ready") {
+            // The job is still queued or running: keep checking for up to 10 minutes.
+            if (Date.now() - started > RESULT_POLL_LIMIT_MS) {
+              setState({ loading: false, result: null, fallback: false, pending: false, timedOut: true });
+              return;
+            }
+            setState({ loading: false, result: null, fallback: false, pending: true, timedOut: false });
+            timer = setTimeout(load, RESULT_POLL_INTERVAL_MS);
+            return;
+          }
+          setState({ loading: false, result: null, fallback: true, pending: false, timedOut: false });
+        });
+    };
+    load();
     return () => {
       active = false;
+      if (timer) clearTimeout(timer);
     };
-  }, [projectId, mode]);
+  }, [projectId, mode, attempt]);
 
   if (state.fallback) return <LegacyResultViewer mode={mode} />;
   if (state.loading) return <div className="status-box info">{lang === "az" ? "Analiz yüklənir..." : "Loading analysis..."}</div>;
+  if (state.pending) return <div className="status-box info">{lang === "az" ? "Analiz hazırlanır. Nəticə hazır olan kimi bu səhifədə açılacaq..." : "The analysis is running. The result opens here as soon as it is ready..."}</div>;
+  if (state.timedOut) {
+    return (
+      <EmptyState
+        title={lang === "az" ? "Analiz hələ hazır deyil." : "The analysis is not ready yet."}
+        description={lang === "az" ? "Bir az sonra yenidən yoxlayın." : "Check again in a moment."}
+        action={<button className="secondary-button" type="button" onClick={() => setAttempt((value) => value + 1)}>{lang === "az" ? "Yenidən yoxla" : "Check again"}</button>}
+      />
+    );
+  }
   return (
     <DelayDashboard
       result={state.result}
