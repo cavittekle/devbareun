@@ -4,6 +4,7 @@ from __future__ import annotations
 from datetime import date
 from io import BytesIO
 from typing import Any, Dict, List, Optional, Sequence
+from xml.sax.saxutils import escape as _esc
 
 NAVY = "#0B1730"
 GOLD = "#D4A24C"
@@ -143,9 +144,9 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
     cell = ParagraphStyle("cell", fontName=regular, fontSize=7.8, leading=9.6)
 
     def table(rows: List[List[Any]], widths: Sequence[float], header: bool = True, zebra: bool = True) -> Table:
-        wrapped = [[Paragraph(str(v), cell) if isinstance(v, str) else v for v in row] for row in rows]
+        wrapped = [[Paragraph(_esc(v), cell) if isinstance(v, str) else v for v in row] for row in rows]
         if header:
-            wrapped[0] = [Paragraph(f"<font color='#FFFFFF'><b>{v}</b></font>", cell) for v in rows[0]]
+            wrapped[0] = [Paragraph(f"<font color='#FFFFFF'><b>{_esc(str(v))}</b></font>", cell) for v in rows[0]]
         t = Table(wrapped, colWidths=list(widths), repeatRows=1 if header else 0)
         style = [
             ("FONTNAME", (0, 0), (-1, -1), regular),
@@ -173,7 +174,7 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
     story: List[Any] = []
 
     story.append(Paragraph(_l("title", lang), h1))
-    story.append(Paragraph(f"<font color='{GOLD}'>■</font> {project.get('name') or ''}", ParagraphStyle("pn", parent=body, fontName=bold, fontSize=11)))
+    story.append(Paragraph(f"<font color='{GOLD}'>■</font> {_esc(project.get('name') or '')}", ParagraphStyle("pn", parent=body, fontName=bold, fontSize=11)))
     story.append(Spacer(1, 6))
     info_rows = [
         [_l("client", lang), project.get("client") or "—", _l("contractor", lang), project.get("contractor") or "—"],
@@ -290,19 +291,19 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
     story.append(Paragraph(_l("conclusions", lang), h2))
     story.append(Paragraph(f"<b>{_l('findings', lang)}</b>", body))
     for item in result.get("findings") or []:
-        story.append(Paragraph(f"• {item.get(lang) or item.get('en')}", body))
+        story.append(Paragraph(f"• {_esc(item.get(lang) or item.get('en') or '')}", body))
     if result.get("actions"):
         story.append(Spacer(1, 4))
         story.append(Paragraph(f"<b>{_l('actions', lang)}</b>", body))
         for index, item in enumerate(result["actions"], start=1):
-            story.append(Paragraph(f"{index}. {item.get(lang) or item.get('en')}", body))
+            story.append(Paragraph(f"{index}. {_esc(item.get(lang) or item.get('en') or '')}", body))
 
     # 8. Data quality
     story.append(Paragraph(_l("quality", lang), h2))
     quality = result.get("data_quality") or []
     if quality:
         for item in quality[:30]:
-            story.append(Paragraph(f"• {item.get(lang) or item.get('en')}", small))
+            story.append(Paragraph(f"• {_esc(item.get(lang) or item.get('en') or '')}", small))
     else:
         story.append(Paragraph(_l("no_quality", lang), body))
     story.append(Spacer(1, 8))
@@ -315,7 +316,7 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
         canvas.line(16 * mm, A4[1] - 11 * mm, A4[0] - 16 * mm, A4[1] - 11 * mm)
         canvas.setFont(regular, 7)
         canvas.setFillColor(grey)
-        canvas.drawString(16 * mm, 9 * mm, f"{_l('generated', lang)} · devbareun.com · {project.get('name') or ''}")
+        canvas.drawString(16 * mm, 9 * mm, f"{_l('generated', lang)} · devbareun.com · {(project.get('name') or '')[:80]}")
         canvas.drawRightString(A4[0] - 16 * mm, 9 * mm, str(document.page))
         canvas.restoreState()
 

@@ -73,7 +73,7 @@ def sample_report(format: str = Query(default="pdf", max_length=8), lang: str = 
 
 
 @router.post("/preview")
-async def preview_analysis(
+def preview_analysis(
     files: List[UploadFile] = File(...),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> Dict[str, Any]:
@@ -84,7 +84,9 @@ async def preview_analysis(
     with tempfile.TemporaryDirectory(prefix="devbareun_delay_") as temp:
         paths: List[Path] = []
         for index, upload in enumerate(files):
-            content = await upload.read(MAX_PREVIEW_BYTES + 1)
+            # Sync route: FastAPI runs it in a worker thread, so parsing large
+            # workbooks never blocks the event loop.
+            content = upload.file.read(MAX_PREVIEW_BYTES + 1)
             try:
                 meta = validate_upload_metadata(upload.filename or "", upload.content_type, len(content), MAX_PREVIEW_BYTES)
             except ValueError as exc:

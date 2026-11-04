@@ -29,6 +29,7 @@ from datetime import date, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 from .model import Activity, DelayEvent, DelayInput
+from .reader import resolve_id
 
 SCHEMA = "devbareun.delay-analysis/v1"
 CRITICAL_DELAY_DAYS = 14
@@ -121,6 +122,21 @@ def _actual_pct_on(calc: _Calc, on: date, data_date: date) -> float:
 def _prepare(inp: DelayInput, data_date: date, quality: List[Dict[str, Any]]) -> Tuple[List[_Calc], List[Activity]]:
     calcs: List[_Calc] = []
     skipped: List[Activity] = []
+    known = {a.id for a in inp.activities}
+    for activity in inp.activities:
+        resolved: List[str] = []
+        unresolved: List[str] = []
+        for token in activity.predecessors:
+            target = resolve_id(token, known)
+            if target == activity.id:
+                continue  # self-reference
+            if target is None:
+                unresolved.append(token)
+            elif target not in resolved:
+                resolved.append(target)
+        activity.predecessors = resolved + unresolved
+    for event in inp.events:
+        event.activity_ids = [resolve_id(token, known) or token for token in event.activity_ids]
     for activity in inp.activities:
         if not activity.planned_start or not activity.planned_finish:
             skipped.append(activity)
@@ -364,7 +380,12 @@ def _analyse_events(events: List[DelayEvent], calcs: List[_Calc], data_date: dat
                                 f"Delay event {event.id} refers to activities not in the schedule: {', '.join(missing[:5])}.",
                                 f"{event.id} hadisəsi qrafikdə olmayan işlərə istinad edir: {', '.join(missing[:5])}.",
                                 event_id=event.id))
-        on_critical = bool(set(affected) & critical_ids) if affected else None
+        if affected:
+            on_critical: Optional[bool] = bool(set(affected) & critical_ids)
+        elif event.activity_ids:
+            on_critical = False  # listed activities are not in the schedule
+        else:
+            on_critical = None  # no activities listed: counted as project-wide
         party = event.responsible
         if party in party_days:
             party_days[party] |= days
@@ -455,7 +476,7 @@ def _wbs_summary(calcs: List[_Calc], data_date: date) -> List[Dict[str, Any]]:
 
 
 def _monthly(calcs: List[_Calc], inp: DelayInput, start: date, planned_finish: date, forecast_finish: date,
-             data_date: date) -> Tuple[List[Dict[str, Any]], str]:
+             data_date: date, schedule_finish: date) -> Tuple[List[Dict[str, Any]], str]:
     supplied = {_month_end(m.period): m for m in inp.monthly}
     months = _months_between(start, max(planned_finish, forecast_finish, data_date))
     actual_source = "supplied" if any(m.actual is not None for m in inp.monthly) else "reconstructed"
@@ -474,7 +495,7 @@ def _monthly(calcs: List[_Calc], inp: DelayInput, start: date, planned_finish: d
                 actual = _weighted(calcs, (_actual_pct_on(c, point, data_date) for c in calcs))
         delay: Optional[int] = None
         if actual is not None:
-            es = _earned_schedule_date(calcs, actual, start, planned_finish)
+            es = _earned_schedule_date(calcs, actual, start, schedule_finish)
             delay = max(0, (point - es).days) if actual < 100 else max(0, (min(point, data_date) - planned_finish).days)
         rows.append({
             "month": month.strftime("%Y-%m"),
@@ -695,7 +716,7 @@ def analyze(inp: DelayInput, *, today: Optional[date] = None) -> Dict[str, Any]:
     critical_ids = {c.activity.id for c in calcs if c.critical}
     events = _analyse_events(inp.events, calcs, data_date, critical_ids, quality)
     wbs = _wbs_summary(calcs, data_date)
-    monthly, actual_source = _monthly(calcs, inp, project_start, planned_finish, forecast_finish, data_date)
+    monthly, actual_source = _monthly(calcs, inp, project_start, planned_finish, forecast_finish, data_date, schedule_finish)
 
     kpis = {
         "data_date": data_date.isoformat(),

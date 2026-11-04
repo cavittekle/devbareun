@@ -128,8 +128,10 @@ def parse_number(value: Any) -> Optional[float]:
     text = text.rstrip("%")
     if text.count(",") and text.count("."):
         text = text.replace(",", "") if text.rfind(".") > text.rfind(",") else text.replace(".", "").replace(",", ".")
+    elif re.fullmatch(r"-?\d{1,3}(,\d{3})+", text):
+        text = text.replace(",", "")  # 1,500 / 2,450,000 = thousands separators
     elif text.count(",") == 1:
-        text = text.replace(",", ".")
+        text = text.replace(",", ".")  # 12,5 = decimal comma
     try:
         number = float(text)
     except ValueError:
@@ -138,23 +140,43 @@ def parse_number(value: Any) -> Optional[float]:
 
 
 def _split_ids(value: Any) -> List[str]:
+    """Split a predecessor / activity list cell into raw ID tokens.
+
+    Relationship types and lags (``A100FS+2d``) are resolved later against
+    the real activity IDs (see ``resolve_id``), because IDs such as ``B-20``
+    or ``STAFF`` would otherwise be cut by a suffix rule.
+    """
     if value is None or value == "":
         return []
-    items = re.split(r"[;,\s]+", str(value).strip())
-    cleaned: List[str] = []
-    for item in items:
-        # Accept "A1010FS", "A1010FS+2d" (relationship type and lag are ignored).
-        match = re.match(r"^(.+?)(FS|SS|FF|SF)?([+-]\d+\w*)?$", item, re.IGNORECASE)
-        token = (match.group(1) if match else item).strip()
-        if token:
-            cleaned.append(_clean_id(token))
-    return cleaned
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return [_clean_id(value)]
+    tokens = re.split(r"[;,\s]+", str(value).strip())
+    return [_clean_id(token) for token in tokens if token.strip()]
+
+
+_RELATION_SUFFIX = re.compile(r"^(.+?)(?:FS|SS|FF|SF)?(?:[+-]\d+(?:\.\d+)?[dwhgDWHG]?)?$")
+_RELATION_ONLY = re.compile(r"^(.+?)(FS|SS|FF|SF)$", re.IGNORECASE)
+
+
+def resolve_id(token: str, known: Iterable[str]) -> Optional[str]:
+    """Return the activity ID a predecessor token refers to, if any."""
+    known_set = known if isinstance(known, (set, frozenset, dict)) else set(known)
+    if token in known_set:
+        return token
+    for pattern in (_RELATION_ONLY, _RELATION_SUFFIX):
+        match = pattern.match(token)
+        if match and match.group(1) in known_set:
+            return match.group(1)
+    return None
 
 
 def _clean_id(value: Any) -> str:
     if isinstance(value, float) and value.is_integer():
         value = int(value)
-    return str(value).strip()
+    text = str(value).strip()
+    if re.fullmatch(r"\d+\.0+", text):  # numeric cells read as floats (xlrd/CSV)
+        text = text.split(".")[0]
+    return text
 
 
 def _party(value: Any) -> Optional[str]:
@@ -382,12 +404,29 @@ def _project_from_table(rows: List[Sequence[Any]], source: str, result: DelayInp
     return hits >= 2
 
 
+_EVENT_SHEET_HINTS = ("gecikme", "hadise", "event", "delay", "olay", "claim", "событ")
+
+
+def _looks_like_events(source: str, rows: List[Sequence[Any]]) -> bool:
+    """An events table has a description + responsible/cause column and no
+    progress or actual-date columns; a sheet named like an event log wins."""
+    sheet = _norm(source.rsplit(":", 1)[-1])
+    if any(hint in sheet for hint in _EVENT_SHEET_HINTS):
+        return True
+    for row in rows[:15]:
+        events = _match_columns(row, EVENT_ALIASES)
+        if "description" in events and ("responsible" in events or "cause" in events):
+            activity = _match_columns(row, ACTIVITY_ALIASES)
+            return not any(key in activity for key in ("progress", "actual_start", "actual_finish", "forecast_finish", "planned_progress"))
+    return False
+
+
 def parse_tables(tables: List[Tuple[str, List[Sequence[Any]]]]) -> DelayInput:
     result = DelayInput()
     for source, rows in tables:
         if not rows:
             continue
-        if _events_from_table(rows, source, result):
+        if _looks_like_events(source, rows) and _events_from_table(rows, source, result):
             continue
         if _activities_from_table(rows, source, result):
             continue

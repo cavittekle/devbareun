@@ -350,6 +350,88 @@ class ReportTests(unittest.TestCase):
             self.assertGreaterEqual(len(wb.sheetnames), 5)
 
 
+class ReviewRegressionTests(unittest.TestCase):
+    def test_self_referencing_predecessor_is_ignored(self) -> None:
+        result = analyze(_input([
+            Activity("A", "A", D(2024, 1, 1), D(2024, 1, 10), predecessors=["A"], progress=100, actual_finish=D(2024, 1, 10)),
+            Activity("B", "B", D(2024, 1, 11), D(2024, 1, 20), predecessors=["A", "B"], progress=0),
+        ], data_date=D(2024, 1, 10)))
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["critical_path"]["method"], "cpm")
+
+    def test_hyphenated_and_relationship_ids_resolve(self) -> None:
+        from app.delay.reader import _split_ids
+
+        tokens = _split_ids("A-100, STAFF; C1FS+2d 1010.0")
+        self.assertEqual(tokens, ["A-100", "STAFF", "C1FS+2d", "1010"])
+        result = analyze(_input([
+            Activity("A-100", "A", D(2024, 1, 1), D(2024, 1, 10), progress=0),
+            Activity("STAFF", "S", D(2024, 1, 1), D(2024, 1, 10), progress=0),
+            Activity("C1", "C", D(2024, 1, 1), D(2024, 1, 10), progress=0),
+            Activity("1010", "N", D(2024, 1, 1), D(2024, 1, 10), progress=0),
+            Activity("Z", "Z", D(2024, 1, 11), D(2024, 1, 20), predecessors=tokens, progress=0),
+        ], data_date=D(2023, 12, 31)))
+        z = next(r for r in result["activities"] if r["id"] == "Z")
+        self.assertEqual(z["predecessors"], ["A-100", "STAFF", "C1", "1010"])
+        self.assertNotIn("unknown_predecessor", {q["code"] for q in result["data_quality"]})
+
+    def test_numeric_predecessor_cells_match_numeric_ids(self) -> None:
+        from app.delay.reader import _split_ids
+
+        self.assertEqual(_split_ids(1010.0), ["1010"])
+
+    def test_report_escapes_markup_in_user_text(self) -> None:
+        inp = sample_input()
+        inp.project.name = "A<B & C"
+        inp.activities[0].name = "Slab <L3>"
+        pdf = build_delay_pdf(analyze(inp), "en")
+        self.assertTrue(pdf.startswith(b"%PDF"))
+
+    def test_schedule_sheet_with_responsible_column_is_not_an_event_log(self) -> None:
+        path = _write_xlsx({"Schedule": [
+            ["ID", "Description", "Start", "Finish", "Responsible", "% Complete"],
+            ["A1", "Piling", D(2024, 1, 1), D(2024, 1, 31), "Contractor", 50],
+        ]})
+        try:
+            parsed = read_path(path)
+        finally:
+            path.unlink()
+        self.assertEqual(len(parsed.activities), 1)
+        self.assertEqual(parsed.events, [])
+
+    def test_event_listing_unknown_activities_is_not_on_critical_path(self) -> None:
+        acts = [Activity("A", "A", D(2024, 1, 1), D(2024, 1, 31), progress=0)]
+        events = [DelayEvent("E1", "Typo", D(2024, 1, 2), D(2024, 1, 5), ["X9"], "Design", "employer")]
+        result = analyze(_input(acts, events, data_date=D(2024, 1, 31)))
+        self.assertEqual(result["events"]["by_party_days"]["employer"], 4)
+        self.assertEqual(result["events"]["critical_by_party_days"]["employer"], 0)
+
+    def test_monthly_delay_matches_headline_when_contract_is_earlier(self) -> None:
+        inp = _input([
+            Activity("A", "A", D(2024, 1, 1), D(2024, 3, 31), actual_start=D(2024, 1, 1), progress=80),
+        ], data_date=D(2024, 2, 29), contract_finish=D(2024, 2, 15))
+        result = analyze(inp)
+        last = [m for m in result["monthly"] if m["actual_cumulative_pct"] is not None][-1]
+        self.assertEqual(last["schedule_delay_days"], result["kpis"]["schedule_delay_days"])
+
+    def test_thousands_separator_and_decimal_comma(self) -> None:
+        from app.delay.reader import parse_number
+
+        self.assertEqual(parse_number("1,500"), 1500.0)
+        self.assertEqual(parse_number("2,450,000"), 2450000.0)
+        self.assertEqual(parse_number("12,5"), 12.5)
+        self.assertEqual(parse_number("1.234,56"), 1234.56)
+
+    def test_delay_engine_only_runs_for_schedule_job_types(self) -> None:
+        from app.services.parser_service import DELAY_ENGINE_TYPES
+        from app.analysis_types import normalize_analysis_type
+
+        self.assertIn(normalize_analysis_type("delay"), DELAY_ENGINE_TYPES)
+        self.assertIn(normalize_analysis_type("schedule-recovery"), DELAY_ENGINE_TYPES)
+        self.assertNotIn(normalize_analysis_type("cost"), DELAY_ENGINE_TYPES)
+        self.assertNotIn(normalize_analysis_type("material"), DELAY_ENGINE_TYPES)
+
+
 try:
     from fastapi.testclient import TestClient
 except ModuleNotFoundError:  # pragma: no cover
