@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { UploadCloud } from "lucide-react";
+import { Download, FileSpreadsheet, UploadCloud } from "lucide-react";
 import { uploadBinaryToSignedUrl, workspaceApi } from "../api/client";
-import { analysisPackages } from "../data/packages";
+import { DELAY_TEMPLATE_URL, analysisPackages } from "../data/packages";
+import { LangToggle, useDelayLang } from "../components/DelayDashboard";
 import { fileSize } from "../lib/format";
 import { PageHeader } from "../components/Shell";
 
@@ -13,8 +14,60 @@ async function sha256File(file) {
   return Array.from(new Uint8Array(digest)).map((item) => item.toString(16).padStart(2, "0")).join("");
 }
 
+const COPY = {
+  az: {
+    eyebrow: "İcra və gecikmə analizi",
+    title: "İş qrafikini və faktiki icranı yükləyin.",
+    description: "DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
+    step1: "1. Şablonu doldurun və ya iş qrafiki ixracınızı hazırlayın",
+    template: "Excel şablonunu yüklə",
+    example: "Nümunə hesabata bax",
+    need: "Lazım olan məlumat",
+    receive: "Alacağınız nəticə",
+    files: ["Plan iş qrafiki (hər iş üçün plan başlanğıc və bitiş)", "Faktiki icra (faktiki tarixlər və icra %)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)", "Və ya Primavera XER / MS Project XML faylı"],
+    outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
+    step2: "2. Layihəni yaradın və faylları yükləyin",
+    projectName: "Layihənin adı",
+    placeholder: "Məsələn: Baku Business Center",
+    drop: "Faylları bura atın və ya seçin",
+    formats: "Excel (.xlsx, .xls), CSV, Primavera XER, MS Project XML. Digər sənədlər (PDF, şəkil) əlavə material kimi saxlanır.",
+    start: "Analizi başlat",
+    busy: "Analiz hazırlanır...",
+    nameRequired: "Layihənin adı tələb olunur.",
+    fileRequired: "Analiz üçün ən azı bir fayl seçin.",
+    queued: "Fayllar yükləndi və analiz növbəyə alındı.",
+    open: "Nəticəni aç"
+  },
+  en: {
+    eyebrow: "Execution and delay analysis",
+    title: "Upload the schedule and the actual progress.",
+    description: "DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
+    step1: "1. Fill in the template or prepare your schedule export",
+    template: "Download Excel template",
+    example: "See an example report",
+    need: "What you need",
+    receive: "What you receive",
+    files: analysisPackages[0].files,
+    outputs: analysisPackages[0].outputs,
+    step2: "2. Create the project and upload files",
+    projectName: "Project name",
+    placeholder: "Example: Residential Tower A",
+    drop: "Drop files here, or choose files",
+    formats: "Excel (.xlsx, .xls), CSV, Primavera XER, MS Project XML. Other documents (PDF, images) are kept as supporting files.",
+    start: "Start analysis",
+    busy: "Preparing analysis...",
+    nameRequired: "Project name is required.",
+    fileRequired: "Choose at least one file to analyse.",
+    queued: "Files uploaded and the analysis is queued.",
+    open: "Open result"
+  }
+};
+
 export function Upload({ onUploaded }) {
-  const [selectedPackage, setSelectedPackage] = useState(analysisPackages[0].id);
+  const [lang, setLang] = useDelayLang();
+  const copy = COPY[lang];
+  const [resultProjectId, setResultProjectId] = useState(null);
+  const selectedPackage = analysisPackages[0].id;
   const [projectName, setProjectName] = useState("");
   const [files, setFiles] = useState([]);
   const [fileStates, setFileStates] = useState([]);
@@ -47,11 +100,11 @@ export function Upload({ onUploaded }) {
   async function startAnalysis(event) {
     event.preventDefault();
     if (!projectName.trim()) {
-      setStatus({ type: "error", text: "Project name is required." });
+      setStatus({ type: "error", text: copy.nameRequired });
       return;
     }
     if (!files.length) {
-      setStatus({ type: "error", text: "Choose at least one project file before starting analysis." });
+      setStatus({ type: "error", text: copy.fileRequired });
       return;
     }
     setBusy(true);
@@ -106,10 +159,8 @@ export function Upload({ onUploaded }) {
         package_name: selected.name
       });
       const jobId = analysisResponse?.job_id || analysisResponse?.job?.id;
-      setStatus({
-        type: "success",
-        text: `Upload is complete. Analysis job${jobId ? ` ${jobId}` : ""} is queued and the dashboard will show only detected sections.`
-      });
+      setStatus({ type: "success", text: `${copy.queued}${jobId ? ` (${jobId})` : ""}` });
+      setResultProjectId(projectId);
       onUploaded?.(project);
     } catch (error) {
       setStatus({
@@ -124,53 +175,46 @@ export function Upload({ onUploaded }) {
   return (
     <>
       <PageHeader
-        eyebrow="Guided upload"
-        title="Choose the problem, then upload the right files."
-        description="The workspace shows only relevant dashboard sections after real project data is uploaded and mapped."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
+        action={<LangToggle lang={lang} onChange={setLang} />}
       />
 
       <form className="upload-layout" onSubmit={startAnalysis}>
         <section className="panel">
-          <h2>Analysis package</h2>
-          <div className="package-grid">
-            {analysisPackages.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={item.id === selectedPackage ? "package-card active" : "package-card"}
-                onClick={() => setSelectedPackage(item.id)}
-              >
-                <small>{item.name}</small>
-                <strong>{item.label}</strong>
-              </button>
-            ))}
+          <h2>{copy.step1}</h2>
+          <div className="delay-upload-links">
+            <a className="primary-button" href={DELAY_TEMPLATE_URL} download><Download size={16} /> {copy.template}</a>
+            <a className="secondary-button" href="/workspace/?view=example"><FileSpreadsheet size={16} /> {copy.example}</a>
           </div>
           <div className="guide-grid">
             <article>
-              <h3>Required files</h3>
+              <h3>{copy.need}</h3>
               <ol>
-                {selected.files.map((item) => <li key={item}>{item}</li>)}
+                {copy.files.map((item) => <li key={item}>{item}</li>)}
               </ol>
             </article>
             <article>
-              <h3>You will receive</h3>
+              <h3>{copy.receive}</h3>
               <ul>
-                {selected.outputs.map((item) => <li key={item}>{item}</li>)}
+                {copy.outputs.map((item) => <li key={item}>{item}</li>)}
               </ul>
             </article>
           </div>
         </section>
 
         <section className="panel">
+          <h2>{copy.step2}</h2>
           <label className="field-label">
-            Project name
-            <input value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder="Example: Residential Tower A" />
+            {copy.projectName}
+            <input value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder={copy.placeholder} />
           </label>
           <label className="upload-zone">
             <UploadCloud size={36} />
-            <strong>Drop project files here, or choose files</strong>
-            <span>Excel, CSV, PDF, Primavera XER, MS Project XML and supporting images.</span>
-            <input type="file" multiple onChange={handleFiles} />
+            <strong>{copy.drop}</strong>
+            <span>{copy.formats}</span>
+            <input type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml,.pdf,.png,.jpg,.jpeg,.webp" onChange={handleFiles} />
           </label>
           {fileStates.length > 0 && (
             <div className="file-list">
@@ -189,8 +233,11 @@ export function Upload({ onUploaded }) {
             </div>
           )}
           {status && <div className={`status-box ${status.type}`}>{status.text}</div>}
+          {resultProjectId && (
+            <a className="secondary-button full" href={`/workspace/?view=result&project_id=${encodeURIComponent(resultProjectId)}`}>{copy.open}</a>
+          )}
           <button className="primary-button full" type="submit" disabled={busy}>
-            {busy ? "Preparing analysis..." : "Start Analysis"}
+            {busy ? copy.busy : copy.start}
           </button>
         </section>
       </form>

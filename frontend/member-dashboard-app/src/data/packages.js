@@ -1,31 +1,24 @@
+export const DELAY_TEMPLATE_URL = "/templates/devbareun-delay-analysis-template.xlsx";
+
+// DevBareun runs one analysis: construction execution and delay analysis.
 export const analysisPackages = [
   {
-    id: "schedule-recovery",
-    name: "Schedule Recovery",
-    label: "Delay and workforce logic",
-    files: ["Baseline Schedule", "Actual Progress", "Workforce Data (optional)"],
-    outputs: ["Delay Dashboard", "Critical Path", "Workforce Gap", "Recovery Plan"]
-  },
-  {
-    id: "cost-control",
-    name: "Cost Control",
-    label: "Estimate and payment tracking",
-    files: ["Cost Estimate / BOQ", "Actual Cost", "Progress Payment / F-2"],
-    outputs: ["Cost Dashboard", "Payment Tracking", "Budget Variance", "Remaining Value"]
-  },
-  {
-    id: "material-continuity",
-    name: "Material Continuity",
-    label: "Stock and consumption logic",
-    files: ["Material List / BOQ", "Stock Records", "Consumption or Procurement Updates"],
-    outputs: ["Material Dashboard", "Shortage Alerts", "Consumption Trend", "Procurement Actions"]
-  },
-  {
-    id: "risk-decisions",
-    name: "Risk & Decisions",
-    label: "Risk register and decision tracking",
-    files: ["Risk Register", "Site Notes", "Decision Records", "Cost or Schedule Signals"],
-    outputs: ["Risk Dashboard", "Priority Register", "Decision Prompts", "Management Actions"]
+    id: "delay",
+    name: "Execution & Delay Analysis",
+    label: "Tikinti layihəsinin icra və gecikmə analizi",
+    files: [
+      "Baseline schedule (plan start / finish per activity)",
+      "Actual progress (actual dates and % complete)",
+      "Delay events with responsible party (optional)",
+      "Or one Primavera XER / MS Project XML export"
+    ],
+    outputs: [
+      "Planned vs actual S-curve and SPI",
+      "Delay in days and forecast completion",
+      "Critical path and most delayed activities",
+      "Employer / contractor / neutral delay split",
+      "PDF and Excel execution report (AZ / EN)"
+    ]
   }
 ];
 

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { workspaceApi } from "../api/client";
 import { EmptyState, PageHeader } from "../components/Shell";
+import { DelayDashboard, useDelayLang } from "../components/DelayDashboard";
 
 const EMPTY = "—";
 
@@ -289,7 +290,7 @@ function DataQuality({ dataQuality, documentControl }) {
   );
 }
 
-export function ResultViewer({ mode = "result" }) {
+function LegacyResultViewer({ mode = "result" }) {
   const params = useMemo(() => new URLSearchParams(location.search), []);
   const token = params.get("token");
   const projectId = params.get("project_id");
@@ -443,5 +444,67 @@ export function ResultViewer({ mode = "result" }) {
       </section>
       )}
     </>
+  );
+}
+
+
+/**
+ * Project result: the execution and delay analysis when the project has one,
+ * otherwise the earlier project-control view (results saved before v1.5.0).
+ */
+export function ResultViewer({ mode = "result" }) {
+  const params = useMemo(() => new URLSearchParams(location.search), []);
+  const projectId = params.get("project_id");
+  const [lang, setLang] = useDelayLang();
+  const [state, setState] = useState({ loading: Boolean(projectId) && mode !== "guest", result: null, fallback: !projectId || mode === "guest" });
+
+  useEffect(() => {
+    if (!projectId || mode === "guest") return undefined;
+    let active = true;
+    workspaceApi.delayAnalysis(projectId)
+      .then((result) => active && setState({ loading: false, result, fallback: false }))
+      .catch(() => active && setState({ loading: false, result: null, fallback: true }));
+    return () => {
+      active = false;
+    };
+  }, [projectId, mode]);
+
+  if (state.fallback) return <LegacyResultViewer mode={mode} />;
+  if (state.loading) return <div className="status-box info">{lang === "az" ? "Analiz yüklənir..." : "Loading analysis..."}</div>;
+  return (
+    <DelayDashboard
+      result={state.result}
+      lang={lang}
+      onLangChange={setLang}
+      downloads={{ pdf: workspaceApi.delayReportUrl(projectId, "pdf", lang), xlsx: workspaceApi.delayReportUrl(projectId, "xlsx", lang) }}
+    />
+  );
+}
+
+/** Public example report built from bundled sample data (no login). */
+export function ExampleResult() {
+  const [lang, setLang] = useDelayLang();
+  const [state, setState] = useState({ loading: true, result: null, error: null });
+
+  useEffect(() => {
+    let active = true;
+    workspaceApi.delaySample()
+      .then((result) => active && setState({ loading: false, result, error: null }))
+      .catch((error) => active && setState({ loading: false, result: null, error: error.message || "Example could not be loaded." }));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (state.loading) return <div className="status-box info">{lang === "az" ? "Nümunə hesabat yüklənir..." : "Loading example report..."}</div>;
+  if (state.error) return <EmptyState title={lang === "az" ? "Nümunə açılmadı." : "Example unavailable."} description={state.error} action={<a className="secondary-button" href="/">DevBareun</a>} />;
+  return (
+    <DelayDashboard
+      result={state.result}
+      lang={lang}
+      onLangChange={setLang}
+      isExample
+      downloads={{ pdf: workspaceApi.delaySampleReportUrl("pdf", lang), xlsx: workspaceApi.delaySampleReportUrl("xlsx", lang) }}
+    />
   );
 }
