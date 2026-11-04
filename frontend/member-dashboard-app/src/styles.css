@@ -2244,6 +2244,112 @@ a {
   }
 }
 
+/* Execution report (estimate-weighted plan, earned schedule) */
+.ex-banner {
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--bg-soft);
+  border-left: 4px solid var(--danger);
+  line-height: 1.55;
+  color: var(--text-soft);
+}
+
+.ex-banner strong {
+  color: var(--text-main);
+}
+
+.delay-kpis.ex-kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ex-table td.ex-cell-good { color: var(--success); font-weight: 700; }
+.ex-table td.ex-cell-mid { color: var(--accent-cyan); font-weight: 700; }
+.ex-table td.ex-cell-low { color: var(--warning); font-weight: 700; }
+.ex-table td.ex-cell-none { color: var(--danger); font-weight: 700; }
+.ex-table td.ex-muted { color: var(--text-muted); font-style: italic; }
+.ex-table tr.ex-total td { font-weight: 700; border-top: 1px solid var(--border-cyan); }
+
+.ex-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.ex-card {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-top: 3px solid var(--warning);
+  border-radius: 12px;
+  background: var(--bg-soft);
+}
+
+.ex-card.danger { border-top-color: var(--danger); }
+.ex-card.success { border-top-color: var(--success); }
+
+.ex-card h3 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.ex-card > strong {
+  color: var(--warning);
+  font-size: 1.15rem;
+}
+
+.ex-card.danger > strong { color: var(--danger); }
+
+.ex-card dl {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.ex-card dt {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ex-card dd {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.ex-unconfirmed {
+  margin: 12px 0 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.ex-unconfirmed b {
+  color: var(--warning);
+}
+
+.ex-decisions {
+  border-color: var(--border-cyan);
+}
+
+@media (max-width: 1100px) {
+  .delay-kpis.ex-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .delay-kpis.ex-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media print {
   .workspace-sidebar,
   .workspace-topbar,

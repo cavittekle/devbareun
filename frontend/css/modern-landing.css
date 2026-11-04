@@ -499,12 +499,12 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
 .kpi-track b, .kpi-scale b { position: absolute; top: 0; bottom: 0; }
 .kpi-value { left: 0; border-radius: inherit; background: var(--kpi-color); }
 .kpi-plan { width: 2px; top: -4px !important; bottom: -4px !important; border-radius: 2px; background: var(--text); }
-.kpi-w-35 { width: 35.3%; }
-.kpi-w-44 { width: 43.6%; }
+.kpi-w-22 { width: 21.8%; }
+.kpi-w-41 { width: 41%; }
 .kpi-w-100 { width: 100%; }
-.kpi-at-57 { left: 57.1%; }
-.kpi-at-58 { left: 58.1%; }
-.kpi-at-83 { left: 82.8%; }
+.kpi-at-92 { left: 91.7%; }
+.kpi-at-84 { left: 83.9%; }
+.kpi-at-71 { left: 71.5%; }
 .kpi-scale::after {
   content: "";
   position: absolute;
@@ -528,7 +528,7 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
   box-shadow: 0 0 0 3px #101A38;
 }
 /* SPI scale: 0 at the left edge, 1.00 at the centre mark, 2.00 at the right edge. */
-.kpi-gap-spi { left: 31%; width: 19%; }
+.kpi-gap-spi { left: 12%; width: 38%; }
 .preview-kpis small { display: block; margin-top: 10px; color: #B8C4DC; font-size: 12px; }
 .preview-dashboard-grid {
   display: grid;
@@ -649,10 +649,9 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
 .party-concurrent { background: #9085e9; }
 .preview-risk-card li b { font-weight: 700; }
 .party-level { color: var(--text); background: rgba(255, 255, 255, .08); }
-.share-59 { flex: 59; }
-.share-14 { flex: 14; }
-.share-12 { flex: 12; }
-.share-7 { flex: 7; }
+.share-122 { flex: 122; }
+.share-42 { flex: 42; }
+.share-5 { flex: 5; }
 .value-actions { margin-top: 22px; }
 .mapping-panel > .btn { justify-self: start; }
 .risk-open .risk-open-split { color: #B8C4DC; font-size: 12px; }

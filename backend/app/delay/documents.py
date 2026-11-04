@@ -22,7 +22,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from ..document_types import CONTRACT, F2, READABLE_FORMATS, SCHEDULE, infer_document_type
-from .model import DelayInput, PaymentCertificate, SupportingDocument
+from .costs import extract_costs
+from .model import CostLine, DelayInput, PaymentCertificate, SupportingDocument
 from .reader import _norm, csv_tables, parse_date, parse_number, read_path, workbook_tables, xls_tables
 
 Table = Tuple[str, List[Sequence[Any]]]
@@ -58,8 +59,16 @@ MONTHS = {
 
 NOTES = {
     "contract": (
-        "Kept with the analysis and listed in the report. Contract dates and value are taken from the project sheet of the template.",
-        "Analizə əlavə edildi və hesabatda göstərilir. Müqavilə tarixləri və dəyəri şablonun Layihə vərəqindən götürülür.",
+        "Kept as a reference: no text could be read (scanned PDF or image). Enter the key terms (value, dates, advance, penalty) in the template's Contract sheet.",
+        "İstinad kimi saxlanıldı: mətn oxunmadı (skan PDF və ya şəkil). Əsas şərtləri (məbləğ, tarixlər, avans, cərimə) şablonun Müqavilə vərəqinə daxil edin.",
+    ),
+    "contract_read": (
+        "Contract terms were read from the terms table.",
+        "Müqavilə şərtləri şərtlər cədvəlindən oxundu.",
+    ),
+    "contract_text": (
+        "Contract terms were found in the text automatically; check them in the report.",
+        "Müqavilə şərtləri mətndən avtomatik tapıldı; hesabatda yoxlayın.",
     ),
     "schedule_pdf": (
         "PDF schedules are kept as a reference; dates cannot be read from a PDF. Upload the Excel, XER or MS Project XML export for the calculation.",
@@ -103,7 +112,7 @@ def read_document(path: Path, document_type: Optional[str] = None) -> DelayInput
     document_type = document_type or infer_document_type(path.name)
     suffix = path.suffix.lower()
     if document_type == CONTRACT:
-        return DelayInput(documents=[_document(path, CONTRACT, "reference", "contract")])
+        return _read_contract(path)
     if document_type == F2:
         return _read_f2_document(path)
     if suffix not in READABLE_FORMATS[SCHEDULE]:
@@ -111,11 +120,15 @@ def read_document(path: Path, document_type: Optional[str] = None) -> DelayInput
         return DelayInput(documents=[_document(path, SCHEDULE, "reference", note)])
     result = read_path(path)
     if suffix in {".xlsx", ".xlsm"}:
-        # The template's optional F2 sheet: one row per certificate.
-        f2_sheets = [table for table in workbook_tables(path) if _has(_norm(table[0].rsplit(":", 1)[-1]), ("f2", "odenis", "payment"))]
+        tables = workbook_tables(path)
+        # The template's optional F2 register: one row per certificate.
+        f2_sheets = [table for table in tables if _has(_norm(table[0].rsplit(":", 1)[-1]), ("f2", "odenis", "payment"))
+                     and not _has(_norm(table[0].rsplit(":", 1)[-1]), ("smeta", "nakopitel"))]
         if f2_sheets:
             result.payments.extend(f2_from_tables(f2_sheets, path.name))
-    found = bool(result.activities or result.events or result.monthly or result.sources or result.payments)
+        # The template's estimate / Forma-3 / contract sheets.
+        result.merge(extract_costs(tables, path.name))
+    found = bool(result.activities or result.events or result.monthly or result.sources or result.payments or result.cost_lines)
     result.documents.append(_document(path, SCHEDULE, "read" if found else "no_data", None if found else "schedule_empty"))
     return result
 
@@ -150,16 +163,59 @@ def _read_f2_document(path: Path) -> DelayInput:
         tables = csv_tables(path)
     else:
         tables = docx_tables(path)
-    certificates = f2_from_tables(tables, path.name)
-    if not certificates:
+    costs = extract_costs(tables, path.name)
+    if costs.cost_lines:
+        certificates = [_certificate_from_lines(costs.cost_lines, tables, path.name)]
+    else:
+        certificates = f2_from_tables(tables, path.name)
+    if not certificates and not costs.f3:
         return DelayInput(documents=[_document(path, F2, "no_data", "f2_empty")])
     missing_period = [c for c in certificates if c.period is None]
     note_en = note_az = ""
     if missing_period:
         note_en = "The reporting period was not found; add it to the form or the file name (e.g. F2_2024-05)."
         note_az = "Hesabat dövrü tapılmadı; onu formaya və ya fayl adına əlavə edin (məs. F2_2024-05)."
-    return DelayInput(payments=certificates, sources=[path.name],
+    if costs.cost_lines:
+        buildings = len({line.building for line in costs.cost_lines if line.building})
+        note_en = f"{len(costs.cost_lines)} estimate lines read ({buildings} buildings). {note_en}".strip()
+        note_az = f"{len(costs.cost_lines)} smeta sətri oxundu ({buildings} bina). {note_az}".strip()
+    for summary in costs.f3:
+        if summary.period is None and certificates and certificates[0].period:
+            summary.period = certificates[0].period
+    if costs.f3:
+        note_en = f"{note_en} Forma-3 read.".strip()
+        note_az = f"{note_az} Forma-3 oxundu.".strip()
+    return DelayInput(payments=certificates, cost_lines=costs.cost_lines, f3=costs.f3, contract=costs.contract,
+                      sources=[path.name],
                       documents=[_document(path, F2, "read", None, extra_en=note_en, extra_az=note_az)])
+
+
+def _certificate_from_lines(lines: Sequence[CostLine], tables: Sequence[Table], filename: str) -> PaymentCertificate:
+    """The reporting-month F-2 total of a cumulative estimate workbook."""
+    period_values = [line.period_value for line in lines if line.period_value is not None]
+    cum_values = [line.cum_value for line in lines if line.cum_value is not None]
+    head_rows = [row for _, rows in tables for row in list(rows)[:12]]
+    return PaymentCertificate(
+        source=filename,
+        period=_period_from_rows(head_rows) or period_from_text(Path(filename).stem),
+        number=_number_from_rows(head_rows),
+        amount=round(sum(period_values), 2) if period_values else None,
+        cumulative=round(sum(cum_values), 2) if cum_values else None,
+        line_count=len(lines),
+    )
+
+
+def _read_contract(path: Path) -> DelayInput:
+    from .costs import read_contract_document
+
+    try:
+        terms, status = read_contract_document(path)
+    except Exception:  # a damaged contract file is still kept as a reference
+        terms, status = None, "reference"
+    if terms is None or status == "reference":
+        return DelayInput(documents=[_document(path, CONTRACT, "reference", "contract")])
+    note = "contract_text" if status == "text" else "contract_read"
+    return DelayInput(contract=terms, documents=[_document(path, CONTRACT, "read", note)])
 
 
 def f2_from_tables(tables: Sequence[Table], filename: str) -> List[PaymentCertificate]:

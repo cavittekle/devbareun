@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import date
 from io import BytesIO
 from pathlib import Path
-from typing import Any, List, Sequence
+from typing import Any, Dict, List, Sequence
 
 from .model import Activity, DelayEvent, DelayInput, PaymentCertificate, ProjectInfo
 
@@ -85,18 +85,6 @@ def sample_input() -> DelayInput:
 # ------------------------------------------------------------------ template
 TEMPLATE_FILENAME = "devbareun-delay-analysis-template.xlsx"
 
-PROJECT_ROWS = [
-    ("Layihənin adı / Project name", "Baku Business Center (nümunə)", "Required"),
-    ("Sifarişçi / Client", "Nümunə Sifarişçi MMC", ""),
-    ("Podratçı / Contractor", "Nümunə Podratçı MMC", ""),
-    ("Ünvan / Location", "Bakı", ""),
-    ("Müqavilə başlanğıcı / Contract start", D(2023, 9, 1), "dd.mm.yyyy"),
-    ("Müqavilə bitmə tarixi / Contract finish", D(2024, 12, 15), "Planned completion used for delay"),
-    ("Hesabat tarixi / Data date", D(2024, 5, 31), "Status (cut-off) date of the actual progress"),
-    ("Valyuta / Currency", "AZN", ""),
-    ("Müqavilə dəyəri / Contract value", SAMPLE_CONTRACT_VALUE, "Compared with the F2 certified value"),
-]
-
 BASELINE_HEADERS = ["İş kodu / Activity ID", "Bölmə / WBS", "İşin adı / Activity Name", "Plan başlanğıc / Planned Start",
                     "Plan bitmə / Planned Finish", "Çəki / Weight", "Əvvəlki işlər / Predecessors"]
 ACTUAL_HEADERS = ["İş kodu / Activity ID", "Faktiki başlanğıc / Actual Start", "Faktiki bitmə / Actual Finish",
@@ -105,21 +93,80 @@ EVENT_HEADERS = ["Hadisə ID / Event ID", "Hadisə / Delay Event", "Başlanğıc
                  "Təsir etdiyi işlər / Affected Activities", "Səbəb / Cause", "Məsul tərəf / Responsible Party", "Qeyd / Notes"]
 F2_HEADERS = ["Ay / Month", "F2 № / Certificate No", "Məbləğ ƏDV-siz / Amount excl. VAT", "Məbləğ ƏDV ilə / Amount incl. VAT"]
 MONTHLY_HEADERS = ["Ay / Month", "Plan kumulyativ % / Planned Cumulative %", "Faktiki kumulyativ % / Actual Cumulative %"]
+COST_HEADERS = ["Bina / Building", "Bölmə / Section", "İşin adı / Work item", "Ölçü vahidi / Unit", "Smeta həcmi / Estimate qty",
+                "Smeta dəyəri ƏDV-siz / Estimate value excl. VAT", "Kumulyativ həcm / Cumulative qty",
+                "Kumulyativ dəyər ƏDV-siz / Cumulative value excl. VAT", "Hesabat ayı dəyəri / This month value"]
 
 README_LINES = [
     "DevBareun — Tikinti layihəsinin icra və gecikmə analizi şablonu / Construction execution and delay analysis template",
     "",
-    "1. Layihə / Project: layihə məlumatları və hesabat tarixi (data date).",
-    "2. Plan_Qrafik / Baseline: hər iş üçün plan başlanğıc və bitmə. Çəki boşdursa, plan müddəti çəki kimi götürülür. Əvvəlki işləri boşluq və ya vergüllə yazın (məs. A100 A110).",
-    "3. Faktiki_Icra / Actual: eyni iş kodları ilə faktiki tarixlər və icra faizi (0-100).",
-    "4. Gecikme_Hadiseleri / Delay_Events (istəyə bağlı): gecikmə hadisələri, məsul tərəf = Sifarişçi / Podratçı / Neytral.",
-    "5. Ayliq_Icra / Monthly (istəyə bağlı): aylıq kumulyativ plan və faktiki faiz. Boşdursa, işlərdən hesablanır.",
-    "6. F2_Odenisler / F2 payments (istəyə bağlı): hər F2 aktı üçün ay və məbləğ. F2 fayllarını ayrıca da yükləyə bilərsiniz.",
+    "1. Layihe_Project: layihə məlumatları və hesabat tarixi (data date).",
+    "2. Muqavile_Contract: müqavilənin əsas şərtləri (məbləğ, müddət, avans, avans təminatı, cərimə və limiti). Skan müqavilə oxunmur — şərtləri burada yazın.",
+    "3. Plan_Qrafik_Baseline: hər iş üçün plan başlanğıc və bitmə. İş adını bina və iş növü ilə yazın (məs. 'Bina-1 — Hörgü işləri'). Əvvəlki işləri boşluq və ya vergüllə yazın.",
+    "4. Faktiki_Icra_Actual: eyni iş kodları ilə faktiki tarixlər və icra faizi (0-100).",
+    "5. Smeta_F2_Nakopitel: smeta sətirləri və kumulyativ F-2 (ƏDV-siz, 2% ehtiyatsız). Fakt % = kumulyativ F-2 / smeta. 'Cəmi' sətirləri yazmayın.",
+    "6. F3_Forma3 (istəyə bağlı): Forma-3 üzrə görülmüş iş, avans, tutulmuş və qalıq avans.",
+    "7. F2_Odenisler_Payments (istəyə bağlı): hər ayın F-2 aktı (ay və məbləğ) — aylıq qrafik və son 3 ayın tempi üçün.",
+    "8. Gecikme_Hadiseleri_Events və Ayliq_Icra_Monthly (istəyə bağlı).",
     "",
-    "Nümunə sətirləri silin və öz məlumatlarınızı daxil edin. Tarix formatı: dd.mm.yyyy və ya Excel tarixi.",
-    "Delete the example rows and enter your own data. Dates: dd.mm.yyyy or Excel dates.",
+    "Nümunə uydurma layihədir: sətirləri silin və öz məlumatlarınızı daxil edin. Tarix formatı: dd.mm.yyyy və ya Excel tarixi.",
+    "The example is a fictional project: delete its rows and enter your own data. Dates: dd.mm.yyyy or Excel dates.",
     "Primavera XER və MS Project XML faylları da birbaşa yüklənə bilər / XER and MS Project XML exports can be uploaded directly.",
 ]
+
+
+def _template_data() -> Dict[str, List[Sequence[Any]]]:
+    from .sample_estate import EVENTS, estate_sample_input
+
+    inp = estate_sample_input()
+    info, terms = inp.project, inp.contract
+    project_rows = [
+        ("Layihənin adı / Project name", info.name, "Required"),
+        ("Sifarişçi / Client", info.client, ""),
+        ("Podratçı / Contractor", info.contractor, ""),
+        ("Ünvan / Location", info.location, ""),
+        ("Müqavilə başlanğıcı / Contract start", info.contract_start, "dd.mm.yyyy"),
+        ("Müqavilə bitmə tarixi / Contract finish", info.contract_finish, "Planned completion used for delay"),
+        ("Hesabat tarixi / Data date", info.data_date, "Status (cut-off) date, usually the F-2 month end"),
+        ("Valyuta / Currency", info.currency, ""),
+        ("Müqavilə dəyəri / Contract value", info.contract_value, "ƏDV ilə / incl. VAT"),
+    ]
+    contract_rows = [
+        ("Müqavilə nömrəsi / Contract No", terms.number, ""),
+        ("Müqavilə tarixi / Contract date", terms.signed, "dd.mm.yyyy"),
+        ("Sifarişçi / Client", terms.client, ""),
+        ("Podratçı / Contractor", terms.contractor, ""),
+        ("Müqavilə məbləği ƏDV ilə / Contract value incl. VAT", terms.value_with_vat, "AZN"),
+        ("ƏDV dərəcəsi % / VAT rate %", 18, ""),
+        ("Başlama tarixi / Start date", terms.start, ""),
+        ("Bitmə tarixi / Completion date", terms.finish, ""),
+        ("Müddət, ay / Duration, months", terms.duration_months, ""),
+        ("İcra təminatı % / Performance guarantee %", terms.performance_guarantee_pct, ""),
+        ("Avans faizi % / Advance %", terms.advance_pct, ""),
+        ("Avans təminatı müddəti, ay / Advance guarantee, months", terms.advance_guarantee_months, "müqavilə tarixindən / from signing"),
+        ("Ödəniş müddəti, gün / Payment term, days", terms.payment_days, ""),
+        ("Gündəlik cərimə % / Penalty per day %", terms.penalty_pct_per_day, "müqavilə dəyərindən / of the contract value"),
+        ("Cərimə limiti % / Penalty cap %", terms.penalty_cap_pct, ""),
+        ("Zəmanət müddəti, ay / Warranty, months", terms.warranty_months, ""),
+    ]
+    baseline = [(a.id, a.wbs, a.name, a.planned_start, a.planned_finish, a.weight, " ".join(a.predecessors)) for a in inp.activities]
+    actual = [(a.id, a.actual_start, a.actual_finish, None, a.progress) for a in inp.activities]
+    events = [(e[0], e[1], e[2], e[3], e[4], e[5], e[6], "") for e in EVENTS]
+    payments = [(c.period, c.number, c.amount, c.amount_with_vat) for c in inp.payments]
+    costs = [(l.building or "", l.section, l.name, l.unit, l.estimate_qty, l.estimate_value, l.cum_qty, l.cum_value, l.period_value)
+             for l in inp.cost_lines]
+    f3 = inp.f3[0]
+    f3_rows = [
+        (f"Forma-3 № {f3.number} — hesabat dövrü / period {f3.period.strftime('%d.%m.%Y')}", None, None),
+        ("Göstərici / Item", "Kumulyativ / Cumulative", "Hesabat ayı / This month"),
+        ("Görülmüş işlərin dəyəri ƏDV ilə / Works done incl. VAT", f3.works_cum, f3.works_period),
+        ("Alınmış avans / Advance received", f3.advance_received, None),
+        ("Avansdan tutulmuş / Advance withheld", f3.advance_withheld_cum, f3.advance_withheld_period),
+        ("Qalıq avans / Remaining advance", f3.advance_remaining, None),
+        ("Ödəniləcək məbləğ / Amount payable", None, f3.payable_period),
+    ]
+    return {"project": project_rows, "contract": contract_rows, "baseline": baseline, "actual": actual, "events": events,
+            "payments": payments, "costs": costs, "f3": f3_rows}
 
 
 def _write_sheet(ws: Any, headers: Sequence[str], rows: Sequence[Sequence[Any]], widths: Sequence[int]) -> None:
@@ -153,16 +200,16 @@ def build_template_bytes() -> bytes:
         readme.append([line])
     readme.column_dimensions["A"].width = 140
 
-    _write_sheet(wb.create_sheet("Layihe_Project"), ["Sahə / Field", "Dəyər / Value", "Qeyd / Notes"], PROJECT_ROWS, [40, 34, 44])
-    _write_sheet(wb.create_sheet("Plan_Qrafik_Baseline"), BASELINE_HEADERS,
-                 [(a[0], a[1], a[2], a[3], a[4], a[5], a[6]) for a in SAMPLE_ACTIVITIES], [14, 26, 40, 16, 16, 10, 20])
-    _write_sheet(wb.create_sheet("Faktiki_Icra_Actual"), ACTUAL_HEADERS,
-                 [(a[0], a[7], a[8], None, a[9]) for a in SAMPLE_ACTIVITIES], [14, 18, 18, 18, 14])
-    _write_sheet(wb.create_sheet("Gecikme_Hadiseleri_Events"), EVENT_HEADERS,
-                 [(e[0], e[1], e[2], e[3], e[4], e[5], e[6], "") for e in SAMPLE_EVENTS], [12, 44, 14, 14, 20, 22, 18, 24])
+    data = _template_data()
+    _write_sheet(wb.create_sheet("Layihe_Project"), ["Sahə / Field", "Dəyər / Value", "Qeyd / Notes"], data["project"], [40, 44, 44])
+    _write_sheet(wb.create_sheet("Muqavile_Contract"), ["Şərt / Term", "Dəyər / Value", "Qeyd / Notes"], data["contract"], [52, 26, 36])
+    _write_sheet(wb.create_sheet("Plan_Qrafik_Baseline"), BASELINE_HEADERS, data["baseline"], [12, 14, 44, 16, 16, 10, 20])
+    _write_sheet(wb.create_sheet("Faktiki_Icra_Actual"), ACTUAL_HEADERS, data["actual"], [12, 18, 18, 18, 14])
+    _write_sheet(wb.create_sheet("Smeta_F2_Nakopitel"), COST_HEADERS, data["costs"], [10, 22, 40, 10, 14, 20, 16, 22, 18])
+    _write_sheet(wb.create_sheet("F3_Forma3"), list(data["f3"][0]), data["f3"][1:], [56, 20, 20])
+    _write_sheet(wb.create_sheet("F2_Odenisler_Payments"), F2_HEADERS, data["payments"], [14, 18, 26, 26])
+    _write_sheet(wb.create_sheet("Gecikme_Hadiseleri_Events"), EVENT_HEADERS, data["events"], [12, 44, 14, 14, 24, 22, 18, 24])
     _write_sheet(wb.create_sheet("Ayliq_Icra_Monthly"), MONTHLY_HEADERS, [], [14, 24, 24])
-    _write_sheet(wb.create_sheet("F2_Odenisler_Payments"), F2_HEADERS,
-                 [(p[1], p[0], p[2], round(p[2] * 1.18, 2)) for p in SAMPLE_PAYMENTS], [14, 18, 26, 26])
     buffer = BytesIO()
     wb.save(buffer)
     return buffer.getvalue()

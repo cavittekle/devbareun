@@ -85,6 +85,77 @@ class SupportingDocument:
 
 
 @dataclass
+class ContractTerms:
+    """Key contract terms used by the executive report (müqavilə şərtləri).
+
+    Clause numbers in comments follow the standard Azerbaijani state
+    construction contract; any field may be missing.
+    """
+    number: Optional[str] = None
+    signed: Optional[date] = None
+    client: Optional[str] = None
+    contractor: Optional[str] = None
+    partners: Optional[str] = None  # joint venture members and shares
+    subject: Optional[str] = None
+    value_with_vat: Optional[float] = None
+    vat_rate_pct: Optional[float] = None
+    start: Optional[date] = None
+    finish: Optional[date] = None
+    duration_months: Optional[float] = None
+    performance_guarantee_pct: Optional[float] = None  # 7.1
+    advance_pct: Optional[float] = None  # 13.1
+    advance_guarantee_months: Optional[float] = None  # 13.1
+    payment_days: Optional[float] = None  # 13.1, working days
+    penalty_pct_per_day: Optional[float] = None  # 28.1
+    penalty_cap_pct: Optional[float] = None  # 28.1
+    employer_obligations: Optional[str] = None  # 12.2
+    warranty_months: Optional[float] = None
+    source: Optional[str] = None
+
+    def update(self, other: "ContractTerms") -> None:
+        for attr in vars(other):
+            value = getattr(other, attr)
+            if value not in (None, "") and getattr(self, attr) in (None, ""):
+                setattr(self, attr, value)
+
+
+@dataclass
+class CostLine:
+    """One estimate (smeta) line with its accepted F-2 value.
+
+    ``estimate_value`` and the F-2 values are before VAT. Only lines with a
+    unit of measure are work lines; section headers and subtotals are not.
+    """
+    name: str
+    estimate_value: float
+    unit: Optional[str] = None
+    building: Optional[str] = None
+    section: Optional[str] = None
+    category: Optional[str] = None
+    estimate_qty: Optional[float] = None
+    cum_qty: Optional[float] = None
+    cum_value: Optional[float] = None
+    period_qty: Optional[float] = None
+    period_value: Optional[float] = None
+    source: Optional[str] = None
+
+
+@dataclass
+class F3Summary:
+    """Forma-3: cumulative and reporting-month totals, VAT included."""
+    source: str
+    period: Optional[date] = None
+    number: Optional[str] = None
+    works_cum: Optional[float] = None
+    works_period: Optional[float] = None
+    advance_received: Optional[float] = None
+    advance_withheld_cum: Optional[float] = None
+    advance_withheld_period: Optional[float] = None
+    advance_remaining: Optional[float] = None
+    payable_period: Optional[float] = None
+
+
+@dataclass
 class DelayInput:
     project: ProjectInfo = field(default_factory=ProjectInfo)
     activities: List[Activity] = field(default_factory=list)
@@ -92,6 +163,9 @@ class DelayInput:
     monthly: List[MonthlyProgress] = field(default_factory=list)
     payments: List[PaymentCertificate] = field(default_factory=list)
     documents: List[SupportingDocument] = field(default_factory=list)
+    contract: ContractTerms = field(default_factory=ContractTerms)
+    cost_lines: List[CostLine] = field(default_factory=list)
+    f3: List[F3Summary] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     sources: List[str] = field(default_factory=list)
 
@@ -117,5 +191,8 @@ class DelayInput:
         self.monthly.extend(other.monthly)
         self.payments.extend(other.payments)
         self.documents.extend(other.documents)
+        self.contract.update(other.contract)
+        self.cost_lines.extend(other.cost_lines)
+        self.f3.extend(other.f3)
         self.warnings.extend(other.warnings)
         self.sources.extend(other.sources)
