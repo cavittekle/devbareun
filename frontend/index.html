@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevBareun | Construction Analytics and Project Control SaaS</title>
-  <meta name="description" content="DevBareun turns construction project files into project control dashboards, schedule analytics, cost analytics, risk analytics and management reports." />
+  <title>DevBareun | Construction Execution and Delay Analysis</title>
+  <meta name="description" content="DevBareun analyses construction schedules and actual progress: SPI, schedule delay in days, forecast completion, critical path and delay responsibility, delivered as an execution report in PDF and Excel." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://devbareun.com/" />
-  <meta property="og:title" content="DevBareun | Construction Analytics and Project Control SaaS" />
-  <meta property="og:description" content="Upload project files, confirm mapping and receive project control dashboards with PDF and Excel reporting outputs." />
+  <meta property="og:title" content="DevBareun | Construction Execution and Delay Analysis" />
+  <meta property="og:description" content="Upload the baseline schedule, actual progress and delay events and receive the execution and delay analysis report: SPI, delay days, forecast completion, critical path and responsibility." />
   <meta property="og:image" content="https://devbareun.com/assets/og-image.png" />
   <meta property="og:url" content="https://devbareun.com/" />
   <meta property="og:type" content="website" />
@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
   <script src="js/theme-init.js?v=14035"></script>
-  <link rel="stylesheet" href="css/modern-landing.css?v=14039" />
+  <link rel="stylesheet" href="css/modern-landing.css?v=14040" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -52,7 +52,8 @@
         "url": "https://devbareun.com/",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
-        "description": "Construction analytics and project control platform that turns schedules, cost, F-2 payment, material and risk files into management dashboards and PDF and Excel reports.",
+        "description": "Construction project execution and delay analysis: reads baseline schedules, actual progress and delay events (Excel, CSV, Primavera P6 XER, MS Project XML) and produces SPI, schedule delay, forecast completion, critical path and delay responsibility in PDF and Excel reports.",
+        "featureList": ["Planned vs actual S-curve", "Schedule performance index (SPI)", "Earned schedule delay in days", "Forecast completion date", "Critical path and total float", "Delay responsibility: employer, contractor, neutral, concurrent", "PDF and Excel report in Azerbaijani and English"],
         "publisher": { "@id": "https://devbareun.com/#organization" }
       }
     ]
@@ -71,7 +72,7 @@
         <span class="orbit orbit-c"></span>
         <img src="assets/devbareun-logo-compact-white.svg?v=3" alt="DevBareun" />
       </div>
-      <p data-i18n="loaderTitle">Construction analytics platform</p>
+      <p data-i18n="loaderTitle">Construction delay analysis</p>
       <div class="loader-bar"><span></span></div>
     </div>
   </div>
@@ -83,7 +84,7 @@
       </a>
 
       <nav class="main-nav" aria-label="Main navigation">
-        <a href="#platform" data-i18n="navPlatform">Platform</a>
+        <a href="#platform" data-i18n="navPlatform">How it works</a>
         <a href="#upload" data-i18n="navUpload">Upload</a>
         <a href="#pricing" data-i18n="navPricing">Pricing</a>
         <a href="/dashboard" data-i18n="navDashboard">Dashboard</a>
@@ -105,7 +106,7 @@
       </div>
     </div>
     <div class="mobile-menu" aria-label="Mobile navigation">
-      <a href="#platform" data-i18n="navPlatform">Platform</a>
+      <a href="#platform" data-i18n="navPlatform">How it works</a>
       <a href="#upload" data-i18n="navUpload">Upload</a>
       <a href="#pricing" data-i18n="navPricing">Pricing</a>
       <a href="/dashboard" data-i18n="navDashboard">Dashboard</a>
@@ -122,97 +123,98 @@
       <div class="grid-bg" aria-hidden="true"></div>
       <div class="wrap hero-showcase hero-command">
         <div class="hero-command-copy">
-          <p class="hero-showcase-pill" data-i18n="heroShowcasePill">4 control packages - schedule, cost, material, risk</p>
+          <p class="hero-showcase-pill" data-i18n="heroShowcasePill">Construction project execution and delay analysis</p>
           <h1>
-            <span data-i18n="heroShowcaseTitleOne">Control project</span>
-            <span data-i18n="heroShowcaseTitleTwo">signals before</span>
-            <span class="accent-line" data-i18n="heroShowcaseTitleThree">delays grow.</span>
+            <span data-i18n="heroShowcaseTitleOne">See how late</span>
+            <span data-i18n="heroShowcaseTitleTwo">the project is,</span>
+            <span class="accent-line" data-i18n="heroShowcaseTitleThree">and why.</span>
           </h1>
-          <p class="hero-lead" data-i18n="heroShowcaseLead">Upload schedules, progress files, cost data and site records. DevBareun turns them into a management-ready project control view.</p>
+          <p class="hero-lead" data-i18n="heroShowcaseLead">Upload the baseline schedule, actual progress and delay events. DevBareun calculates SPI, schedule delay in days, forecast completion, the critical path and who is responsible for each delay day, then prepares the execution report in PDF and Excel.</p>
           <div class="hero-actions hero-showcase-actions">
             <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
-            <a class="btn btn-secondary" href="templates/devbareun-professional-upload-template-v2.xlsx" download data-i18n="downloadTemplate">Download template</a>
+            <a class="btn btn-secondary" href="/workspace/?view=example" data-i18n="heroExample">View example report</a>
           </div>
         </div>
 
-        <aside class="hero-control-card" aria-label="Project control output preview">
+        <aside class="hero-control-card" aria-label="Questions the execution report answers">
           <div class="hero-control-head">
-            <span data-i18n="heroControlLabel">Management view</span>
-            <strong data-i18n="heroControlTitle">Ready after mapping</strong>
+            <span data-i18n="heroControlLabel">Execution report</span>
+            <strong data-i18n="heroControlTitle">Three questions, answered with numbers</strong>
           </div>
           <div class="hero-control-flow">
             <article>
               <i aria-hidden="true">01</i>
               <div>
-                <strong data-i18n="heroFlowUpload">Upload project files</strong>
-                <small data-i18n="heroFlowUploadText">Schedule, cost, material and risk records.</small>
+                <strong data-i18n="heroFlowUpload">How far behind is the project?</strong>
+                <small data-i18n="heroFlowUploadText">Planned vs actual progress, SPI and schedule delay in days.</small>
               </div>
             </article>
             <article>
               <i aria-hidden="true">02</i>
               <div>
-                <strong data-i18n="heroFlowMap">Confirm detected mapping</strong>
-                <small data-i18n="heroFlowMapText">Review columns before the dashboard is prepared.</small>
+                <strong data-i18n="heroFlowMap">When will it finish?</strong>
+                <small data-i18n="heroFlowMapText">Forecast completion from activity progress rates and network logic.</small>
               </div>
             </article>
             <article>
               <i aria-hidden="true">03</i>
               <div>
-                <strong data-i18n="heroFlowDashboard">Review dashboard output</strong>
-                <small data-i18n="heroFlowDashboardText">See only the dashboards supported by your files.</small>
+                <strong data-i18n="heroFlowDashboard">Who is responsible for the delay?</strong>
+                <small data-i18n="heroFlowDashboardText">Delay days split into employer, contractor, neutral and concurrent.</small>
               </div>
             </article>
           </div>
         </aside>
 
-        <div class="hero-signal-strip" aria-label="DevBareun project control signals">
-          <span><b>4</b><small data-i18n="heroMetricPackages">Control packages</small></span>
-          <span><b>6</b><small data-i18n="heroMetricFormats">File formats</small></span>
-          <span><b>PDF</b><small data-i18n="heroMetricReports">Report export</small></span>
-          <span><b>EN/AZ</b><small data-i18n="heroMetricLanguages">Languages</small></span>
+        <div class="hero-signal-strip" aria-label="What the analysis calculates">
+          <span><b>SPI</b><small data-i18n="heroMetricPackages">Schedule performance</small></span>
+          <span><b>CPM</b><small data-i18n="heroMetricFormats">Critical path and float</small></span>
+          <span><b>4</b><small data-i18n="heroMetricReports">Responsibility classes</small></span>
+          <span><b>AZ/EN</b><small data-i18n="heroMetricLanguages">PDF and Excel report</small></span>
         </div>
       </div>
     </section>
 
     <section class="output-section wrap section" id="dashboard-preview">
       <div class="value-copy">
-        <p class="section-label" data-i18n="dashboardLabel">Live executive dashboard</p>
-        <h2 data-i18n="dashboardTitle">Every signal rolled up into one decision view.</h2>
-        <p data-i18n="dashboardText">Schedule, cost and risk are read from your uploads and presented as the same management dashboard your team reviews each week.</p>
+        <p class="section-label" data-i18n="dashboardLabel">Example execution report</p>
+        <h2 data-i18n="dashboardTitle">Delay, forecast and responsibility on one page.</h2>
+        <p data-i18n="dashboardText">The figures below come from the DevBareun example project. Your report uses the same layout with your own schedule, progress and delay events.</p>
+        <p class="value-actions"><a class="btn btn-secondary" href="/workspace/?view=example" data-i18n="dashboardExampleCta">Open the full example</a></p>
       </div>
-      <div class="executive-preview" aria-label="Example executive dashboard">
+      <div class="executive-preview" aria-label="Example delay analysis dashboard">
         <div class="preview-browser">
           <div class="preview-bar">
             <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-            <strong>Baku Business Center</strong>
-            <small>Report period: Sep 2026</small>
+            <strong data-i18n="previewProject">Baku Business Center (example)</strong>
+            <small><span data-i18n="previewDataDate">Data date</span>: 31.05.2024</small>
           </div>
           <div class="preview-kpis">
-            <article class="kpi-status is-warning">
-              <span>Overall progress</span><strong>68%</strong><em class="kpi-delta">−4 pts vs plan</em>
-              <i class="kpi-track"><b class="kpi-value kpi-w-68"></b><b class="kpi-plan kpi-at-72"></b></i>
-              <small>Plan 72%</small>
+            <article class="kpi-status is-danger">
+              <span data-i18n="previewKpiProgress">Actual progress</span><strong>35.3%</strong><em class="kpi-delta" data-i18n="previewKpiProgressDelta">−21.8 pts vs plan</em>
+              <i class="kpi-track"><b class="kpi-value kpi-w-35"></b><b class="kpi-plan kpi-at-57"></b></i>
+              <small data-i18n="previewKpiProgressNote">Plan 57.1%</small>
             </article>
             <article class="kpi-status is-danger">
-              <span>Schedule - SPI</span><strong>0.92</strong><em class="kpi-delta">8% behind schedule</em>
+              <span data-i18n="previewKpiSpi">Schedule performance (SPI)</span><strong>0.62</strong><em class="kpi-delta" data-i18n="previewKpiSpiDelta">38% below plan rate</em>
               <i class="kpi-scale"><b class="kpi-gap kpi-gap-spi"></b></i>
-              <small>Target 1.00</small>
+              <small data-i18n="previewKpiSpiNote">Target 1.00</small>
+            </article>
+            <article class="kpi-status is-danger">
+              <span data-i18n="previewKpiDelay">Schedule delay</span><strong data-i18n="previewKpiDelayValue">67 days</strong><em class="kpi-delta" data-i18n="previewKpiDelayDelta">progress of 25.03.2024</em>
+              <i class="kpi-track"><b class="kpi-value kpi-w-44"></b><b class="kpi-plan kpi-at-58"></b></i>
+              <small data-i18n="previewKpiDelayNote">Earned schedule vs data date</small>
             </article>
             <article class="kpi-status is-warning">
-              <span>Cost - CPI</span><strong>0.97</strong><em class="kpi-delta">3% over earned value</em>
-              <i class="kpi-scale"><b class="kpi-gap kpi-gap-cpi"></b></i>
-              <small>Target 1.00</small>
-            </article>
-            <article class="kpi-status is-success">
-              <span>Total cost</span><strong>AZN 2.45M</strong><em class="kpi-delta">AZN 80K under plan</em>
-              <i class="kpi-track"><b class="kpi-value kpi-w-87"></b><b class="kpi-plan kpi-at-90"></b></i>
-              <small>Plan AZN 2.53M</small>
+              <span data-i18n="previewKpiForecast">Forecast completion</span><strong>23.03.2025</strong><em class="kpi-delta" data-i18n="previewKpiForecastDelta">+98 days late</em>
+              <i class="kpi-track"><b class="kpi-value kpi-w-100"></b><b class="kpi-plan kpi-at-83"></b></i>
+              <small data-i18n="previewKpiForecastNote">Contract finish 15.12.2024</small>
             </article>
           </div>
           <div class="preview-dashboard-grid">
             <section class="preview-chart-card">
-              <div><strong>Progress analysis</strong><small>Planned vs actual, cumulative %</small></div>
-              <svg viewBox="0 0 520 230" role="img" aria-label="Progress chart: actual progress 68% against 72% planned at the end of September 2026, forecast 92% by November">
+              <div><strong data-i18n="previewCurveTitle">Planned vs actual S-curve</strong><small data-i18n="previewCurveSub">Cumulative progress, %</small></div>
+              <svg viewBox="0 0 520 230" role="img" aria-label="S-curve: at the data date 31.05.2024 actual progress is 35.3% against 57.1% planned; forecast completion 23.03.2025 against the contract finish 15.12.2024">
                 <g class="chart-grid">
                   <line x1="50" y1="30" x2="500" y2="30"></line>
                   <line x1="50" y1="70" x2="500" y2="70"></line>
@@ -228,74 +230,67 @@
                   <text x="40" y="194">0%</text>
                 </g>
                 <g class="chart-label chart-label-x">
-                  <text x="50" y="214">Apr</text>
-                  <text x="114" y="214">May</text>
-                  <text x="179" y="214">Jun</text>
-                  <text x="243" y="214">Jul</text>
-                  <text x="307" y="214">Aug</text>
-                  <text x="371" y="214">Sep</text>
-                  <text x="436" y="214">Oct</text>
-                  <text x="500" y="214">Nov</text>
+                  <text x="74" y="214">09.23</text>
+                  <text x="145" y="214">12.23</text>
+                  <text x="216" y="214">03.24</text>
+                  <text x="287" y="214">06.24</text>
+                  <text x="358" y="214">09.24</text>
+                  <text x="429" y="214">12.24</text>
+                  <text class="chart-label-end" x="500" y="214">03.25</text>
                 </g>
-                <line class="today-line" x1="371" y1="22" x2="371" y2="190"></line>
-                <text class="today-label" x="377" y="22">Today</text>
-                <polyline class="planned-line" points="50,177 114,158 179,136 243,113 307,92 371,75 436,52 500,30"></polyline>
-                <polyline class="forecast-line" points="371,81 436,62 500,43"></polyline>
-                <polyline class="actual-line" points="50,180 114,163 179,142 243,121 307,100 371,81"></polyline>
-                <circle class="actual-end" cx="371" cy="81" r="6"></circle>
-                <text class="point-label point-label-start" x="380" y="106">68%</text>
-                <text class="point-label point-label-plan" x="360" y="62">72%</text>
+                <line class="today-line" x1="263" y1="22" x2="263" y2="190"></line>
+                <text class="today-label" x="269" y="22" data-i18n="previewDataDate">Data date</text>
+                <line class="finish-line" x1="417" y1="30" x2="417" y2="190"></line>
+                <polyline class="planned-line" points="50,190 73.7,184.9 97.4,178.3 121.1,171.6 144.7,162.3 168.4,151.6 192.1,142.6 215.8,130.5 239.5,113.7 263.2,98.6 286.8,82.3 310.5,67.3 334.2,52.4 357.9,41.2 381.6,36.7 405.3,32.2 416.7,30 452.6,30"></polyline>
+                <polyline class="forecast-line" points="263.2,133.5 493.9,30"></polyline>
+                <polyline class="actual-line" points="50,190 73.7,186 97.4,180.7 121.1,175 144.7,168.7 168.4,161.7 192.1,153.4 215.8,147.8 239.5,141.8 263.2,133.5"></polyline>
+                <circle class="actual-end" cx="263.2" cy="133.5" r="6"></circle>
+                <circle class="forecast-end" cx="493.9" cy="30" r="5"></circle>
+                <text class="point-label point-label-start" x="273" y="150">35.3%</text>
+                <text class="point-label point-label-plan" x="254" y="92">57.1%</text>
               </svg>
-              <div class="preview-legend"><span><i class="actual-dot"></i>Actual</span><span><i class="planned-dot"></i>Plan</span><span><i class="forecast-dot"></i>Forecast</span></div>
+              <div class="preview-legend"><span><i class="actual-dot"></i><b data-i18n="previewActual">Actual</b></span><span><i class="planned-dot"></i><b data-i18n="previewPlanned">Plan</b></span><span><i class="forecast-dot"></i><b data-i18n="previewForecast">Forecast</b></span></div>
             </section>
             <section class="preview-bars-card">
-              <div><strong>Cost analysis</strong><small>Monthly spend vs budget, AZN K</small></div>
-              <svg viewBox="0 0 300 220" role="img" aria-label="Monthly cost chart: spend stayed under budget from April to August and exceeded it in September, 450K against 440K">
-                <line class="chart-axis" x1="20" y1="180" x2="290" y2="180"></line>
-                <rect class="cost-bar" x="30" y="65" width="28" height="115"></rect>
-                <rect class="cost-bar" x="74" y="49" width="28" height="131"></rect>
-                <rect class="cost-bar" x="118" y="54" width="28" height="126"></rect>
-                <rect class="cost-bar" x="162" y="42" width="28" height="138"></rect>
-                <rect class="cost-bar" x="206" y="50" width="28" height="130"></rect>
-                <rect class="cost-bar cost-bar-over" x="250" y="36" width="28" height="144"></rect>
-                <g class="budget-ticks">
-                  <line x1="26" y1="58" x2="62" y2="58"></line>
-                  <line x1="70" y1="46" x2="106" y2="46"></line>
-                  <line x1="114" y1="46" x2="150" y2="46"></line>
-                  <line x1="158" y1="39" x2="194" y2="39"></line>
-                  <line x1="202" y1="42" x2="238" y2="42"></line>
-                  <line x1="246" y1="39" x2="282" y2="39"></line>
-                </g>
+              <div><strong data-i18n="previewDelayTitle">Monthly delay development</strong><small data-i18n="previewDelaySub">Schedule delay at month end, days</small></div>
+              <svg viewBox="0 0 300 220" role="img" aria-label="Schedule delay grew every month, from 5 days in September 2023 to 67 days in May 2024">
+                <line class="chart-axis" x1="16" y1="180" x2="290" y2="180"></line>
+                <rect class="delay-bar" x="24" y="170" width="20" height="10" rx="3"></rect>
+                <rect class="delay-bar" x="54" y="158" width="20" height="22" rx="3"></rect>
+                <rect class="delay-bar" x="84" y="150" width="20" height="30" rx="3"></rect>
+                <rect class="delay-bar" x="114" y="138" width="20" height="42" rx="3"></rect>
+                <rect class="delay-bar" x="144" y="122" width="20" height="58" rx="3"></rect>
+                <rect class="delay-bar" x="174" y="112" width="20" height="68" rx="3"></rect>
+                <rect class="delay-bar" x="204" y="86" width="20" height="94" rx="3"></rect>
+                <rect class="delay-bar" x="234" y="64" width="20" height="116" rx="3"></rect>
+                <rect class="delay-bar delay-bar-now" x="264" y="46" width="20" height="134" rx="3"></rect>
                 <g class="chart-label chart-label-value">
-                  <text x="44" y="51">360</text>
-                  <text x="88" y="39">410</text>
-                  <text x="132" y="39">395</text>
-                  <text x="176" y="32">430</text>
-                  <text x="220" y="35">405</text>
-                  <text x="264" y="28">450</text>
+                  <text x="34" y="162">5</text>
+                  <text x="154" y="114">29</text>
+                  <text x="274" y="38">67</text>
                 </g>
                 <g class="chart-label chart-label-x">
-                  <text x="44" y="200">Apr</text>
-                  <text x="88" y="200">May</text>
-                  <text x="132" y="200">Jun</text>
-                  <text x="176" y="200">Jul</text>
-                  <text x="220" y="200">Aug</text>
-                  <text x="264" y="200">Sep</text>
+                  <text x="34" y="200">09</text>
+                  <text x="94" y="200">11</text>
+                  <text x="154" y="200">01</text>
+                  <text x="214" y="200">03</text>
+                  <text x="274" y="200">05</text>
                 </g>
               </svg>
-              <div class="preview-legend"><span><i class="actual-dot"></i>Spend</span><span><i class="budget-dot"></i>Budget</span><span><i class="over-dot"></i>Over budget</span></div>
+              <div class="preview-legend"><span><i class="delay-dot"></i><b data-i18n="previewDelayLegend">Delay, days (2023-09 to 2024-05)</b></span></div>
             </section>
             <section class="preview-risk-card">
-              <div><strong>Risk indicators</strong><small>Live register status</small></div>
+              <div><strong data-i18n="previewRespTitle">Delay responsibility</strong><small data-i18n="previewRespSub">Delay event days by party</small></div>
               <ul>
-                <li><span class="risk-dot danger"></span>Schedule risk <em class="risk-level danger">High</em></li>
-                <li><span class="risk-dot warning"></span>Financial risk <em class="risk-level warning">Medium</em></li>
-                <li><span class="risk-dot success"></span>Supply risk <em class="risk-level success">Low</em></li>
+                <li><span class="risk-dot party-contractor"></span><b data-i18n="partyContractor">Contractor</b> <em class="risk-level party-level" data-i18n="previewDays59">59 days</em></li>
+                <li><span class="risk-dot party-employer"></span><b data-i18n="partyEmployer">Employer</b> <em class="risk-level party-level" data-i18n="previewDays14">14 days</em></li>
+                <li><span class="risk-dot party-concurrent"></span><b data-i18n="partyConcurrent">Concurrent</b> <em class="risk-level party-level" data-i18n="previewDays12">12 days</em></li>
+                <li><span class="risk-dot party-neutral"></span><b data-i18n="partyNeutral">Neutral</b> <em class="risk-level party-level" data-i18n="previewDays7">7 days</em></li>
               </ul>
               <div class="risk-open">
-                <p><b>8</b> open risks <em>+2 this month</em></p>
-                <i class="risk-stack" aria-hidden="true"><b class="danger risk-share-3"></b><b class="warning risk-share-4"></b><b class="success risk-share-1"></b></i>
-                <p class="risk-open-split">3 high · 4 medium · 1 low</p>
+                <p><b>92</b> <span data-i18n="previewRespTotal">delay days recorded</span></p>
+                <i class="risk-stack" aria-hidden="true"><b class="party-contractor share-59"></b><b class="party-employer share-14"></b><b class="party-concurrent share-12"></b><b class="party-neutral share-7"></b></i>
+                <p class="risk-open-split" data-i18n="previewRespSplit">33 excusable · 14 compensable · 59 non-excusable</p>
               </div>
             </section>
           </div>
@@ -305,69 +300,66 @@
 
     <section class="workflow wrap section" id="platform">
       <div class="section-heading narrow">
-        <p class="section-label" data-i18n="workflowLabel">Workflow</p>
-        <h2 data-i18n="workflowTitle">Three clear steps from files to management view.</h2>
+        <p class="section-label" data-i18n="workflowLabel">How it works</p>
+        <h2 data-i18n="workflowTitle">From schedule and progress files to the execution report.</h2>
       </div>
       <div class="workflow-grid">
-        <article><span>01</span><h3 data-i18n="stepUploadTitle">Upload</h3><p data-i18n="stepUploadText">Add schedules, progress payment files, cost estimates, material records or risk logs.</p></article>
-        <article><span>02</span><h3 data-i18n="stepMappingTitle">Confirm Mapping</h3><p data-i18n="stepMappingText">Review detected file types and confirm which data belongs to each dashboard area.</p></article>
-        <article><span>03</span><h3 data-i18n="stepDashboardTitle">Dashboard</h3><p data-i18n="stepDashboardText">Unlock the full dashboard and export management reports for review.</p></article>
+        <article><span>01</span><h3 data-i18n="stepUploadTitle">Upload</h3><p data-i18n="stepUploadText">Fill the DevBareun Excel template with baseline, actual progress and delay events, or upload a Primavera P6 XER or MS Project XML export.</p></article>
+        <article><span>02</span><h3 data-i18n="stepMappingTitle">Check the data</h3><p data-i18n="stepMappingText">Activities, WBS sections, predecessors and delay events are read and checked. Missing dates or progress are listed before you rely on the result.</p></article>
+        <article><span>03</span><h3 data-i18n="stepDashboardTitle">Get the report</h3><p data-i18n="stepDashboardText">Review the delay dashboard and download the execution and delay analysis report in Azerbaijani or English, as PDF and Excel.</p></article>
       </div>
     </section>
 
     <section class="upload-section wrap section" id="upload">
       <div class="section-heading">
-        <p class="section-label" data-i18n="uploadLabel">Upload and analysis packages</p>
-        <h2 data-i18n="uploadTitle">Choose the problem, then upload the right files.</h2>
-        <p data-i18n="uploadIntro">Single Project users upload first, preview mapping and pay with Lemon Squeezy to unlock the full dashboard. Plus and Pro users spend monthly project credits.</p>
-      </div>
-
-      <div class="package-grid" role="tablist" aria-label="Analysis packages">
-        <button type="button" class="package-card active" data-package="schedule" role="tab" aria-selected="true">
-          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4.5 9h15M6.5 5h11A2.5 2.5 0 0 1 20 7.5v10A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-10A2.5 2.5 0 0 1 6.5 5Z"/><path d="m8 14 2 2 5-5"/></svg></i><span>Schedule Recovery</span><small data-i18n="pkgScheduleText">Delay, actual progress and workforce recovery planning.</small>
-        </button>
-        <button type="button" class="package-card" data-package="cost" role="tab" aria-selected="false">
-          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/><path d="M6 8.5 12 4l6 7"/></svg></i><span>Cost Control</span><small data-i18n="pkgCostText">Cost estimate, actual cost and progress payment visibility.</small>
-        </button>
-        <button type="button" class="package-card" data-package="material" role="tab" aria-selected="false">
-          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="M4 7.5V16l8 5 8-5V7.5"/><path d="M12 12v9"/></svg></i><span>Material Continuity</span><small data-i18n="pkgMaterialText">Material stock, consumption and procurement continuity.</small>
-        </button>
-        <button type="button" class="package-card" data-package="risk" role="tab" aria-selected="false">
-          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3.8 18a2 2 0 0 0 1.7 3h13a2 2 0 0 0 1.7-3L12 3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></i><span>Risk &amp; Decisions</span><small data-i18n="pkgRiskText">Risk tracking, decision records and management actions.</small>
-        </button>
+        <p class="section-label" data-i18n="uploadLabel">Upload for delay analysis</p>
+        <h2 data-i18n="uploadTitle">One analysis, built from your schedule and progress.</h2>
+        <p data-i18n="uploadIntro">Single Project users upload first, check the detected data and pay with Lemon Squeezy to unlock the full report. Plus and Pro users spend monthly project credits.</p>
       </div>
 
       <div class="upload-workspace">
         <aside class="mapping-panel">
           <div>
             <p class="section-label" data-i18n="requiredFiles">Required files</p>
-            <h3 id="selectedPackageTitle">Schedule Recovery</h3>
-            <ol id="requiredFilesList"></ol>
+            <h3 data-i18n="pkgDelayTitle">Execution and delay analysis</h3>
+            <ol>
+              <li data-i18n="reqBaseline">Baseline schedule: planned start, finish, weight, predecessors</li>
+              <li data-i18n="reqActual">Actual progress at the data date: actual dates and % complete</li>
+              <li data-i18n="reqEvents">Delay events with cause and responsible party (recommended)</li>
+              <li data-i18n="reqMonthly">Monthly planned and actual cumulative % (optional)</li>
+            </ol>
           </div>
           <div>
             <p class="section-label" data-i18n="youReceive">You will receive</p>
-            <ul class="check-list" id="outputList"></ul>
+            <ul class="check-list">
+              <li data-i18n="outKpis">Progress, SPI, schedule delay and forecast completion</li>
+              <li data-i18n="outCurve">S-curve and monthly delay development</li>
+              <li data-i18n="outCritical">Critical path, total float and most delayed activities</li>
+              <li data-i18n="outResp">Delay responsibility: employer, contractor, neutral, concurrent</li>
+              <li data-i18n="outReport">Findings, recommended actions and PDF / Excel report</li>
+            </ul>
           </div>
+          <a class="btn btn-secondary" href="templates/devbareun-delay-analysis-template.xlsx" download data-i18n="downloadTemplate">Download Excel template</a>
         </aside>
 
         <div class="upload-panel">
-          <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload project files">
-            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xls,.csv,.pdf,.xer,.xml,.jpg,.jpeg,.png,.webp" />
+          <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload schedule and progress files">
+            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml" />
             <div class="drop-icon" aria-hidden="true">+</div>
-            <h3 data-i18n="dropTitle">Drop project files here, or browse</h3>
-            <p data-i18n="dropText">Excel, CSV, PDF, Primavera XER, MS Project XML and supporting images are accepted.</p>
+            <h3 data-i18n="dropTitle">Drop schedule and progress files here, or browse</h3>
+            <p data-i18n="dropText">DevBareun Excel template, other Excel or CSV plan-actual tables, Primavera P6 XER and MS Project XML.</p>
             <button class="btn btn-secondary" type="button" id="browseBtn" data-i18n="browseFiles">Choose files</button>
           </div>
           <div class="file-list" id="fileList" aria-live="polite"></div>
           <div class="smart-status" id="smartStatus" hidden>
-            <strong data-i18n="detecting">Analyzing uploaded files...</strong>
+            <strong data-i18n="detecting">Checking selected files...</strong>
             <div id="detectChips"></div>
-            <p data-i18n="preparingDashboards">Preparing dashboards...</p>
+            <p data-i18n="preparingDashboards">Sign in to run the analysis on these files.</p>
           </div>
           <div class="mapping-preview" id="mappingPreview" hidden>
-            <h3 data-i18n="mappingTitle">Detected mapping preview</h3>
+            <h3 data-i18n="mappingTitle">Detected file types</h3>
             <div id="mappingRows"></div>
-            <a class="btn btn-primary" href="#pricing" data-i18n="unlockDashboard">Unlock dashboard</a>
+            <a class="btn btn-primary" href="/workspace/?view=upload" data-i18n="unlockDashboard">Continue to analysis</a>
           </div>
         </div>
       </div>
@@ -405,24 +397,23 @@
       <div class="formats-panel">
         <div class="formats-copy">
           <p class="section-label" data-i18n="filesLabel">Supported files</p>
-          <h3 data-i18n="filesTitle">Works with the files your team already keeps.</h3>
-          <p data-i18n="filesText">No new software to adopt. Upload your existing exports as they are, or start from the DevBareun Excel template.</p>
+          <h3 data-i18n="filesTitle">Works with the schedules your team already keeps.</h3>
+          <p data-i18n="filesText">Upload your planning exports as they are, or start from the DevBareun Excel template. Column headers in English, Azerbaijani, Turkish and Russian are recognised.</p>
         </div>
         <div class="formats-lists">
           <ul class="format-chips" aria-label="Accepted file formats">
-            <li><b>Excel</b><small>.xlsx .xls</small></li>
+            <li><b data-i18n="fmtTemplate">DevBareun template</b><small>.xlsx</small></li>
+            <li><b>Excel</b><small>.xlsx .xlsm .xls</small></li>
             <li><b>CSV</b><small>.csv</small></li>
-            <li><b>PDF</b><small>.pdf</small></li>
             <li><b>Primavera P6</b><small>.xer</small></li>
             <li><b>MS Project</b><small>.xml</small></li>
-            <li><b data-i18n="fmtImages">Site photos</b><small>.jpg .png .webp</small></li>
           </ul>
           <ul class="check-list format-content">
-            <li data-i18n="fileSchedule">Schedules and progress updates</li>
-            <li data-i18n="fileF2">F-2 progress payment acts</li>
-            <li data-i18n="fileCost">Cost estimates and BOQ</li>
-            <li data-i18n="fileMaterial">Material stock and consumption</li>
-            <li data-i18n="fileRisk">Risk registers and decision logs</li>
+            <li data-i18n="fileSchedule">Baseline schedule with WBS and predecessors</li>
+            <li data-i18n="fileF2">Actual progress and forecast dates</li>
+            <li data-i18n="fileCost">Delay events, causes and responsible party</li>
+            <li data-i18n="fileMaterial">Monthly planned and actual progress</li>
+            <li data-i18n="fileRisk">Contract start, finish and data date</li>
           </ul>
         </div>
       </div>
@@ -448,7 +439,7 @@
           <span data-i18n="oneTime">One-time</span>
           <h3>Single Project</h3>
           <div class="price-amount"><strong>29</strong><small data-i18n="priceSingleNote">one-time</small></div>
-          <p data-i18n="pricingSingleShort">Perfect for a single project analysis with full dashboard output.</p>
+          <p data-i18n="pricingSingleShort">One project's delay analysis with the full execution report.</p>
           <a class="btn btn-secondary" href="#upload" data-plan="single"><span data-i18n="singleCta">Upload one project</span><b aria-hidden="true">→</b></a>
         </article>
         <article class="price-card featured">
@@ -456,14 +447,14 @@
           <i data-i18n="recommended">Recommended</i>
           <h3>Plus</h3>
           <div class="price-amount"><strong data-price-plan="plus">49</strong><small data-billing-note="plus" data-i18n="priceMonthlyNote">month</small></div>
-          <p data-i18n="pricingPlusShort">The sweet spot for active project teams managing multiple sites.</p>
+          <p data-i18n="pricingPlusShort">Monthly execution reports for teams running several sites.</p>
           <a class="btn btn-primary" href="#upload" data-plan="plus"><span data-i18n="plusCta">Start Plus</span><b aria-hidden="true">→</b></a>
         </article>
         <article class="price-card">
           <span data-i18n="highVolume">High volume</span>
           <h3>Pro</h3>
           <div class="price-amount"><strong data-price-plan="pro">89</strong><small data-billing-note="pro" data-i18n="priceMonthlyNote">month</small></div>
-          <p data-i18n="pricingProShort">For companies running larger portfolios with admin oversight.</p>
+          <p data-i18n="pricingProShort">For companies tracking delay across a larger portfolio.</p>
           <a class="btn btn-secondary" href="#upload" data-plan="pro"><span data-i18n="proCta">Start Pro</span><b aria-hidden="true">→</b></a>
         </article>
       </div>
@@ -475,9 +466,9 @@
           <span data-i18n="comparePro">Pro</span>
         </div>
         <div class="compare-row"><strong data-i18n="rowCredits">Analysis credits</strong><span data-i18n="rowCreditsSingle">1 project</span><span data-credit-plan="plus" data-i18n="rowCreditsPlus">5 / month</span><span data-credit-plan="pro" data-i18n="rowCreditsPro">20 / month</span></div>
-        <div class="compare-row"><strong data-i18n="rowPackages">All 4 control packages</strong><span>✓</span><span>✓</span><span>✓</span></div>
-        <div class="compare-row"><strong data-i18n="rowDashboard">Package-specific dashboard</strong><span>✓</span><span>✓</span><span>✓</span></div>
-        <div class="compare-row"><strong data-i18n="rowExport">PDF + Excel export</strong><span>✓</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowPackages">Execution and delay analysis</strong><span>✓</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowDashboard">Delay dashboard and S-curve</strong><span>✓</span><span>✓</span><span>✓</span></div>
+        <div class="compare-row"><strong data-i18n="rowExport">PDF + Excel report (AZ / EN)</strong><span>✓</span><span>✓</span><span>✓</span></div>
         <div class="compare-row"><strong data-i18n="rowArchive">Report archive</strong><span>-</span><span>✓</span><span>✓</span></div>
         <div class="compare-row"><strong data-i18n="rowUsage">Credit usage visibility</strong><span>-</span><span>✓</span><span>✓</span></div>
         <div class="compare-row"><strong data-i18n="rowWorkspace">Multi-project workspace</strong><span>-</span><span>-</span><span>✓</span></div>
@@ -487,7 +478,7 @@
         <span data-i18n="pricingTrustSecure">Secure checkout</span>
         <span data-i18n="pricingTrustCancel">Cancel anytime</span>
         <span data-i18n="pricingTrustSetup">No setup fees</span>
-        <span data-i18n="pricingTrustIncluded">All packages included</span>
+        <span data-i18n="pricingTrustIncluded">Full report in every plan</span>
       </div>
     </section>
 
@@ -496,7 +487,7 @@
     <div class="wrap footer-shell">
       <nav class="footer-column" aria-label="Product navigation">
         <strong data-i18n="footerProduct">Product</strong>
-        <a href="#platform" data-i18n="navPlatform">Platform</a>
+        <a href="#platform" data-i18n="navPlatform">How it works</a>
         <a href="#upload" data-i18n="navUpload">Upload</a>
         <a href="#pricing" data-i18n="navPricing">Pricing</a>
         <a href="#security" data-i18n="navSecurity">Security</a>
@@ -520,6 +511,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="js/modern-landing.js?v=14037" defer></script>
+  <script src="js/modern-landing.js?v=14038" defer></script>
 </body>
 </html>

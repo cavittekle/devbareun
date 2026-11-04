@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html data-theme="dark" lang="en">
-<head> <meta charset="utf-8"/> <meta content="width=device-width, initial-scale=1.0" name="viewport"/> <title>FAQ - DevBareun Construction Analytics</title> <meta content="Frequently asked questions about DevBareun project upload, dashboard creation, reports and data security." name="description"/> <meta content="index, follow" name="robots"/> <link href="https://devbareun.com/faq.html" rel="canonical"/> <meta content="FAQ - DevBareun Construction Analytics" property="og:title"/> <meta content="Frequently asked questions about DevBareun project upload, dashboard creation, reports and data security." property="og:description"/> <meta content="https://devbareun.com/assets/og-image.png" property="og:image"/> <meta content="https://devbareun.com/faq.html" property="og:url"/> <meta content="website" property="og:type"/> <meta content="summary_large_image" name="twitter:card"/> <meta content="#0A1228" name="theme-color"/> <link href="assets/favicon.png?v=2" rel="icon" type="image/png"/> <link href="assets/apple-touch-icon.png?v=2" rel="apple-touch-icon"/> <link href="site.webmanifest?v=2" rel="manifest"/> <script src="js/theme-init.js?v=14035"></script> <link href="css/styles.css?v=14037" rel="stylesheet"/> </head>
+<head> <meta charset="utf-8"/> <meta content="width=device-width, initial-scale=1.0" name="viewport"/> <title>FAQ - DevBareun Construction Delay Analysis</title> <meta content="Questions about DevBareun construction execution and delay analysis: input files, how delay and responsibility are calculated, reports, payment and data security." name="description"/> <meta content="index, follow" name="robots"/> <link href="https://devbareun.com/faq.html" rel="canonical"/> <meta content="FAQ - DevBareun Construction Delay Analysis" property="og:title"/> <meta content="Questions about DevBareun construction execution and delay analysis: input files, how delay and responsibility are calculated, reports, payment and data security." property="og:description"/> <meta content="https://devbareun.com/assets/og-image.png" property="og:image"/> <meta content="https://devbareun.com/faq.html" property="og:url"/> <meta content="website" property="og:type"/> <meta content="summary_large_image" name="twitter:card"/> <meta content="#0A1228" name="theme-color"/> <link href="assets/favicon.png?v=2" rel="icon" type="image/png"/> <link href="assets/apple-touch-icon.png?v=2" rel="apple-touch-icon"/> <link href="site.webmanifest?v=2" rel="manifest"/> <script src="js/theme-init.js?v=14035"></script> <link href="css/styles.css?v=14037" rel="stylesheet"/> </head>
 <body class="">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="wrap navbar"><a aria-label="DevBareun home" class="brand" href="index.html"><img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" class="brand-logo" /></a><nav aria-label="Main navigation" class="nav-links"><a class="" data-i18n="navPlatform" href="index.html#platform">Platform</a>
@@ -25,7 +25,7 @@
 <span aria-hidden="true" class="faq-plus">+</span>
 </button>
 <div class="faq-answer">
-<p data-faq-key="faqA1">DevBareun allows customers to upload construction project files and receive a structured dashboard and reporting view. The platform is designed to support project control, progress visibility, cost tracking and management reporting.</p>
+<p data-faq-key="faqA1">You upload the baseline schedule, actual progress at the data date and, if you keep them, delay events. DevBareun runs the construction execution and delay analysis and returns a delay dashboard plus the execution report: progress, SPI, schedule delay in days, forecast completion, critical path and delay responsibility.</p>
 </div>
 </div>
 <div class="faq-item">
@@ -34,16 +34,16 @@
 <span aria-hidden="true" class="faq-plus">+</span>
 </button>
 <div class="faq-answer">
-<p data-faq-key="faqA2">Excel and CSV files are used for structured analysis. Text-based PDF files can be partially extracted. Primavera XER and MS Project XML schedule files are supported as schedule extraction beta. Site images can be uploaded as supporting visual evidence.</p>
+<p data-faq-key="faqA2">The DevBareun Excel template, other Excel (.xlsx, .xlsm, .xls) or CSV plan-actual tables, Primavera P6 XER and MS Project XML. Column headers in English, Azerbaijani, Turkish and Russian are recognised.</p>
 </div>
 </div>
 <div class="faq-item">
 <button class="faq-question" type="button">
-<span data-faq-key="faqQ3">How is the dashboard created?</span>
+<span data-faq-key="faqQ3">How is the delay calculated?</span>
 <span aria-hidden="true" class="faq-plus">+</span>
 </button>
 <div class="faq-answer">
-<p data-faq-key="faqA3">The uploaded project data is processed and organized into key project control indicators such as planned progress, actual progress, delay status, cost variance, workforce indicators and risk levels.</p>
+<p data-faq-key="faqA3">Planned progress at the data date comes from the baseline. SPI is actual % divided by planned %. Schedule delay is the number of days between the data date and the date on which the baseline reached today's actual progress (earned schedule). Forecast completion uses actual finishes, reported forecasts, production rates and predecessor logic, and the critical path comes from total float.</p>
 </div>
 </div>
 <div class="faq-item">
@@ -61,7 +61,7 @@
 <span aria-hidden="true" class="faq-plus">+</span>
 </button>
 <div class="faq-answer">
-<p data-faq-key="faqA5">The reporting package includes a dashboard view, a PDF management report and an Excel-based analysis output. These formats are intended for project owners, construction managers and technical control teams.</p>
+<p data-faq-key="faqA5">A delay dashboard in the workspace, and the execution and delay analysis report as PDF and Excel, in Azerbaijani or English.</p>
 </div>
 </div>
 <div class="faq-item">
@@ -84,11 +84,11 @@
 </div>
 <div class="faq-item">
 <button class="faq-question" type="button">
-<span data-faq-key="faqQ8">Are Azerbaijani construction file formats supported?</span>
+<span data-faq-key="faqQ8">How is responsibility for delay decided?</span>
 <span aria-hidden="true" class="faq-plus">+</span>
 </button>
 <div class="faq-answer">
-<p data-faq-key="faqA8">Yes. DevBareun supports Azerbaijani construction workflows including smeta (BOQ), F-2 / Forma-2 progress payment documents and workforce data files. The platform is designed to detect common Azerbaijani column headers during upload review.</p>
+<p data-faq-key="faqA8">Each delay event carries a responsible party. Days are classified per calendar day: employer delay is excusable and compensable, neutral delay (for example weather) is excusable but not compensable, contractor delay is non-excusable, and days where employer and contractor delay overlap are counted as concurrent.</p>
 </div>
 </div>
 <div class="faq-item">
@@ -106,7 +106,7 @@
 <span aria-hidden="true" class="faq-plus">+</span>
 </button>
 <div class="faq-answer">
-<p data-faq-key="faqA10">Yes. The upload preview and mapping review are available before payment. Payment is required only to unlock the full dashboard and report package.</p>
+<p data-faq-key="faqA10">Yes. The example report is open to everyone, and the upload check shows which files were recognised before payment. Payment is required only to unlock the full report for your own project.</p>
 </div>
 </div>
 </div>
@@ -139,5 +139,5 @@
   </div>
 </footer><div aria-live="polite" class="toast" id="toast" role="status"></div><script src="js/az-glossary.js"></script>
 <script src="js/app.js?v=14040"></script>
-<script src="js/faq-page.js?v=14040"></script>
+<script src="js/faq-page.js?v=14041"></script>
 </body></html>
