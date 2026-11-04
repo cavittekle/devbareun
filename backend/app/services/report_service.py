@@ -150,10 +150,14 @@ def report_payload(project: Dict[str, Any], analysis_result: Dict[str, Any]) -> 
     if not delay.get("ok"):
         return legacy_report_payload(project, analysis_result)
     project_name = project.get("project_name") or (delay.get("project") or {}).get("name") or "DevBareun Project"
+    # The report body reads the name from the delay result, so freeze the
+    # resolved workspace name into it (a workspace rename wins over the file).
+    delay = {**delay, "project": {**(delay.get("project") or {}), "name": project_name}}
+    language = str(project.get("language") or project.get("report_language") or "en").lower()
     return {
         "report_kind": DELAY_REPORT_KIND,
         "project_id": str(project.get("id") or project.get("project_id") or analysis_result.get("project_id") or ""),
-        "lang": "az" if str(project.get("language") or project.get("report_language") or "az").lower().startswith("az") else "en",
+        "lang": "az" if language.startswith("az") else "en",
         "dashboard": {"project": {"name": project_name}},
         "delay_analysis": delay,
         "analysis_provenance": analysis_result.get("input_manifest") or dashboard_data.get("analysis_provenance") or {},
@@ -162,7 +166,7 @@ def report_payload(project: Dict[str, Any], analysis_result: Dict[str, Any]) -> 
 
 def render_report(payload: Dict[str, Any], fmt: str) -> bytes:
     if payload.get("report_kind") == DELAY_REPORT_KIND:
-        lang = payload.get("lang") or "az"
+        lang = payload.get("lang") or "en"
         delay = payload["delay_analysis"]
         return build_delay_excel(delay, lang) if fmt == "excel" else build_delay_pdf(delay, lang)
     return build_excel_bytes(payload, lang="en") if fmt == "excel" else build_pdf_bytes(payload, lang="en", paper="a4")
