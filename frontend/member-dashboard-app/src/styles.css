@@ -703,6 +703,118 @@ a {
   pointer-events: none;
 }
 
+.doc-zones {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.upload-zone.doc-zone {
+  position: relative;
+  min-height: 0;
+  margin: 0;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "icon title choose"
+    "icon formats choose"
+    "icon hint choose";
+  align-items: center;
+  justify-items: start;
+  column-gap: 14px;
+  row-gap: 4px;
+  text-align: left;
+}
+
+.doc-zone > svg {
+  grid-area: icon;
+  color: var(--accent-cyan);
+}
+
+.doc-zone-title {
+  grid-area: title;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-zone-title strong {
+  font-size: 1rem;
+}
+
+.doc-zone-formats {
+  grid-area: formats;
+}
+
+.doc-zone small {
+  grid-area: hint;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.doc-zone span,
+.doc-zone small {
+  overflow-wrap: anywhere;
+}
+
+.doc-zone input {
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.doc-tag {
+  font-style: normal;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.doc-tag.required {
+  border-color: var(--border-cyan);
+  color: var(--accent-cyan);
+}
+
+.doc-choose {
+  grid-area: choose;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 620px) {
+  .upload-zone.doc-zone {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "icon title"
+      "formats formats"
+      "hint hint"
+      "choose choose";
+  }
+
+  .doc-choose {
+    justify-self: stretch;
+    text-align: center;
+  }
+}
+
 .file-list {
   display: grid;
   gap: 10px;

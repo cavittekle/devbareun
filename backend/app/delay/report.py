@@ -68,10 +68,34 @@ LABELS: Dict[str, Dict[str, str]] = {
     "month": {"en": "Month", "az": "Ay"},
     "delay_days": {"en": "Delay (d)", "az": "Gecikmə (gün)"},
     "change": {"en": "Change (d)", "az": "Dəyişmə (gün)"},
-    "conclusions": {"en": "7. Conclusions and recommendations", "az": "7. Nəticə və tövsiyələr"},
+    "payments": {"en": "7. F2 certified work and payments", "az": "7. F2 aktları üzrə görülmüş işlər və ödənişlər"},
+    "f2_no": {"en": "F2 No", "az": "F2 №"},
+    "amount": {"en": "Amount excl. VAT", "az": "Məbləğ (ƏDV-siz)"},
+    "amount_vat": {"en": "Incl. VAT", "az": "ƏDV ilə"},
+    "cumulative": {"en": "Cumulative", "az": "Kumulyativ"},
+    "of_contract": {"en": "% of contract", "az": "Müqavilədən %"},
+    "contract_value": {"en": "Contract value", "az": "Müqavilə dəyəri"},
+    "total_certified": {"en": "Total certified (F2)", "az": "Cəmi aktlaşdırılıb (F2)"},
+    "financial_progress": {"en": "Financial progress", "az": "Maliyyə icrası"},
+    "physical_progress": {"en": "Physical progress", "az": "Fiziki icra"},
+    "fin_gap": {"en": "Financial − physical", "az": "Maliyyə − fiziki"},
+    "source": {"en": "Source", "az": "Mənbə"},
+    "conclusions": {"en": "8. Conclusions and recommendations", "az": "8. Nəticə və tövsiyələr"},
+    "documents": {"en": "9. Documents reviewed", "az": "9. Baxılan sənədlər"},
+    "document": {"en": "Document", "az": "Sənəd"},
+    "doc_type": {"en": "Type", "az": "Növ"},
+    "doc_status": {"en": "Use in analysis", "az": "Analizdə istifadə"},
+    "note": {"en": "Note", "az": "Qeyd"},
+    "type_contract": {"en": "Contract", "az": "Müqavilə"},
+    "type_schedule": {"en": "Schedule", "az": "Planlama"},
+    "type_f2": {"en": "F2 certificate", "az": "F2 aktı"},
+    "doc_read": {"en": "Read", "az": "Oxundu"},
+    "doc_reference": {"en": "Reference", "az": "İstinad"},
+    "doc_no_data": {"en": "No data found", "az": "Məlumat tapılmadı"},
+    "doc_unreadable": {"en": "Not readable", "az": "Oxunmadı"},
     "findings": {"en": "Findings", "az": "Nəticələr"},
     "actions": {"en": "Recommended actions", "az": "Tövsiyə olunan tədbirlər"},
-    "quality": {"en": "8. Data quality notes", "az": "8. Məlumat keyfiyyəti qeydləri"},
+    "quality": {"en": "10. Data quality notes", "az": "10. Məlumat keyfiyyəti qeydləri"},
     "no_quality": {"en": "No data quality issues were found.", "az": "Məlumat keyfiyyəti problemi aşkar edilmədi."},
     "method": {"en": "Method: calendar days; weights from the weight column or planned duration; schedule delay by earned schedule; forecast from actuals, production rate and predecessor logic.",
                "az": "Metod: təqvim günləri; çəki sütunu və ya plan müddəti üzrə çəkilər; geri qalma earned schedule ilə; proqnoz faktiki tarixlər, icra sürəti və işlər arası əlaqələrlə."},
@@ -113,6 +137,10 @@ def _d(value: Optional[str], lang: str = "en") -> str:
 
 def _pct(value: Any) -> str:
     return "—" if value is None else f"{value:.1f}%"
+
+
+def _money(value: Any) -> str:
+    return "—" if value is None else f"{value:,.2f}".replace(",", " ")
 
 
 def _party_label(party: str, lang: str) -> str:
@@ -180,6 +208,8 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
         [_l("client", lang), project.get("client") or "—", _l("contractor", lang), project.get("contractor") or "—"],
         [_l("contract", lang), f"{_d(project.get('contract_start'))} – {_d(project.get('contract_finish'))}", _l("data_date", lang), _d(k.get("data_date"))],
     ]
+    if project.get("contract_value"):
+        info_rows.append([_l("contract_value", lang), f"{_money(project['contract_value'])} {project.get('currency') or ''}".strip(), "", ""])
     story.append(table(info_rows, [width * 0.16, width * 0.34, width * 0.16, width * 0.34], header=False, zebra=False))
 
     # 1. Summary
@@ -287,7 +317,26 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
                          ("+" if (m["delay_change_days"] or 0) > 0 else "") + str(m["delay_change_days"])])
         story.append(table(rows, [width * f for f in (0.2, 0.2, 0.2, 0.2, 0.2)]))
 
-    # 7. Conclusions
+    # 7. F2 payments
+    payments = result.get("payments") or {}
+    if payments.get("available"):
+        story.append(Paragraph(_l("payments", lang), h2))
+        cur = payments.get("currency") or ""
+        rows = [
+            [_l("contract_value", lang), f"{_money(payments.get('contract_value'))} {cur}".strip(), _l("financial_progress", lang), _pct(payments.get("financial_progress_pct"))],
+            [_l("total_certified", lang), f"{_money(payments.get('total_certified'))} {cur}".strip(), _l("physical_progress", lang), _pct(payments.get("physical_progress_pct"))],
+            [_l("amount_vat", lang), _money(payments.get("total_certified_with_vat")), _l("fin_gap", lang),
+             "—" if payments.get("financial_minus_physical_pct") is None else f"{payments['financial_minus_physical_pct']:+.1f}"],
+        ]
+        story.append(table(rows, [width * 0.26, width * 0.24, width * 0.26, width * 0.24], header=False))
+        story.append(Spacer(1, 6))
+        rows = [[_l("f2_no", lang), _l("period", lang), _l("amount", lang), _l("amount_vat", lang), _l("cumulative", lang), _l("of_contract", lang)]]
+        for c in payments.get("certificates") or []:
+            rows.append([c.get("number") or "—", c.get("period") or "—", _money(c.get("amount")), _money(c.get("amount_with_vat")),
+                         _money(c.get("cumulative")), _pct(c.get("cumulative_pct_of_contract"))])
+        story.append(table(rows, [width * f for f in (0.13, 0.13, 0.2, 0.2, 0.2, 0.14)]))
+
+    # 8. Conclusions
     story.append(Paragraph(_l("conclusions", lang), h2))
     story.append(Paragraph(f"<b>{_l('findings', lang)}</b>", body))
     for item in result.get("findings") or []:
@@ -298,7 +347,17 @@ def build_delay_pdf(result: Dict[str, Any], lang: str = "en") -> bytes:
         for index, item in enumerate(result["actions"], start=1):
             story.append(Paragraph(f"{index}. {_esc(item.get(lang) or item.get('en') or '')}", body))
 
-    # 8. Data quality
+    # 9. Documents
+    documents = result.get("documents") or []
+    if documents:
+        story.append(Paragraph(_l("documents", lang), h2))
+        rows = [[_l("document", lang), _l("doc_type", lang), _l("doc_status", lang), _l("note", lang)]]
+        for d in documents[:60]:
+            rows.append([d["name"], _l(f"type_{d['document_type']}", lang), _l(f"doc_{d['status']}", lang),
+                         (d.get(f"note_{lang}") or d.get("note_en") or "")])
+        story.append(table(rows, [width * f for f in (0.3, 0.14, 0.14, 0.42)]))
+
+    # 10. Data quality
     story.append(Paragraph(_l("quality", lang), h2))
     quality = result.get("data_quality") or []
     if quality:
@@ -356,6 +415,7 @@ def build_delay_excel(result: Dict[str, Any], lang: str = "en") -> bytes:
     summary["A1"].font = Font(bold=True, size=14, color=NAVY.strip("#"))
     rows = [
         (_l("project", lang), project.get("name")), (_l("client", lang), project.get("client")), (_l("contractor", lang), project.get("contractor")),
+        (_l("contract_value", lang), project.get("contract_value")),
         (_l("data_date", lang), _d(k.get("data_date"))), (_l("planned_progress", lang), k.get("planned_progress_pct")),
         (_l("actual_progress", lang), k.get("actual_progress_pct")), ("SPI", k.get("spi")), (_l("schedule_delay", lang), k.get("schedule_delay_days")),
         (_l("planned_finish", lang), _d(k.get("planned_finish"))), (_l("forecast_finish", lang), _d(k.get("forecast_finish"))),
@@ -411,6 +471,20 @@ def build_delay_excel(result: Dict[str, Any], lang: str = "en") -> bytes:
               [[e["id"], e["description"], e["start"], e["finish"], e["days"], e["cause"], _party_label(e["responsible"], lang), " ".join(e["activity_ids"]),
                 {True: "✓", False: "", None: "?"}[e["affects_critical_path"]]] for e in events["events"]],
               [8, 44, 12, 12, 7, 20, 14, 18, 12])
+    payments = result.get("payments") or {}
+    if payments.get("available"):
+        sheet(_l("payments", lang).split(". ", 1)[-1],
+              [_l("f2_no", lang), _l("period", lang), _l("amount", lang), _l("amount_vat", lang), _l("cumulative", lang), _l("of_contract", lang), _l("source", lang)],
+              [[c.get("number"), c.get("period"), c.get("amount"), c.get("amount_with_vat"), c.get("cumulative"), c.get("cumulative_pct_of_contract"), c.get("source")]
+               for c in payments.get("certificates") or []]
+              + [[], [_l("contract_value", lang), payments.get("contract_value")], [_l("total_certified", lang), payments.get("total_certified")],
+                 [_l("financial_progress", lang), payments.get("financial_progress_pct")], [_l("physical_progress", lang), payments.get("physical_progress_pct")]],
+              [14, 12, 18, 18, 18, 14, 40])
+    documents = result.get("documents") or []
+    if documents:
+        sheet(_l("documents", lang).split(". ", 1)[-1], [_l("document", lang), _l("doc_type", lang), _l("doc_status", lang), _l("note", lang)],
+              [[d["name"], _l(f"type_{d['document_type']}", lang), _l(f"doc_{d['status']}", lang), d.get(f"note_{lang}") or d.get("note_en")] for d in documents],
+              [40, 16, 18, 90])
     quality = result.get("data_quality") or []
     if quality:
         sheet(_l("quality", lang).split(". ", 1)[-1], ["Severity", "Note"], [[q["severity"], q.get(lang) or q["en"]] for q in quality], [12, 120])

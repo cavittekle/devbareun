@@ -7,16 +7,17 @@ export const analysisPackages = [
     name: "Execution & Delay Analysis",
     label: "Tikinti layihəsinin icra və gecikmə analizi",
     files: [
-      "Baseline schedule (plan start / finish per activity)",
-      "Actual progress (actual dates and % complete)",
-      "Delay events with responsible party (optional)",
-      "Or one Primavera XER / MS Project XML export"
+      "Contract (PDF, Word or image)",
+      "Planning: baseline schedule and actual progress (Excel template, Primavera XER, MS Project)",
+      "F2 certificates: payment for completed work (Excel or Word)",
+      "Delay events with responsible party (optional, in the template)"
     ],
     outputs: [
       "Planned vs actual S-curve and SPI",
       "Delay in days and forecast completion",
       "Critical path and most delayed activities",
       "Employer / contractor / neutral delay split",
+      "F2 certified value against physical progress",
       "PDF and Excel execution report (AZ / EN)"
     ]
   }

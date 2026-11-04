@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Sequence
 
 from ..analysis_types import DELAY_ANALYSIS_TYPE
+from ..document_types import infer_document_type, normalize_document_type
 from ..file_validation import normalize_sha256_checksum, validate_magic_signature
 from ..upload_security import screen_materialized_upload
 from ..security_runtime import int_env
@@ -31,16 +32,28 @@ def parse_project_files(
     """
     files = [row for row in file_rows if str(row.get("upload_status") or row.get("status") or "").lower() not in {"deleted", "rejected"}]
     with _materialized_files(files) as paths:
-        delay = _delay_analysis(paths, project)
+        types = {
+            str(row.pop("_materialized_path")): _row_document_type(row)
+            for row in files if row.get("_materialized_path")
+        }
+        delay = _delay_analysis(paths, project, types)
     return normalize_delay_result(delay, files, project)
 
 
-def _delay_analysis(paths: Sequence[Path], project: Dict[str, Any] | None) -> Dict[str, Any]:
+def _row_document_type(row: Dict[str, Any]) -> str:
+    """Stored type, or a guess from the file name for older uploads."""
+    stored = normalize_document_type(row.get("document_type"))
+    if stored:
+        return stored
+    return infer_document_type(str(row.get("original_filename") or row.get("original_name") or row.get("storage_path") or ""))
+
+
+def _delay_analysis(paths: Sequence[Path], project: Dict[str, Any] | None, document_types: Dict[str, str] | None = None) -> Dict[str, Any]:
     if not paths:
         return {"ok": False, "error": {"en": "No readable project files.", "az": "Oxunan layihə faylı yoxdur."}}
     from ..delay import run_delay_analysis
 
-    return run_delay_analysis(paths, project=project)
+    return run_delay_analysis(paths, project=project, document_types=document_types)
 
 
 def normalize_delay_result(
@@ -137,6 +150,7 @@ def _materialized_files(file_rows: Sequence[Dict[str, Any]]) -> Iterator[List[Pa
                 local = Path(str(local_path))
                 _verify_materialized_checksum(row, local)
                 screen_materialized_upload(row, local)
+                row["_materialized_path"] = str(local)
                 paths.append(local)
                 continue
             storage_path = row.get("storage_path")
@@ -144,6 +158,7 @@ def _materialized_files(file_rows: Sequence[Dict[str, Any]]) -> Iterator[List[Pa
                 continue
             downloaded = _download_storage_object(row, base)
             if downloaded:
+                row["_materialized_path"] = str(downloaded)
                 paths.append(downloaded)
         yield paths
     finally:
@@ -263,6 +278,7 @@ def _file_summary(row: Dict[str, Any]) -> Dict[str, Any]:
         "id": row.get("id") or row.get("file_id"),
         "filename": row.get("original_filename") or row.get("original_name"),
         "file_ext": row.get("file_ext") or row.get("extension"),
+        "document_type": _row_document_type(row),
         "size_bytes": row.get("size_bytes") or row.get("file_size_bytes"),
         "status": row.get("upload_status") or row.get("status"),
         "parser_status": row.get("parser_status"),

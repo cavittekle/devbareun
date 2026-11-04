@@ -256,6 +256,21 @@ Validation:
 - reject unauthenticated uploads
 - store private files with user/project ownership
 
+### POST `/api/uploads/create-url` document types
+
+`document_type` (optional) is `contract`, `schedule` or `f2`. Each type accepts
+its own formats; a mismatch returns `400 invalid_upload`. Without a type the
+backend guesses it from the file name.
+
+| Type | Formats | Use in the analysis |
+| --- | --- | --- |
+| `contract` | `.pdf .doc .docx .jpg .jpeg .png .webp` | Kept as a reference and listed in the report |
+| `schedule` | `.xlsx .xls .xlsm .csv .xer .xml .mpp .pdf` | Excel/CSV/XER/XML are calculated; `.mpp` and PDF are references |
+| `f2` | `.xlsx .xls .xlsm .csv .docx .doc` | Period, number and totals are read; `.doc` is a reference |
+
+The result carries `documents[]` (name, type, status `read`/`reference`/`no_data`/`unreadable`)
+and `payments` (F2 certificates, total certified, financial vs physical progress).
+
 ### DELETE `/api/files/{file_id}`
 
 Purpose: Delete uploaded file before analysis.

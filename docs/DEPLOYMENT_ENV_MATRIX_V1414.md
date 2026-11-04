@@ -188,3 +188,5 @@ Apply `2026_06_21_v1431_billing_lifecycle_integrity.sql` after v1.4.30, then ver
 ## v1.4.34 project activity timeline
 
 Apply `2026_06_21_v1434_project_activity_timeline.sql` after `2026_06_21_v1433_project_sharing.sql` before deploying the updated web API and analysis worker. The worker emits analysis completion/failure timeline events; no additional environment variable is required.
+
+Apply `2026_11_04_v150_upload_document_types.sql` after `2026_06_21_v1434_project_activity_timeline.sql` before deploying the v1.5.0 web API and analysis worker. It adds `uploaded_files.document_type` (contract, schedule or f2). No additional environment variable is required; uploads made before the migration fall back to a type inferred from the file name.

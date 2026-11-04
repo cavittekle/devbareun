@@ -11,7 +11,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, List, Sequence
 
-from .model import Activity, DelayEvent, DelayInput, ProjectInfo
+from .model import Activity, DelayEvent, DelayInput, PaymentCertificate, ProjectInfo
 
 D = date
 
@@ -44,6 +44,22 @@ SAMPLE_EVENTS: List[tuple] = [
 ]
 
 
+SAMPLE_CONTRACT_VALUE = 18_500_000.0
+
+# F2 certificate number, period end, amount before VAT (AZN)
+SAMPLE_PAYMENTS: List[tuple] = [
+    ("F2-01", D(2023, 9, 30), 320_000.0),
+    ("F2-02", D(2023, 10, 31), 550_000.0),
+    ("F2-03", D(2023, 11, 30), 780_000.0),
+    ("F2-04", D(2023, 12, 31), 950_000.0),
+    ("F2-05", D(2024, 1, 31), 1_020_000.0),
+    ("F2-06", D(2024, 2, 29), 880_000.0),
+    ("F2-07", D(2024, 3, 31), 860_000.0),
+    ("F2-08", D(2024, 4, 30), 820_000.0),
+    ("F2-09", D(2024, 5, 31), 800_000.0),
+]
+
+
 def sample_input() -> DelayInput:
     from .reader import _party, _split_ids  # local import avoids a cycle at module load
 
@@ -60,8 +76,10 @@ def sample_input() -> DelayInput:
     ]
     project = ProjectInfo(name="Baku Business Center (nümunə)", client="Nümunə Sifarişçi MMC", contractor="Nümunə Podratçı MMC",
                           location="Bakı", contract_start=D(2023, 9, 1), contract_finish=D(2024, 12, 15),
-                          data_date=D(2024, 5, 31), currency="AZN")
-    return DelayInput(project=project, activities=activities, events=events, sources=["sample"])
+                          data_date=D(2024, 5, 31), currency="AZN", contract_value=SAMPLE_CONTRACT_VALUE)
+    payments = [PaymentCertificate(source="sample", number=p[0], period=p[1], amount=p[2], amount_with_vat=round(p[2] * 1.18, 2))
+                for p in SAMPLE_PAYMENTS]
+    return DelayInput(project=project, activities=activities, events=events, payments=payments, sources=["sample"])
 
 
 # ------------------------------------------------------------------ template
@@ -76,6 +94,7 @@ PROJECT_ROWS = [
     ("Müqavilə bitmə tarixi / Contract finish", D(2024, 12, 15), "Planned completion used for delay"),
     ("Hesabat tarixi / Data date", D(2024, 5, 31), "Status (cut-off) date of the actual progress"),
     ("Valyuta / Currency", "AZN", ""),
+    ("Müqavilə dəyəri / Contract value", SAMPLE_CONTRACT_VALUE, "Compared with the F2 certified value"),
 ]
 
 BASELINE_HEADERS = ["İş kodu / Activity ID", "Bölmə / WBS", "İşin adı / Activity Name", "Plan başlanğıc / Planned Start",
@@ -84,6 +103,7 @@ ACTUAL_HEADERS = ["İş kodu / Activity ID", "Faktiki başlanğıc / Actual Star
                   "Proqnoz bitmə / Forecast Finish", "İcra % / Actual Progress %"]
 EVENT_HEADERS = ["Hadisə ID / Event ID", "Hadisə / Delay Event", "Başlanğıc / Start", "Bitmə / Finish",
                  "Təsir etdiyi işlər / Affected Activities", "Səbəb / Cause", "Məsul tərəf / Responsible Party", "Qeyd / Notes"]
+F2_HEADERS = ["Ay / Month", "F2 № / Certificate No", "Məbləğ ƏDV-siz / Amount excl. VAT", "Məbləğ ƏDV ilə / Amount incl. VAT"]
 MONTHLY_HEADERS = ["Ay / Month", "Plan kumulyativ % / Planned Cumulative %", "Faktiki kumulyativ % / Actual Cumulative %"]
 
 README_LINES = [
@@ -94,6 +114,7 @@ README_LINES = [
     "3. Faktiki_Icra / Actual: eyni iş kodları ilə faktiki tarixlər və icra faizi (0-100).",
     "4. Gecikme_Hadiseleri / Delay_Events (istəyə bağlı): gecikmə hadisələri, məsul tərəf = Sifarişçi / Podratçı / Neytral.",
     "5. Ayliq_Icra / Monthly (istəyə bağlı): aylıq kumulyativ plan və faktiki faiz. Boşdursa, işlərdən hesablanır.",
+    "6. F2_Odenisler / F2 payments (istəyə bağlı): hər F2 aktı üçün ay və məbləğ. F2 fayllarını ayrıca da yükləyə bilərsiniz.",
     "",
     "Nümunə sətirləri silin və öz məlumatlarınızı daxil edin. Tarix formatı: dd.mm.yyyy və ya Excel tarixi.",
     "Delete the example rows and enter your own data. Dates: dd.mm.yyyy or Excel dates.",
@@ -140,6 +161,8 @@ def build_template_bytes() -> bytes:
     _write_sheet(wb.create_sheet("Gecikme_Hadiseleri_Events"), EVENT_HEADERS,
                  [(e[0], e[1], e[2], e[3], e[4], e[5], e[6], "") for e in SAMPLE_EVENTS], [12, 44, 14, 14, 20, 22, 18, 24])
     _write_sheet(wb.create_sheet("Ayliq_Icra_Monthly"), MONTHLY_HEADERS, [], [14, 24, 24])
+    _write_sheet(wb.create_sheet("F2_Odenisler_Payments"), F2_HEADERS,
+                 [(p[1], p[0], p[2], round(p[2] * 1.18, 2)) for p in SAMPLE_PAYMENTS], [14, 18, 26, 26])
     buffer = BytesIO()
     wb.save(buffer)
     return buffer.getvalue()

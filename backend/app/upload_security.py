@@ -23,7 +23,7 @@ from .security_runtime import bool_env, int_env
 
 
 SCREEN_ENGINE = "devbareun_heuristic_v1"
-OFFICE_ARCHIVE_EXTENSIONS = {".xlsx", ".xlsm"}
+OFFICE_ARCHIVE_EXTENSIONS = {".xlsx", ".xlsm", ".docx"}
 PDF_ACTIVE_MARKERS = {
     b"/javascript": "pdf_javascript",
     b"/launch": "pdf_launch_action",
