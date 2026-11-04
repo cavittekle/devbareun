@@ -6,6 +6,13 @@
 - Added the execution and delay engine: weighted progress, SPI, earned-schedule delay, activity forecasts, CPM float and critical path, delay-event responsibility (employer / contractor / neutral / concurrent), monthly delay development, rule-based findings in EN/AZ.
 - Added PDF and Excel execution reports (AZ/EN) and `devbareun-delay-analysis-template.xlsx`.
 - Added `/api/delay-analysis/*` endpoints; every analysis job now also stores `dashboard_data.delay_analysis`.
+- The site now covers only construction execution and delay analysis. Every analysis job runs the delay engine; retired analysis types are accepted and mapped to `delay`. Jobs whose files cannot be read fail with `delay_analysis_unavailable` before billing.
+- New report snapshots use `report_kind: delay_analysis`; reports from older saved results still render with the earlier layout.
+- Removed the old multi-module analyzers (cost, workforce, material, productivity, premium, risk engine), the optional OpenAI column mapper and the `openai`, `pandas` and `pypdf` dependencies. Uploads accept `.xlsx`, `.xls`, `.xlsm`, `.csv`, `.xer` and `.xml`.
+- Legacy pre-SaaS project routes keep answering `410 Gone`; they are hidden from the OpenAPI schema.
+- Only the delay analysis template is shipped; the old template URLs redirect to it.
+- Workspace menu: delay analysis first; team and sharing pages moved to a secondary group.
+- Removed the GitHub auto-upload workflow and the marketing research and GitHub sync agents, and 18 outdated docs.
 
 ## v1.4.34 — Project Activity Timeline
 

@@ -24,13 +24,13 @@ const COPY = {
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
-    files: ["Plan iş qrafiki (hər iş üçün plan başlanğıc və bitiş)", "Faktiki icra (faktiki tarixlər və icra %)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)", "Və ya Primavera XER / MS Project XML faylı"],
+    files: ["Plan iş qrafiki (hər iş üçün plan başlanğıc və bitmə)", "Faktiki icra (faktiki tarixlər və icra %)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)", "Və ya Primavera XER / MS Project XML faylı"],
     outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
     step2: "2. Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
     placeholder: "Məsələn: Baku Business Center",
     drop: "Faylları bura atın və ya seçin",
-    formats: "Excel (.xlsx, .xls), CSV, Primavera XER, MS Project XML. Digər sənədlər (PDF, şəkil) əlavə material kimi saxlanır.",
+    formats: "Excel (.xlsx, .xlsm, .xls), CSV, Primavera P6 XER, MS Project XML.",
     start: "Analizi başlat",
     busy: "Analiz hazırlanır...",
     nameRequired: "Layihənin adı tələb olunur.",
@@ -53,7 +53,7 @@ const COPY = {
     projectName: "Project name",
     placeholder: "Example: Residential Tower A",
     drop: "Drop files here, or choose files",
-    formats: "Excel (.xlsx, .xls), CSV, Primavera XER, MS Project XML. Other documents (PDF, images) are kept as supporting files.",
+    formats: "Excel (.xlsx, .xlsm, .xls), CSV, Primavera P6 XER, MS Project XML.",
     start: "Start analysis",
     busy: "Preparing analysis...",
     nameRequired: "Project name is required.",
@@ -214,7 +214,7 @@ export function Upload({ onUploaded }) {
             <UploadCloud size={36} />
             <strong>{copy.drop}</strong>
             <span>{copy.formats}</span>
-            <input type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml,.pdf,.png,.jpg,.jpeg,.webp" onChange={handleFiles} />
+            <input type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml" onChange={handleFiles} />
           </label>
           {fileStates.length > 0 && (
             <div className="file-list">

@@ -135,27 +135,57 @@
     },
     {
       "source": "/templates/devbareun-progress-template.xlsx",
-      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
       "permanent": true
     },
     {
       "source": "/templates/devbareun-workforce-template.xlsx",
-      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
       "permanent": true
     },
     {
       "source": "/templates/devbareun-executive-dashboard-template.xlsx",
-      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
       "permanent": true
     },
     {
       "source": "/templates/devbareun-cost-template.xlsx",
-      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
       "permanent": true
     },
     {
       "source": "/templates/devbareun-schedule-template.xlsx",
-      "destination": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-professional-upload-template-v2.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-full-project-control-template.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-cost-payment-control-template.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-material-continuity-template.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-risk-decisions-template.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
+      "permanent": true
+    },
+    {
+      "source": "/templates/devbareun-schedule-recovery-template.xlsx",
+      "destination": "/templates/devbareun-delay-analysis-template.xlsx",
       "permanent": true
     }
   ],

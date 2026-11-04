@@ -15,14 +15,12 @@ from ..access_control import can_access_project_scope, can_operate_analysis_jobs
 from ..analysis_types import normalize_analysis_type
 from ..production_store import ProductionStoreError, first_existing, first_update, insert_row, is_configured, select_rows, upsert_row, uuid_like
 from ..security_runtime import production_security_enabled
-from .analytics_service import build_analytics
+from .analytics_service import build_analytics, build_risk_register
 from .project_activity_service import record_project_activity
 from .project_sharing_service import can_access_project_resource, list_accessible_projects
 from .analysis_provenance import build_analysis_input_manifest
 from .billing_service import consume_after_success, ensure_analysis_available
 from .parser_service import parse_project_files
-from .premium_analysis import analyze_full_project_control_premium
-from .risk_engine import generate_risk_register
 
 
 JOB_STATUSES = {"queued", "running", "completed", "failed", "dead_lettered"}
@@ -229,16 +227,17 @@ def run_analysis_job(
         normalized["analysis_provenance"] = input_manifest
         _update_job(job_id, _provenance_patch(input_manifest))
         _update_job(job_id, {"progress": 58})
-        delay_analysis = normalized.pop("delay_analysis", None)
+        delay_analysis = normalized.get("delay_analysis") or {}
+        if not delay_analysis.get("ok"):
+            # Unreadable inputs fail the job before billing, so no credit is spent.
+            raise DelayAnalysisUnavailable((delay_analysis.get("error") or {}).get("en") or "Delay analysis could not be completed.")
         analytics = build_analytics(normalized, project)
         analytics["analysis_provenance"] = input_manifest
-        if delay_analysis is not None:
-            analytics["delay_analysis"] = delay_analysis
-        risks = generate_risk_register(normalized, analytics)
-        analytics.setdefault("metrics", {})["high_risk_count"] = len([risk for risk in risks if risk.get("severity") in {"High", "Critical"}])
-        premium_dashboard = analyze_full_project_control_premium(normalized, analytics, risks)
-        analytics["analysis_type"] = premium_dashboard["analysis_type"]
-        analytics["premium_dashboard"] = premium_dashboard
+        analytics["analysis_type"] = analysis_type
+        # The dashboard and report read the full result from dashboard_data.
+        analytics["delay_analysis"] = normalized.pop("delay_analysis")
+        risks = build_risk_register(analytics["delay_analysis"])
+        analytics["metrics"]["high_risk_count"] = len([risk for risk in risks if risk.get("severity") in {"High", "Critical"}])
         _update_job(job_id, {"progress": 78})
         result = _save_result(user, project, project_id, job_id, normalized, analytics, risks, input_manifest=input_manifest)
         _save_risks(user, project, project_id, result, risks)
@@ -1223,7 +1222,14 @@ def _default_worker_id(*, prefix: str = "analysis-worker") -> str:
     return f"{prefix}:{host}:{os.getpid()}"
 
 
+class DelayAnalysisUnavailable(ValueError):
+    """The uploaded files could not be read as a schedule and progress record."""
+
+
 def _safe_error(exc: Exception) -> str:
+    if isinstance(exc, DelayAnalysisUnavailable):
+        # Engine messages are fixed, user-facing text with no file contents or paths.
+        return f"delay_analysis_unavailable: {exc}"
     if production_security_enabled():
         return "Analysis job failed. Please review uploaded files and try again."
     return f"analysis_job_failed:{exc.__class__.__name__}"

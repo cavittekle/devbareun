@@ -13,10 +13,8 @@ from agents.devbareun_ops_engine.backend_parser_accuracy_agent import BackendPar
 from agents.devbareun_ops_engine.backend_syntax_agent import BackendSyntaxAgent
 from agents.devbareun_ops_engine.browser_qa_agent import BrowserQaAgent
 from agents.devbareun_ops_engine.chief_supervisor_agent import ChiefSupervisorAgent
-from agents.devbareun_ops_engine.construction_marketing_research_agent import ConstructionMarketingResearchAgent
 from agents.devbareun_ops_engine.deployment_readiness_agent import DeploymentReadinessAgent
 from agents.devbareun_ops_engine.frontend_readability_agent import FrontendReadabilityAgent
-from agents.devbareun_ops_engine.github_sync_agent import GitHubSyncAgent
 from agents.devbareun_ops_engine.language_audit_agent import LanguageAuditAgent
 from agents.devbareun_ops_engine.release_manager_agent import ReleaseManagerAgent
 from agents.devbareun_ops_engine.security_secrets_agent import SecuritySecretsAgent
@@ -32,10 +30,8 @@ AGENTS = [
     SeoAuditAgent,
     SecuritySecretsAgent,
     DeploymentReadinessAgent,
-    GitHubSyncAgent,
     SiteManagerAgent,
     BrowserQaAgent,
-    ConstructionMarketingResearchAgent,
     ReleaseManagerAgent,
 ]
 

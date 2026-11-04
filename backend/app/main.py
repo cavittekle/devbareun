@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .analysis_types import PREMIUM_ANALYSIS_TYPE, normalize_analysis_type
+from .analysis_types import normalize_analysis_type
 from .audit_context import begin_request_context, current_request_id, end_request_context
 from .auth_routes import router as auth_router
 from .billing_routes import router as billing_router
@@ -270,9 +270,8 @@ def list_templates() -> Dict[str, Any]:
 
 @app.get("/api/templates/{analysis_type}/download")
 def download_template(analysis_type: str) -> FileResponse:
+    # Every analysis type, including retired ones, downloads the delay template.
     key = normalize_analysis_type(analysis_type)
-    if key not in TEMPLATE_MANIFEST:
-        key = PREMIUM_ANALYSIS_TYPE
     template_file = BASE_DIR.parent / "frontend" / "templates" / TEMPLATE_MANIFEST[key]["file"]
     if not template_file.exists():
         raise HTTPException(status_code=404, detail="Template file was not found.")

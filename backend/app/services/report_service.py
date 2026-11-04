@@ -14,6 +14,7 @@ from .project_sharing_service import can_access_project_resource
 from .project_activity_service import record_project_activity
 from ..production_store import ProductionStoreError, call_rpc, first_existing, insert_row, is_configured, select_rows, uuid_like
 from ..reports import build_excel_bytes, build_pdf_bytes
+from ..delay.report import build_delay_excel, build_delay_pdf
 from .analysis_job_service import get_latest_analysis_result
 
 
@@ -40,7 +41,7 @@ def list_project_reports(project_id: str, project: Dict[str, Any], user: Current
     return {"project_id": project_id, "reports": [_report_api(row, project) for row in rows]}
 
 
-def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Project Control Report") -> Dict[str, Any]:
+def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser, report_format: str = "pdf", report_type: str = "Execution and Delay Analysis Report") -> Dict[str, Any]:
     """Create an immutable report snapshot from the latest completed analysis.
 
     Production report rows retain the dashboard payload used at generation time.
@@ -52,8 +53,8 @@ def generate_report(project_id: str, project: Dict[str, Any], user: CurrentUser,
     if not result:
         raise HTTPException(status_code=404, detail={"error": "analysis_missing", "message": "Run project performance review before generating a report."})
 
-    payload = legacy_report_payload(project, result)
-    content = build_excel_bytes(payload, lang="en") if fmt == "excel" else build_pdf_bytes(payload, lang="en", paper="a4")
+    payload = report_payload(project, result)
+    content = render_report(payload, fmt)
     extension = "xlsx" if fmt == "excel" else "pdf"
     media_type = EXCEL_MEDIA_TYPE if fmt == "excel" else PDF_MEDIA_TYPE
     report_name = f"{project.get('project_name') or 'DevBareun Project'} {safe_report_type}"
@@ -116,8 +117,8 @@ def get_report_download(report_id: str, user: CurrentUser) -> Tuple[bytes, str, 
             result = _find_result_for_report(report)
             if not result:
                 raise HTTPException(status_code=404, detail={"error": "analysis_missing", "message": "Saved analysis result was not found for this report."})
-            payload = legacy_report_payload(project or {}, result)
-        content = build_excel_bytes(payload, lang="en") if fmt == "excel" else build_pdf_bytes(payload, lang="en", paper="a4")
+            payload = report_payload(project or {}, result)
+        content = render_report(payload, fmt)
 
     _record_report_download(report, user)
     if project:
@@ -133,6 +134,39 @@ def get_report_download(report_id: str, user: CurrentUser) -> Tuple[bytes, str, 
         except Exception:
             pass
     return content, media_type, filename
+
+DELAY_REPORT_KIND = "delay_analysis"
+
+
+def report_payload(project: Dict[str, Any], analysis_result: Dict[str, Any]) -> Dict[str, Any]:
+    """Frozen report snapshot for an analysis result.
+
+    Results that carry a delay analysis produce the execution and delay report.
+    Results saved before the delay-only product keep the legacy layout so their
+    reports can still be generated and downloaded.
+    """
+    dashboard_data = analysis_result.get("dashboard_data") or {}
+    delay = dashboard_data.get("delay_analysis") or {}
+    if not delay.get("ok"):
+        return legacy_report_payload(project, analysis_result)
+    project_name = project.get("project_name") or (delay.get("project") or {}).get("name") or "DevBareun Project"
+    return {
+        "report_kind": DELAY_REPORT_KIND,
+        "project_id": str(project.get("id") or project.get("project_id") or analysis_result.get("project_id") or ""),
+        "lang": "az" if str(project.get("language") or project.get("report_language") or "az").lower().startswith("az") else "en",
+        "dashboard": {"project": {"name": project_name}},
+        "delay_analysis": delay,
+        "analysis_provenance": analysis_result.get("input_manifest") or dashboard_data.get("analysis_provenance") or {},
+    }
+
+
+def render_report(payload: Dict[str, Any], fmt: str) -> bytes:
+    if payload.get("report_kind") == DELAY_REPORT_KIND:
+        lang = payload.get("lang") or "az"
+        delay = payload["delay_analysis"]
+        return build_delay_excel(delay, lang) if fmt == "excel" else build_delay_pdf(delay, lang)
+    return build_excel_bytes(payload, lang="en") if fmt == "excel" else build_pdf_bytes(payload, lang="en", paper="a4")
+
 
 def legacy_report_payload(project: Dict[str, Any], analysis_result: Dict[str, Any]) -> Dict[str, Any]:
     dashboard_data = analysis_result.get("dashboard_data") or {}

@@ -67,10 +67,6 @@ LEMON_SQUEEZY_SINGLE_VARIANT_ID=
 LEMON_SQUEEZY_PLUS_VARIANT_ID=
 LEMON_SQUEEZY_PRO_VARIANT_ID=
 
-OPENAI_MAPPING_ENABLED=false
-OPENAI_MAPPING_MODEL=gpt-4.1-mini
-OPENAI_MAPPING_CONFIDENCE_THRESHOLD=85
-OPENAI_API_KEY=
 ```
 
 ## Frontend: Vercel
@@ -95,7 +91,7 @@ VITE_SUPABASE_ANON_KEY=replace_with_supabase_anon_key
 
 ## Secret Boundary
 
-- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_WEBHOOK_SECRET`, and `OPENAI_API_KEY`.
+- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `LEMON_SQUEEZY_API_KEY`, and `LEMON_SQUEEZY_WEBHOOK_SECRET`.
 - Frontend allowed: Supabase anon key, public site URL, public API URL. Lemon Squeezy API and webhook secrets stay backend-only.
 - Production must keep `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
 
