@@ -12,12 +12,12 @@ import { ProjectAccess } from "./pages/ProjectAccess";
 import { ProjectActivity } from "./pages/ProjectActivity";
 import { Auth } from "./pages/Auth";
 import { PaymentStatus } from "./pages/PaymentStatus";
-import { ResultViewer } from "./pages/ResultViewer";
+import { ExampleResult, ResultViewer } from "./pages/ResultViewer";
 import "./styles.css";
 
 function initialView() {
   const value = new URLSearchParams(location.search).get("view") || location.hash.replace("#", "");
-  if (["overview", "upload", "projects", "reports", "billing", "settings", "team", "project-access", "project-activity", "login", "register", "checkout", "payment-success", "payment-failed", "result", "guest-result"].includes(value)) return value;
+  if (["overview", "upload", "projects", "reports", "billing", "settings", "team", "project-access", "project-activity", "login", "register", "checkout", "payment-success", "payment-failed", "result", "guest-result", "example"].includes(value)) return value;
   const pathView = location.pathname.replace(/^\/+|\/+$/g, "").replace(".html", "");
   const aliases = {
     workspace: "overview",
@@ -38,6 +38,8 @@ function initialView() {
     "result-dashboard": "result",
     "analysis-view": "result",
     "guest-result": "guest-result",
+    example: "example",
+    "delay-analysis-example": "example",
     profile: "settings",
     "single-project": "upload"
   };
@@ -92,7 +94,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (["login", "register", "checkout", "payment-success", "payment-failed", "guest-result"].includes(activeView)) {
+    if (["login", "register", "checkout", "payment-success", "payment-failed", "guest-result", "example"].includes(activeView)) {
       setLoading(false);
       return;
     }
@@ -122,6 +124,14 @@ export default function App() {
   if (activeView === "checkout") return <PaymentStatus status="checkout" />;
   if (activeView === "payment-success") return <PaymentStatus status="success" />;
   if (activeView === "payment-failed") return <PaymentStatus status="failed" />;
+  if (activeView === "example") {
+    return (
+      <main className="standalone-result-screen">
+        <a className="workspace-brand standalone-brand" href="/"><img src="/assets/devbareun-logo-horizontal-white.svg" alt="DevBareun" /></a>
+        <ExampleResult />
+      </main>
+    );
+  }
   if (activeView === "guest-result") {
     return <main className="standalone-result-screen"><ResultViewer mode="guest" /></main>;
   }

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { workspaceApi } from "../api/client";
 import { EmptyState, PageHeader } from "../components/Shell";
+import { DelayDashboard, useDelayLang } from "../components/DelayDashboard";
 
 const EMPTY = "—";
 
@@ -289,7 +290,7 @@ function DataQuality({ dataQuality, documentControl }) {
   );
 }
 
-export function ResultViewer({ mode = "result" }) {
+function LegacyResultViewer({ mode = "result" }) {
   const params = useMemo(() => new URLSearchParams(location.search), []);
   const token = params.get("token");
   const projectId = params.get("project_id");
@@ -443,5 +444,100 @@ export function ResultViewer({ mode = "result" }) {
       </section>
       )}
     </>
+  );
+}
+
+
+const RESULT_POLL_INTERVAL_MS = 5000;
+const RESULT_POLL_LIMIT_MS = 10 * 60 * 1000;
+
+/**
+ * Project result: the execution and delay analysis when the project has one,
+ * otherwise the earlier project-control view (results saved before v1.5.0).
+ */
+export function ResultViewer({ mode = "result" }) {
+  const params = useMemo(() => new URLSearchParams(location.search), []);
+  const projectId = params.get("project_id");
+  const [lang, setLang] = useDelayLang();
+  const [state, setState] = useState({ loading: Boolean(projectId) && mode !== "guest", result: null, fallback: !projectId || mode === "guest", pending: false, timedOut: false });
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!projectId || mode === "guest") return undefined;
+    let active = true;
+    let timer = null;
+    const started = Date.now();
+    const load = () => {
+      workspaceApi.delayAnalysis(projectId)
+        .then((result) => active && setState({ loading: false, result, fallback: false, pending: false, timedOut: false }))
+        .catch((error) => {
+          if (!active) return;
+          if (error?.code === "analysis_not_ready") {
+            // The job is still queued or running: keep checking for up to 10 minutes.
+            if (Date.now() - started > RESULT_POLL_LIMIT_MS) {
+              setState({ loading: false, result: null, fallback: false, pending: false, timedOut: true });
+              return;
+            }
+            setState({ loading: false, result: null, fallback: false, pending: true, timedOut: false });
+            timer = setTimeout(load, RESULT_POLL_INTERVAL_MS);
+            return;
+          }
+          setState({ loading: false, result: null, fallback: true, pending: false, timedOut: false });
+        });
+    };
+    load();
+    return () => {
+      active = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [projectId, mode, attempt]);
+
+  if (state.fallback) return <LegacyResultViewer mode={mode} />;
+  if (state.loading) return <div className="status-box info">{lang === "az" ? "Analiz yüklənir..." : "Loading analysis..."}</div>;
+  if (state.pending) return <div className="status-box info">{lang === "az" ? "Analiz hazırlanır. Nəticə hazır olan kimi bu səhifədə açılacaq..." : "The analysis is running. The result opens here as soon as it is ready..."}</div>;
+  if (state.timedOut) {
+    return (
+      <EmptyState
+        title={lang === "az" ? "Analiz hələ hazır deyil." : "The analysis is not ready yet."}
+        description={lang === "az" ? "Bir az sonra yenidən yoxlayın." : "Check again in a moment."}
+        action={<button className="secondary-button" type="button" onClick={() => setAttempt((value) => value + 1)}>{lang === "az" ? "Yenidən yoxla" : "Check again"}</button>}
+      />
+    );
+  }
+  return (
+    <DelayDashboard
+      result={state.result}
+      lang={lang}
+      onLangChange={setLang}
+      downloads={{ pdf: workspaceApi.delayReportUrl(projectId, "pdf", lang), xlsx: workspaceApi.delayReportUrl(projectId, "xlsx", lang) }}
+    />
+  );
+}
+
+/** Public example report built from bundled sample data (no login). */
+export function ExampleResult() {
+  const [lang, setLang] = useDelayLang();
+  const [state, setState] = useState({ loading: true, result: null, error: null });
+
+  useEffect(() => {
+    let active = true;
+    workspaceApi.delaySample()
+      .then((result) => active && setState({ loading: false, result, error: null }))
+      .catch((error) => active && setState({ loading: false, result: null, error: error.message || "Example could not be loaded." }));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (state.loading) return <div className="status-box info">{lang === "az" ? "Nümunə hesabat yüklənir..." : "Loading example report..."}</div>;
+  if (state.error) return <EmptyState title={lang === "az" ? "Nümunə açılmadı." : "Example unavailable."} description={state.error} action={<a className="secondary-button" href="/">DevBareun</a>} />;
+  return (
+    <DelayDashboard
+      result={state.result}
+      lang={lang}
+      onLangChange={setLang}
+      isExample
+      downloads={{ pdf: workspaceApi.delaySampleReportUrl("pdf", lang), xlsx: workspaceApi.delaySampleReportUrl("xlsx", lang) }}
+    />
   );
 }
