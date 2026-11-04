@@ -6,8 +6,8 @@
 
   const translations = {
     en: {
-      loaderTitle: "Construction analytics platform",
-      navPlatform: "Platform",
+      loaderTitle: "Construction delay analysis",
+      navPlatform: "How it works",
       navUpload: "Upload",
       navPricing: "Pricing",
       navDashboard: "Dashboard",
@@ -25,23 +25,23 @@
       heroPointUpload: "Upload files",
       heroPointMap: "Confirm mapping",
       heroPointDash: "Receive dashboard",
-      heroShowcasePill: "4 control packages - schedule, cost, material, risk",
-      heroShowcaseTitleOne: "Control project",
-      heroShowcaseTitleTwo: "signals before",
-      heroShowcaseTitleThree: "delays grow.",
-      heroShowcaseLead: "Upload schedules, progress files, cost data and site records. DevBareun turns them into a management-ready project control view.",
-      heroFlowUpload: "Upload project files",
-      heroFlowUploadText: "Schedule, cost, material and risk records.",
-      heroFlowMap: "Confirm detected mapping",
-      heroFlowMapText: "Review columns before the dashboard is prepared.",
-      heroFlowDashboard: "Review dashboard output",
-      heroFlowDashboardText: "See only the dashboards supported by your files.",
-      heroControlLabel: "Management view",
-      heroControlTitle: "Ready after mapping",
-      heroMetricPackages: "Control packages",
-      heroMetricFormats: "File formats",
-      heroMetricReports: "Report export",
-      heroMetricLanguages: "Languages",
+      heroShowcasePill: "Construction project execution and delay analysis",
+      heroShowcaseTitleOne: "See how late",
+      heroShowcaseTitleTwo: "the project is,",
+      heroShowcaseTitleThree: "and why.",
+      heroShowcaseLead: "Upload the baseline schedule, actual progress and delay events. DevBareun calculates SPI, schedule delay in days, forecast completion, the critical path and who is responsible for each delay day, then prepares the execution report in PDF and Excel.",
+      heroFlowUpload: "How far behind is the project?",
+      heroFlowUploadText: "Planned vs actual progress, SPI and schedule delay in days.",
+      heroFlowMap: "When will it finish?",
+      heroFlowMapText: "Forecast completion from activity progress rates and network logic.",
+      heroFlowDashboard: "Who is responsible for the delay?",
+      heroFlowDashboardText: "Delay days split into employer, contractor, neutral and concurrent.",
+      heroControlLabel: "Execution report",
+      heroControlTitle: "Three questions, answered with numbers",
+      heroMetricPackages: "Schedule performance",
+      heroMetricFormats: "Critical path and float",
+      heroMetricReports: "Responsibility classes",
+      heroMetricLanguages: "PDF and Excel report",
       heroBenefitLabel: "Project control for construction teams",
       heroBenefitTitle: "See what needs action before delays grow.",
       heroBenefitText: "Replace scattered project updates with a clear decision view for schedule, cost, progress, risk, and recovery actions.",
@@ -62,18 +62,18 @@
       miniDelay: "Delay signal",
       miniPayment: "Payment status",
       miniReport: "Report output",
-      workflowLabel: "Workflow",
-      workflowTitle: "Three clear steps from files to management view.",
+      workflowLabel: "How it works",
+      workflowTitle: "From schedule and progress files to the execution report.",
       stepUploadTitle: "Upload",
-      stepUploadText: "Add schedules, progress payment files, cost estimates, material records or risk logs.",
-      stepMappingTitle: "Confirm Mapping",
-      stepMappingText: "Review detected file types and confirm which data belongs to each dashboard area.",
-      stepDashboardTitle: "Dashboard",
-      stepDashboardText: "Unlock the full dashboard and export management reports for review.",
-      uploadLabel: "Upload and analysis packages",
-      uploadTitle: "Choose the problem, then upload the right files.",
-      uploadIntro: "Single Project users upload first, preview mapping and pay with Lemon Squeezy to unlock the full dashboard. Plus and Pro users spend monthly project credits.",
-      downloadTemplate: "Download template",
+      stepUploadText: "Fill the DevBareun Excel template with baseline, actual progress and delay events, or upload a Primavera P6 XER or MS Project XML export.",
+      stepMappingTitle: "Check the data",
+      stepMappingText: "Activities, WBS sections, predecessors and delay events are read and checked. Missing dates or progress are listed before you rely on the result.",
+      stepDashboardTitle: "Get the report",
+      stepDashboardText: "Review the delay dashboard and download the execution and delay analysis report in Azerbaijani or English, as PDF and Excel.",
+      uploadLabel: "Upload for delay analysis",
+      uploadTitle: "One analysis, built from your schedule and progress.",
+      uploadIntro: "Single Project users upload first, check the detected data and pay with Lemon Squeezy to unlock the full report. Plus and Pro users spend monthly project credits.",
+      downloadTemplate: "Download Excel template",
       statPackages: "Control packages",
       statFormats: "File formats",
       statPlans: "Pricing plans",
@@ -88,16 +88,16 @@
       pkgRiskText: "Risk tracking, decision records and management actions.",
       requiredFiles: "Required files",
       youReceive: "You will receive",
-      dropTitle: "Drop project files here, or browse",
-      dropText: "Excel, CSV, PDF, Primavera XER, MS Project XML and supporting images are accepted.",
+      dropTitle: "Drop schedule and progress files here, or browse",
+      dropText: "DevBareun Excel template, other Excel or CSV plan-actual tables, Primavera P6 XER and MS Project XML.",
       browseFiles: "Choose files",
-      detecting: "Analyzing uploaded files...",
-      preparingDashboards: "Preparing dashboards...",
-      mappingTitle: "Detected mapping preview",
-      unlockDashboard: "Unlock dashboard",
-      dashboardLabel: "Live executive dashboard",
-      dashboardTitle: "Every signal rolled up into one decision view.",
-      dashboardText: "Schedule, cost and risk are read from your uploads and presented as the same management dashboard your team reviews each week.",
+      detecting: "Checking selected files...",
+      preparingDashboards: "Sign in to run the analysis on these files.",
+      mappingTitle: "Detected file types",
+      unlockDashboard: "Continue to analysis",
+      dashboardLabel: "Example execution report",
+      dashboardTitle: "Delay, forecast and responsibility on one page.",
+      dashboardText: "The figures below come from the DevBareun example project. Your report uses the same layout with your own schedule, progress and delay events.",
       valueOne: "No empty dashboard blocks.",
       valueTwo: "No unclear file assumptions.",
       valueThree: "Outputs are prepared for project review.",
@@ -121,7 +121,7 @@
       previewChartTitle: "Plan vs actual progress",
       previewChartRange: "Jan - Nov",
       previewActual: "Actual",
-      previewPlanned: "Planned",
+      previewPlanned: "Plan",
       previewInsightTitle: "What you understand",
       previewInsightText: "The dashboard shows how late the project is, which tasks drive the delay, and what recovery actions should be reviewed.",
       pricingLabel: "Pricing",
@@ -138,9 +138,9 @@
       priceMonthlyNote: "month",
       priceAnnualNote: "year",
       priceAnnualBilledNote: "mo, billed annually",
-      pricingSingleShort: "Perfect for a single project analysis with full dashboard output.",
-      pricingPlusShort: "The sweet spot for active project teams managing multiple sites.",
-      pricingProShort: "For companies running larger portfolios with admin oversight.",
+      pricingSingleShort: "One project's delay analysis with the full execution report.",
+      pricingPlusShort: "Monthly execution reports for teams running several sites.",
+      pricingProShort: "For companies tracking delay across a larger portfolio.",
       singleDesc: "Upload files, preview mapping, then pay to unlock one full dashboard and report package.",
       plusDesc: "5 project credits per month for recurring project control and report archive workflows.",
       proDesc: "20 project credits per month for teams managing multiple active construction sites.",
@@ -157,9 +157,9 @@
       rowCreditsPro: "20 / month",
       rowCreditsPlusAnnual: "5 / month",
       rowCreditsProAnnual: "20 / month",
-      rowPackages: "All 4 control packages",
-      rowDashboard: "Package-specific dashboard",
-      rowExport: "PDF + Excel export",
+      rowPackages: "Execution and delay analysis",
+      rowDashboard: "Delay dashboard and S-curve",
+      rowExport: "PDF + Excel report (AZ / EN)",
       rowArchive: "Report archive",
       rowUsage: "Credit usage visibility",
       rowWorkspace: "Multi-project workspace",
@@ -167,7 +167,7 @@
       pricingTrustSecure: "Secure checkout",
       pricingTrustCancel: "Cancel anytime",
       pricingTrustSetup: "No setup fees",
-      pricingTrustIncluded: "All packages included",
+      pricingTrustIncluded: "Full report in every plan",
       faqTitle: "Questions before uploading.",
       faqQ1: "What files should I upload?",
       faqA1: "Upload the files required by the selected package: schedule, progress, cost, payment, material or risk records.",
@@ -177,7 +177,7 @@
       faqA3: "Plus includes 5 monthly project credits. Pro includes 20 monthly project credits for larger teams.",
       faqQ4: "Will empty dashboard blocks appear?",
       faqA4: "No. The result view is designed to show only dashboard areas supported by uploaded project data.",
-      footerText: "Construction analytics, project control and reporting platform.",
+      footerText: "Construction project execution and delay analysis.",
       footerBadgeOne: "Project control",
       footerBadgeTwo: "Report-ready outputs",
       footerProduct: "Product",
@@ -202,18 +202,71 @@
       secPaymentTitle: "Payments through Lemon Squeezy",
       secPaymentText: "Checkout runs on Lemon Squeezy. Your card details go to the payment provider and are never stored by DevBareun.",
       filesLabel: "Supported files",
-      filesTitle: "Works with the files your team already keeps.",
-      filesText: "No new software to adopt. Upload your existing exports as they are, or start from the DevBareun Excel template.",
+      filesTitle: "Works with the schedules your team already keeps.",
+      filesText: "Upload your planning exports as they are, or start from the DevBareun Excel template. Column headers in English, Azerbaijani, Turkish and Russian are recognised.",
       fmtImages: "Site photos",
-      fileSchedule: "Schedules and progress updates",
-      fileF2: "F-2 progress payment acts",
-      fileCost: "Cost estimates and BOQ",
-      fileMaterial: "Material stock and consumption",
-      fileRisk: "Risk registers and decision logs"
+      fileSchedule: "Baseline schedule with WBS and predecessors",
+      fileF2: "Actual progress and forecast dates",
+      fileCost: "Delay events, causes and responsible party",
+      fileMaterial: "Monthly planned and actual progress",
+      fileRisk: "Contract start, finish and data date",
+      heroExample: "View example report",
+      dashboardExampleCta: "Open the full example",
+      previewProject: "Baku Business Center (example)",
+      previewDataDate: "Data date",
+      previewKpiProgress: "Actual progress",
+      previewKpiProgressDelta: "−21.8 pts vs plan",
+      previewKpiProgressNote: "Plan 57.1%",
+      previewKpiSpi: "Schedule performance (SPI)",
+      previewKpiSpiDelta: "38% below plan rate",
+      previewKpiSpiNote: "Target 1.00",
+      previewKpiDelay: "Schedule delay",
+      previewKpiDelayValue: "67 days",
+      previewKpiDelayDelta: "progress of 25.03.2024",
+      previewKpiDelayNote: "Earned schedule vs data date",
+      previewKpiForecast: "Forecast completion",
+      previewKpiForecastDelta: "+98 days late",
+      previewKpiForecastNote: "Contract finish 15.12.2024",
+      previewCurveTitle: "Planned vs actual S-curve",
+      previewCurveSub: "Cumulative progress, %",
+      previewForecast: "Forecast",
+      previewDelayTitle: "Monthly delay development",
+      previewDelaySub: "Schedule delay at month end, days",
+      previewDelayLegend: "Delay, days (2023-09 to 2024-05)",
+      previewRespTitle: "Delay responsibility",
+      previewRespSub: "Delay event days by party",
+      partyContractor: "Contractor",
+      partyEmployer: "Employer",
+      partyConcurrent: "Concurrent",
+      partyNeutral: "Neutral",
+      previewDays59: "59 days",
+      previewDays14: "14 days",
+      previewDays12: "12 days",
+      previewDays7: "7 days",
+      previewRespTotal: "delay days recorded",
+      previewRespSplit: "33 excusable · 14 compensable · 59 non-excusable",
+      pkgDelayTitle: "Execution and delay analysis",
+      reqBaseline: "Baseline schedule: planned start, finish, weight, predecessors",
+      reqActual: "Actual progress at the data date: actual dates and % complete",
+      reqEvents: "Delay events with cause and responsible party (recommended)",
+      reqMonthly: "Monthly planned and actual cumulative % (optional)",
+      outKpis: "Progress, SPI, schedule delay and forecast completion",
+      outCurve: "S-curve and monthly delay development",
+      outCritical: "Critical path, total float and most delayed activities",
+      outResp: "Delay responsibility: employer, contractor, neutral, concurrent",
+      outReport: "Findings, recommended actions and PDF / Excel report",
+      fileKindTemplate: "DevBareun delay template",
+      fileKindXer: "Primavera P6 schedule",
+      fileKindXml: "MS Project schedule",
+      fileKindTable: "Plan / actual table",
+      fileKindOther: "Not readable for delay analysis",
+      fileSelectedToast: "Files selected. Sign in to run the delay analysis.",
+      planSelectedToast: "Plan selected. Upload your schedule to continue.",
+      fmtTemplate: "DevBareun template"
     },
     az: {
-      loaderTitle: "Tikinti analitika platforması",
-      navPlatform: "Platforma",
+      loaderTitle: "Tikinti gecikmə analizi",
+      navPlatform: "Necə işləyir",
       navUpload: "Yükləmə",
       navPricing: "Qiymət",
       navDashboard: "Dashboard",
@@ -231,23 +284,23 @@
       heroPointUpload: "Faylları yüklə",
       heroPointMap: "Mapping-i təsdiqlə",
       heroPointDash: "Dashboard al",
-      heroShowcasePill: "4 nəzarət paketi - qrafik, xərc, material, risk",
-      heroShowcaseTitleOne: "Layihə",
-      heroShowcaseTitleTwo: "siqnallarını gecikmə",
-      heroShowcaseTitleThree: "böyümədən görün.",
-      heroShowcaseLead: "Qrafikləri, icra fayllarını, xərc məlumatlarını və sahə qeydlərini yükləyin. DevBareun onları idarəetməyə hazır layihə nəzarəti görünüşünə çevirir.",
-      heroFlowUpload: "Layihə fayllarını yüklə",
-      heroFlowUploadText: "Qrafik, xərc, material və risk qeydləri.",
-      heroFlowMap: "Mapping nəticəsini təsdiqlə",
-      heroFlowMapText: "Dashboard hazırlanmadan əvvəl sütunları yoxlayın.",
-      heroFlowDashboard: "Dashboard nəticəsinə bax",
-      heroFlowDashboardText: "Yalnız fayllarınızın dəstəklədiyi dashboardlar göstərilir.",
-      heroControlLabel: "İdarəetmə görünüşü",
-      heroControlTitle: "Mapping-dən sonra hazır",
-      heroMetricPackages: "Nəzarət paketi",
-      heroMetricFormats: "Fayl formatı",
-      heroMetricReports: "Hesabat ixracı",
-      heroMetricLanguages: "Dillər",
+      heroShowcasePill: "Tikinti layihəsinin icra və gecikmə analizi",
+      heroShowcaseTitleOne: "Layihə nə qədər",
+      heroShowcaseTitleTwo: "gecikir və",
+      heroShowcaseTitleThree: "niyə?",
+      heroShowcaseLead: "Baza qrafikini, faktiki icranı və gecikmə hadisələrini yükləyin. DevBareun SPI-ni, gün ilə qrafik gecikməsini, proqnoz bitmə tarixini, kritik yolu və hər gecikmə gününə kimin məsuliyyət daşıdığını hesablayır, sonra icra hesabatını PDF və Excel formatında hazırlayır.",
+      heroFlowUpload: "Layihə plandan nə qədər geridədir?",
+      heroFlowUploadText: "Plan və faktiki icra, SPI və gün ilə qrafik gecikməsi.",
+      heroFlowMap: "Layihə nə vaxt bitəcək?",
+      heroFlowMapText: "İş tempinə və şəbəkə məntiqinə əsaslanan proqnoz bitmə tarixi.",
+      heroFlowDashboard: "Gecikməyə kim cavabdehdir?",
+      heroFlowDashboardText: "Gecikmə günləri sifarişçi, podratçı, neytral və eyni vaxtlı olaraq bölünür.",
+      heroControlLabel: "İcra hesabatı",
+      heroControlTitle: "Üç sual, rəqəmlərlə cavab",
+      heroMetricPackages: "Qrafik icra göstəricisi",
+      heroMetricFormats: "Kritik yol və ehtiyat vaxt",
+      heroMetricReports: "Məsuliyyət sinfi",
+      heroMetricLanguages: "PDF və Excel hesabat",
       heroBenefitLabel: "Tikinti komandaları üçün layihə nəzarəti",
       heroBenefitTitle: "Gecikmələr böyümədən nəyi etmək lazım olduğunu görün.",
       heroBenefitText: "Dağınıq layihə yeniləmələrini qrafik, xərc, icra, risk və bərpa addımları üçün aydın qərar görünüşünə çevirin.",
@@ -268,18 +321,18 @@
       miniDelay: "Gecikmə siqnalı",
       miniPayment: "Ödəniş statusu",
       miniReport: "Hesabat çıxışı",
-      workflowLabel: "İş axını",
-      workflowTitle: "Fayllardan idarəetmə görünüşünə üç aydın addım.",
+      workflowLabel: "Necə işləyir",
+      workflowTitle: "Qrafik və icra fayllarından icra hesabatına.",
       stepUploadTitle: "Yüklə",
-      stepUploadText: "Qrafik, F-2, smeta, material qeydləri və ya risk siyahılarını əlavə et.",
-      stepMappingTitle: "Mapping-i təsdiqlə",
-      stepMappingText: "Tapılan fayl tiplərini yoxla və hansı məlumatın hansı dashboard sahəsinə aid olduğunu təsdiqlə.",
-      stepDashboardTitle: "Dashboard",
-      stepDashboardText: "Tam dashboardu aç və idarəetmə hesabatlarını ixrac et.",
-      uploadLabel: "Yükləmə və analiz paketləri",
-      uploadTitle: "Problemi seç, sonra düzgün faylları yüklə.",
-      uploadIntro: "Single Project istifadəçiləri əvvəl yükləyir, mapping preview görür və tam dashboardu açmaq üçün Lemon Squeezy ilə ödəniş edir. Plus və Pro istifadəçiləri aylıq layihə kreditlərindən istifadə edir.",
-      downloadTemplate: "Şablonu yüklə",
+      stepUploadText: "DevBareun Excel şablonunu baza qrafiki, faktiki icra və gecikmə hadisələri ilə doldurun və ya Primavera P6 XER, MS Project XML faylını yükləyin.",
+      stepMappingTitle: "Məlumatı yoxla",
+      stepMappingText: "İşlər, WBS bölmələri, əlaqələr və gecikmə hadisələri oxunur və yoxlanılır. Çatışmayan tarixlər və ya icra faizləri nəticədən əvvəl göstərilir.",
+      stepDashboardTitle: "Hesabatı al",
+      stepDashboardText: "Gecikmə dashboarduna baxın və icra və gecikmə analizi hesabatını Azərbaycan və ya ingilis dilində, PDF və Excel formatında yükləyin.",
+      uploadLabel: "Gecikmə analizi üçün yükləmə",
+      uploadTitle: "Bir analiz, sizin qrafik və icra məlumatlarınızdan.",
+      uploadIntro: "Single Project istifadəçiləri əvvəl yükləyir, tapılan məlumatı yoxlayır və tam hesabatı açmaq üçün Lemon Squeezy ilə ödəniş edir. Plus və Pro istifadəçiləri aylıq layihə kreditlərindən istifadə edir.",
+      downloadTemplate: "Excel şablonunu yüklə",
       statPackages: "Nəzarət paketləri",
       statFormats: "Fayl formatları",
       statPlans: "Qiymət planları",
@@ -294,16 +347,16 @@
       pkgRiskText: "Risk izləmə, qərar qeydləri və idarəetmə tədbirləri.",
       requiredFiles: "Lazımi fayllar",
       youReceive: "Alacağınız nəticə",
-      dropTitle: "Layihə fayllarını bura at və ya seç",
-      dropText: "Excel, CSV, PDF, Primavera XER, MS Project XML və əlavə şəkillər qəbul edilir.",
+      dropTitle: "Qrafik və icra fayllarını bura atın və ya seçin",
+      dropText: "DevBareun Excel şablonu, digər Excel və ya CSV plan-fakt cədvəlləri, Primavera P6 XER və MS Project XML.",
       browseFiles: "Fayl seç",
-      detecting: "Yüklənən fayllar analiz edilir...",
-      preparingDashboards: "Dashboardlar hazırlanır...",
-      mappingTitle: "Tapılan mapping preview",
-      unlockDashboard: "Dashboardu aç",
-      dashboardLabel: "Canlı idarəetmə dashboardu",
-      dashboardTitle: "Bütün siqnallar bir qərar görünüşündə birləşir.",
-      dashboardText: "Qrafik, xərc və risk məlumatları yüklədiyiniz fayllardan oxunur və komandanızın hər həftə baxdığı idarəetmə dashboardu kimi təqdim olunur.",
+      detecting: "Seçilmiş fayllar yoxlanılır...",
+      preparingDashboards: "Bu fayllar üzrə analizi işə salmaq üçün daxil olun.",
+      mappingTitle: "Tapılan fayl növləri",
+      unlockDashboard: "Analizə keç",
+      dashboardLabel: "Nümunə icra hesabatı",
+      dashboardTitle: "Gecikmə, proqnoz və məsuliyyət bir səhifədə.",
+      dashboardText: "Aşağıdakı rəqəmlər DevBareun nümunə layihəsindəndir. Sizin hesabatınız eyni quruluşda, öz qrafikiniz, icranız və gecikmə hadisələrinizlə hazırlanır.",
       valueOne: "Boş dashboard blokları yoxdur.",
       valueTwo: "Aydın olmayan fayl fərziyyələri yoxdur.",
       valueThree: "Nəticələr layihə baxışı üçün hazırlanır.",
@@ -344,9 +397,9 @@
       priceMonthlyNote: "aylıq",
       priceAnnualNote: "illik",
       priceAnnualBilledNote: "ay, illik ödənilir",
-      pricingSingleShort: "Tam dashboard nəticəsi ilə bir layihə analizi üçün uyğundur.",
-      pricingPlusShort: "Bir neçə sahəni idarə edən aktiv layihə komandaları üçün ən uyğun seçim.",
-      pricingProShort: "Daha böyük portfelləri admin nəzarəti ilə idarə edən şirkətlər üçün.",
+      pricingSingleShort: "Tam icra hesabatı ilə bir layihənin gecikmə analizi.",
+      pricingPlusShort: "Bir neçə obyekti idarə edən komandalar üçün aylıq icra hesabatları.",
+      pricingProShort: "Böyük portfeldə gecikməni izləyən şirkətlər üçün.",
       singleDesc: "Faylları yüklə, mapping preview gör, sonra tam dashboard və hesabat paketini açmaq üçün ödə.",
       plusDesc: "Davamlı layihə nəzarəti və hesabat arxivi üçün ayda 5 layihə krediti.",
       proDesc: "Bir neçə aktiv tikinti sahəsi olan komandalar üçün ayda 20 layihə krediti.",
@@ -363,9 +416,9 @@
       rowCreditsPro: "20 / ay",
       rowCreditsPlusAnnual: "5 / ay",
       rowCreditsProAnnual: "20 / ay",
-      rowPackages: "Bütün 4 nəzarət paketi",
-      rowDashboard: "Paketə uyğun dashboard",
-      rowExport: "PDF + Excel export",
+      rowPackages: "İcra və gecikmə analizi",
+      rowDashboard: "Gecikmə dashboardu və S-əyrisi",
+      rowExport: "PDF + Excel hesabat (AZ / EN)",
       rowArchive: "Hesabat arxivi",
       rowUsage: "Kredit istifadəsi görünüşü",
       rowWorkspace: "Çox layihəli workspace",
@@ -373,7 +426,7 @@
       pricingTrustSecure: "Təhlükəsiz checkout",
       pricingTrustCancel: "İstənilən vaxt ləğv",
       pricingTrustSetup: "Setup xərci yoxdur",
-      pricingTrustIncluded: "Bütün paketlər daxildir",
+      pricingTrustIncluded: "Hər planda tam hesabat",
       faqTitle: "Yükləmədən əvvəl suallar.",
       faqQ1: "Hansı faylları yükləməliyəm?",
       faqA1: "Seçilmiş paketə uyğun faylları yükləyin: qrafik, irəliləyiş, xərc, ödəniş, material və ya risk qeydləri.",
@@ -383,7 +436,7 @@
       faqA3: "Plus ayda 5 layihə krediti, Pro isə daha böyük komandalar üçün ayda 20 layihə krediti verir.",
       faqQ4: "Boş dashboard blokları görünəcək?",
       faqA4: "Xeyr. Nəticə yalnız yüklənmiş məlumatla dəstəklənən dashboard sahələrini göstərmək üçün hazırlanıb.",
-      footerText: "Tikinti analitikası, layihə nəzarəti və hesabat platforması.",
+      footerText: "Tikinti layihəsinin icra və gecikmə analizi.",
       footerBadgeOne: "Layihə nəzarəti",
       footerBadgeTwo: "Hesabata hazır nəticələr",
       footerProduct: "Məhsul",
@@ -408,43 +461,80 @@
       secPaymentTitle: "Ödənişlər Lemon Squeezy ilə",
       secPaymentText: "Ödəniş Lemon Squeezy üzərindən aparılır. Kart məlumatlarınız ödəniş provayderinə ötürülür və DevBareun tərəfindən saxlanılmır.",
       filesLabel: "Dəstəklənən fayllar",
-      filesTitle: "Komandanızın artıq istifadə etdiyi fayllarla işləyir.",
-      filesText: "Yeni proqrama keçmək lazım deyil. Mövcud fayllarınızı olduğu kimi yükləyin və ya DevBareun Excel şablonundan başlayın.",
+      filesTitle: "Komandanızın artıq istifadə etdiyi qrafiklərlə işləyir.",
+      filesText: "Planlama fayllarınızı olduğu kimi yükləyin və ya DevBareun Excel şablonundan başlayın. İngilis, Azərbaycan, türk və rus dillərində sütun başlıqları tanınır.",
       fmtImages: "Sahə fotoları",
-      fileSchedule: "İş qrafikləri və icra yeniləmələri",
-      fileF2: "F-2 aktları (yerinə yetirilmiş işlər)",
-      fileCost: "Smeta və həcm cədvəlləri (BOQ)",
-      fileMaterial: "Material ehtiyatı və sərfiyyatı",
-      fileRisk: "Risk reyestrləri və qərar qeydləri"
+      fileSchedule: "WBS və əlaqələri olan baza qrafiki",
+      fileF2: "Faktiki icra və proqnoz tarixləri",
+      fileCost: "Gecikmə hadisələri, səbəblər və məsul tərəf",
+      fileMaterial: "Aylıq plan və faktiki icra",
+      fileRisk: "Müqavilə başlanğıcı, bitməsi və hesabat tarixi",
+      heroExample: "Nümunə hesabata bax",
+      dashboardExampleCta: "Tam nümunəni aç",
+      previewProject: "Baku Business Center (nümunə)",
+      previewDataDate: "Hesabat tarixi",
+      previewKpiProgress: "Faktiki icra",
+      previewKpiProgressDelta: "plandan −21.8 bənd",
+      previewKpiProgressNote: "Plan 57.1%",
+      previewKpiSpi: "Qrafik icra göstəricisi (SPI)",
+      previewKpiSpiDelta: "plan tempindən 38% aşağı",
+      previewKpiSpiNote: "Hədəf 1.00",
+      previewKpiDelay: "Qrafik gecikməsi",
+      previewKpiDelayValue: "67 gün",
+      previewKpiDelayDelta: "25.03.2024 səviyyəsində",
+      previewKpiDelayNote: "Qazanılmış qrafik və hesabat tarixi",
+      previewKpiForecast: "Proqnoz bitmə tarixi",
+      previewKpiForecastDelta: "+98 gün gecikmə",
+      previewKpiForecastNote: "Müqavilə üzrə bitmə 15.12.2024",
+      previewCurveTitle: "Plan və faktiki S-əyrisi",
+      previewCurveSub: "Kumulyativ icra, %",
+      previewForecast: "Proqnoz",
+      previewDelayTitle: "Aylıq gecikmə dinamikası",
+      previewDelaySub: "Ay sonuna qrafik gecikməsi, gün",
+      previewDelayLegend: "Gecikmə, gün (2023-09 – 2024-05)",
+      previewRespTitle: "Gecikmə məsuliyyəti",
+      previewRespSub: "Tərəflər üzrə gecikmə günləri",
+      partyContractor: "Podratçı",
+      partyEmployer: "Sifarişçi",
+      partyConcurrent: "Eyni vaxtlı",
+      partyNeutral: "Neytral",
+      previewDays59: "59 gün",
+      previewDays14: "14 gün",
+      previewDays12: "12 gün",
+      previewDays7: "7 gün",
+      previewRespTotal: "qeydə alınmış gecikmə günü",
+      previewRespSplit: "33 üzrlü · 14 kompensasiyalı · 59 üzrsüz",
+      pkgDelayTitle: "İcra və gecikmə analizi",
+      reqBaseline: "Baza qrafiki: plan başlanğıc, bitmə, çəki, əvvəlki işlər",
+      reqActual: "Hesabat tarixinə faktiki icra: faktiki tarixlər və icra faizi",
+      reqEvents: "Səbəbi və məsul tərəfi göstərilmiş gecikmə hadisələri (tövsiyə olunur)",
+      reqMonthly: "Aylıq plan və faktiki kumulyativ % (istəyə bağlı)",
+      outKpis: "İcra faizi, SPI, qrafik gecikməsi və proqnoz bitmə tarixi",
+      outCurve: "S-əyrisi və aylıq gecikmə dinamikası",
+      outCritical: "Kritik yol, ümumi ehtiyat vaxt və ən çox gecikən işlər",
+      outResp: "Gecikmə məsuliyyəti: sifarişçi, podratçı, neytral, eyni vaxtlı",
+      outReport: "Nəticələr, tövsiyə olunan tədbirlər və PDF / Excel hesabat",
+      fileKindTemplate: "DevBareun gecikmə şablonu",
+      fileKindXer: "Primavera P6 qrafiki",
+      fileKindXml: "MS Project qrafiki",
+      fileKindTable: "Plan / fakt cədvəli",
+      fileKindOther: "Gecikmə analizi üçün oxunmur",
+      fileSelectedToast: "Fayllar seçildi. Gecikmə analizi üçün daxil olun.",
+      planSelectedToast: "Plan seçildi. Davam etmək üçün qrafikinizi yükləyin.",
+      fmtTemplate: "DevBareun şablonu"
     }
   };
 
-  const packages = {
-    schedule: {
-      title: "Schedule Recovery",
-      files: ["Baseline Schedule", "Actual Progress", "Workforce Data (optional)"],
-      outputs: ["Delay Dashboard", "Critical Path", "Workforce Gap", "Recovery Plan"],
-      detections: ["Schedule detected", "Progress detected", "Workforce optional"]
-    },
-    cost: {
-      title: "Cost Control",
-      files: ["Cost Estimate / BOQ", "Actual Cost", "Progress Payment / F-2"],
-      outputs: ["Cost Dashboard", "Payment Tracking", "Budget Variance", "Remaining Value"],
-      detections: ["Cost detected", "F-2 detected", "Payment data detected"]
-    },
-    material: {
-      title: "Material Continuity",
-      files: ["Material List / BOQ", "Stock Records", "Consumption or Procurement Updates"],
-      outputs: ["Material Dashboard", "Shortage Alerts", "Consumption Trend", "Procurement Actions"],
-      detections: ["Material data detected", "Stock detected", "Procurement detected"]
-    },
-    risk: {
-      title: "Risk & Decisions",
-      files: ["Risk Register", "Site Notes", "Decision Records", "Cost or Schedule Signals"],
-      outputs: ["Risk Dashboard", "Priority Register", "Decision Prompts", "Management Actions"],
-      detections: ["Risk register detected", "Decision data detected", "Site notes detected"]
-    },
-  };
+  const READABLE_EXTENSIONS = [".xlsx", ".xlsm", ".xls", ".csv", ".xer", ".xml"];
+
+  function t(key) {
+    const lang = document.documentElement.lang || "en";
+    return (translations[lang] || translations.en)[key] || translations.en[key] || key;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
 
   function applyLanguage(lang) {
     const dictionary = translations[lang] || translations.en;
@@ -473,28 +563,15 @@
     window.__dbModernToast = window.setTimeout(() => box.classList.remove("show"), 2800);
   }
 
-  function renderPackage(key) {
-    const data = packages[key] || packages.schedule;
-    $("#selectedPackageTitle").textContent = data.title;
-    $("#requiredFilesList").innerHTML = data.files.map((file) => `<li>${file}</li>`).join("");
-    $("#outputList").innerHTML = data.outputs.map((item) => `<li>${item}</li>`).join("");
-    $$(".package-card").forEach((card) => {
-      const active = card.getAttribute("data-package") === key;
-      card.classList.toggle("active", active);
-      card.setAttribute("aria-selected", String(active));
-    });
-    document.body.dataset.selectedPackage = key;
-  }
-
   function classifyFile(name) {
     const lower = name.toLowerCase();
-    if (lower.endsWith(".xer") || lower.includes("schedule") || lower.includes("baseline")) return "Schedule";
-    if (lower.includes("f-2") || lower.includes("f2") || lower.includes("payment")) return "F-2 / Payment";
-    if (lower.includes("boq") || lower.includes("cost") || lower.includes("estimate")) return "Cost";
-    if (lower.includes("material") || lower.includes("stock")) return "Material";
-    if (lower.includes("risk") || lower.includes("decision")) return "Risk";
-    if (lower.endsWith(".pdf")) return "PDF report";
-    return "Project file";
+    const dot = lower.lastIndexOf(".");
+    const ext = dot >= 0 ? lower.slice(dot) : "";
+    if (!READABLE_EXTENSIONS.includes(ext)) return "fileKindOther";
+    if (ext === ".xer") return "fileKindXer";
+    if (ext === ".xml") return "fileKindXml";
+    if (lower.includes("delay-analysis-template") || lower.includes("gecikm")) return "fileKindTemplate";
+    return "fileKindTable";
   }
 
   function formatSize(bytes) {
@@ -514,7 +591,8 @@
     files.forEach((file) => {
       const row = document.createElement("div");
       row.className = "file-row";
-      row.innerHTML = `<div><strong title="${file.name}">${file.name}</strong><span>${classifyFile(file.name)} · ${formatSize(file.size || 0)}</span></div><span>Uploading</span><div class="progress"><i></i></div>`;
+      const name = escapeHtml(file.name);
+      row.innerHTML = `<div><strong title="${name}">${name}</strong><span>${escapeHtml(t(classifyFile(file.name)))} · ${formatSize(file.size || 0)}</span></div>`;
       list.appendChild(row);
     });
     if (!files.length) {
@@ -522,12 +600,12 @@
       preview.hidden = true;
       return;
     }
-    const selectedPackage = document.body.dataset.selectedPackage || "schedule";
+    const kinds = Array.from(new Set(files.map((file) => classifyFile(file.name))));
     status.hidden = false;
     preview.hidden = false;
-    chips.innerHTML = packages[selectedPackage].detections.map((item) => `<span>✓ ${item}</span>`).join("");
-    rows.innerHTML = files.map((file) => `<div class="mapping-row"><span>${file.name}</span><strong>${classifyFile(file.name)}</strong></div>`).join("");
-    toast("Files selected. Mapping preview is ready.");
+    chips.innerHTML = kinds.map((kind) => `<span>${kind === "fileKindOther" ? "!" : "✓"} ${escapeHtml(t(kind))}</span>`).join("");
+    rows.innerHTML = files.map((file) => `<div class="mapping-row"><span>${escapeHtml(file.name)}</span><strong>${escapeHtml(t(classifyFile(file.name)))}</strong></div>`).join("");
+    toast(t("fileSelectedToast"));
   }
 
   function updateBillingDisplay(cycle) {
@@ -568,7 +646,6 @@
 
     applyLanguage(localStorage.getItem("devbareun_lang") || "en");
     applyTheme();
-    renderPackage("schedule");
 
     $("[data-language-toggle]")?.addEventListener("click", () => {
       applyLanguage((document.documentElement.lang || "en") === "en" ? "az" : "en");
@@ -588,7 +665,6 @@
       document.body.classList.remove("menu-open");
     }));
 
-    $$(".package-card").forEach((card) => card.addEventListener("click", () => renderPackage(card.getAttribute("data-package") || "schedule")));
     $$("[data-billing]").forEach((button) => button.addEventListener("click", () => {
       updateBillingDisplay(button.getAttribute("data-billing") || "monthly");
     }));
@@ -624,7 +700,7 @@
     drop?.addEventListener("drop", (event) => renderFiles(Array.from(event.dataTransfer?.files || [])));
 
     $$("[data-plan]").forEach((link) => link.addEventListener("click", () => {
-      toast(`${link.textContent.trim()} selected. Upload files to continue.`);
+      toast(t("planSelectedToast"));
     }));
   });
 })();
