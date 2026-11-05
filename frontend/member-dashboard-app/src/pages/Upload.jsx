@@ -36,13 +36,13 @@ const COPY = {
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
-    files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Müqavilə (PDF, Word və ya şəkil)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
+    files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Müqavilə (PDF, Word, JPEG və ya PNG)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
     outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
     step2: "Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
     placeholder: "Məsələn: Baku Business Center",
     types: {
-      contract: { title: "Müqavilə", formats: "PDF, Word (.doc, .docx), şəkil (.jpg, .png)", hint: "Hesabata istinad kimi əlavə olunur." },
+      contract: { title: "Müqavilə", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Hesabata istinad kimi əlavə olunur." },
       schedule: { title: "Planlama", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Hesablama Excel, XER və ya MS Project XML-dən aparılır. PDF və .mpp istinad kimi saxlanılır." },
       f2: { title: "F2 aktları (ödəniş)", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc)", hint: "Dövr və məbləğ oxunur, fiziki icra ilə müqayisə edilir. Hər ay üçün bir fayl." }
     },
@@ -54,7 +54,7 @@ const COPY = {
     wrongFormat: (name, type) => `${name}: bu format ${type} üçün qəbul edilmir.`,
     scheduleRequired: "Planlama faylı tələb olunur (Excel, XER və ya MS Project XML).",
     f2Required: "F2 aktları tələb olunur (Excel və ya Word).",
-    contractRequired: "Müqavilə faylı tələb olunur (PDF, Word və ya şəkil).",
+    contractRequired: "Müqavilə faylı tələb olunur (PDF, Word, JPEG və ya PNG).",
     scheduleUnreadable: "Planlama yalnız PDF/.mpp-dir: hesablama üçün Excel, XER və ya MS Project XML faylı da əlavə edin.",
     start: "Analizi başlat",
     busy: "Analiz hazırlanır...",
@@ -78,7 +78,7 @@ const COPY = {
     files: analysisPackages[0].files,
     outputs: analysisPackages[0].outputs,
     types: {
-      contract: { title: "Contract", formats: "PDF, Word (.doc, .docx), image (.jpg, .png)", hint: "Attached to the report as a reference." },
+      contract: { title: "Contract", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Attached to the report as a reference." },
       schedule: { title: "Planning", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Calculated from Excel, XER or MS Project XML. PDF and .mpp are kept as a reference." },
       f2: { title: "F2 certificates (payment)", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc)", hint: "Period and amount are read and compared with physical progress. One file per month." }
     },
@@ -90,7 +90,7 @@ const COPY = {
     wrongFormat: (name, type) => `${name}: this format is not accepted for ${type}.`,
     scheduleRequired: "A planning file is required (Excel, XER or MS Project XML).",
     f2Required: "F2 certificates are required (Excel or Word).",
-    contractRequired: "The contract is required (PDF, Word or image).",
+    contractRequired: "The contract is required (PDF, Word, JPEG or PNG).",
     scheduleUnreadable: "Planning is only PDF/.mpp: add an Excel, XER or MS Project XML file for the calculation.",
     step2: "Create the project and upload files",
     projectName: "Project name",
