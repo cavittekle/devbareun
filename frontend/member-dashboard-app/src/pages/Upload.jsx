@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { CalendarRange, Check, Download, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import { AlertTriangle, CalendarRange, Check, CreditCard, Download, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
 import { uploadBinaryToSignedUrl, workspaceApi } from "../api/client";
 import { DELAY_TEMPLATE_URL, analysisPackages } from "../data/packages";
 import { LangToggle, useDelayLang } from "../components/DelayDashboard";
@@ -16,8 +16,8 @@ async function sha256File(file) {
 
 // Accepted formats per document type; mirrors backend/app/document_types.py.
 export const DOCUMENT_TYPES = [
-  { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: false },
   { id: "schedule", icon: CalendarRange, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml", ".mpp", ".pdf"], required: true },
+  { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: false },
   { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"], required: false }
 ];
 const READABLE_SCHEDULE = [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml"];
@@ -30,8 +30,8 @@ function extension(name) {
 const COPY = {
   az: {
     eyebrow: "İcra və gecikmə analizi",
-    title: "Müqaviləni, planlamanı və F2 aktlarını yükləyin.",
-    description: "DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
+    title: "Yeni gecikmə analizi",
+    description: "Planlamanı, müqaviləni və F2 aktlarını yükləyin. DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
     step1: "Şablonu doldurun və ya iş qrafiki ixracınızı hazırlayın",
     template: "Excel şablonunu yüklə",
     example: "Nümunə hesabata bax",
@@ -60,12 +60,16 @@ const COPY = {
     nameRequired: "Layihənin adı tələb olunur.",
     fileRequired: "Analiz üçün ən azı bir fayl seçin.",
     queued: "Fayllar yükləndi və analiz növbəyə alındı.",
-    open: "Nəticəni aç"
+    open: "Nəticəni aç",
+    extras: "Əlavə sənədlər (istəyə bağlı)",
+    noCreditsTitle: "Analiz üçün aktiv plan lazımdır",
+    noCreditsText: "Bu iş sahəsində analiz krediti qalmayıb. Faylları indi hazırlaya bilərsiniz, analizi başlatmaq üçün əvvəlcə plan seçin.",
+    choosePlan: "Plan seçin"
   },
   en: {
     eyebrow: "Execution and delay analysis",
-    title: "Upload the contract, the planning and the F2 certificates.",
-    description: "DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
+    title: "New delay analysis",
+    description: "Upload the planning, the contract and the F2 certificates. DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
     step1: "Fill in the template or prepare your schedule export",
     template: "Download Excel template",
     example: "See an example report",
@@ -94,11 +98,15 @@ const COPY = {
     nameRequired: "Project name is required.",
     fileRequired: "Choose at least one file to analyse.",
     queued: "Files uploaded and the analysis is queued.",
-    open: "Open result"
+    open: "Open result",
+    extras: "Supporting documents (optional)",
+    noCreditsTitle: "An active plan is needed to run the analysis",
+    noCreditsText: "This workspace has no analysis credits left. You can prepare your files now; choose a plan before starting the analysis.",
+    choosePlan: "Choose a plan"
   }
 };
 
-export function Upload({ onUploaded }) {
+export function Upload({ onUploaded, credits, onNavigate }) {
   const [lang, setLang] = useDelayLang();
   const copy = COPY[lang];
   const [resultProjectId, setResultProjectId] = useState(null);
@@ -108,6 +116,8 @@ export function Upload({ onUploaded }) {
   const [fileStates, setFileStates] = useState([]);
   const [status, setStatus] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Credits are only known once /api/credits/status answered; unknown never blocks.
+  const noCredits = credits != null && Number(credits.remaining ?? 0) <= 0;
   const selected = useMemo(
     () => analysisPackages.find((item) => item.id === selectedPackage) || analysisPackages[0],
     [selectedPackage]
@@ -147,6 +157,10 @@ export function Upload({ onUploaded }) {
 
   async function startAnalysis(event) {
     event.preventDefault();
+    if (noCredits) {
+      onNavigate?.("billing");
+      return;
+    }
     if (!projectName.trim()) {
       setStatus({ type: "error", text: copy.nameRequired });
       return;
@@ -240,12 +254,25 @@ export function Upload({ onUploaded }) {
         compact
       />
 
+      {noCredits && (
+        <div className="status-box warning upload-plan-notice" role="status">
+          <AlertTriangle size={18} aria-hidden="true" />
+          <div>
+            <strong>{copy.noCreditsTitle}</strong>
+            <span>{copy.noCreditsText}</span>
+          </div>
+          <button type="button" className="secondary-button" onClick={() => onNavigate?.("billing")}>
+            <CreditCard size={16} /> {copy.choosePlan}
+          </button>
+        </div>
+      )}
+
       <form className="upload-layout" onSubmit={startAnalysis}>
         <section className="panel upload-guide">
           <h2 className="step-title"><span className="step-badge">1</span>{copy.step1}</h2>
           <div className="delay-upload-links">
-            <a className="primary-button" href={DELAY_TEMPLATE_URL} download><Download size={16} /> {copy.template}</a>
-            <a className="secondary-button" href="/workspace/?view=example"><FileSpreadsheet size={16} /> {copy.example}</a>
+            <a className="secondary-button" href={DELAY_TEMPLATE_URL} download><Download size={16} /> {copy.template}</a>
+            <a className="text-button" href="/workspace/?view=example"><FileSpreadsheet size={16} /> {copy.example}</a>
           </div>
           <div className="guide-stack">
             <article>
@@ -274,8 +301,11 @@ export function Upload({ onUploaded }) {
               const Icon = type.icon;
               const text = copy.types[type.id];
               const count = files.filter((item) => item.type === type.id).length;
+              const firstOptional = !type.required && DOCUMENT_TYPES.find((item) => !item.required)?.id === type.id;
               return (
-                <label key={type.id} className={count ? "upload-zone doc-zone has-files" : "upload-zone doc-zone"}>
+                <Fragment key={type.id}>
+                {firstOptional && <span className="doc-zones-heading">{copy.extras}</span>}
+                <label className={count ? "upload-zone doc-zone has-files" : "upload-zone doc-zone"}>
                   <Icon size={28} />
                   <span className="doc-zone-title">
                     <strong>{text.title}</strong>
@@ -286,6 +316,7 @@ export function Upload({ onUploaded }) {
                   <span className="secondary-button doc-choose">{count ? copy.selected(count) : copy.choose}</span>
                   <input type="file" multiple accept={type.accept.join(",")} onChange={(event) => addFiles(type.id, event)} />
                 </label>
+                </Fragment>
               );
             })}
           </div>
@@ -313,7 +344,7 @@ export function Upload({ onUploaded }) {
             <a className="secondary-button full" href={`/workspace/?view=result&project_id=${encodeURIComponent(resultProjectId)}`}>{copy.open}</a>
           )}
           <button className="primary-button full" type="submit" disabled={busy}>
-            {busy ? copy.busy : copy.start}
+            {busy ? copy.busy : noCredits ? copy.choosePlan : copy.start}
           </button>
         </section>
       </form>

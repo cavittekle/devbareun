@@ -87,7 +87,12 @@ export default function App() {
         }
       }
       if (creditResult.status === "fulfilled") setCredits(creditResult.value?.credit_summary || null);
-      if (meResult.status === "rejected") setError(meResult.reason.message || "Login session could not be verified.");
+      if (meResult.status === "rejected") {
+        const reason = meResult.reason;
+        setError(reason?.code === "backend_offline"
+          ? { text: "We can't reach the DevBareun server right now. Try again in a minute.", offline: true }
+          : { text: reason?.message || "Login session could not be verified." });
+      }
     } finally {
       setLoading(false);
     }
@@ -107,7 +112,7 @@ export default function App() {
   }
 
   const content = useMemo(() => {
-    if (activeView === "upload") return <Upload onUploaded={refreshWorkspace} />;
+    if (activeView === "upload") return <Upload onUploaded={refreshWorkspace} credits={credits} onNavigate={navigate} />;
     if (activeView === "projects") return <Projects projects={projects} onNavigate={navigate} />;
     if (activeView === "reports") return <Reports reports={reports} onNavigate={navigate} />;
     if (activeView === "billing") return <Billing user={user} credits={credits} />;
@@ -141,7 +146,10 @@ export default function App() {
       {loading && <div className="status-box info">Loading workspace...</div>}
       {error && (
         <div className="status-box warning">
-          {error} Open <a href="/workspace/?view=login">login</a> if this workspace is protected.
+          {error.text}{" "}
+          {error.offline
+            ? <button type="button" className="text-button" onClick={refreshWorkspace}>Retry</button>
+            : <>Open <a href="/workspace/?view=login">login</a> if this workspace is protected.</>}
         </div>
       )}
       {content}
