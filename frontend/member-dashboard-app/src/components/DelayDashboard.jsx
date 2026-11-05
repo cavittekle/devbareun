@@ -21,6 +21,9 @@ export const T = {
     plannedFinish: "Plan bitmə",
     days: "gün",
     status: { on_track: "Qrafik üzrə", at_risk: "Risk altında", critical: "Kritik gecikmə" },
+    sectionNav: "Hesabat bölmələri",
+    navSummary: "Xülasə",
+    navF2: "F2 aktları",
     scurve: "Plan və faktiki icra (S-əyrisi)",
     scurveSub: "Aylıq kumulyativ %, hesabat tarixinə qədər faktiki",
     reconstructed: "Faktiki tarixçə işlərin faktiki tarixlərindən bərpa olunub.",
@@ -107,6 +110,9 @@ export const T = {
     plannedFinish: "Planned",
     days: "days",
     status: { on_track: "On track", at_risk: "At risk", critical: "Critical delay" },
+    sectionNav: "Report sections",
+    navSummary: "Summary",
+    navF2: "F2 certificates",
     scurve: "Planned vs actual progress (S-curve)",
     scurveSub: "Monthly cumulative %, actual up to the data date",
     reconstructed: "Actual history reconstructed from activity actual dates.",
@@ -188,9 +194,9 @@ function Payments({ payments, t }) {
   const currency = payments.currency || "";
   const gap = payments.financial_minus_physical_pct;
   return (
-    <section className="panel">
+    <section className="panel" id="report-payments">
       <header className="delay-section-head"><h2>{t.payments}</h2><span>{t.paymentsSub}</span></header>
-      <div className="delay-kpis">
+      <div className="delay-kpis delay-money-kpis">
         <Kpi label={t.contractValue} value={money(payments.contract_value, currency)} />
         <Kpi label={t.certified} value={money(payments.total_certified, currency)} note={`${payments.certificate_count} F2`} />
         <Kpi
@@ -473,6 +479,15 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
 
   const activities = showAll ? result.activities : (result.top_delays?.length ? result.top_delays : result.activities.slice(0, 10));
   const statusLabel = t.status[k.status] || k.status;
+  const sectionLinks = [
+    ["report-summary", t.navSummary],
+    ["report-findings", t.findings],
+    result.wbs?.length > 0 && ["report-wbs", t.wbs],
+    ["report-activities", t.activities],
+    result.events?.available && ["report-events", t.events],
+    result.payments?.available && ["report-payments", t.navF2],
+    ["report-quality", t.quality]
+  ].filter(Boolean);
 
   return (
     <div className="delay-dashboard">
@@ -503,9 +518,13 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         </div>
       </section>
 
-      <section className="delay-kpis">
+      <nav className="delay-section-nav" aria-label={t.sectionNav}>
+        {sectionLinks.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}
+      </nav>
+
+      <section className="delay-kpis" id="report-summary">
         <Kpi icon={TrendingDown} label={t.actualProgress} value={pct(k.actual_progress_pct)} note={`${t.plan} ${pct(k.planned_progress_pct)}`}
-          tone={k.progress_gap_pct < -5 ? "danger" : k.progress_gap_pct < 0 ? "warning" : "success"} bar={{ actual: k.actual_progress_pct, plan: k.planned_progress_pct }} />
+          bar={{ actual: k.actual_progress_pct, plan: k.planned_progress_pct }} />
         <Kpi icon={Scale} label={t.spi} value={k.spi ?? "—"} note={t.spiNote} tone={k.spi >= 0.95 ? "success" : k.spi >= 0.85 ? "warning" : "danger"} />
         <Kpi icon={CalendarClock} label={t.scheduleDelay} value={`${k.schedule_delay_days ?? 0} ${t.days}`} note={t.scheduleDelayNote}
           tone={k.schedule_delay_days > 30 ? "danger" : k.schedule_delay_days > 0 ? "warning" : "success"} />
@@ -529,7 +548,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         </article>
       </section>
 
-      <section className="card-grid result-section-grid">
+      <section className="card-grid result-section-grid" id="report-findings">
         <article className="panel">
           <header className="delay-section-head"><h2>{t.findings}</h2></header>
           <ul className="delay-findings">
@@ -545,7 +564,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
       </section>
 
       {result.wbs?.length > 0 && (
-        <section className="panel">
+        <section className="panel" id="report-wbs">
           <header className="delay-section-head"><h2>{t.wbs}</h2></header>
           <div className="delay-table-wrap">
             <table className="delay-table">
@@ -568,7 +587,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
         </section>
       )}
 
-      <section className="panel">
+      <section className="panel" id="report-activities">
         <header className="delay-section-head">
           <h2>{showAll ? t.allActivities : t.activities}</h2>
           <button type="button" className="secondary-button" onClick={() => setShowAll((v) => !v)}>{showAll ? t.showTop : t.showAll}</button>
@@ -596,7 +615,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
       </section>
 
       {result.events?.available && (
-        <section className="panel">
+        <section className="panel" id="report-events">
           <header className="delay-section-head"><h2>{t.events}</h2></header>
           <div className="delay-table-wrap">
             <table className="delay-table">
@@ -622,7 +641,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
 
       {result.documents?.length > 0 && <Documents documents={result.documents} lang={lang} t={t} />}
 
-      <section className="panel">
+      <section className="panel" id="report-quality">
         <header className="delay-section-head"><h2>{t.quality}</h2></header>
         <QualityList items={result.data_quality || []} lang={lang} t={t} />
       </section>

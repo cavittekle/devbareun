@@ -1841,6 +1841,68 @@ a {
   gap: 14px;
 }
 
+/* Report section navigation: the report runs to 8+ sections. */
+.delay-section-nav {
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 6px;
+  background: rgba(10, 18, 40, 0.88);
+  backdrop-filter: blur(14px);
+  scrollbar-width: none;
+}
+
+.workspace-main .delay-section-nav {
+  top: 84px;
+}
+
+.delay-section-nav a {
+  flex: none;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.delay-section-nav a:hover,
+.delay-section-nav a:focus-visible {
+  background: var(--accent-cyan-soft);
+  color: var(--text-main);
+}
+
+.delay-dashboard [id^="report-"] {
+  scroll-margin-top: 72px;
+}
+
+.workspace-main .delay-dashboard [id^="report-"] {
+  scroll-margin-top: 148px;
+}
+
+.delay-money-kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.delay-money-kpis .delay-kpi strong {
+  font-size: clamp(1.25rem, 1.9vw, 1.6rem);
+  white-space: nowrap;
+}
+
+@media print {
+  .delay-section-nav { display: none; }
+}
+
 .delay-kpi {
   position: relative;
   display: grid;
