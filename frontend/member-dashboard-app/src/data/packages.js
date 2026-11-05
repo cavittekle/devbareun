@@ -1,5 +1,3 @@
-export const DELAY_TEMPLATE_URL = "/templates/devbareun-delay-analysis-template.xlsx";
-
 // DevBareun runs one analysis: construction execution and delay analysis.
 export const analysisPackages = [
   {
@@ -8,9 +6,9 @@ export const analysisPackages = [
     label: "Tikinti layihəsinin icra və gecikmə analizi",
     files: [
       "Contract (PDF, Word or image)",
-      "Planning: baseline schedule and actual progress (Excel template, Primavera XER, MS Project)",
+      "Planning: baseline schedule and actual progress (Excel, Primavera XER, MS Project)",
       "F2 certificates: payment for completed work (Excel or Word)",
-      "Delay events with responsible party (optional, in the template)"
+      "Delay events with responsible party (optional)"
     ],
     outputs: [
       "Planned vs actual S-curve and SPI",
