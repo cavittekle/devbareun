@@ -99,7 +99,7 @@
           <i aria-hidden="true"></i>
         </button>
         <a class="header-login" href="/workspace/?view=login&next=/workspace/" data-i18n="login">Login</a>
-        <a class="btn btn-primary nav-cta" href="#upload" data-i18n="startAnalysis">Start Analysis</a>
+        <a class="btn btn-primary nav-cta" href="#upload" data-i18n="startAnalysis">Start analysis</a>
         <button class="mobile-menu-btn" type="button" aria-label="Open menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
@@ -114,7 +114,7 @@
       <a href="faq.html" data-i18n="navFAQ">FAQ</a>
       <a href="contact.html" data-i18n="navContact">Contact</a>
       <a href="/workspace/?view=login&next=/workspace/" data-i18n="login">Login</a>
-      <a href="#upload" data-i18n="startAnalysis">Start Analysis</a>
+      <a href="#upload" data-i18n="startAnalysis">Start analysis</a>
     </div>
   </header>
 
@@ -136,41 +136,65 @@
           </div>
         </div>
 
-        <aside class="hero-control-card" aria-label="Questions the execution report answers">
+        <aside class="hero-control-card hero-report-card" aria-label="Example execution report preview">
           <div class="hero-control-head">
             <span data-i18n="heroControlLabel">Execution report</span>
-            <strong data-i18n="heroControlTitle">Three questions, answered with numbers</strong>
+            <em data-i18n="heroReportBadge">Example</em>
           </div>
-          <div class="hero-control-flow">
+          <strong class="hero-report-title" data-i18n="heroControlTitle">Baku Business Center, sample data</strong>
+          <figure class="hero-report-curve">
+            <svg viewBox="0 0 320 112" role="img" aria-labelledby="heroCurveTitle">
+              <title id="heroCurveTitle">Planned vs actual progress: 57% planned, 35% actual at the data date</title>
+              <g class="hero-curve-grid"><line x1="0" y1="104" x2="320" y2="104"/><line x1="0" y1="56" x2="320" y2="56"/><line x1="0" y1="8" x2="320" y2="8"/></g>
+              <polyline class="hero-curve-plan" points="0,104 30,98 60,90 90,80 120,68 150,52 180,40 210,26 240,16 270,11 300,9 320,8"/>
+              <polyline class="hero-curve-actual" points="0,104 30,100 60,95 90,89 120,82 150,76 160,73"/>
+              <line class="hero-curve-today" x1="160" y1="4" x2="160" y2="108"/>
+              <circle class="hero-curve-dot" cx="160" cy="73" r="4"/>
+            </svg>
+            <figcaption>
+              <span class="plan" data-i18n="heroCurvePlan">Plan 57%</span>
+              <span class="actual" data-i18n="heroCurveActual">Actual 35%</span>
+            </figcaption>
+          </figure>
+          <div class="hero-control-flow hero-report-rows">
             <article>
-              <i aria-hidden="true">01</i>
               <div>
                 <strong data-i18n="heroFlowUpload">How far behind is the project?</strong>
-                <small data-i18n="heroFlowUploadText">Planned vs actual progress, SPI and schedule delay in days.</small>
+                <small data-i18n="heroFlowUploadText">SPI 0.62, by earned schedule</small>
               </div>
+              <b class="hero-report-value danger" data-i18n="heroValueBehind">67 days</b>
             </article>
             <article>
-              <i aria-hidden="true">02</i>
               <div>
                 <strong data-i18n="heroFlowMap">When will it finish?</strong>
-                <small data-i18n="heroFlowMapText">Forecast completion from activity progress rates and network logic.</small>
+                <small data-i18n="heroFlowMapText">98 days after the planned 15.12.2024</small>
               </div>
+              <b class="hero-report-value" data-i18n="heroValueFinish">23.03.2025</b>
             </article>
-            <article>
-              <i aria-hidden="true">03</i>
+            <article class="hero-report-split">
               <div>
                 <strong data-i18n="heroFlowDashboard">Who is responsible for the delay?</strong>
-                <small data-i18n="heroFlowDashboardText">Delay days split into employer, contractor, neutral and concurrent.</small>
+                <small data-i18n="heroFlowDashboardText">92 days of recorded delay events</small>
               </div>
+              <div class="hero-split-bar" role="img" aria-label="Employer 14, contractor 59, neutral 7, concurrent 12 days">
+                <i class="employer" style="flex: 14"></i><i class="contractor" style="flex: 59"></i><i class="neutral" style="flex: 7"></i><i class="concurrent" style="flex: 12"></i>
+              </div>
+              <ul class="hero-split-legend">
+                <li class="employer"><span data-i18n="heroSplitEmployer">Employer</span> 14</li>
+                <li class="contractor"><span data-i18n="heroSplitContractor">Contractor</span> 59</li>
+                <li class="neutral"><span data-i18n="heroSplitNeutral">Neutral</span> 7</li>
+                <li class="concurrent"><span data-i18n="heroSplitConcurrent">Concurrent</span> 12</li>
+              </ul>
             </article>
           </div>
+          <a class="hero-report-link" href="/workspace/?view=example" data-i18n="heroReportLink">Open the full example report</a>
         </aside>
 
         <div class="hero-signal-strip" aria-label="What the analysis calculates">
-          <span><b>SPI</b><small data-i18n="heroMetricPackages">Schedule performance</small></span>
-          <span><b>CPM</b><small data-i18n="heroMetricFormats">Critical path and float</small></span>
-          <span><b>4</b><small data-i18n="heroMetricReports">Responsibility classes</small></span>
-          <span><b>AZ/EN</b><small data-i18n="heroMetricLanguages">PDF and Excel report</small></span>
+          <span><b data-i18n="heroMetricPackagesValue">Delay in days</b><small data-i18n="heroMetricPackages">Not only a percentage</small></span>
+          <span><b data-i18n="heroMetricFormatsValue">Critical path</b><small data-i18n="heroMetricFormats">Activities that move the finish</small></span>
+          <span><b data-i18n="heroMetricReportsValue">Responsibility</b><small data-i18n="heroMetricReports">Who caused each delay day</small></span>
+          <span><b data-i18n="heroMetricLanguagesValue">PDF and Excel</b><small data-i18n="heroMetricLanguages">Report in AZ and EN</small></span>
         </div>
       </div>
     </section>
@@ -500,8 +524,8 @@
       </nav>
       <nav class="footer-column" aria-label="Legal navigation">
         <strong data-i18n="footerLegal">Legal</strong>
-        <a href="privacy.html" data-i18n="footerPrivacy">Privacy Policy</a>
-        <a href="terms.html" data-i18n="footerTerms">Terms of Service</a>
+        <a href="privacy.html" data-i18n="footerPrivacy">Privacy policy</a>
+        <a href="terms.html" data-i18n="footerTerms">Terms of service</a>
       </nav>
       <div class="footer-bottom">
         <span>&copy; 2026 DevBareun</span>
