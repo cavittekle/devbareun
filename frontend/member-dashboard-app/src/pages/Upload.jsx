@@ -17,8 +17,8 @@ async function sha256File(file) {
 // Accepted formats per document type; mirrors backend/app/document_types.py.
 export const DOCUMENT_TYPES = [
   { id: "schedule", icon: CalendarRange, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml", ".mpp", ".pdf"], required: true },
-  { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: false },
-  { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"], required: false }
+  { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"], required: true },
+  { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: true }
 ];
 const READABLE_SCHEDULE = [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml"];
 
@@ -36,7 +36,7 @@ const COPY = {
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
-    files: ["Müqavilə (PDF, Word və ya şəkil)", "Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
+    files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Müqavilə (PDF, Word və ya şəkil)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
     outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
     step2: "Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
@@ -53,6 +53,8 @@ const COPY = {
     remove: "Sil",
     wrongFormat: (name, type) => `${name}: bu format ${type} üçün qəbul edilmir.`,
     scheduleRequired: "Planlama faylı tələb olunur (Excel, XER və ya MS Project XML).",
+    f2Required: "F2 aktları tələb olunur (Excel və ya Word).",
+    contractRequired: "Müqavilə faylı tələb olunur (PDF, Word və ya şəkil).",
     scheduleUnreadable: "Planlama yalnız PDF/.mpp-dir: hesablama üçün Excel, XER və ya MS Project XML faylı da əlavə edin.",
     start: "Analizi başlat",
     busy: "Analiz hazırlanır...",
@@ -87,6 +89,8 @@ const COPY = {
     remove: "Remove",
     wrongFormat: (name, type) => `${name}: this format is not accepted for ${type}.`,
     scheduleRequired: "A planning file is required (Excel, XER or MS Project XML).",
+    f2Required: "F2 certificates are required (Excel or Word).",
+    contractRequired: "The contract is required (PDF, Word or image).",
     scheduleUnreadable: "Planning is only PDF/.mpp: add an Excel, XER or MS Project XML file for the calculation.",
     step2: "Create the project and upload files",
     projectName: "Project name",
@@ -174,6 +178,14 @@ export function Upload({ onUploaded, credits, onNavigate }) {
     }
     if (!schedules.some((item) => READABLE_SCHEDULE.includes(extension(item.file.name)))) {
       setStatus({ type: "error", text: copy.scheduleUnreadable });
+      return;
+    }
+    if (!files.some((item) => item.type === "f2")) {
+      setStatus({ type: "error", text: copy.f2Required });
+      return;
+    }
+    if (!files.some((item) => item.type === "contract")) {
+      setStatus({ type: "error", text: copy.contractRequired });
       return;
     }
     setBusy(true);

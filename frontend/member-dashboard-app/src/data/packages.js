@@ -5,9 +5,9 @@ export const analysisPackages = [
     name: "Execution & Delay Analysis",
     label: "Tikinti layihəsinin icra və gecikmə analizi",
     files: [
-      "Contract (PDF, Word or image)",
       "Planning: baseline schedule and actual progress (Excel, Primavera XER, MS Project)",
       "F2 certificates: payment for completed work (Excel or Word)",
+      "Contract (PDF, Word or image)",
       "Delay events with responsible party (optional)"
     ],
     outputs: [
