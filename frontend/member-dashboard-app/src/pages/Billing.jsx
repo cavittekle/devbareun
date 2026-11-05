@@ -26,7 +26,7 @@ export function Billing({ user, credits }) {
     <>
       <PageHeader
         eyebrow="Billing and credits"
-        title="Manage project analysis credits."
+        title="Plans and analysis credits"
         description="Single Project unlocks one analysis. Plus and Pro use monthly project credits."
       />
       <section className="card-grid three">

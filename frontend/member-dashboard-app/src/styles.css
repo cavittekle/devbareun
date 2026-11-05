@@ -2571,3 +2571,18 @@ button.workspace-avatar {
     width: 100%;
   }
 }
+
+/* Design standards: spacing between stacked sections, tap targets on auth links */
+.card-grid + .panel,
+.card-grid + section,
+.kpi-grid + .panel,
+.kpi-grid + .empty-state {
+  margin-top: 16px;
+}
+
+.auth-switch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+}

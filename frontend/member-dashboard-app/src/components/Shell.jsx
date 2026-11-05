@@ -21,7 +21,7 @@ import { classNames } from "../lib/format";
 const navItems = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "upload", label: "New delay analysis", icon: UploadCloud },
-  { id: "projects", label: "My Projects", icon: FolderKanban },
+  { id: "projects", label: "My projects", icon: FolderKanban },
   { id: "reports", label: "Reports", icon: FileBarChart },
   { id: "billing", label: "Billing", icon: CreditCard },
   { id: "settings", label: "Settings", icon: Settings }
@@ -30,8 +30,8 @@ const navItems = [
 // Team sharing stays available for companies, below the main menu.
 const teamNavItems = [
   { id: "team", label: "Team", icon: UsersRound },
-  { id: "project-access", label: "Project Access", icon: FolderKey },
-  { id: "project-activity", label: "Project Activity", icon: Activity }
+  { id: "project-access", label: "Project access", icon: FolderKey },
+  { id: "project-activity", label: "Project activity", icon: Activity }
 ];
 
 const allNavItems = [...navItems, ...teamNavItems];
@@ -164,7 +164,8 @@ function NavButton({ item, active, onSelect }) {
   );
 }
 
-export function PageHeader({ eyebrow, title, description, action, compact = false }) {
+// Workspace pages are tools, not landing pages: the compact header is the default.
+export function PageHeader({ eyebrow, title, description, action, compact = true }) {
   return (
     <section className={compact ? "page-header compact" : "page-header"}>
       <div>

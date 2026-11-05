@@ -164,7 +164,7 @@ export function Team() {
     <>
       <PageHeader
         eyebrow="Company workspace"
-        title="Team roster and controlled invitations."
+        title="Team and invitations"
         description="Manage company membership without automatically widening project access. Project sharing remains explicit and separate."
         action={
           <button className="secondary-button" type="button" onClick={refresh} disabled={loading || Boolean(busy)}>
