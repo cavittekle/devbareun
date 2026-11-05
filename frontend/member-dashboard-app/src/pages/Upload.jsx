@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
-import { AlertTriangle, CalendarRange, Check, CreditCard, Download, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
+import { AlertTriangle, CalendarRange, Check, CreditCard, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
 import { uploadBinaryToSignedUrl, workspaceApi } from "../api/client";
-import { DELAY_TEMPLATE_URL, analysisPackages } from "../data/packages";
+import { analysisPackages } from "../data/packages";
 import { LangToggle, useDelayLang } from "../components/DelayDashboard";
 import { fileSize } from "../lib/format";
 import { PageHeader } from "../components/Shell";
@@ -17,8 +17,8 @@ async function sha256File(file) {
 // Accepted formats per document type; mirrors backend/app/document_types.py.
 export const DOCUMENT_TYPES = [
   { id: "schedule", icon: CalendarRange, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml", ".mpp", ".pdf"], required: true },
-  { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: false },
-  { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"], required: false }
+  { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"], required: true },
+  { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: true }
 ];
 const READABLE_SCHEDULE = [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml"];
 
@@ -32,18 +32,17 @@ const COPY = {
     eyebrow: "İcra və gecikmə analizi",
     title: "Yeni gecikmə analizi",
     description: "Planlamanı, müqaviləni və F2 aktlarını yükləyin. DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
-    step1: "Şablonu doldurun və ya iş qrafiki ixracınızı hazırlayın",
-    template: "Excel şablonunu yüklə",
+    step1: "İş qrafikinizi və sənədlərinizi hazırlayın",
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
-    files: ["Müqavilə (PDF, Word və ya şəkil)", "Planlama: plan iş qrafiki və faktiki icra (Excel şablonu, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı, şablonda)"],
+    files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Müqavilə (PDF, Word, JPEG və ya PNG)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
     outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
     step2: "Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
     placeholder: "Məsələn: Baku Business Center",
     types: {
-      contract: { title: "Müqavilə", formats: "PDF, Word (.doc, .docx), şəkil (.jpg, .png)", hint: "Hesabata əlavə olunur. Tarixlər və dəyər şablonun Layihə vərəqindən götürülür." },
+      contract: { title: "Müqavilə", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Hesabata istinad kimi əlavə olunur." },
       schedule: { title: "Planlama", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Hesablama Excel, XER və ya MS Project XML-dən aparılır. PDF və .mpp istinad kimi saxlanılır." },
       f2: { title: "F2 aktları (ödəniş)", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc)", hint: "Dövr və məbləğ oxunur, fiziki icra ilə müqayisə edilir. Hər ay üçün bir fayl." }
     },
@@ -53,8 +52,10 @@ const COPY = {
     selected: (count) => `${count} fayl seçildi`,
     remove: "Sil",
     wrongFormat: (name, type) => `${name}: bu format ${type} üçün qəbul edilmir.`,
-    scheduleRequired: "Planlama faylı tələb olunur (Excel şablonu, XER və ya MS Project XML).",
-    scheduleUnreadable: "Planlama yalnız PDF/.mpp-dir: hesablama üçün Excel şablonu, XER və ya MS Project XML faylı da əlavə edin.",
+    scheduleRequired: "Planlama faylı tələb olunur (Excel, XER və ya MS Project XML).",
+    f2Required: "F2 aktları tələb olunur (Excel və ya Word).",
+    contractRequired: "Müqavilə faylı tələb olunur (PDF, Word, JPEG və ya PNG).",
+    scheduleUnreadable: "Planlama yalnız PDF/.mpp-dir: hesablama üçün Excel, XER və ya MS Project XML faylı da əlavə edin.",
     start: "Analizi başlat",
     busy: "Analiz hazırlanır...",
     nameRequired: "Layihənin adı tələb olunur.",
@@ -70,15 +71,14 @@ const COPY = {
     eyebrow: "Execution and delay analysis",
     title: "New delay analysis",
     description: "Upload the planning, the contract and the F2 certificates. DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
-    step1: "Fill in the template or prepare your schedule export",
-    template: "Download Excel template",
+    step1: "Prepare your schedule and documents",
     example: "See an example report",
     need: "What you need",
     receive: "What you receive",
     files: analysisPackages[0].files,
     outputs: analysisPackages[0].outputs,
     types: {
-      contract: { title: "Contract", formats: "PDF, Word (.doc, .docx), image (.jpg, .png)", hint: "Attached to the report. Dates and value come from the template's project sheet." },
+      contract: { title: "Contract", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Attached to the report as a reference." },
       schedule: { title: "Planning", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Calculated from Excel, XER or MS Project XML. PDF and .mpp are kept as a reference." },
       f2: { title: "F2 certificates (payment)", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc)", hint: "Period and amount are read and compared with physical progress. One file per month." }
     },
@@ -88,8 +88,10 @@ const COPY = {
     selected: (count) => `${count} file${count === 1 ? "" : "s"} selected`,
     remove: "Remove",
     wrongFormat: (name, type) => `${name}: this format is not accepted for ${type}.`,
-    scheduleRequired: "A planning file is required (Excel template, XER or MS Project XML).",
-    scheduleUnreadable: "Planning is only PDF/.mpp: add the Excel template, an XER or an MS Project XML file for the calculation.",
+    scheduleRequired: "A planning file is required (Excel, XER or MS Project XML).",
+    f2Required: "F2 certificates are required (Excel or Word).",
+    contractRequired: "The contract is required (PDF, Word, JPEG or PNG).",
+    scheduleUnreadable: "Planning is only PDF/.mpp: add an Excel, XER or MS Project XML file for the calculation.",
     step2: "Create the project and upload files",
     projectName: "Project name",
     placeholder: "Example: Residential Tower A",
@@ -176,6 +178,14 @@ export function Upload({ onUploaded, credits, onNavigate }) {
     }
     if (!schedules.some((item) => READABLE_SCHEDULE.includes(extension(item.file.name)))) {
       setStatus({ type: "error", text: copy.scheduleUnreadable });
+      return;
+    }
+    if (!files.some((item) => item.type === "f2")) {
+      setStatus({ type: "error", text: copy.f2Required });
+      return;
+    }
+    if (!files.some((item) => item.type === "contract")) {
+      setStatus({ type: "error", text: copy.contractRequired });
       return;
     }
     setBusy(true);
@@ -271,7 +281,6 @@ export function Upload({ onUploaded, credits, onNavigate }) {
         <section className="panel upload-guide">
           <h2 className="step-title"><span className="step-badge">1</span>{copy.step1}</h2>
           <div className="delay-upload-links">
-            <a className="secondary-button" href={DELAY_TEMPLATE_URL} download><Download size={16} /> {copy.template}</a>
             <a className="text-button" href="/workspace/?view=example"><FileSpreadsheet size={16} /> {copy.example}</a>
           </div>
           <div className="guide-stack">

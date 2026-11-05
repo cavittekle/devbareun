@@ -38,7 +38,7 @@ class FrontendReadabilityAgent(BaseAgent):
         if html.exists():
             h = self.read(html)
             # Upload section of the delay-analysis landing page.
-            required = ['id="upload"', 'id="dropZone"', 'id="fileInput"', "devbareun-delay-analysis-template.xlsx", "/workspace/?view=example"]
+            required = ['id="upload"', 'id="dropZone"', 'id="fileInput"', "/workspace/?view=example"]
             for item in required:
                 if item not in h:
                     self.add("warning", f"Upload flow marker missing: {item}", html)
