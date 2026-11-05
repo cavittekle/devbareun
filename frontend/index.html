@@ -371,7 +371,21 @@
             <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml" />
             <div class="drop-icon" aria-hidden="true">+</div>
             <h3 data-i18n="dropTitle">Drop schedule and progress files here, or browse</h3>
-            <p data-i18n="dropText">Contract (PDF, Word, photo), planning (DevBareun Excel template, Excel/CSV, Primavera P6 XER, MS Project XML/MPP, PDF) and F2 certificates (Excel, Word).</p>
+            <p class="drop-types-lead" data-i18n="dropTypesLead">Which files to upload</p>
+            <ol class="drop-types">
+              <li>
+                <span class="drop-type-head"><strong data-i18n="dropPlanTitle">1. Schedule (plan and actual)</strong><em class="drop-badge is-required" data-i18n="dropRequired">Required</em></span>
+                <span class="drop-type-formats" data-i18n="dropPlanFormats">DevBareun Excel template, Excel/CSV, Primavera P6 (.xer), MS Project (.xml, .mpp), PDF</span>
+              </li>
+              <li>
+                <span class="drop-type-head"><strong data-i18n="dropF2Title">2. F2 certificates of completed work</strong><em class="drop-badge" data-i18n="dropOptional">Optional</em></span>
+                <span class="drop-type-formats" data-i18n="dropF2Formats">Excel or Word, one file per month</span>
+              </li>
+              <li>
+                <span class="drop-type-head"><strong data-i18n="dropContractTitle">3. Contract</strong><em class="drop-badge" data-i18n="dropOptional">Optional</em></span>
+                <span class="drop-type-formats" data-i18n="dropContractFormats">PDF, Word or photo</span>
+              </li>
+            </ol>
             <button class="btn btn-secondary" type="button" id="browseBtn" data-i18n="browseFiles">Choose files</button>
           </div>
           <div class="file-list" id="fileList" aria-live="polite"></div>
