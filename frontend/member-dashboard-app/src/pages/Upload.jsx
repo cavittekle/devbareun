@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CalendarRange, Download, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
+import { CalendarRange, Check, Download, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
 import { uploadBinaryToSignedUrl, workspaceApi } from "../api/client";
 import { DELAY_TEMPLATE_URL, analysisPackages } from "../data/packages";
 import { LangToggle, useDelayLang } from "../components/DelayDashboard";
@@ -32,14 +32,14 @@ const COPY = {
     eyebrow: "İcra və gecikmə analizi",
     title: "Müqaviləni, planlamanı və F2 aktlarını yükləyin.",
     description: "DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
-    step1: "1. Şablonu doldurun və ya iş qrafiki ixracınızı hazırlayın",
+    step1: "Şablonu doldurun və ya iş qrafiki ixracınızı hazırlayın",
     template: "Excel şablonunu yüklə",
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
     files: ["Müqavilə (PDF, Word və ya şəkil)", "Planlama: plan iş qrafiki və faktiki icra (Excel şablonu, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı, şablonda)"],
     outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
-    step2: "2. Layihəni yaradın və faylları yükləyin",
+    step2: "Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
     placeholder: "Məsələn: Baku Business Center",
     types: {
@@ -50,6 +50,7 @@ const COPY = {
     required: "Tələb olunur",
     optional: "İstəyə bağlı",
     choose: "Fayl seçin",
+    selected: (count) => `${count} fayl seçildi`,
     remove: "Sil",
     wrongFormat: (name, type) => `${name}: bu format ${type} üçün qəbul edilmir.`,
     scheduleRequired: "Planlama faylı tələb olunur (Excel şablonu, XER və ya MS Project XML).",
@@ -65,7 +66,7 @@ const COPY = {
     eyebrow: "Execution and delay analysis",
     title: "Upload the contract, the planning and the F2 certificates.",
     description: "DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
-    step1: "1. Fill in the template or prepare your schedule export",
+    step1: "Fill in the template or prepare your schedule export",
     template: "Download Excel template",
     example: "See an example report",
     need: "What you need",
@@ -80,11 +81,12 @@ const COPY = {
     required: "Required",
     optional: "Optional",
     choose: "Choose files",
+    selected: (count) => `${count} file${count === 1 ? "" : "s"} selected`,
     remove: "Remove",
     wrongFormat: (name, type) => `${name}: this format is not accepted for ${type}.`,
     scheduleRequired: "A planning file is required (Excel template, XER or MS Project XML).",
     scheduleUnreadable: "Planning is only PDF/.mpp: add the Excel template, an XER or an MS Project XML file for the calculation.",
-    step2: "2. Create the project and upload files",
+    step2: "Create the project and upload files",
     projectName: "Project name",
     placeholder: "Example: Residential Tower A",
     start: "Start analysis",
@@ -235,33 +237,34 @@ export function Upload({ onUploaded }) {
         title={copy.title}
         description={copy.description}
         action={<LangToggle lang={lang} onChange={setLang} />}
+        compact
       />
 
       <form className="upload-layout" onSubmit={startAnalysis}>
-        <section className="panel">
-          <h2>{copy.step1}</h2>
+        <section className="panel upload-guide">
+          <h2 className="step-title"><span className="step-badge">1</span>{copy.step1}</h2>
           <div className="delay-upload-links">
             <a className="primary-button" href={DELAY_TEMPLATE_URL} download><Download size={16} /> {copy.template}</a>
             <a className="secondary-button" href="/workspace/?view=example"><FileSpreadsheet size={16} /> {copy.example}</a>
           </div>
-          <div className="guide-grid">
+          <div className="guide-stack">
             <article>
               <h3>{copy.need}</h3>
-              <ol>
+              <ol className="guide-steps">
                 {copy.files.map((item) => <li key={item}>{item}</li>)}
               </ol>
             </article>
             <article>
               <h3>{copy.receive}</h3>
-              <ul>
-                {copy.outputs.map((item) => <li key={item}>{item}</li>)}
+              <ul className="guide-checks">
+                {copy.outputs.map((item) => <li key={item}><Check size={15} aria-hidden="true" />{item}</li>)}
               </ul>
             </article>
           </div>
         </section>
 
-        <section className="panel">
-          <h2>{copy.step2}</h2>
+        <section className="panel upload-form">
+          <h2 className="step-title"><span className="step-badge">2</span>{copy.step2}</h2>
           <label className="field-label">
             {copy.projectName}
             <input value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder={copy.placeholder} />
@@ -270,8 +273,9 @@ export function Upload({ onUploaded }) {
             {DOCUMENT_TYPES.map((type) => {
               const Icon = type.icon;
               const text = copy.types[type.id];
+              const count = files.filter((item) => item.type === type.id).length;
               return (
-                <label key={type.id} className="upload-zone doc-zone">
+                <label key={type.id} className={count ? "upload-zone doc-zone has-files" : "upload-zone doc-zone"}>
                   <Icon size={28} />
                   <span className="doc-zone-title">
                     <strong>{text.title}</strong>
@@ -279,7 +283,7 @@ export function Upload({ onUploaded }) {
                   </span>
                   <span className="doc-zone-formats">{text.formats}</span>
                   <small>{text.hint}</small>
-                  <span className="secondary-button doc-choose">{copy.choose}</span>
+                  <span className="secondary-button doc-choose">{count ? copy.selected(count) : copy.choose}</span>
                   <input type="file" multiple accept={type.accept.join(",")} onChange={(event) => addFiles(type.id, event)} />
                 </label>
               );

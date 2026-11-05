@@ -132,9 +132,9 @@ function NavButton({ item, active, onSelect }) {
   );
 }
 
-export function PageHeader({ eyebrow, title, description, action }) {
+export function PageHeader({ eyebrow, title, description, action, compact = false }) {
   return (
-    <section className="page-header">
+    <section className={compact ? "page-header compact" : "page-header"}>
       <div>
         {eyebrow && <span className="workspace-eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
