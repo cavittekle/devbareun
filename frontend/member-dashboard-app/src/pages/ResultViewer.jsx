@@ -346,7 +346,7 @@ function LegacyResultViewer({ mode = "result" }) {
     return (
       <>
         <PageHeader eyebrow="Result viewer" title="Result unavailable." description="The link may be expired, missing, or unavailable for this workspace." />
-        <EmptyState title="No result loaded." description={state.error} action={<a className="secondary-button" href="/workspace/?view=reports">Open Reports</a>} />
+        <EmptyState title="No result loaded." description={state.error} action={<a className="secondary-button" href="/workspace/?view=reports">Open reports</a>} />
       </>
     );
   }

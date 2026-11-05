@@ -13,7 +13,7 @@ export function Reports({ reports, onNavigate }) {
         <EmptyState
           title="No reports generated."
           description="Run an analysis from uploaded files to create report outputs."
-          action={<button className="secondary-button" onClick={() => onNavigate("upload")}>Upload Files</button>}
+          action={<button className="secondary-button" onClick={() => onNavigate("upload")}>Upload files</button>}
         />
       ) : (
         <section className="table-list">

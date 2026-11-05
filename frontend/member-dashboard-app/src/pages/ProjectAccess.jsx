@@ -80,7 +80,7 @@ export function ProjectAccess() {
 
   return (
     <>
-      <PageHeader eyebrow="Collaboration control" title="Project Access" description="Company membership never gives automatic project access. Share each project explicitly." action={<button className="secondary-button" onClick={loadBase} disabled={loading}><RefreshCw size={16} /> Refresh</button>} />
+      <PageHeader eyebrow="Collaboration control" title="Project access" description="Company membership never gives automatic project access. Share each project explicitly." action={<button className="secondary-button" onClick={loadBase} disabled={loading}><RefreshCw size={16} /> Refresh</button>} />
       {error ? <div className="status-box warning">{error}</div> : null}
       {notice ? <div className="status-box info">{notice}</div> : null}
       {loading ? <div className="status-box info">Loading project access…</div> : null}

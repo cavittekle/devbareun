@@ -71,7 +71,7 @@ export function ProjectActivity() {
     <>
       <PageHeader
         eyebrow="Project traceability"
-        title="Project Activity"
+        title="Project activity"
         description="A collaboration-safe timeline of uploads, analyses, reports and project access changes."
         action={<button className="secondary-button" onClick={() => loadTimeline()} disabled={timelineLoading || !selectedProjectId}><RefreshCw size={16} /> Refresh</button>}
       />

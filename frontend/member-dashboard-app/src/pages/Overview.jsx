@@ -10,9 +10,9 @@ export function Overview({ projects, reports, credits, onNavigate }) {
     <>
       <PageHeader
         eyebrow="Workspace dashboard"
-        title="Control project uploads, dashboards and reports."
-        description="Manage your projects, reports and remaining analysis credits in one place."
-        action={<button className="primary-button" onClick={() => onNavigate("upload")}>Start New Analysis</button>}
+        title="Your delay analyses"
+        description="Projects, execution reports and remaining analysis credits in one place."
+        action={<button className="primary-button" onClick={() => onNavigate("upload")}>Start new analysis</button>}
       />
 
       <section className="kpi-grid">
@@ -41,8 +41,8 @@ export function Overview({ projects, reports, credits, onNavigate }) {
       {projectCount === 0 ? (
         <EmptyState
           title="No project data yet."
-          description="Upload schedule, cost, payment, material or risk files to generate the first management dashboard."
-          action={<button className="secondary-button" onClick={() => onNavigate("upload")}>Open Upload Flow</button>}
+          description="Upload the planning file, and optionally the contract and F2 certificates, to get the first execution and delay report."
+          action={<button className="secondary-button" onClick={() => onNavigate("upload")}>Open the upload page</button>}
         />
       ) : (
         <section className="panel">

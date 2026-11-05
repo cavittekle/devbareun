@@ -5,15 +5,15 @@ export function Projects({ projects, onNavigate }) {
     <>
       <PageHeader
         eyebrow="Project archive"
-        title="My Projects"
+        title="My projects"
         description="Uploaded projects and generated dashboards will appear here."
-        action={<button className="primary-button" onClick={() => onNavigate("upload")}>Upload Project</button>}
+        action={<button className="primary-button" onClick={() => onNavigate("upload")}>New delay analysis</button>}
       />
       {projects.length === 0 ? (
         <EmptyState
           title="No projects yet."
-          description="A customer workspace should stay clean until real files are uploaded."
-          action={<button className="secondary-button" onClick={() => onNavigate("upload")}>Create First Project</button>}
+          description="Projects appear here after you upload the planning file for a delay analysis."
+          action={<button className="secondary-button" onClick={() => onNavigate("upload")}>Create the first project</button>}
         />
       ) : (
         <section className="card-grid">

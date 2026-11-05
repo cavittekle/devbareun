@@ -127,7 +127,7 @@ export function Settings({ user, health }) {
     <>
       <PageHeader
         eyebrow="Workspace settings"
-        title="Account, privacy and production readiness."
+        title="Account and privacy"
         description="Manage your session information, view service health and submit reviewed data lifecycle requests."
       />
       <section className="card-grid">
