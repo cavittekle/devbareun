@@ -31,12 +31,14 @@ export const planCatalog = {
   plus: {
     name: "Plus",
     price: "$49",
+    annualPrice: "$39",
     cadence: "month",
     credits: "5 / month"
   },
   pro: {
     name: "Pro",
     price: "$89",
+    annualPrice: "$71",
     cadence: "month",
     credits: "20 / month"
   }
