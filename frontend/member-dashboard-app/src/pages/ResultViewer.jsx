@@ -530,7 +530,18 @@ export function ExampleResult() {
   }, []);
 
   if (state.loading) return <div className="status-box info">{lang === "az" ? "Nümunə hesabat yüklənir..." : "Loading example report..."}</div>;
-  if (state.error) return <EmptyState title={lang === "az" ? "Nümunə açılmadı." : "Example unavailable."} description={state.error} action={<a className="secondary-button" href="/">DevBareun</a>} />;
+  if (state.error) {
+    return (
+      <EmptyState
+        headingLevel={1}
+        title={lang === "az" ? "Nümunə hesabat indi açılmadı" : "The example report didn't load"}
+        description={lang === "az"
+          ? "DevBareun serverinə qoşula bilmirik. Bir dəqiqə sonra səhifəni yeniləyin."
+          : "We can't reach the DevBareun server. Refresh the page in a minute."}
+        action={<a className="secondary-button" href="/">{lang === "az" ? "Əsas səhifəyə qayıt" : "Back to home"}</a>}
+      />
+    );
+  }
   return (
     <DelayDashboard
       result={state.result}

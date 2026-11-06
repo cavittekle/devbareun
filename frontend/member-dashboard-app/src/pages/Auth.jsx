@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BarChart3, Check, ChevronDown, LockKeyhole, Mail, UserPlus } from "lucide-react";
 import { workspaceApi } from "../api/client";
+import { LangToggle, useDelayLang } from "../components/DelayDashboard";
 
 const planOptions = [
   { value: "plus", label: "Plus" },
@@ -13,6 +14,85 @@ function nextUrl() {
   if (next && next.startsWith("/") && !next.startsWith("//")) return next;
   return "/workspace/";
 }
+
+const AUTH_COPY = {
+  en: {
+    login: {
+      eyebrow: "Member workspace",
+      title: "Log in to DevBareun",
+      description: "Upload your schedule, F2 and F3 certificates and contract, and see how late the project is and why.",
+      heading: "Log in",
+      button: "Log in"
+    },
+    register: {
+      eyebrow: "Create workspace",
+      title: "Create your DevBareun account",
+      description: "One account for your delay analyses, monthly credits and past reports.",
+      heading: "Create account",
+      button: "Create account"
+    },
+    eyebrow: "Execution and delay analysis",
+    point1Title: "Delay in days",
+    point1Text: "Planned vs actual, forecast completion and critical path.",
+    point2Title: "Your reports stay private",
+    point2Text: "Only your team can open past analyses and exports.",
+    email: "Email",
+    password: "Password",
+    passwordHint: "At least 8 characters",
+    plan: "Plan (you can change it later)",
+    planOptions: "Plan options",
+    company: "Company name",
+    contact: "Contact person",
+    wait: "Please wait...",
+    creating: "Creating your account...",
+    checking: "Checking your details...",
+    registered: "Account created. If we sent you a confirmation email, confirm it before you log in.",
+    loggedIn: "Logged in. Opening your workspace...",
+    failed: "We couldn't log you in. Check your email and password and try again.",
+    haveAccount: "Already have an account?",
+    newHere: "New to DevBareun?",
+    toLogin: "Log in",
+    toRegister: "Create account"
+  },
+  az: {
+    login: {
+      eyebrow: "Üzv iş sahəsi",
+      title: "DevBareun-a daxil olun",
+      description: "Planlamanı, F2 və F3 aktlarını və müqaviləni yükləyin, layihənin nə qədər və niyə gecikdiyini görün.",
+      heading: "Daxil ol",
+      button: "Daxil ol"
+    },
+    register: {
+      eyebrow: "İş sahəsi yaradın",
+      title: "DevBareun hesabı yaradın",
+      description: "Gecikmə analizləriniz, aylıq kreditləriniz və keçmiş hesabatlarınız üçün bir hesab.",
+      heading: "Hesab yarat",
+      button: "Hesab yarat"
+    },
+    eyebrow: "İcra və gecikmə analizi",
+    point1Title: "Gecikmə günlərlə",
+    point1Text: "Plan və faktiki, proqnoz bitmə tarixi və kritik yol.",
+    point2Title: "Hesabatlarınız məxfidir",
+    point2Text: "Keçmiş analizləri və ixracları yalnız komandanız görür.",
+    email: "Email",
+    password: "Şifrə",
+    passwordHint: "Ən azı 8 simvol",
+    plan: "Plan (sonra dəyişə bilərsiniz)",
+    planOptions: "Plan seçimləri",
+    company: "Şirkətin adı",
+    contact: "Əlaqə şəxsi",
+    wait: "Gözləyin...",
+    creating: "Hesab yaradılır...",
+    checking: "Məlumatlar yoxlanılır...",
+    registered: "Hesab yaradıldı. Təsdiq emaili göndərmişiksə, daxil olmazdan əvvəl onu təsdiqləyin.",
+    loggedIn: "Daxil oldunuz. İş sahəsi açılır...",
+    failed: "Daxil ola bilmədik. Email və şifrəni yoxlayıb yenidən cəhd edin.",
+    haveAccount: "Hesabınız var?",
+    newHere: "DevBareun-da yenisiniz?",
+    toLogin: "Daxil olun",
+    toRegister: "Hesab yaradın"
+  }
+};
 
 export function Auth({ mode = "login" }) {
   const isRegister = mode === "register";
@@ -47,14 +127,9 @@ export function Auth({ mode = "login" }) {
     };
   }, [planOpen]);
 
-  const copy = useMemo(() => ({
-    eyebrow: isRegister ? "Create workspace" : "Member workspace",
-    title: isRegister ? "Create your DevBareun workspace." : "Login to your workspace.",
-    description: isRegister
-      ? "Create a protected account for project uploads, monthly credits, dashboard history and reports."
-      : "Open your protected project control dashboard, upload files and review reports.",
-    button: isRegister ? "Create account" : "Login and open dashboard"
-  }), [isRegister]);
+  const [lang, setLang] = useDelayLang();
+  const copy = useMemo(() => AUTH_COPY[lang][isRegister ? "register" : "login"], [lang, isRegister]);
+  const t = AUTH_COPY[lang];
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -63,14 +138,11 @@ export function Auth({ mode = "login" }) {
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
-    setStatus({ type: "info", text: isRegister ? "Creating account..." : "Checking account..." });
+    setStatus({ type: "info", text: isRegister ? t.creating : t.checking });
     try {
       if (isRegister) {
         await workspaceApi.register(form);
-        setStatus({
-          type: "success",
-          text: "Account request was created. If email confirmation is enabled, confirm your email before login."
-        });
+        setStatus({ type: "success", text: t.registered });
         return;
       }
 
@@ -83,12 +155,12 @@ export function Auth({ mode = "login" }) {
           throw error;
         }
       }
-      setStatus({ type: "success", text: "Login successful. Opening workspace..." });
+      setStatus({ type: "success", text: t.loggedIn });
       setTimeout(() => {
         location.href = nextUrl();
       }, 450);
     } catch (error) {
-      setStatus({ type: "error", text: error.message || "Authentication could not be completed." });
+      setStatus({ type: "error", text: error.message || t.failed });
     } finally {
       setBusy(false);
     }
@@ -98,35 +170,40 @@ export function Auth({ mode = "login" }) {
     <main className="auth-screen">
       <section className="auth-intro panel">
         <img src="/assets/devbareun-logo-horizontal-white.svg" alt="DevBareun" />
-        <span className="workspace-eyebrow">Construction analytics workspace</span>
+        <span className="workspace-eyebrow">{t.eyebrow}</span>
         <h1>{copy.title}</h1>
         <p>{copy.description}</p>
         <div className="auth-points">
           <article>
             <BarChart3 size={20} />
-            <div><strong>Project control</strong><span>Schedule, cost, material and risk views.</span></div>
+            <div><strong>{t.point1Title}</strong><span>{t.point1Text}</span></div>
           </article>
           <article>
             <LockKeyhole size={20} />
-            <div><strong>Protected reports</strong><span>Dashboard history and exports stay in your workspace.</span></div>
+            <div><strong>{t.point2Title}</strong><span>{t.point2Text}</span></div>
           </article>
         </div>
       </section>
 
       <section className="auth-card panel">
-        <span className="workspace-eyebrow">{copy.eyebrow}</span>
-        <h2>{isRegister ? "Create account" : "Login"}</h2>
+        <div className="auth-card-head">
+          <span className="workspace-eyebrow">{copy.eyebrow}</span>
+          <LangToggle lang={lang} onChange={setLang} />
+        </div>
+        <h2>{copy.heading}</h2>
         <form onSubmit={submit}>
           <label className="field-label">
-            Email
-            <span className="field-with-icon"><Mail size={17} /><input type="email" required value={form.email} onChange={(event) => update("email", event.target.value)} placeholder="you@company.com" /></span>
+            {t.email}
+            <span className="field-with-icon"><Mail size={17} aria-hidden="true" /><input type="email" autoComplete="email" required value={form.email} onChange={(event) => update("email", event.target.value)} placeholder="you@company.com" /></span>
           </label>
           <label className="field-label">
-            Password
-            <span className="field-with-icon"><LockKeyhole size={17} /><input type="password" required minLength={8} value={form.password} onChange={(event) => update("password", event.target.value)} placeholder="Minimum 8 characters" /></span>
+            {t.password}
+            <span className="field-with-icon"><LockKeyhole size={17} aria-hidden="true" /><input type="password" autoComplete={isRegister ? "new-password" : "current-password"} required minLength={8} value={form.password} onChange={(event) => update("password", event.target.value)} placeholder={t.passwordHint} /></span>
           </label>
+          {isRegister && (
+            <>
           <div className="field-label" ref={planPickerRef}>
-            <span>Plan</span>
+            <span>{t.plan}</span>
             <div className={`plan-select${planOpen ? " open" : ""}`}>
               <button
                 className="plan-select-trigger"
@@ -139,7 +216,7 @@ export function Auth({ mode = "login" }) {
                 <ChevronDown size={17} aria-hidden="true" />
               </button>
               {planOpen && (
-                <div className="plan-select-menu" role="listbox" aria-label="Plan options">
+                <div className="plan-select-menu" role="listbox" aria-label={t.planOptions}>
                   {planOptions.map((option) => (
                     <button
                       className={`plan-select-option${form.plan === option.value ? " active" : ""}`}
@@ -160,25 +237,25 @@ export function Auth({ mode = "login" }) {
               )}
             </div>
           </div>
-          {isRegister && (
-            <>
               <label className="field-label">
-                Company name
-                <input value={form.company_name} onChange={(event) => update("company_name", event.target.value)} placeholder="Company name" />
+                {t.company}
+                <input autoComplete="organization" value={form.company_name} onChange={(event) => update("company_name", event.target.value)} />
               </label>
               <label className="field-label">
-                Contact person
-                <span className="field-with-icon"><UserPlus size={17} /><input value={form.contact_person} onChange={(event) => update("contact_person", event.target.value)} placeholder="Contact person" /></span>
+                {t.contact}
+                <span className="field-with-icon"><UserPlus size={17} aria-hidden="true" /><input autoComplete="name" value={form.contact_person} onChange={(event) => update("contact_person", event.target.value)} /></span>
               </label>
             </>
           )}
-          <button className="primary-button full" type="submit" disabled={busy}>{busy ? "Please wait..." : copy.button}</button>
+          <button className="primary-button full" type="submit" disabled={busy}>{busy ? t.wait : copy.button}</button>
         </form>
-        {status && <div className={`status-box ${status.type}`}>{status.text}</div>}
+        <div role={status?.type === "error" ? "alert" : "status"} aria-live={status?.type === "error" ? "assertive" : "polite"}>
+          {status && <div className={`status-box ${status.type}`}>{status.text}</div>}
+        </div>
         <p className="auth-switch">
-          {isRegister ? "Already have an account?" : "New workspace?"}{" "}
+          {isRegister ? t.haveAccount : t.newHere}{" "}
           <a href={isRegister ? "/workspace/?view=login" : "/workspace/?view=register"}>
-            {isRegister ? "Login" : "Create account"}
+            {isRegister ? t.toLogin : t.toRegister}
           </a>
         </p>
       </section>

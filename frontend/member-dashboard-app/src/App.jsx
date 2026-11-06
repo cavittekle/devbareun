@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { workspaceApi } from "./api/client";
-import { Shell } from "./components/Shell";
+import { Shell, SHELL_COPY } from "./components/Shell";
+import { useDelayLang } from "./components/DelayDashboard";
 import { Overview } from "./pages/Overview";
 import { Upload } from "./pages/Upload";
 import { Projects } from "./pages/Projects";
@@ -55,6 +56,8 @@ export default function App() {
   const [credits, setCredits] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lang] = useDelayLang();
+  const t = SHELL_COPY[lang];
 
   async function refreshWorkspace() {
     setError(null);
@@ -90,8 +93,8 @@ export default function App() {
       if (meResult.status === "rejected") {
         const reason = meResult.reason;
         setError(reason?.code === "backend_offline"
-          ? { text: "We can't reach the DevBareun server right now. Try again in a minute.", offline: true }
-          : { text: reason?.message || "Login session could not be verified." });
+          ? { offline: true }
+          : { text: reason?.message });
       }
     } finally {
       setLoading(false);
@@ -143,15 +146,17 @@ export default function App() {
 
   return (
     <Shell activeView={activeView} onNavigate={navigate} user={user} credits={credits}>
-      {loading && <div className="status-box info">Loading workspace...</div>}
-      {error && (
-        <div className="status-box warning">
-          {error.text}{" "}
-          {error.offline
-            ? <button type="button" className="text-button" onClick={refreshWorkspace}>Retry</button>
-            : <>Open <a href="/workspace/?view=login">login</a> if this workspace is protected.</>}
-        </div>
-      )}
+      <div role="status" aria-live="polite">
+        {loading && <div className="status-box info">{t.loading}</div>}
+        {error && (
+          <div className="status-box warning">
+            {error.offline ? t.offline : (error.text || t.sessionError)}{" "}
+            {error.offline
+              ? <button type="button" className="text-button" onClick={refreshWorkspace}>{t.retry}</button>
+              : <><a href="/workspace/?view=login">{t.loginHint}</a> {t.loginHintTail}</>}
+          </div>
+        )}
+      </div>
       {content}
     </Shell>
   );
