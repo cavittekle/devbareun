@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CalendarClock, CheckCircle2, Download, FileSpreadsheet, GitBranch, Printer, Scale, TrendingDown } from "lucide-react";
 
 const LANG_KEY = "devbareun.delay.lang";
@@ -255,22 +255,50 @@ const PARTIES = [
   { key: "concurrent", label: "concurrent", color: "var(--party-concurrent)" }
 ];
 
+const SITE_LANG_KEY = "devbareun_lang";
+const LANG_EVENT = "devbareun:workspace-lang";
+
+function readStoredLang() {
+  try {
+    // English is the default public language; Azerbaijani only when chosen,
+    // either here or on the public site.
+    const stored = localStorage.getItem(LANG_KEY) || localStorage.getItem(SITE_LANG_KEY);
+    return stored === "az" ? "az" : "en";
+  } catch {
+    return "en";
+  }
+}
+
+function applyDocumentLang(lang) {
+  // Screen readers pick their voice from <html lang>, and CSS uppercase needs
+  // it to keep the dotted capital İ in Azerbaijani.
+  if (typeof document !== "undefined") document.documentElement.lang = lang;
+}
+
+// Shared across every component: changing the language in one place updates all.
 export function useDelayLang() {
-  const [lang, setLangState] = useState(() => {
-    try {
-      // English is the default public language; Azerbaijani only when chosen.
-      return localStorage.getItem(LANG_KEY) === "az" ? "az" : "en";
-    } catch {
-      return "en";
+  const [lang, setLangState] = useState(readStoredLang);
+  useEffect(() => {
+    applyDocumentLang(lang);
+  }, [lang]);
+  useEffect(() => {
+    function sync(event) {
+      setLangState(event.detail === "az" ? "az" : "en");
     }
-  });
+    window.addEventListener(LANG_EVENT, sync);
+    return () => window.removeEventListener(LANG_EVENT, sync);
+  }, []);
   function setLang(next) {
-    setLangState(next);
+    const value = next === "az" ? "az" : "en";
+    setLangState(value);
     try {
-      localStorage.setItem(LANG_KEY, next);
+      localStorage.setItem(LANG_KEY, value);
+      localStorage.setItem(SITE_LANG_KEY, value);
     } catch {
       /* storage unavailable */
     }
+    applyDocumentLang(value);
+    window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: value }));
   }
   return [lang, setLang];
 }
@@ -299,7 +327,7 @@ function statusTone(status) {
 
 export function LangToggle({ lang, onChange }) {
   return (
-    <div className="delay-lang" role="group" aria-label="Language">
+    <div className="delay-lang" role="group" aria-label={lang === "az" ? "Dil" : "Language"}>
       {["az", "en"].map((code) => (
         <button key={code} type="button" className={lang === code ? "active" : ""} aria-pressed={lang === code} onClick={() => onChange(code)}>
           {code.toUpperCase()}

@@ -5,8 +5,8 @@ export const analysisPackages = [
     name: "Execution & Delay Analysis",
     label: "Tikinti layihəsinin icra və gecikmə analizi",
     files: [
-      "Planning: baseline schedule and actual progress (Excel, Primavera XER, MS Project)",
-      "F2 certificates: payment for completed work (Excel or Word)",
+      "Schedule: baseline and actual progress (Excel, Primavera XER, MS Project)",
+      "Current F2 and F3 certificates (Excel, Word or PDF)",
       "Contract (PDF, Word, JPEG or PNG)",
       "Delay events with responsible party (optional)"
     ],

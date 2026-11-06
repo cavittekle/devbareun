@@ -17,27 +17,77 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { workspaceApi } from "../api/client";
 import { classNames } from "../lib/format";
+import { useDelayLang } from "./DelayDashboard";
 
 const navItems = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "upload", label: "New delay analysis", icon: UploadCloud },
-  { id: "projects", label: "My projects", icon: FolderKanban },
-  { id: "reports", label: "Reports", icon: FileBarChart },
-  { id: "billing", label: "Billing", icon: CreditCard },
-  { id: "settings", label: "Settings", icon: Settings }
+  { id: "overview", icon: LayoutDashboard },
+  { id: "upload", icon: UploadCloud },
+  { id: "projects", icon: FolderKanban },
+  { id: "reports", icon: FileBarChart },
+  { id: "billing", icon: CreditCard },
+  { id: "settings", icon: Settings }
 ];
 
 // Team sharing stays available for companies, below the main menu.
 const teamNavItems = [
-  { id: "team", label: "Team", icon: UsersRound },
-  { id: "project-access", label: "Project access", icon: FolderKey },
-  { id: "project-activity", label: "Project activity", icon: Activity }
+  { id: "team", icon: UsersRound },
+  { id: "project-access", icon: FolderKey },
+  { id: "project-activity", icon: Activity }
 ];
+
+export const SHELL_COPY = {
+  en: {
+    nav: { overview: "Overview", upload: "New delay analysis", projects: "My projects", reports: "Reports", billing: "Billing", settings: "Settings", team: "Team", "project-access": "Project access", "project-activity": "Project activity" },
+    skip: "Skip to content",
+    menu: "Menu",
+    openMenu: "Open workspace menu",
+    closeMenu: "Close workspace menu",
+    mainNav: "Workspace navigation",
+    teamNav: "Team and sharing",
+    plan: "Current plan",
+    noPlan: "No active plan",
+    credits: (count) => `${count} project credit${Number(count) === 1 ? "" : "s"} remaining`,
+    eyebrow: "DevBareun workspace",
+    notifications: "Notifications",
+    account: "Account menu",
+    logout: "Log out",
+    loading: "Loading workspace...",
+    offline: "We can't reach the DevBareun server right now. Try again in a minute.",
+    retry: "Try again",
+    sessionError: "We couldn't confirm your session.",
+    loginHint: "Log in",
+    loginHintTail: "to open this workspace."
+  },
+  az: {
+    nav: { overview: "Ümumi baxış", upload: "Yeni gecikmə analizi", projects: "Layihələrim", reports: "Hesabatlar", billing: "Ödəniş", settings: "Ayarlar", team: "Komanda", "project-access": "Layihəyə giriş", "project-activity": "Layihə fəaliyyəti" },
+    skip: "Məzmuna keç",
+    menu: "Menyu",
+    openMenu: "Menyunu aç",
+    closeMenu: "Menyunu bağla",
+    mainNav: "İş sahəsi menyusu",
+    teamNav: "Komanda və paylaşım",
+    plan: "Cari plan",
+    noPlan: "Aktiv plan yoxdur",
+    credits: (count) => `${count} layihə krediti qalıb`,
+    eyebrow: "DevBareun iş sahəsi",
+    notifications: "Bildirişlər",
+    account: "Hesab menyusu",
+    logout: "Çıxış",
+    loading: "İş sahəsi yüklənir...",
+    offline: "DevBareun serverinə indi qoşula bilmirik. Bir dəqiqə sonra yenidən cəhd edin.",
+    retry: "Yenidən cəhd et",
+    sessionError: "Sessiyanızı təsdiqləyə bilmədik.",
+    loginHint: "Daxil olun",
+    loginHintTail: "və iş sahəsini açın."
+  }
+};
 
 const allNavItems = [...navItems, ...teamNavItems];
 
 export function Shell({ activeView, onNavigate, user, credits, children }) {
-  const email = user?.email || "Workspace";
+  const [lang] = useDelayLang();
+  const t = SHELL_COPY[lang];
+  const email = user?.email || (lang === "az" ? "İş sahəsi" : "Workspace");
   const initials = email.slice(0, 1).toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -57,7 +107,7 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
       document.removeEventListener("keydown", close);
     };
   }, [accountOpen]);
-  const activeLabel = allNavItems.find((item) => item.id === activeView)?.label || "Menu";
+  const activeLabel = allNavItems.some((item) => item.id === activeView) ? t.nav[activeView] : t.menu;
 
   function selectView(view) {
     setMenuOpen(false);
@@ -74,6 +124,7 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
 
   return (
     <div className="workspace-shell">
+      <a className="skip-link" href="#workspace-main">{t.skip}</a>
       <aside className="workspace-sidebar">
         <div className="workspace-sidebar-head">
           <a className="workspace-brand" href="/">
@@ -84,7 +135,7 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
             className="workspace-menu-toggle"
             aria-expanded={menuOpen}
             aria-controls="workspace-sidebar-panel"
-            aria-label={menuOpen ? "Close workspace menu" : "Open workspace menu"}
+            aria-label={menuOpen ? t.closeMenu : t.openMenu}
             onClick={() => setMenuOpen((open) => !open)}
           >
             <span>{activeLabel}</span>
@@ -92,39 +143,39 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
           </button>
         </div>
         <div id="workspace-sidebar-panel" className={classNames("workspace-sidebar-panel", menuOpen && "open")}>
-          <nav aria-label="Workspace navigation">
+          <nav aria-label={t.mainNav}>
             {navItems.map((item) => (
-              <NavButton key={item.id} item={item} active={activeView === item.id} onSelect={selectView} />
+              <NavButton key={item.id} item={item} label={t.nav[item.id]} active={activeView === item.id} onSelect={selectView} />
             ))}
           </nav>
-          <nav className="workspace-nav-secondary" aria-label="Team and sharing">
-            <span className="workspace-nav-heading">Team and sharing</span>
+          <nav className="workspace-nav-secondary" aria-label={t.teamNav}>
+            <span className="workspace-nav-heading">{t.teamNav}</span>
             {teamNavItems.map((item) => (
-              <NavButton key={item.id} item={item} active={activeView === item.id} onSelect={selectView} />
+              <NavButton key={item.id} item={item} label={t.nav[item.id]} active={activeView === item.id} onSelect={selectView} />
             ))}
           </nav>
           <div className="workspace-plan-card">
-            <span>Current plan</span>
-            <strong>{user?.plan || "No active plan"}</strong>
-            <small>{credits?.remaining ?? 0} project credits remaining</small>
+            <span>{t.plan}</span>
+            <strong>{user?.plan || t.noPlan}</strong>
+            <small>{t.credits(credits?.remaining ?? 0)}</small>
           </div>
         </div>
       </aside>
 
-      <main className="workspace-main">
+      <main className="workspace-main" id="workspace-main" tabIndex={-1}>
         <header className="workspace-topbar">
           <div>
-            <span className="workspace-eyebrow">DevBareun Workspace</span>
+            <span className="workspace-eyebrow">{t.eyebrow}</span>
             <strong>{email}</strong>
           </div>
-          <button type="button" className="workspace-top-button icon-only" aria-label="Notifications" title="Notifications">
+          <button type="button" className="workspace-top-button icon-only" aria-label={t.notifications} title={t.notifications}>
             <Bell size={17} />
           </button>
           <div className="workspace-account" ref={accountRef}>
             <button
               type="button"
               className="workspace-avatar"
-              aria-label="Account menu"
+              aria-label={t.account}
               aria-haspopup="menu"
               aria-expanded={accountOpen}
               onClick={() => setAccountOpen((open) => !open)}
@@ -135,10 +186,10 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
               <div className="workspace-account-menu" role="menu">
                 <span className="workspace-account-email">{email}</span>
                 <button type="button" role="menuitem" onClick={() => { setAccountOpen(false); selectView("settings"); }}>
-                  <Settings size={16} /> Settings
+                  <Settings size={16} /> {t.nav.settings}
                 </button>
                 <button type="button" role="menuitem" onClick={logout}>
-                  <LogOut size={16} /> Logout
+                  <LogOut size={16} /> {t.logout}
                 </button>
               </div>
             )}
@@ -150,7 +201,7 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
   );
 }
 
-function NavButton({ item, active, onSelect }) {
+function NavButton({ item, label, active, onSelect }) {
   const Icon = item.icon;
   return (
     <button
@@ -159,7 +210,7 @@ function NavButton({ item, active, onSelect }) {
       onClick={() => onSelect(item.id)}
     >
       <Icon size={18} />
-      <span>{item.label}</span>
+      <span>{label}</span>
     </button>
   );
 }
@@ -178,11 +229,12 @@ export function PageHeader({ eyebrow, title, description, action, compact = true
   );
 }
 
-export function EmptyState({ title, description, action }) {
+export function EmptyState({ title, description, action, headingLevel = 2 }) {
+  const Heading = headingLevel === 1 ? "h1" : "h2";
   return (
     <section className="empty-state">
-      <BarChart3 size={34} />
-      <h2>{title}</h2>
+      <BarChart3 size={34} aria-hidden="true" />
+      <Heading>{title}</Heading>
       <p>{description}</p>
       {action}
     </section>

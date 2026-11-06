@@ -31,13 +31,13 @@ const COPY = {
   az: {
     eyebrow: "İcra və gecikmə analizi",
     title: "Yeni gecikmə analizi",
-    description: "Planlamanı, müqaviləni və F2 aktlarını yükləyin. DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
+    description: "Planlamanı, cari F2 və F3 aktlarını və müqaviləni yükləyin. DevBareun plan və faktiki icranı müqayisə edir, gecikməni gün ilə, proqnoz bitmə tarixini, kritik yolu və gecikmənin məsuliyyətini hesablayır.",
     step1: "İş qrafikinizi və sənədlərinizi hazırlayın",
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
     files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "Cari F2 və F3 aktları (Excel, Word və ya PDF)", "Müqavilə (PDF, Word, JPEG və ya PNG)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
-    outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
+    outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "F2 üzrə ödənilmiş məbləğ fiziki icra ilə müqayisədə", "PDF və Excel icra hesabatı (AZ / EN)"],
     step2: "Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
     placeholder: "Məsələn: Baku Business Center",
@@ -52,25 +52,26 @@ const COPY = {
     selected: (count) => `${count} fayl seçildi`,
     remove: "Sil",
     wrongFormat: (name, type) => `${name}: bu format ${type} üçün qəbul edilmir.`,
-    scheduleRequired: "Planlama faylı tələb olunur (Excel, XER və ya MS Project XML).",
-    f2Required: "Cari F2 və F3 aktları tələb olunur (Excel, Word və ya PDF).",
-    contractRequired: "Müqavilə faylı tələb olunur (PDF, Word, JPEG və ya PNG).",
     scheduleUnreadable: "Planlama yalnız PDF/.mpp-dir: hesablama üçün Excel, XER və ya MS Project XML faylı da əlavə edin.",
     start: "Analizi başlat",
     busy: "Analiz hazırlanır...",
     nameRequired: "Layihənin adı tələb olunur.",
-    fileRequired: "Analiz üçün ən azı bir fayl seçin.",
     queued: "Fayllar yükləndi və analiz növbəyə alındı.",
     open: "Nəticəni aç",
     extras: "Əlavə sənədlər (istəyə bağlı)",
     noCreditsTitle: "Analiz üçün aktiv plan lazımdır",
     noCreditsText: "Bu iş sahəsində analiz krediti qalmayıb. Faylları indi hazırlaya bilərsiniz, analizi başlatmaq üçün əvvəlcə plan seçin.",
-    choosePlan: "Plan seçin"
+    choosePlan: "Plan seçin",
+    stages: { ready: "Hazırdır", verifying: "Fayl yoxlanılır", requesting: "Təhlükəsiz yükləmə hazırlanır", uploading: "Yüklənir", recording: "Qeyd edilir", queued: "Yükləndi, yoxlama növbəsindədir", done: "Yükləndi" },
+    missing: (names) => `Analizə başlamaq üçün çatışmayan faylları əlavə edin: ${names}.`,
+    creating: "Layihə yaradılır...",
+    uploadedChecking: "Fayllar yükləndi. Onları yoxlayır və analizi aparırıq. Bu adətən 1–2 dəqiqə çəkir.",
+    uploadFailed: "Yükləmə başlamadı. Bir az sonra yenidən cəhd edin; problem qalarsa info@devbareun.com ünvanına yazın."
   },
   en: {
     eyebrow: "Execution and delay analysis",
     title: "New delay analysis",
-    description: "Upload the planning, the contract and the F2 certificates. DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
+    description: "Upload the schedule, the current F2 and F3 certificates and the contract. DevBareun compares plan and actual execution and calculates delay in days, forecast completion, the critical path and who is responsible for the delay.",
     step1: "Prepare your schedule and documents",
     example: "See an example report",
     need: "What you need",
@@ -79,7 +80,7 @@ const COPY = {
     outputs: analysisPackages[0].outputs,
     types: {
       contract: { title: "Contract", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Attached to the report as a reference." },
-      schedule: { title: "Planning", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Calculated from Excel, XER or MS Project XML. PDF and .mpp are kept as a reference." },
+      schedule: { title: "Schedule (plan and actual)", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Calculated from Excel, XER or MS Project XML. PDF and .mpp are kept as a reference." },
       f2: { title: "Current F2 and F3 certificates", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc), PDF", hint: "Period and amount are read and compared with physical progress." }
     },
     required: "Required",
@@ -88,23 +89,24 @@ const COPY = {
     selected: (count) => `${count} file${count === 1 ? "" : "s"} selected`,
     remove: "Remove",
     wrongFormat: (name, type) => `${name}: this format is not accepted for ${type}.`,
-    scheduleRequired: "A planning file is required (Excel, XER or MS Project XML).",
-    f2Required: "Current F2 and F3 certificates are required (Excel, Word or PDF).",
-    contractRequired: "The contract is required (PDF, Word, JPEG or PNG).",
-    scheduleUnreadable: "Planning is only PDF/.mpp: add an Excel, XER or MS Project XML file for the calculation.",
+    scheduleUnreadable: "The schedule is only PDF/.mpp: add an Excel, XER or MS Project XML file for the calculation.",
     step2: "Create the project and upload files",
     projectName: "Project name",
     placeholder: "Example: Residential Tower A",
     start: "Start analysis",
     busy: "Preparing analysis...",
     nameRequired: "Project name is required.",
-    fileRequired: "Choose at least one file to analyse.",
     queued: "Files uploaded and the analysis is queued.",
     open: "Open result",
     extras: "Supporting documents (optional)",
     noCreditsTitle: "An active plan is needed to run the analysis",
     noCreditsText: "This workspace has no analysis credits left. You can prepare your files now; choose a plan before starting the analysis.",
-    choosePlan: "Choose a plan"
+    choosePlan: "Choose a plan",
+    stages: { ready: "Ready", verifying: "Checking file", requesting: "Preparing secure upload", uploading: "Uploading", recording: "Saving", queued: "Uploaded, waiting for the check", done: "Uploaded" },
+    missing: (names) => `Add the missing files to start: ${names}.`,
+    creating: "Creating the project...",
+    uploadedChecking: "Files uploaded. We're checking them and running the analysis. This usually takes 1–2 minutes.",
+    uploadFailed: "The upload could not start. Try again in a minute; if it keeps failing, write to info@devbareun.com."
   }
 };
 
@@ -138,7 +140,7 @@ export function Upload({ onUploaded, credits, onNavigate }) {
       size: file.size,
       type: fileType,
       progress: 0,
-      stage: "Ready",
+      stage: "ready",
       tone: "info"
     })));
     setStatus(rejected.length
@@ -167,29 +169,20 @@ export function Upload({ onUploaded, credits, onNavigate }) {
       setStatus({ type: "error", text: copy.nameRequired });
       return;
     }
-    if (!files.length) {
-      setStatus({ type: "error", text: copy.fileRequired });
+    const missing = DOCUMENT_TYPES
+      .filter((type) => type.required && !files.some((item) => item.type === type.id))
+      .map((type) => copy.types[type.id].title);
+    if (missing.length) {
+      setStatus({ type: "error", text: copy.missing(missing.join(", ")) });
       return;
     }
     const schedules = files.filter((item) => item.type === "schedule");
-    if (!schedules.length) {
-      setStatus({ type: "error", text: copy.scheduleRequired });
-      return;
-    }
     if (!schedules.some((item) => READABLE_SCHEDULE.includes(extension(item.file.name)))) {
       setStatus({ type: "error", text: copy.scheduleUnreadable });
       return;
     }
-    if (!files.some((item) => item.type === "f2")) {
-      setStatus({ type: "error", text: copy.f2Required });
-      return;
-    }
-    if (!files.some((item) => item.type === "contract")) {
-      setStatus({ type: "error", text: copy.contractRequired });
-      return;
-    }
     setBusy(true);
-    setStatus({ type: "info", text: "Creating project workspace..." });
+    setStatus({ type: "info", text: copy.creating });
     try {
       const projectResponse = await workspaceApi.createProject({
         project_name: projectName.trim(),
@@ -203,9 +196,9 @@ export function Upload({ onUploaded, credits, onNavigate }) {
       }
       const uploadedFileIds = [];
       for (const [index, { file, type: documentType }] of files.entries()) {
-        patchFileState(index, { stage: "Verifying file integrity", progress: 3, tone: "info" });
+        patchFileState(index, { stage: "verifying", progress: 3, tone: "info" });
         const checksum = await sha256File(file);
-        patchFileState(index, { stage: "Requesting secure upload URL", progress: 5, tone: "info" });
+        patchFileState(index, { stage: "requesting", progress: 5, tone: "info" });
         const uploadResponse = await workspaceApi.createUploadUrl({
           project_id: projectId,
           filename: file.name,
@@ -217,9 +210,9 @@ export function Upload({ onUploaded, credits, onNavigate }) {
         const signedUrl = uploadResponse?.signed_upload_url || uploadResponse?.upload?.signed_upload_url || uploadResponse?.upload?.signedUrl || uploadResponse?.upload?.signedURL || uploadResponse?.upload?.url;
         const fileId = uploadResponse?.file_id || uploadResponse?.upload_id || uploadResponse?.file?.file_id || uploadResponse?.file?.id;
         const storagePath = uploadResponse?.storage_path || uploadResponse?.file?.storage_path;
-        patchFileState(index, { stage: signedUrl ? "Uploading file" : "Recording local upload metadata", progress: signedUrl ? 10 : 90, tone: "info" });
+        patchFileState(index, { stage: signedUrl ? "uploading" : "recording", progress: signedUrl ? 10 : 90, tone: "info" });
         await uploadBinaryToSignedUrl(signedUrl, file, (progress) => {
-          patchFileState(index, { progress: Math.max(10, Math.min(95, progress)), stage: "Uploading file" });
+          patchFileState(index, { progress: Math.max(10, Math.min(95, progress)), stage: "uploading" });
         });
         const uploadedRecord = await workspaceApi.markUploaded({
           upload_id: uploadResponse?.upload_id || fileId,
@@ -231,9 +224,9 @@ export function Upload({ onUploaded, credits, onNavigate }) {
         });
         uploadedFileIds.push(fileId);
         const scanStatus = uploadedRecord?.file?.security_scan_status || "pending";
-        patchFileState(index, { stage: scanStatus === "pending" ? "Uploaded — queued for security screening" : "Uploaded", progress: 100, tone: "success" });
+        patchFileState(index, { stage: scanStatus === "pending" ? "queued" : "done", progress: 100, tone: "success" });
       }
-      setStatus({ type: "info", text: "Files uploaded. The worker will verify file integrity and run content security screening before parser execution." });
+      setStatus({ type: "info", text: copy.uploadedChecking });
       const analysisResponse = await workspaceApi.createAnalysis({
         project_id: projectId,
         uploaded_file_ids: uploadedFileIds.filter(Boolean),
@@ -247,7 +240,7 @@ export function Upload({ onUploaded, credits, onNavigate }) {
     } catch (error) {
       setStatus({
         type: "error",
-        text: error.message || "Upload flow could not start. Check backend and session configuration."
+        text: error.message || copy.uploadFailed
       });
     } finally {
       setBusy(false);
@@ -303,7 +296,7 @@ export function Upload({ onUploaded, credits, onNavigate }) {
           <h2 className="step-title"><span className="step-badge">2</span>{copy.step2}</h2>
           <label className="field-label">
             {copy.projectName}
-            <input value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder={copy.placeholder} />
+            <input value={projectName} onChange={(event) => setProjectName(event.target.value)} placeholder={copy.placeholder} aria-required="true" />
           </label>
           <div className="doc-zones">
             {DOCUMENT_TYPES.map((type) => {
@@ -320,10 +313,10 @@ export function Upload({ onUploaded, credits, onNavigate }) {
                     <strong>{text.title}</strong>
                     <em className={type.required ? "doc-tag required" : "doc-tag"}>{type.required ? copy.required : copy.optional}</em>
                   </span>
-                  <span className="doc-zone-formats">{text.formats}</span>
-                  <small>{text.hint}</small>
+                  <span className="doc-zone-formats" id={`doc-formats-${type.id}`}>{text.formats}</span>
+                  <small id={`doc-hint-${type.id}`}>{text.hint}</small>
                   <span className="secondary-button doc-choose">{count ? copy.selected(count) : copy.choose}</span>
-                  <input type="file" multiple accept={type.accept.join(",")} onChange={(event) => addFiles(type.id, event)} />
+                  <input type="file" multiple accept={type.accept.join(",")} aria-required={type.required ? "true" : undefined} aria-describedby={`doc-formats-${type.id} doc-hint-${type.id}`} onChange={(event) => addFiles(type.id, event)} />
                 </label>
                 </Fragment>
               );
@@ -335,9 +328,9 @@ export function Upload({ onUploaded, credits, onNavigate }) {
                 <article key={`${file.name}-${file.size}-${index}`} className={`file-state ${file.tone}`}>
                   <div>
                     <strong>{file.name}</strong>
-                    <span>{copy.types[file.type]?.title} · {file.stage}</span>
+                    <span>{copy.types[file.type]?.title} · {copy.stages[file.stage] || file.stage}</span>
                   </div>
-                  <div className="file-progress" aria-label={`${file.progress}% uploaded`}>
+                  <div className="file-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={file.progress} aria-label={file.name}>
                     <span style={{ width: `${file.progress}%` }} />
                   </div>
                   <small>{fileSize(file.size)}</small>
@@ -348,7 +341,9 @@ export function Upload({ onUploaded, credits, onNavigate }) {
               ))}
             </div>
           )}
-          {status && <div className={`status-box ${status.type}`}>{status.text}</div>}
+          <div role={status?.type === "error" ? "alert" : "status"} aria-live={status?.type === "error" ? "assertive" : "polite"}>
+            {status && <div className={`status-box ${status.type}`}>{status.text}</div>}
+          </div>
           {resultProjectId && (
             <a className="secondary-button full" href={`/workspace/?view=result&project_id=${encodeURIComponent(resultProjectId)}`}>{copy.open}</a>
           )}

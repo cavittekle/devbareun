@@ -2524,8 +2524,8 @@ a {
 }
 
 .status-box .text-button {
-  min-height: 0;
-  padding: 0;
+  min-height: 44px;
+  padding: 0 10px;
 }
 
 .upload-plan-notice {
@@ -2647,4 +2647,34 @@ button.workspace-avatar {
   align-items: center;
   min-height: 44px;
   padding: 0 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibility review 2026-11-06: skip link, main focus target, auth language
+--------------------------------------------------------------------------- */
+.workspace-shell .skip-link {
+  position: absolute;
+  left: -999px;
+  top: 12px;
+  z-index: 1000;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--accent-cyan);
+  color: #0A1228;
+  font-weight: 800;
+}
+
+.workspace-shell .skip-link:focus {
+  left: 12px;
+}
+
+.workspace-main:focus {
+  outline: none;
+}
+
+.auth-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
