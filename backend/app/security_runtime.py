@@ -246,8 +246,8 @@ def runtime_readiness() -> Dict[str, Any]:
         "supabase_public": "configured" if supabase_public_ready else "missing",
         "supabase_private": "configured" if supabase_private_ready else "missing",
         "supabase_storage_bucket": os.getenv("SUPABASE_STORAGE_BUCKET") or "project-files",
-        # No online payment provider is connected; plans are activated manually.
-        "payment_provider": "none",
+        "payment_provider": "polar",
+        "polar_webhook": _env_status("POLAR_WEBHOOK_SECRET"),
         "rate_limit": "upstash" if upstash_ready else ("in_memory_allowed" if in_memory_rate_limit_allowed() else "missing_upstash"),
         "error_telemetry": telemetry.get("mode"),
         "error_telemetry_required": telemetry.get("required") is True,
@@ -278,6 +278,8 @@ def runtime_readiness_issues() -> Dict[str, List[str]]:
             errors.append("Upstash rate limiting must be configured or explicitly accepted for pilot operation.")
         if readiness.get("supabase_private") != "configured":
             errors.append("Supabase private/service configuration is missing.")
+        if readiness.get("polar_webhook") != "configured":
+            warnings.append("POLAR_WEBHOOK_SECRET is missing; online checkout stays closed until it is set.")
         if readiness.get("analysis_job_mode") != "worker":
             warnings.append("DEVBAREUN_ANALYSIS_JOB_MODE=worker is recommended for production.")
         if readiness.get("data_lifecycle") != "configured":

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from .auth_dependencies import CurrentUser, get_current_user
@@ -13,6 +13,7 @@ from .services.billing_service import (
     get_billing_status,
     get_checkout_status,
     get_usage,
+    handle_webhook,
 )
 
 
@@ -26,6 +27,7 @@ class CheckoutRequest(BaseModel):
     customer_email: Optional[str] = Field(default=None, max_length=320)
     success_url: Optional[str] = None
     cancel_url: Optional[str] = None
+    billing_cycle: Optional[str] = Field(default=None, max_length=16)
 
 
 async def get_optional_current_user(authorization: Optional[str] = Header(default=None)) -> Optional[CurrentUser]:
@@ -57,17 +59,28 @@ def _checkout_user(payload: CheckoutRequest, current_user: Optional[CurrentUser]
 
 @router.post("/create-checkout-session")
 async def create_checkout(payload: CheckoutRequest, current_user: Optional[CurrentUser] = Depends(get_optional_current_user)) -> Dict[str, Any]:
-    return create_checkout_session(_checkout_user(payload, current_user), _checkout_plan(payload), payload.project_id, payload.success_url, payload.cancel_url)
+    return create_checkout_session(_checkout_user(payload, current_user), _checkout_plan(payload), payload.project_id, payload.success_url, payload.cancel_url, payload.billing_cycle)
 
 
 @router.post("/create-subscription-checkout")
 async def subscription_checkout(payload: CheckoutRequest, current_user: Optional[CurrentUser] = Depends(get_optional_current_user)) -> Dict[str, Any]:
-    return create_subscription_checkout(_checkout_user(payload, current_user), _checkout_plan(payload), payload.success_url, payload.cancel_url)
+    return create_subscription_checkout(_checkout_user(payload, current_user), _checkout_plan(payload), payload.success_url, payload.cancel_url, payload.billing_cycle)
 
 
 @router.post("/create-one-time-checkout")
 async def one_time_checkout(payload: CheckoutRequest, current_user: Optional[CurrentUser] = Depends(get_optional_current_user)) -> Dict[str, Any]:
     return create_one_time_checkout(_checkout_user(payload, current_user), payload.project_id, payload.success_url, payload.cancel_url)
+
+
+@router.post("/webhook")
+async def billing_webhook(request: Request) -> Dict[str, Any]:
+    """Polar webhook endpoint (Standard Webhooks signature).
+
+    Errors return 4xx/5xx so Polar retries delivery; duplicates are ignored.
+    """
+    body = await request.body()
+    headers = {name: request.headers.get(name) for name in ("webhook-id", "webhook-timestamp", "webhook-signature")}
+    return handle_webhook(body, headers)
 
 
 @router.get("/status")

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — Polar payments
+
+- Polar (polar.sh) is the payment provider. Five Polar products and checkout links match the public pricing: Single $29 one-time, Plus $49/month or $468/year, Pro $89/month or $852/year (USD).
+- Checkout endpoints return the plan's Polar checkout link with `reference_id` and prefilled email; `billing_cycle` (`monthly`/`annual`) selects the Plus/Pro product. Checkout stays closed (`payments_unavailable`) until `POLAR_WEBHOOK_SECRET` is set.
+- New `POST /api/billing/webhook` verifies Polar's Standard Webhooks signature, claims events once and grants Single Project credits or activates Plus/Pro subscriptions (annual plans get 12 months of credits per year). Refunds revoke unused credits.
+- Workspace Billing page has a Monthly / Annual switch.
+
 ## Unreleased — Lemon Squeezy removed
 
 - Removed the Lemon Squeezy integration: checkout creation, signed webhook handling, `/api/billing/webhook` and `/api/payments/webhook`.

@@ -2691,3 +2691,16 @@ button.workspace-avatar {
 .workspace-topbar .delay-lang {
   flex: none;
 }
+
+.billing-cycle-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.billing-cycle-toggle .secondary-button.active {
+  border-color: var(--accent-cyan);
+  background: var(--accent-cyan-soft);
+  color: var(--accent-cyan);
+}

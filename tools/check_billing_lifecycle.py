@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Static release contract for DevBareun billing lifecycle integrity.
 
-The check intentionally does not call any payment provider or Supabase. No
-online payment provider is connected: it verifies that checkout requests fail
-closed with a clear message, that no provider webhook route is exposed, and
-that customer-safe status polling remains wired into the deployable source tree.
+The check intentionally does not call any payment provider or Supabase. Polar
+(polar.sh) is the payment provider: it verifies that checkout fails closed until
+the Polar webhook secret is configured, that the webhook verifies Standard
+Webhooks signatures and claims events idempotently, and that customer-safe
+status polling remains wired into the deployable source tree.
 """
 from __future__ import annotations
 
@@ -47,7 +48,18 @@ def check(root: Path) -> CheckResult:
     service = root / "backend/app/services/billing_service.py"
     if service.exists():
         source = read(service)
-        for expected in ("get_checkout_status", "payments_unavailable", "PAYMENTS_UNAVAILABLE_MESSAGE"):
+        for expected in (
+            "get_checkout_status",
+            "payments_unavailable",
+            "PAYMENTS_UNAVAILABLE_MESSAGE",
+            "POLAR_WEBHOOK_SECRET",
+            "verify_polar_signature",
+            "hmac.compare_digest",
+            "WEBHOOK_TOLERANCE_SECONDS",
+            "_claim_payment_event",
+            "_checkout_owner_context",
+            "reference_id",
+        ):
             if expected not in source:
                 result.errors.append(f"billing service is missing checkout guard: {expected}")
         if "lemon" in source.lower():
@@ -61,10 +73,12 @@ def check(root: Path) -> CheckResult:
         if "get_checkout_status" not in source:
             result.errors.append("billing status endpoint is not delegated to the service")
 
-    for rel in ("backend/app/billing_routes.py", "backend/app/saas_public_routes.py"):
-        path = root / rel
-        if path.exists() and re.search(r'@router\.post\("[^"]*webhook"\)', read(path)):
-            result.errors.append(f"{rel} exposes a payment webhook route but no payment provider is connected")
+        if '@router.post("/webhook")' not in source or "webhook-signature" not in source:
+            result.errors.append("billing routes are missing the signed Polar webhook endpoint")
+
+    public_routes = root / "backend/app/saas_public_routes.py"
+    if public_routes.exists() and re.search(r'@router\.post\("[^"]*webhook"\)', read(public_routes)):
+        result.errors.append("backend/app/saas_public_routes.py must not expose a second payment webhook route")
 
     migration = root / "database/2026_06_21_v1431_billing_lifecycle_integrity.sql"
     if migration.exists():
@@ -99,7 +113,7 @@ def check(root: Path) -> CheckResult:
     docs = root / "docs/BILLING_LIFECYCLE_V1431.md"
     if docs.exists():
         source = read(docs).lower()
-        for expected in ("does not", "payments_unavailable", "info@devbareun.com"):
+        for expected in ("polar", "payments_unavailable", "polar_webhook_secret"):
             if expected not in source:
                 result.errors.append(f"billing lifecycle documentation missing required boundary: {expected}")
 

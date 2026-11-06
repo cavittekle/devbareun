@@ -9,17 +9,20 @@ const PLAN_TEXT = {
   plus: { credits: ["5 / month", "5 / ay"], cadence: ["month", "ay"] },
   pro: { credits: ["20 / month", "20 / ay"], cadence: ["month", "ay"] }
 };
+const ANNUAL_CADENCE = ["mo, billed annually", "ay, illik ödəniş"];
 
 export function Billing({ user, credits }) {
   const t = useT();
   const pick = (pair) => t(pair[0], pair[1]);
   const [status, setStatus] = useState(null);
+  const [cycle, setCycle] = useState("monthly");
 
   async function openCheckout(planCode) {
     setStatus({ type: "info", text: t("Opening the secure payment page...", "Təhlükəsiz ödəniş səhifəsi açılır...") });
     try {
       const response = await workspaceApi.checkout(planCode, {
         customer_email: user?.email,
+        billing_cycle: planCode === "single" ? undefined : cycle,
         success_url: `${location.origin}/workspace/?view=payment-success&plan=${encodeURIComponent(planCode)}`,
         cancel_url: `${location.origin}/workspace/?view=payment-failed&plan=${encodeURIComponent(planCode)}`
       });
@@ -42,12 +45,19 @@ export function Billing({ user, credits }) {
         title={t("Plans and analysis credits", "Planlar və analiz kreditləri")}
         description={t("Single Project pays for one analysis. Plus and Pro add analysis credits every month.", "Single Project bir analiz üçündür. Plus və Pro hər ay analiz krediti əlavə edir.")}
       />
+      <div className="billing-cycle-toggle" role="group" aria-label={t("Billing period", "Ödəniş dövrü")}>
+        {[["monthly", t("Monthly", "Aylıq")], ["annual", t("Annual, save 20%", "İllik, 20% qənaət")]].map(([value, label]) => (
+          <button key={value} type="button" className={cycle === value ? "secondary-button active" : "secondary-button"} aria-pressed={cycle === value} onClick={() => setCycle(value)}>{label}</button>
+        ))}
+      </div>
       <section className="card-grid three">
         {Object.entries(planCatalog).map(([code, plan]) => (
           <article className={code === "plus" ? "panel featured" : "panel"} key={code}>
             <span className="workspace-eyebrow">{pick(PLAN_TEXT[code]?.credits || [plan.credits, plan.credits])}</span>
             <h2>{plan.name}</h2>
-            <p><strong className="price">{plan.price}</strong> / {pick(PLAN_TEXT[code]?.cadence || [plan.cadence, plan.cadence])}</p>
+            {code !== "single" && cycle === "annual"
+              ? <p><strong className="price">{plan.annualPrice}</strong> / {pick(ANNUAL_CADENCE)}</p>
+              : <p><strong className="price">{plan.price}</strong> / {pick(PLAN_TEXT[code]?.cadence || [plan.cadence, plan.cadence])}</p>}
             <button type="button" className={code === "plus" ? "primary-button full" : "secondary-button full"} onClick={() => openCheckout(code)}>
               {code === "single" ? t("Pay for one project", "Bir layihə üçün ödə") : t(`Start ${plan.name}`, `${plan.name} başlat`)}
             </button>
