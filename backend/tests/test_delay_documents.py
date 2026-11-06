@@ -82,8 +82,9 @@ class DocumentTypeTests(unittest.TestCase):
         validate_document_format("schedule", "plan.xer")
         validate_document_format("f2", "f2.xlsx")
         validate_document_format("f2", "f2.doc")
+        validate_document_format("f2", "f2.pdf")
         with self.assertRaises(ValueError):
-            validate_document_format("f2", "f2.pdf")
+            validate_document_format("f2", "f2.jpg")
         with self.assertRaises(ValueError):
             validate_document_format("schedule", "plan.jpg")
 

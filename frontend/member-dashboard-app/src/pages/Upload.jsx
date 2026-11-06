@@ -17,7 +17,7 @@ async function sha256File(file) {
 // Accepted formats per document type; mirrors backend/app/document_types.py.
 export const DOCUMENT_TYPES = [
   { id: "schedule", icon: CalendarRange, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml", ".mpp", ".pdf"], required: true },
-  { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"], required: true },
+  { id: "f2", icon: Receipt, accept: [".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc", ".pdf"], required: true },
   { id: "contract", icon: FileSignature, accept: [".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"], required: true }
 ];
 const READABLE_SCHEDULE = [".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml"];
@@ -36,7 +36,7 @@ const COPY = {
     example: "Nümunə hesabata bax",
     need: "Lazım olan məlumat",
     receive: "Alacağınız nəticə",
-    files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "F2 aktları: görülmüş işlərin ödənişi (Excel və ya Word)", "Müqavilə (PDF, Word, JPEG və ya PNG)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
+    files: ["Planlama: plan iş qrafiki və faktiki icra (Excel, Primavera XER, MS Project)", "Cari F2 və F3 aktları (Excel, Word və ya PDF)", "Müqavilə (PDF, Word, JPEG və ya PNG)", "Gecikmə hadisələri və məsul tərəf (istəyə bağlı)"],
     outputs: ["Plan və faktiki S-əyrisi, SPI", "Gecikmə günləri və proqnoz bitmə tarixi", "Kritik yol və ən çox gecikən işlər", "Sifarişçi / podratçı / neytral gecikmə bölgüsü", "PDF və Excel icra hesabatı (AZ / EN)"],
     step2: "Layihəni yaradın və faylları yükləyin",
     projectName: "Layihənin adı",
@@ -44,7 +44,7 @@ const COPY = {
     types: {
       contract: { title: "Müqavilə", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Hesabata istinad kimi əlavə olunur." },
       schedule: { title: "Planlama", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Hesablama Excel, XER və ya MS Project XML-dən aparılır. PDF və .mpp istinad kimi saxlanılır." },
-      f2: { title: "F2 aktları (ödəniş)", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc)", hint: "Dövr və məbləğ oxunur, fiziki icra ilə müqayisə edilir. Hər ay üçün bir fayl." }
+      f2: { title: "Cari F2 və F3 aktları", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc), PDF", hint: "Dövr və məbləğ oxunur, fiziki icra ilə müqayisə edilir." }
     },
     required: "Tələb olunur",
     optional: "İstəyə bağlı",
@@ -53,7 +53,7 @@ const COPY = {
     remove: "Sil",
     wrongFormat: (name, type) => `${name}: bu format ${type} üçün qəbul edilmir.`,
     scheduleRequired: "Planlama faylı tələb olunur (Excel, XER və ya MS Project XML).",
-    f2Required: "F2 aktları tələb olunur (Excel və ya Word).",
+    f2Required: "Cari F2 və F3 aktları tələb olunur (Excel, Word və ya PDF).",
     contractRequired: "Müqavilə faylı tələb olunur (PDF, Word, JPEG və ya PNG).",
     scheduleUnreadable: "Planlama yalnız PDF/.mpp-dir: hesablama üçün Excel, XER və ya MS Project XML faylı da əlavə edin.",
     start: "Analizi başlat",
@@ -80,7 +80,7 @@ const COPY = {
     types: {
       contract: { title: "Contract", formats: "PDF, Word (.doc, .docx), JPEG, PNG (.jpg, .png)", hint: "Attached to the report as a reference." },
       schedule: { title: "Planning", formats: "Excel, CSV, Primavera XER, MS Project (.xml, .mpp), PDF", hint: "Calculated from Excel, XER or MS Project XML. PDF and .mpp are kept as a reference." },
-      f2: { title: "F2 certificates (payment)", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc)", hint: "Period and amount are read and compared with physical progress. One file per month." }
+      f2: { title: "Current F2 and F3 certificates", formats: "Excel (.xlsx, .xls), CSV, Word (.docx, .doc), PDF", hint: "Period and amount are read and compared with physical progress." }
     },
     required: "Required",
     optional: "Optional",
@@ -89,7 +89,7 @@ const COPY = {
     remove: "Remove",
     wrongFormat: (name, type) => `${name}: this format is not accepted for ${type}.`,
     scheduleRequired: "A planning file is required (Excel, XER or MS Project XML).",
-    f2Required: "F2 certificates are required (Excel or Word).",
+    f2Required: "Current F2 and F3 certificates are required (Excel, Word or PDF).",
     contractRequired: "The contract is required (PDF, Word, JPEG or PNG).",
     scheduleUnreadable: "Planning is only PDF/.mpp: add an Excel, XER or MS Project XML file for the calculation.",
     step2: "Create the project and upload files",
