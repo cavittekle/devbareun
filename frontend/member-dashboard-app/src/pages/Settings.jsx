@@ -99,7 +99,7 @@ export function Settings({ user, health }) {
         scope: "account",
         confirmation: erasureConfirmation.trim()
       });
-      setPrivacyNotice(response?.deduplicated ? t("You already have an open erasure request.", "Artıq açıq silinmə sorğunuz var.") : t("Erasure request sent. Nothing has been deleted yet; we review the request first.", "Silinmə sorğusu göndərildi. Hələ heç nə silinməyib, əvvəlcə sorğunu yoxlayırıq."));
+      setPrivacyNotice(response?.deduplicated ? t("You already have an open erasure request.", "Artıq açıq silinmə sorğunuz var.") : t("Erasure request sent for review. No data was deleted automatically.", "Silinmə sorğusu yoxlamaya göndərildi. Heç bir məlumat avtomatik silinmədi."));
       setErasureConfirmation("");
       await refreshPrivacy();
     } catch (error) {
