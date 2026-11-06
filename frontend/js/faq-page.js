@@ -84,11 +84,23 @@
     const search = document.getElementById('faqSearch');
     if(!search || search.dataset.bound === 'true') return;
     search.dataset.bound = 'true';
+    let status = document.getElementById('faqStatus');
+    if(!status){
+      status = document.createElement('p');
+      status.id = 'faqStatus';
+      status.className = 'faq-status muted';
+      status.setAttribute('role', 'status');
+      search.insertAdjacentElement('afterend', status);
+    }
     search.addEventListener('input', function(){
       const q = search.value.toLowerCase().trim();
+      let shown = 0;
       document.querySelectorAll('.faq-item').forEach(function(item){
-        item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
+        const hit = item.textContent.toLowerCase().includes(q);
+        item.style.display = hit ? '' : 'none';
+        if(hit) shown++;
       });
+      status.textContent = q && !shown ? (currentLang() === 'az' ? 'Axtarışınıza uyğun sual tapılmadı.' : 'No questions match your search.') : '';
     });
   }
 

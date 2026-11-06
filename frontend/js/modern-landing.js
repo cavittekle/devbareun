@@ -209,6 +209,10 @@
       ariaMainNav: "Main navigation",
       ariaLang: "Language: English. Switch to Azerbaijani",
       ariaMenu: "Open menu",
+      ariaMenuClose: "Close menu",
+      fileRejectedToast: "This file type is not accepted. Upload the planning, F2/F3 certificates and contract in a supported format.",
+      billingAnnounceMonthly: "Monthly prices shown.",
+      billingAnnounceAnnual: "Annual prices shown, billed yearly.",
       ariaMobileNav: "Mobile navigation",
       ariaHeroCard: "Example execution report",
       ariaHeroSplit: "Delay days by party: employer 14, contractor 59, neutral 7, concurrent 12",
@@ -428,6 +432,10 @@
       ariaMainNav: "Əsas menyu",
       ariaLang: "Dil: Azərbaycan. İngilis dilinə keç",
       ariaMenu: "Menyunu aç",
+      ariaMenuClose: "Menyunu bağla",
+      fileRejectedToast: "Bu fayl növü qəbul edilmir. Planlama, F2/F3 aktları və müqaviləni dəstəklənən formatda yükləyin.",
+      billingAnnounceMonthly: "Aylıq qiymətlər göstərilir.",
+      billingAnnounceAnnual: "İllik qiymətlər göstərilir, ödəniş ildə bir dəfə.",
       ariaMobileNav: "Mobil menyu",
       ariaHeroCard: "Nümunə icra hesabatı",
       ariaHeroSplit: "Tərəflər üzrə gecikmə günləri: sifarişçi 14, podratçı 59, neytral 7, eyni vaxtlı 12",
@@ -476,6 +484,8 @@
       const key = node.getAttribute("data-i18n-aria");
       if (dictionary[key]) node.setAttribute("aria-label", dictionary[key]);
     });
+    const openMenuBtn = $(".mobile-menu-btn[aria-expanded='true']");
+    if (openMenuBtn && dictionary.ariaMenuClose) openMenuBtn.setAttribute("aria-label", dictionary.ariaMenuClose);
     const currentLang = $("[data-current-lang]");
     if (currentLang) currentLang.textContent = lang.toUpperCase();
     try { localStorage.setItem("devbareun_lang", lang); } catch (e) {}
@@ -539,7 +549,8 @@
     preview.hidden = false;
     chips.innerHTML = kinds.map((kind) => `<span>${kind === "fileKindOther" ? "!" : "✓"} ${escapeHtml(t(kind))}</span>`).join("");
     rows.innerHTML = files.map((file) => `<div class="mapping-row"><span>${escapeHtml(file.name)}</span><strong>${escapeHtml(t(classifyFile(file.name)))}</strong></div>`).join("");
-    toast(t("fileSelectedToast"));
+    const accepted = files.filter((file) => classifyFile(file.name) !== "fileKindOther").length;
+    toast(t(accepted ? "fileSelectedToast" : "fileRejectedToast"));
   }
 
   function updateBillingDisplay(cycle) {
@@ -587,20 +598,28 @@
 
     const menuBtn = $(".mobile-menu-btn");
     const menu = $(".mobile-menu");
-    menuBtn?.addEventListener("click", () => {
-      const open = !menu.classList.contains("open");
+    const setMenu = (open, returnFocus) => {
+      if (!menu || !menuBtn) return;
       menu.classList.toggle("open", open);
       menuBtn.setAttribute("aria-expanded", String(open));
+      menuBtn.setAttribute("aria-label", t(open ? "ariaMenuClose" : "ariaMenu"));
       document.body.classList.toggle("menu-open", open);
+      if (!open && returnFocus) menuBtn.focus();
+    };
+    menuBtn?.addEventListener("click", () => setMenu(!menu.classList.contains("open")));
+    $$(".mobile-menu a").forEach((link) => link.addEventListener("click", () => setMenu(false)));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menu?.classList.contains("open")) setMenu(false, true);
     });
-    $$(".mobile-menu a").forEach((link) => link.addEventListener("click", () => {
-      menu?.classList.remove("open");
-      menuBtn?.setAttribute("aria-expanded", "false");
-      document.body.classList.remove("menu-open");
-    }));
+    menu?.addEventListener("focusout", (event) => {
+      const next = event.relatedTarget;
+      if (next && next !== menuBtn && !menu.contains(next)) setMenu(false);
+    });
 
     $$("[data-billing]").forEach((button) => button.addEventListener("click", () => {
-      updateBillingDisplay(button.getAttribute("data-billing") || "monthly");
+      const cycle = button.getAttribute("data-billing") || "monthly";
+      updateBillingDisplay(cycle);
+      toast(t(cycle === "annual" ? "billingAnnounceAnnual" : "billingAnnounceMonthly"));
     }));
     updateBillingDisplay("monthly");
 
