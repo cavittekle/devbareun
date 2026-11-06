@@ -6,6 +6,7 @@
 
   const translations = {
     en: {
+      skipLink: "Skip to content",
       fileSelectedToast: "Files selected. Sign in to run the delay analysis.",
       planSelectedToast: "Plan selected. Upload your schedule to continue.",
       loaderTitle: "Construction delay analysis",
@@ -200,6 +201,7 @@
       fmtTemplate: "Excel"
     },
     az: {
+      skipLink: "Məzmuna keç",
       fileSelectedToast: "Fayllar seçildi. Gecikmə analizi üçün daxil olun.",
       planSelectedToast: "Plan seçildi. Davam etmək üçün qrafikinizi yükləyin.",
       loaderTitle: "Tikinti gecikmə analizi",
@@ -548,12 +550,6 @@
       input?.click();
     });
     drop?.addEventListener("click", () => input?.click());
-    drop?.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        input?.click();
-      }
-    });
     input?.addEventListener("change", () => renderFiles(Array.from(input.files || [])));
     ["dragenter", "dragover"].forEach((eventName) => {
       drop?.addEventListener(eventName, (event) => {

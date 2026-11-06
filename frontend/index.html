@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
   <script src="js/theme-init.js?v=14035"></script>
-  <link rel="stylesheet" href="css/modern-landing.css?v=14041" />
+  <link rel="stylesheet" href="css/modern-landing.css?v=14042" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -61,7 +61,7 @@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main" data-i18n="skipLink">Skip to content</a>
 
   <div id="db-loading-screen" class="loader" aria-label="Preparing DevBareun">
     <div class="loader-grid" aria-hidden="true"></div>
@@ -342,7 +342,7 @@
       </div>
 
       <div class="upload-workspace">
-        <aside class="mapping-panel">
+        <div class="mapping-panel">
           <div>
             <p class="section-label" data-i18n="requiredFiles">Required files</p>
             <h3 data-i18n="pkgDelayTitle">Execution and delay analysis</h3>
@@ -363,11 +363,11 @@
               <li data-i18n="outReport">Findings, recommended actions and PDF / Excel report</li>
             </ul>
           </div>
-        </aside>
+        </div>
 
         <div class="upload-panel">
-          <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload schedule and progress files">
-            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml" />
+          <div class="drop-zone" id="dropZone">
+            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml" tabindex="-1" aria-hidden="true" />
             <div class="drop-icon" aria-hidden="true">+</div>
             <h3 data-i18n="dropTitle">Drop schedule and progress files here, or browse</h3>
             <p class="drop-types-lead" data-i18n="dropTypesLead">Which files to upload</p>
@@ -547,6 +547,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="js/modern-landing.js?v=15000" defer></script>
+  <script src="js/modern-landing.js?v=15001" defer></script>
 </body>
 </html>

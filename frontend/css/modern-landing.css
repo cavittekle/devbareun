@@ -943,3 +943,9 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
   filter: none !important;
   text-shadow: none !important;
 }
+
+/* Accessibility review 2026-11-06: footer tap targets on touch */
+@media (max-width: 760px), (pointer: coarse) {
+  .footer-column a { display: inline-flex; align-items: center; min-height: 44px; }
+  .footer-column { gap: 0; }
+}
