@@ -4,7 +4,7 @@
 This check intentionally stays dependency-free. It does not contact providers;
 it verifies that the repository contains a complete, operator-readable runbook
 for the exact deployment surface that the code expects: Supabase migrations and
-storage, Railway web + worker services, Vercel frontend, Lemon Squeezy webhook,
+storage, Railway web + worker services, Vercel frontend,
 production env validation, smoke tests and rollback steps.
 """
 from __future__ import annotations
@@ -35,7 +35,6 @@ REQUIRED_RUNBOOK_PHRASES = [
     "Railway worker service",
     "Railway audit archive worker",
     "Vercel",
-    "Lemon Squeezy",
     "rollback",
     "smoke test",
     "Root Directory = backend",
@@ -75,7 +74,6 @@ REQUIRED_RUNBOOK_PHRASES = [
     "DEVBAREUN_ERASURE_GRACE_DAYS=14",
     "DEVBAREUN_PRIVACY_EXPORT_REQUEST_TTL_DAYS=7",
     "DEVBAREUN_AUTO_PURGE_ENABLED=false",
-    "DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS=5",
     "GET /api/billing/checkouts/{checkout_id}",
     "DEVBAREUN_TEAM_INVITE_TTL_HOURS=72",
     "python tools/check_company_team_foundation.py",
@@ -104,8 +102,6 @@ REQUIRED_ENV_MATRIX_KEYS = [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_STORAGE_BUCKET",
     "SUPABASE_REPORTS_BUCKET",
-    "LEMON_SQUEEZY_API_KEY",
-    "LEMON_SQUEEZY_WEBHOOK_SECRET",
     "UPSTASH_REDIS_REST_URL",
     "UPSTASH_REDIS_REST_TOKEN",
     "VITE_API_BASE_URL",
@@ -120,15 +116,12 @@ REQUIRED_ENV_MATRIX_KEYS = [
     "DEVBAREUN_ERASURE_GRACE_DAYS",
     "DEVBAREUN_PRIVACY_EXPORT_REQUEST_TTL_DAYS",
     "DEVBAREUN_AUTO_PURGE_ENABLED",
-    "DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS",
     "DEVBAREUN_TEAM_INVITE_TTL_HOURS",
 ]
 
 FRONTEND_FORBIDDEN_SECRETS = [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_JWT_SECRET",
-    "LEMON_SQUEEZY_API_KEY",
-    "LEMON_SQUEEZY_WEBHOOK_SECRET",
     "UPSTASH_REDIS_REST_TOKEN",
     "DATABASE_URL",
     "DEVBAREUN_AUDIT_ARCHIVE_WEBHOOK_URL",
@@ -142,7 +135,6 @@ FRONTEND_FORBIDDEN_SECRETS = [
     "DEVBAREUN_ERASURE_GRACE_DAYS",
     "DEVBAREUN_PRIVACY_EXPORT_REQUEST_TTL_DAYS",
     "DEVBAREUN_AUTO_PURGE_ENABLED",
-    "DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS",
     "DEVBAREUN_TEAM_INVITE_TTL_HOURS",
 ]
 

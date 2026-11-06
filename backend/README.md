@@ -65,23 +65,7 @@ disabled in production unless you are running a temporary private test.
 
 ## Payment
 
-Production checkout uses Lemon Squeezy:
-
-```text
-DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
-LEMON_SQUEEZY_API_KEY=
-LEMON_SQUEEZY_STORE_ID=
-LEMON_SQUEEZY_WEBHOOK_SECRET=
-LEMON_SQUEEZY_SINGLE_VARIANT_ID=
-LEMON_SQUEEZY_PLUS_VARIANT_ID=
-LEMON_SQUEEZY_PRO_VARIANT_ID=
-```
-
-Webhook URL:
-
-```text
-https://devbareun-production.up.railway.app/api/billing/webhook
-```
+No online payment provider is connected. The checkout endpoints validate the plan and return HTTP 503 `payments_unavailable`; there is no payment webhook route. Plans are activated manually. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 ## Rate Limiting
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Static release contract for DevBareun billing lifecycle integrity.
 
-The check intentionally does not call Lemon Squeezy or Supabase. It verifies
-that checkout correlation, retry-safe payment event handling, provider-period
-usage reset, configuration parity and customer-safe status polling remain wired
-into the deployable source tree.
+The check intentionally does not call any payment provider or Supabase. No
+online payment provider is connected: it verifies that checkout requests fail
+closed with a clear message, that no provider webhook route is exposed, and
+that customer-safe status polling remains wired into the deployable source tree.
 """
 from __future__ import annotations
 
@@ -21,7 +21,6 @@ REQUIRED_FILES = (
     "docs/BILLING_LIFECYCLE_V1431.md",
     "frontend/member-dashboard-app/src/pages/PaymentStatus.jsx",
 )
-REQUIRED_ENV_KEY = "DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS"
 
 
 @dataclass
@@ -48,26 +47,11 @@ def check(root: Path) -> CheckResult:
     service = root / "backend/app/services/billing_service.py"
     if service.exists():
         source = read(service)
-        for expected in (
-            "checkout_id = str(uuid4())",
-            '"checkout_id": checkout_id',
-            "_record_checkout_session",
-            "get_checkout_status",
-            "claim_payment_webhook_event",
-            "complete_payment_webhook_event",
-            "_event_fingerprint",
-            "_provider_period",
-            "_checkout_owner_context",
-            "refund_review_required",
-            "payment_webhook_processing_failed",
-        ):
+        for expected in ("get_checkout_status", "payments_unavailable", "PAYMENTS_UNAVAILABLE_MESSAGE"):
             if expected not in source:
-                result.errors.append(f"billing service is missing lifecycle guard: {expected}")
-        if '"p_owner_email": owner_email' in source:
-            result.errors.append("payment event claim must not pass raw owner email to the webhook RPC")
-        if "raw_body" in source and "payload":
-            # Informational only: raw_body is required for signature/hash input.
-            pass
+                result.errors.append(f"billing service is missing checkout guard: {expected}")
+        if "lemon" in source.lower():
+            result.errors.append("billing service must not reference a removed payment provider")
 
     routes = root / "backend/app/billing_routes.py"
     if routes.exists():
@@ -77,12 +61,10 @@ def check(root: Path) -> CheckResult:
         if "get_checkout_status" not in source:
             result.errors.append("billing status endpoint is not delegated to the service")
 
-    compat = root / "backend/app/saas_public_routes.py"
-    if compat.exists():
-        source = read(compat)
-        webhook = re.search(r'@router\.post\("/payments/webhook"\).*?(?=\n@router|\Z)', source, flags=re.S)
-        if not webhook or "except Exception" in webhook.group(0):
-            result.errors.append("compatibility webhook must not convert transient processing failures into HTTP 400")
+    for rel in ("backend/app/billing_routes.py", "backend/app/saas_public_routes.py"):
+        path = root / rel
+        if path.exists() and re.search(r'@router\.post\("[^"]*webhook"\)', read(path)):
+            result.errors.append(f"{rel} exposes a payment webhook route but no payment provider is connected")
 
     migration = root / "database/2026_06_21_v1431_billing_lifecycle_integrity.sql"
     if migration.exists():
@@ -104,18 +86,6 @@ def check(root: Path) -> CheckResult:
     if order.exists() and migration.name not in read(order):
         result.errors.append("Supabase deploy order omits v1.4.31 billing lifecycle migration")
 
-    for rel in (
-        "backend/.env.example",
-        "deploy/env/railway-web.env.template",
-        "deploy/env/railway-worker.env.template",
-        "deploy/env/railway-audit-archive.env.template",
-    ):
-        path = root / rel
-        if not path.exists():
-            result.errors.append(f"missing provider env template: {rel}")
-        elif not re.search(rf"^{re.escape(REQUIRED_ENV_KEY)}=", read(path), flags=re.M):
-            result.errors.append(f"{rel} is missing {REQUIRED_ENV_KEY}")
-
     client = root / "frontend/member-dashboard-app/src/api/client.js"
     status = root / "frontend/member-dashboard-app/src/pages/PaymentStatus.jsx"
     if client.exists() and "checkoutStatus" not in read(client):
@@ -129,7 +99,7 @@ def check(root: Path) -> CheckResult:
     docs = root / "docs/BILLING_LIFECYCLE_V1431.md"
     if docs.exists():
         source = read(docs).lower()
-        for expected in ("does not", "retry", "raw provider payload", "refund", "devbareun_payment_webhook_max_attempts"):
+        for expected in ("does not", "payments_unavailable", "info@devbareun.com"):
             if expected not in source:
                 result.errors.append(f"billing lifecycle documentation missing required boundary: {expected}")
 

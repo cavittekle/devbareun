@@ -29,7 +29,6 @@ class DeploymentRunbookTests(unittest.TestCase):
             "Railway worker service",
             "Railway audit archive worker",
             "Vercel",
-            "Lemon Squeezy",
             "python tools/smoke_deploy.py",
             "python -m app.analysis_worker --loop",
             "python -m app.audit_archive_worker --loop",
@@ -45,8 +44,6 @@ class DeploymentRunbookTests(unittest.TestCase):
         for secret in (
             "SUPABASE_SERVICE_ROLE_KEY",
             "SUPABASE_JWT_SECRET",
-            "LEMON_SQUEEZY_API_KEY",
-            "LEMON_SQUEEZY_WEBHOOK_SECRET",
             "UPSTASH_REDIS_REST_TOKEN",
             "DATABASE_URL",
             "DEVBAREUN_AUDIT_ARCHIVE_WEBHOOK_URL",

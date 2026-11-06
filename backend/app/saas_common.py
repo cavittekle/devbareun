@@ -21,7 +21,7 @@ from .version import APP_VERSION
 from .saas_credits import credit_summary, require_credit, consume_credit
 from .auth_dependencies import CurrentUser
 from .access_control import STAFF_ROLES as SUPER_ADMIN_ROLES, SUPER_ADMIN_PERMISSIONS, has_permission as _can_access, normalize_role as _normalize_staff_role, permissions_for
-from .services.billing_service import create_checkout_session as create_billing_checkout_session, handle_webhook as handle_billing_webhook
+from .services.billing_service import create_checkout_session as create_billing_checkout_session
 from .services.audit_service import audit_integrity_status, record_audit_event, redact_audit_row
 from .supabase_client import is_configured as supabase_is_configured, get_user_from_token, sign_in, sign_up, signed_upload_url, signed_download_url, delete_storage_object, storage_object_path, settings as supabase_settings
 from .auth_runtime import verify_supabase_token, get_bearer_token, AuthError, auth_user_payload

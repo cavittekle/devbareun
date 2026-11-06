@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — Lemon Squeezy removed
+
+- Removed the Lemon Squeezy integration: checkout creation, signed webhook handling, `/api/billing/webhook` and `/api/payments/webhook`.
+- Checkout endpoints now validate the plan and return HTTP 503 `payments_unavailable` with a message to email info@devbareun.com. Plans are activated manually.
+- Removed `DEVBAREUN_PAYMENT_PROVIDER`, `LEMON_SQUEEZY_*` and `DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS` from env templates, readiness checks and deploy tools. `/api/health` readiness now reports `payment_provider: none`.
+- Landing, About and CSP no longer reference Lemon Squeezy. Applied database migrations are unchanged.
+
 ## v1.5.0 — Execution and Delay Analysis Engine
 
 - Added `backend/app/delay/`: readers for the new Excel template, plan/actual Excel/CSV tables, Primavera XER and MS Project XML.

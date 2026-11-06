@@ -59,13 +59,6 @@ SUPABASE_STORAGE_BUCKET=project-files
 FRONTEND_SUCCESS_URL=https://devbareun.com/workspace/?view=payment-success&project_id={project_id}&session_id={CHECKOUT_SESSION_ID}
 FRONTEND_CANCEL_URL=https://devbareun.com/?payment=cancelled&project_id={project_id}
 
-DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
-LEMON_SQUEEZY_API_KEY=
-LEMON_SQUEEZY_STORE_ID=
-LEMON_SQUEEZY_WEBHOOK_SECRET=
-LEMON_SQUEEZY_SINGLE_VARIANT_ID=
-LEMON_SQUEEZY_PLUS_VARIANT_ID=
-LEMON_SQUEEZY_PRO_VARIANT_ID=
 
 ```
 
@@ -91,8 +84,7 @@ VITE_SUPABASE_ANON_KEY=replace_with_supabase_anon_key
 
 ## Secret Boundary
 
-- Backend only: `SUPABASE_SERVICE_ROLE_KEY`, `LEMON_SQUEEZY_API_KEY`, and `LEMON_SQUEEZY_WEBHOOK_SECRET`.
-- Frontend allowed: Supabase anon key, public site URL, public API URL. Lemon Squeezy API and webhook secrets stay backend-only.
+- Frontend allowed: Supabase anon key, public site URL, public API URL.
 - Production must keep `DEVBAREUN_ENABLE_MOCK_PAYMENT=false`.
 
 ## First Owner

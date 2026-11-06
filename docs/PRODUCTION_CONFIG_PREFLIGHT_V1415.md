@@ -29,7 +29,7 @@ Start Command = python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
 
 ## 3. Railway analysis worker
 
-Use `deploy/env/railway-worker.env.template`. The worker must have the same protected Supabase, Redis and Lemon Squeezy values as the web service.
+Use `deploy/env/railway-worker.env.template`. The worker must have the same protected Supabase and Redis values as the web service.
 
 Required service setup:
 
@@ -54,8 +54,6 @@ Only browser-safe public values belong in Vercel. Never copy these Railway-only 
 ```text
 SUPABASE_SERVICE_ROLE_KEY
 SUPABASE_JWT_SECRET
-LEMON_SQUEEZY_API_KEY
-LEMON_SQUEEZY_WEBHOOK_SECRET
 UPSTASH_REDIS_REST_TOKEN
 DATABASE_URL
 ```
@@ -112,7 +110,7 @@ python tools/check_database_contract.py --root .
 python tools/check_deploy_runbook.py --root .
 ```
 
-Then follow `docs/PRODUCTION_DEPLOYMENT_RUNBOOK_V1414.md` for Supabase migrations, Railway deployment, Vercel deployment, Lemon Squeezy webhook verification, smoke testing and rollback.
+Then follow `docs/PRODUCTION_DEPLOYMENT_RUNBOOK_V1414.md` for Supabase migrations, Railway deployment, Vercel deployment, smoke testing and rollback.
 
 
 ## v1.4.16 worker liveness settings
@@ -159,4 +157,3 @@ Use `deploy/env/railway-audit-archive.env.template` for the third Railway servic
 
 ## v1.4.31 billing webhook parity
 
-`DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS` must match across Railway web, analysis worker and audit archive worker. It is backend-only and must not be sent to Vercel.

@@ -20,13 +20,6 @@ Provider-specific placeholder templates are in `deploy/env/railway-web.env.templ
 | `SUPABASE_JWT_SECRET` | Backend only | Optional | Railway only if JWT validation needs it. |
 | `SUPABASE_STORAGE_BUCKET` | Railway web + worker | Yes | `project-files`. |
 | `SUPABASE_REPORTS_BUCKET` | Railway web + worker | Yes | `reports`. |
-| `DEVBAREUN_PAYMENT_PROVIDER` | Railway web + worker | Yes | `lemonsqueezy`. |
-| `LEMON_SQUEEZY_API_KEY` | Backend only | Yes | Railway only; never Vercel. |
-| `LEMON_SQUEEZY_STORE_ID` | Railway web + worker | Yes | Store id. |
-| `LEMON_SQUEEZY_WEBHOOK_SECRET` | Backend only | Yes | Railway only; never Vercel. |
-| `LEMON_SQUEEZY_SINGLE_VARIANT_ID` | Railway web + worker | Yes | Single analysis plan. |
-| `LEMON_SQUEEZY_PLUS_VARIANT_ID` | Railway web + worker | Yes | Plus plan. |
-| `LEMON_SQUEEZY_PRO_VARIANT_ID` | Railway web + worker | Yes | Pro plan. |
 | `UPSTASH_REDIS_REST_URL` | Railway web + worker | Yes | Production rate limit backend. |
 | `UPSTASH_REDIS_REST_TOKEN` | Backend only | Yes | Railway only; never Vercel. |
 | `VITE_PUBLIC_SITE_URL` | Vercel public | Yes | Browser-exposed. |
@@ -45,8 +38,6 @@ These keys are backend-only and must not appear in Vercel/frontend env values:
 |---|---|---|
 | `SUPABASE_SERVICE_ROLE_KEY` | Backend only | Bypasses RLS. |
 | `SUPABASE_JWT_SECRET` | Backend only | Token verification secret. |
-| `LEMON_SQUEEZY_API_KEY` | Backend only | Payment provider private API key. |
-| `LEMON_SQUEEZY_WEBHOOK_SECRET` | Backend only | Webhook signature secret. |
 | `UPSTASH_REDIS_REST_TOKEN` | Backend only | Rate-limit datastore token. |
 | `DATABASE_URL` | Backend only | Database credential. |
 
@@ -59,7 +50,6 @@ These keys are backend-only and must not appear in Vercel/frontend env values:
 | Railway worker service | `Root Directory = backend` | Same backend env matrix, analysis-worker start command. |
 | Railway audit archive worker | `Root Directory = backend` | Same backend env matrix plus audit archive webhook configuration; starts `app.audit_archive_worker`. |
 | Vercel | `Root Directory = frontend` | Public Vite/browser values only. |
-| Lemon Squeezy | Store/webhook settings | Backend webhook URL and variant IDs. |
 
 
 ## v1.4.16 worker liveness settings
@@ -178,9 +168,7 @@ a physical purge worker; it only makes any future destructive policy explicit.
 
 | Variable | Scope | Notes |
 |---|---|---|
-| `DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS` | Backend only | Set `5` identically on Railway web, analysis worker and audit archive worker. Allowed range: `1–20`; never expose it in Vercel. |
 
-Apply `2026_06_21_v1431_billing_lifecycle_integrity.sql` after v1.4.30, then verify an authenticated `GET /api/billing/checkouts/{checkout_id}` result after a Lemon Squeezy test checkout. Keep `LEMON_SQUEEZY_WEBHOOK_SECRET` backend-only.
 
 | `DEVBAREUN_TEAM_INVITE_TTL_HOURS` | Backend only | Manual company invitation expiry; 1–168 hours, default 72. Keep identical on Railway web and workers. |
 

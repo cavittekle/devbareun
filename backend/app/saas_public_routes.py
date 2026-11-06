@@ -547,12 +547,6 @@ def activate_pilot_checkout(checkout_id: str, customer_email: Optional[EmailStr]
     update_one("checkout_sessions", "checkout_id", checkout_id, {"status": "paid", "paid_at": datetime.utcnow().isoformat()})
     return {"status": "activated", "payment": payment}
 
-@router.post("/payments/webhook")
-async def payment_webhook(request: Request) -> Dict[str, Any]:
-    """Compatibility webhook path. Preserve 5xx delivery retry semantics."""
-    body = await request.body()
-    return handle_billing_webhook(body, request.headers.get("x-signature"), provider_hint="lemonsqueezy")
-
 @router.get("/subscriptions/status")
 def subscription_status(authorization: Optional[str] = Header(None), auth_cookie: Optional[str] = Cookie(default=None, alias=AUTH_COOKIE)) -> Dict[str, Any]:
     user = _required_saas_user(authorization, auth_cookie)

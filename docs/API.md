@@ -507,13 +507,7 @@ Response:
 }
 ```
 
-### POST `/api/payments/webhook`
-
-Purpose: Receive payment provider webhook.
-
-Authentication: Not required.
-
-Security: Must verify webhook signature.
+Checkout endpoints currently return HTTP 503 `payments_unavailable`: no online payment provider is connected. There is no payment webhook endpoint.
 
 ## Admin API
 

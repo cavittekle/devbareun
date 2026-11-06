@@ -14,7 +14,7 @@ The workspace should use these route families only:
 | Analysis | `POST /api/analysis/start/{project_id}`, `GET /api/analysis/jobs/{job_id}`, `GET /api/analysis/results/{project_id}` |
 | Dashboard | `/api/dashboard/portfolio`, `/api/dashboard/executive/{project_id}` |
 | Reports | `/api/reports/project/{project_id}`, `/api/reports/generate/{project_id}`, `/api/reports/{report_id}/download` |
-| Billing | `/api/billing/create-one-time-checkout`, `/api/billing/create-subscription-checkout`, `/api/billing/status`, `/api/billing/usage`, `/api/billing/webhook` |
+| Billing | `/api/billing/create-one-time-checkout`, `/api/billing/create-subscription-checkout`, `/api/billing/status`, `/api/billing/usage` |
 
 Legacy project endpoints remain isolated in `backend/app/legacy_routes.py` and stay disabled unless explicitly enabled with `DEVBAREUN_ALLOW_LEGACY_PROJECT_ROUTES=true`.
 

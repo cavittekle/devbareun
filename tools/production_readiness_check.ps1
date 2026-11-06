@@ -85,7 +85,6 @@ if (Test-Path (Join-Path $repo "frontend/workspace/index.html")) {
 
 Has-Text "frontend/vercel.json" '"source"\s*:\s*"/workspace"' "Vercel routes /workspace to the React workspace"
 Has-Text "frontend/member-dashboard-app/vite.config.js" 'base:\s*"/workspace/"' "React workspace uses /workspace/ asset base"
-Has-Text "backend/.env.example" 'DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy' "Backend env example uses Lemon Squeezy"
 Has-Text "backend/.env.example" 'UPSTASH_REDIS_REST_URL=' "Backend env example declares Upstash Redis URL"
 Has-Text "backend/.env.example" 'DEVBAREUN_ALLOW_IN_MEMORY_RATE_LIMIT=false' "Production rate limit fallback is disabled by default"
 Has-Text "backend/.env.example" 'SUPABASE_SERVICE_ROLE_KEY=' "Backend env example declares service role key only for Railway"
@@ -94,8 +93,6 @@ $frontendSecretHits = @()
 $secretPatterns = @(
   "SUPABASE_SERVICE_ROLE_KEY",
   "SUPABASE_JWT_SECRET",
-  "LEMON_SQUEEZY_API_KEY",
-  "LEMON_SQUEEZY_WEBHOOK_SECRET",
   "UPSTASH_REDIS_REST_TOKEN"
 )
 foreach ($pattern in $secretPatterns) {
@@ -135,7 +132,6 @@ if (-not $SkipHttp) {
         if ($readiness.$flag -ne "disabled") { Warn "Backend $flag is $($readiness.$flag); production should disable it" }
       }
       if ($readiness.docs -ne "disabled") { Warn "Backend docs are enabled; production should set DEVBAREUN_DISABLE_DOCS=true" }
-      if ($readiness.lemonsqueezy -ne "configured") { Warn "Lemon Squeezy is not fully configured on backend" }
       if ($readiness.rate_limit -ne "upstash") { Warn "Production rate limit is not using Upstash" }
       if ($readiness.supabase_private -ne "configured") { Warn "Supabase private/service configuration is missing" }
     }
