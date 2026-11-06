@@ -487,9 +487,11 @@ def _insert_payment(user: CurrentUser, plan: str, project_id: Optional[str], che
 def verify_polar_signature(raw_body: bytes, headers: Dict[str, Optional[str]], secret: str, *, now: Optional[float] = None) -> None:
     """Verify a Standard Webhooks signature as sent by Polar.
 
-    Polar signs ``{webhook-id}.{webhook-timestamp}.{body}`` with HMAC-SHA256,
-    keyed with the endpoint secret's UTF-8 bytes, and sends
-    ``webhook-signature: v1,<base64>`` (space separated when rotated).
+    Polar signs ``{webhook-id}.{webhook-timestamp}.{body}`` with HMAC-SHA256 and
+    sends ``webhook-signature: v1,<base64>`` (space separated when rotated).
+    Secrets created since 2026-09-08 are Standard Webhooks keys
+    (``whsec_<base64 key>``); older Polar secrets are keyed with the UTF-8
+    bytes of the whole secret. Both derivations are accepted.
     """
     msg_id = str(headers.get("webhook-id") or "").strip()
     timestamp = str(headers.get("webhook-timestamp") or "").strip()
@@ -504,12 +506,23 @@ def verify_polar_signature(raw_body: bytes, headers: Dict[str, Optional[str]], s
     if abs(current - sent_at) > WEBHOOK_TOLERANCE_SECONDS:
         raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Webhook timestamp is outside the allowed window."})
     signed = f"{msg_id}.{timestamp}.".encode("utf-8") + raw_body
-    expected = base64.b64encode(hmac.new(secret.encode("utf-8"), signed, hashlib.sha256).digest()).decode("ascii")
+    expected = [base64.b64encode(hmac.new(key, signed, hashlib.sha256).digest()).decode("ascii") for key in _webhook_keys(secret)]
     for candidate in signature_header.split():
         version, _, value = candidate.partition(",")
-        if version == "v1" and value and hmac.compare_digest(value, expected):
+        if version == "v1" and value and any(hmac.compare_digest(value, item) for item in expected):
             return
     raise HTTPException(status_code=400, detail={"error": "invalid_webhook", "message": "Invalid Polar webhook signature."})
+
+
+def _webhook_keys(secret: str) -> List[bytes]:
+    keys: List[bytes] = []
+    if secret.startswith("whsec_"):
+        try:
+            keys.append(base64.b64decode(secret[len("whsec_"):], validate=True))
+        except (ValueError, TypeError):
+            pass
+    keys.append(secret.encode("utf-8"))
+    return keys
 
 
 def handle_webhook(raw_body: bytes, headers: Dict[str, Optional[str]]) -> Dict[str, Any]:

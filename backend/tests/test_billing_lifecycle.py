@@ -127,6 +127,17 @@ class BillingLifecycleTests(unittest.TestCase):
         with self.assertRaises(HTTPException):
             self.service.verify_polar_signature(body + b" ", headers, self.SECRET)
 
+    def test_standard_webhooks_secret_format(self) -> None:
+        key = b"0123456789abcdef0123456789abcdef"
+        secret = "whsec_" + base64.b64encode(key).decode()
+        body = b'{"type":"order.paid"}'
+        ts = str(int(time.time()))
+        digest = hmac.new(key, f"msg_2.{ts}.".encode() + body, hashlib.sha256).digest()
+        headers = {"webhook-id": "msg_2", "webhook-timestamp": ts, "webhook-signature": "v1," + base64.b64encode(digest).decode()}
+        self.service.verify_polar_signature(body, headers, secret)
+        # Legacy derivation (UTF-8 bytes of the whole secret) is still accepted.
+        self.service.verify_polar_signature(body, self.signed_headers(body, secret=secret), secret)
+
     def test_webhook_requires_secret(self) -> None:
         with patch.dict(os.environ, {"POLAR_WEBHOOK_SECRET": ""}):
             with self.assertRaises(HTTPException) as ctx:
