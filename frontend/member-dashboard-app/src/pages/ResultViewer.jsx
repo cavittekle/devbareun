@@ -508,7 +508,7 @@ export function ResultViewer({ mode = "result" }) {
     <DelayDashboard
       result={state.result}
       lang={lang}
-      onLangChange={setLang}
+      onLangChange={mode === "guest" ? setLang : undefined}
       downloads={{ pdf: workspaceApi.delayReportUrl(projectId, "pdf", lang), xlsx: workspaceApi.delayReportUrl(projectId, "xlsx", lang) }}
     />
   );

@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
   <script src="js/theme-init.js?v=14035"></script>
-  <link rel="stylesheet" href="css/modern-landing.css?v=14042" />
+  <link rel="stylesheet" href="css/modern-landing.css?v=14043" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -63,7 +63,7 @@
 <body>
   <a class="skip-link" href="#main" data-i18n="skipLink">Skip to content</a>
 
-  <div id="db-loading-screen" class="loader" aria-label="Preparing DevBareun">
+  <div id="db-loading-screen" class="loader" aria-label="Preparing DevBareun" data-i18n-aria="ariaLoading">
     <div class="loader-grid" aria-hidden="true"></div>
     <div class="loader-content">
       <div class="loader-mark">
@@ -79,11 +79,11 @@
 
   <header class="site-header">
     <div class="wrap nav-shell">
-      <a class="brand" href="index.html" aria-label="DevBareun home">
+      <a class="brand" href="index.html" aria-label="DevBareun home" data-i18n-aria="ariaHome">
         <img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" class="brand-logo" />
       </a>
 
-      <nav class="main-nav" aria-label="Main navigation">
+      <nav class="main-nav" aria-label="Main navigation" data-i18n-aria="ariaMainNav">
         <a href="#platform" data-i18n="navPlatform">How it works</a>
         <a href="#upload" data-i18n="navUpload">Upload</a>
         <a href="#pricing" data-i18n="navPricing">Pricing</a>
@@ -94,18 +94,18 @@
       </nav>
 
       <div class="nav-actions">
-        <button class="lang-toggle" type="button" aria-label="Switch language" data-language-toggle>
+        <button class="lang-toggle" type="button" aria-label="Switch language" data-i18n-aria="ariaLang" data-language-toggle>
           <span data-current-lang>EN</span>
           <i aria-hidden="true"></i>
         </button>
         <a class="header-login" href="/workspace/?view=login&next=/workspace/" data-i18n="login">Login</a>
         <a class="btn btn-primary nav-cta" href="#upload" data-i18n="startAnalysis">Start analysis</a>
-        <button class="mobile-menu-btn" type="button" aria-label="Open menu" aria-expanded="false">
+        <button class="mobile-menu-btn" type="button" aria-label="Open menu" data-i18n-aria="ariaMenu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
-    <div class="mobile-menu" aria-label="Mobile navigation">
+    <div class="mobile-menu" aria-label="Mobile navigation" data-i18n-aria="ariaMobileNav">
       <a href="#platform" data-i18n="navPlatform">How it works</a>
       <a href="#upload" data-i18n="navUpload">Upload</a>
       <a href="#pricing" data-i18n="navPricing">Pricing</a>
@@ -129,14 +129,14 @@
             <span data-i18n="heroShowcaseTitleTwo">the project is,</span>
             <span class="accent-line" data-i18n="heroShowcaseTitleThree">and why.</span>
           </h1>
-          <p class="hero-lead" data-i18n="heroShowcaseLead">Upload the baseline schedule, actual progress and delay events. DevBareun calculates SPI, schedule delay in days, forecast completion, the critical path and who is responsible for each delay day, then prepares the execution report in PDF and Excel.</p>
+          <p class="hero-lead" data-i18n="heroShowcaseLead">Upload the planning, the current F2 and F3 certificates and the contract. DevBareun calculates SPI, schedule delay in days, forecast completion, the critical path and who is responsible for each delay day, then prepares the execution report in PDF and Excel.</p>
           <div class="hero-actions hero-showcase-actions">
             <a class="btn btn-primary" href="#upload" data-i18n="heroPrimary">Start analysis</a>
             <a class="btn btn-secondary" href="/workspace/?view=example" data-i18n="heroExample">View example report</a>
           </div>
         </div>
 
-        <aside class="hero-control-card hero-report-card" aria-label="Example execution report preview">
+        <aside class="hero-control-card hero-report-card" aria-label="Example execution report preview" data-i18n-aria="ariaHeroCard">
           <div class="hero-control-head">
             <span data-i18n="heroControlLabel">Execution report</span>
             <em data-i18n="heroReportBadge">Example</em>
@@ -176,7 +176,7 @@
                 <strong data-i18n="heroFlowDashboard">Who is responsible for the delay?</strong>
                 <small data-i18n="heroFlowDashboardText">92 days of recorded delay events</small>
               </div>
-              <div class="hero-split-bar" role="img" aria-label="Employer 14, contractor 59, neutral 7, concurrent 12 days">
+              <div class="hero-split-bar" role="img" aria-label="Employer 14, contractor 59, neutral 7, concurrent 12 days" data-i18n-aria="ariaHeroSplit">
                 <i class="employer" style="flex: 14"></i><i class="contractor" style="flex: 59"></i><i class="neutral" style="flex: 7"></i><i class="concurrent" style="flex: 12"></i>
               </div>
               <ul class="hero-split-legend">
@@ -190,7 +190,7 @@
           <a class="hero-report-link" href="/workspace/?view=example" data-i18n="heroReportLink">Open the full example report</a>
         </aside>
 
-        <div class="hero-signal-strip" aria-label="What the analysis calculates">
+        <div class="hero-signal-strip" aria-label="What the analysis calculates" data-i18n-aria="ariaHeroMetrics">
           <span><b data-i18n="heroMetricPackagesValue">Delay in days</b><small data-i18n="heroMetricPackages">Not only a percentage</small></span>
           <span><b data-i18n="heroMetricFormatsValue">Critical path</b><small data-i18n="heroMetricFormats">Activities that move the finish</small></span>
           <span><b data-i18n="heroMetricReportsValue">Responsibility</b><small data-i18n="heroMetricReports">Who caused each delay day</small></span>
@@ -206,7 +206,7 @@
         <p data-i18n="dashboardText">The figures below come from the DevBareun example project. Your report uses the same layout with your own schedule, progress and delay events.</p>
         <p class="value-actions"><a class="btn btn-secondary" href="/workspace/?view=example" data-i18n="dashboardExampleCta">Open the full example</a></p>
       </div>
-      <div class="executive-preview" aria-label="Example delay analysis dashboard">
+      <div class="executive-preview" aria-label="Example delay analysis dashboard" data-i18n-aria="ariaPreview">
         <div class="preview-browser">
           <div class="preview-bar">
             <div class="browser-dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -238,7 +238,7 @@
           <div class="preview-dashboard-grid">
             <section class="preview-chart-card">
               <div><strong data-i18n="previewCurveTitle">Planned vs actual S-curve</strong><small data-i18n="previewCurveSub">Cumulative progress, %</small></div>
-              <svg viewBox="0 0 520 230" role="img" aria-label="S-curve: at the data date 31.05.2024 actual progress is 35.3% against 57.1% planned; forecast completion 23.03.2025 against the contract finish 15.12.2024">
+              <svg viewBox="0 0 520 230" role="img" aria-label="S-curve: at the data date 31.05.2024 actual progress is 35.3% against 57.1% planned; forecast completion 23.03.2025 against the contract finish 15.12.2024" data-i18n-aria="ariaCurve">
                 <g class="chart-grid">
                   <line x1="50" y1="30" x2="500" y2="30"></line>
                   <line x1="50" y1="70" x2="500" y2="70"></line>
@@ -277,7 +277,7 @@
             </section>
             <section class="preview-bars-card">
               <div><strong data-i18n="previewDelayTitle">Monthly delay development</strong><small data-i18n="previewDelaySub">Schedule delay at month end, days</small></div>
-              <svg viewBox="0 0 300 220" role="img" aria-label="Schedule delay grew every month, from 5 days in September 2023 to 67 days in May 2024">
+              <svg viewBox="0 0 300 220" role="img" aria-label="Schedule delay grew every month, from 5 days in September 2023 to 67 days in May 2024" data-i18n-aria="ariaDelayBars">
                 <line class="chart-axis" x1="16" y1="180" x2="290" y2="180"></line>
                 <rect class="delay-bar" x="24" y="170" width="20" height="10" rx="3"></rect>
                 <rect class="delay-bar" x="54" y="158" width="20" height="22" rx="3"></rect>
@@ -337,20 +337,20 @@
     <section class="upload-section wrap section" id="upload">
       <div class="section-heading">
         <p class="section-label" data-i18n="uploadLabel">Upload for delay analysis</p>
-        <h2 data-i18n="uploadTitle">One analysis, built from your schedule and progress.</h2>
-        <p data-i18n="uploadIntro">Single Project users upload first, check the detected data and pay with Lemon Squeezy to unlock the full report. Plus and Pro users spend monthly project credits.</p>
+        <h2 data-i18n="uploadTitle">One analysis from three documents.</h2>
+        <p data-i18n="uploadIntro">Choose your files here, then sign in to run the analysis. Single Project is paid once per project; Plus and Pro use monthly analysis credits.</p>
       </div>
 
       <div class="upload-workspace">
         <div class="mapping-panel">
           <div>
-            <p class="section-label" data-i18n="requiredFiles">Required files</p>
+            <p class="section-label" data-i18n="requiredFiles">What the planning should include</p>
             <h3 data-i18n="pkgDelayTitle">Execution and delay analysis</h3>
             <ol>
               <li data-i18n="reqBaseline">Baseline schedule: planned start, finish, weight, predecessors</li>
               <li data-i18n="reqActual">Actual progress at the data date: actual dates and % complete</li>
-              <li data-i18n="reqEvents">Delay events with cause and responsible party (recommended)</li>
-              <li data-i18n="reqMonthly">Monthly planned and actual cumulative % (optional)</li>
+              <li data-i18n="reqEvents">Delay events with cause and responsible party, if you keep them</li>
+              <li data-i18n="reqMonthly">Monthly planned and actual cumulative %, if available</li>
             </ol>
           </div>
           <div>
@@ -367,9 +367,9 @@
 
         <div class="upload-panel">
           <div class="drop-zone" id="dropZone">
-            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml" tabindex="-1" aria-hidden="true" />
+            <input id="fileInput" class="file-input" type="file" multiple accept=".xlsx,.xlsm,.xls,.csv,.xer,.xml,.mpp,.pdf,.doc,.docx,.jpg,.jpeg,.png" tabindex="-1" aria-hidden="true" />
             <div class="drop-icon" aria-hidden="true">+</div>
-            <h3 data-i18n="dropTitle">Drop schedule and progress files here, or browse</h3>
+            <h3 data-i18n="dropTitle">Drop your three files here, or choose them</h3>
             <p class="drop-types-lead" data-i18n="dropTypesLead">Which files to upload</p>
             <ol class="drop-types">
               <li>
@@ -434,15 +434,18 @@
       <div class="formats-panel">
         <div class="formats-copy">
           <p class="section-label" data-i18n="filesLabel">Supported files</p>
-          <h3 data-i18n="filesTitle">Works with the schedules your team already keeps.</h3>
-          <p data-i18n="filesText">Upload your planning exports as they are. Column headers in English, Azerbaijani, Turkish and Russian are recognised.</p>
+          <h3 data-i18n="filesTitle">Works with the files your team already keeps.</h3>
+          <p data-i18n="filesText">Upload the planning, F2 and F3 certificates and contract as they are. Column headers in English, Azerbaijani, Turkish and Russian are recognised.</p>
         </div>
         <div class="formats-lists">
-          <ul class="format-chips" aria-label="Accepted file formats">
+          <ul class="format-chips" aria-label="Accepted file formats" data-i18n-aria="ariaFormats">
             <li><b>Excel</b><small>.xlsx .xlsm .xls</small></li>
             <li><b>CSV</b><small>.csv</small></li>
             <li><b>Primavera P6</b><small>.xer</small></li>
-            <li><b>MS Project</b><small>.xml</small></li>
+            <li><b>MS Project</b><small>.xml .mpp</small></li>
+            <li><b>Word</b><small>.docx .doc</small></li>
+            <li><b>PDF</b><small>.pdf</small></li>
+            <li><b data-i18n="fmtImage">Image</b><small>.jpg .png</small></li>
           </ul>
           <ul class="check-list format-content">
             <li data-i18n="fileSchedule">Baseline schedule with WBS and predecessors</li>
@@ -464,7 +467,7 @@
         <p class="section-label" data-i18n="pricingLabel">Pricing</p>
         <h2 data-i18n="pricingTitle">Simple, transparent pricing.</h2>
         <p data-i18n="pricingText">One project or twenty. Pick the plan that fits. No hidden fees, no lock-in.</p>
-        <div class="billing-toggle" aria-label="Billing options">
+        <div class="billing-toggle" aria-label="Billing options" data-i18n-aria="ariaBilling">
           <button type="button" class="active" data-billing="monthly" aria-pressed="true" data-i18n="monthly">Monthly</button>
           <button type="button" data-billing="annual" aria-pressed="false" data-i18n="annual">Annual</button>
           <small data-i18n="saveAnnual">Save 20%</small>
@@ -494,7 +497,7 @@
           <a class="btn btn-secondary" href="#upload" data-plan="pro"><span data-i18n="proCta">Start Pro</span><b aria-hidden="true">→</b></a>
         </article>
       </div>
-      <div class="pricing-compare" aria-label="Plan comparison">
+      <div class="pricing-compare" aria-label="Plan comparison" data-i18n-aria="ariaCompare">
         <div class="compare-row compare-head">
           <strong data-i18n="pricingIncludes">What's included</strong>
           <span data-i18n="compareSingle">Single Project</span>
@@ -510,7 +513,7 @@
         <div class="compare-row"><strong data-i18n="rowWorkspace">Multi-project workspace</strong><span>-</span><span>-</span><span>✓</span></div>
         <div class="compare-row"><strong data-i18n="rowAdmin">Admin usage tracking</strong><span>-</span><span>-</span><span>✓</span></div>
       </div>
-      <div class="pricing-trust" aria-label="Pricing safeguards">
+      <div class="pricing-trust" aria-label="Pricing safeguards" data-i18n-aria="ariaSafeguards">
         <span data-i18n="pricingTrustSecure">Secure checkout</span>
         <span data-i18n="pricingTrustCancel">Cancel anytime</span>
         <span data-i18n="pricingTrustSetup">No setup fees</span>
@@ -521,20 +524,20 @@
   </main>
   <footer class="footer">
     <div class="wrap footer-shell">
-      <nav class="footer-column" aria-label="Product navigation">
+      <nav class="footer-column" aria-label="Product navigation" data-i18n-aria="ariaFooterProduct">
         <strong data-i18n="footerProduct">Product</strong>
         <a href="#platform" data-i18n="navPlatform">How it works</a>
         <a href="#upload" data-i18n="navUpload">Upload</a>
         <a href="#pricing" data-i18n="navPricing">Pricing</a>
         <a href="#security" data-i18n="navSecurity">Security</a>
       </nav>
-      <nav class="footer-column" aria-label="Company navigation">
+      <nav class="footer-column" aria-label="Company navigation" data-i18n-aria="ariaFooterCompany">
         <strong data-i18n="footerCompany">Company</strong>
         <a href="about.html" data-i18n="navAbout">About</a>
         <a href="faq.html" data-i18n="navFAQ">FAQ</a>
         <a href="contact.html" data-i18n="navContact">Contact</a>
       </nav>
-      <nav class="footer-column" aria-label="Legal navigation">
+      <nav class="footer-column" aria-label="Legal navigation" data-i18n-aria="ariaFooterLegal">
         <strong data-i18n="footerLegal">Legal</strong>
         <a href="privacy.html" data-i18n="footerPrivacy">Privacy policy</a>
         <a href="terms.html" data-i18n="footerTerms">Terms of service</a>
@@ -547,6 +550,6 @@
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="js/modern-landing.js?v=15001" defer></script>
+  <script src="js/modern-landing.js?v=15002" defer></script>
 </body>
 </html>

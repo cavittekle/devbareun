@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
   <link rel="manifest" href="site.webmanifest?v=2" />
   <script src="js/theme-init.js?v=14035"></script>
-  <link rel="stylesheet" href="css/styles.css?v=14039" />
+  <link rel="stylesheet" href="css/styles.css?v=14043" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -42,10 +42,10 @@
   <a class="skip-link" href="#main" data-i18n="skipLink">Skip to content</a>
   <header class="site-header">
     <div class="wrap navbar">
-      <a class="brand" href="index.html" aria-label="DevBareun home">
+      <a class="brand" href="index.html" aria-label="DevBareun home" data-i18n-aria="ariaHome">
         <img src="assets/devbareun-logo-horizontal-white.svg?v=3" alt="DevBareun" class="brand-logo" />
       </a>
-      <nav class="nav-links" aria-label="Main navigation">
+      <nav class="nav-links" aria-label="Main navigation" data-i18n-aria="ariaMainNav">
         <a data-i18n="navPlatform" href="index.html#platform">Platform</a>
         <a data-i18n="navUpload" href="index.html#upload">Upload</a>
         <a data-i18n="navPricing" href="index.html#pricing">Pricing</a>
@@ -56,12 +56,12 @@
       </nav>
       <div class="controls">
         <button class="icon-btn langBtn" type="button" aria-label="Change language">EN</button>
-        <a class="icon-btn header-login" href="/workspace/?view=login&amp;next=/workspace/">Login</a>
+        <a class="icon-btn header-login" href="/workspace/?view=login&amp;next=/workspace/" data-i18n="login">Log in</a>
         <a class="btn primary desktop-cta" data-i18n="start" href="index.html#upload">Start analysis</a>
-        <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-label="Open menu">&#9776;</button>
+        <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-label="Open menu" data-i18n-aria="ariaMenu">&#9776;</button>
       </div>
     </div>
-    <div class="mobile-panel" aria-label="Mobile navigation">
+    <div class="mobile-panel" aria-label="Mobile navigation" data-i18n-aria="ariaMobileNav">
       <a data-i18n="navPlatform" href="index.html#platform">Platform</a>
       <a data-i18n="navUpload" href="index.html#upload">Upload</a>
       <a data-i18n="navPricing" href="index.html#pricing">Pricing</a>
@@ -69,7 +69,7 @@
       <a data-i18n="navAbout" href="about.html">About</a>
       <a data-i18n="navFAQ" href="faq.html">FAQ</a>
       <a data-i18n="navContact" href="contact.html">Contact</a>
-      <a href="/workspace/?view=login&amp;next=/workspace/">Login</a>
+      <a href="/workspace/?view=login&amp;next=/workspace/" data-i18n="login">Log in</a>
     </div>
   </header>
 
@@ -81,7 +81,7 @@
         <p class="lead">Execution and delay analysis for construction projects.</p>
       </div>
       <div class="about-lang-az">
-        <h1>DevBareun Haqqında</h1>
+        <h1>DevBareun haqqında</h1>
         <p class="lead">Tikinti layihələri üçün icra və gecikmə analizi.</p>
       </div>
     </section>
@@ -90,7 +90,7 @@
       <article class="content-card about-story">
         <h2>One question: how late is the project, and why?</h2>
         <p>DevBareun produces one result: the construction project execution and delay analysis report. It is built for contractors, employers, consultants and project managers who need to know how far a project is behind its baseline and what caused it.</p>
-        <p>You upload the baseline schedule, the actual progress at the data date and the delay events your team records. DevBareun calculates planned and actual progress, SPI, schedule delay in days, forecast completion, the critical path and total float, and splits delay days between employer, contractor, neutral and concurrent causes.</p>
+        <p>You upload the planning (baseline schedule and actual progress at the data date), the current F2 and F3 certificates and the contract. DevBareun calculates planned and actual progress, SPI, schedule delay in days, forecast completion, the critical path and total float, and splits delay days between employer, contractor, neutral and concurrent causes.</p>
         <p>Every number in the report comes from your files. Findings and recommended actions are written from those numbers, and any missing dates, progress or logic are listed under data quality so you know how far to rely on the result.</p>
         <p>The report is available in Azerbaijani and English, as PDF and Excel, ready for site meetings, monthly reporting and delay claims preparation.</p>
       </article>
@@ -117,7 +117,7 @@
         <h2>How your files are handled</h2>
         <ol class="about-steps">
           <li><strong>Private upload.</strong> Files go to a private storage bucket through a signed link that expires after a short time. They are never placed behind a public URL.</li>
-          <li><strong>Checks before reading.</strong> Only contract, schedule and F2 file types are accepted (PDF, Word, images, Excel, CSV, Primavera XER and MS Project). Executable files are rejected and each file's content is checked against its type.</li>
+          <li><strong>Checks before reading.</strong> Only planning, F2 and F3 and contract file types are accepted (PDF, Word, images, Excel, CSV, Primavera XER and MS Project). Executable files are rejected and each file's content is checked against its type.</li>
           <li><strong>You see what was read.</strong> DevBareun shows which sheets, activities and delay events it detected in each file, and lists missing data before the report is prepared.</li>
           <li><strong>Numbers from your files only.</strong> The report uses only values calculated from your uploads, with no filler figures.</li>
         </ol>
@@ -132,7 +132,7 @@
       <article class="content-card about-story">
         <h2>Bir sual: layihə nə qədər gecikir və niyə?</h2>
         <p>DevBareun bir nəticə hazırlayır: tikinti layihəsinin icra və gecikmə analizi hesabatı. Platforma layihənin baza qrafikdən nə qədər geri qaldığını və buna nəyin səbəb olduğunu bilməli olan podratçılar, sifarişçilər, məsləhətçilər və layihə rəhbərləri üçün qurulub.</p>
-        <p>Baza qrafikini, hesabat tarixinə faktiki icranı və komandanızın qeyd etdiyi gecikmə hadisələrini yükləyirsiniz. DevBareun plan və faktiki icranı, SPI-ni, gün ilə qrafik gecikməsini, proqnoz bitmə tarixini, kritik yolu və ümumi ehtiyat vaxtı hesablayır, gecikmə günlərini sifarişçi, podratçı, neytral və eyni vaxtlı səbəblər üzrə bölür.</p>
+        <p>Planlamanı (baza qrafiki və hesabat tarixinə faktiki icra), cari F2 və F3 aktlarını və müqaviləni yükləyirsiniz. DevBareun plan və faktiki icranı, SPI-ni, gün ilə qrafik gecikməsini, proqnoz bitmə tarixini, kritik yolu və ümumi ehtiyat vaxtı hesablayır, gecikmə günlərini sifarişçi, podratçı, neytral və eyni vaxtlı səbəblər üzrə bölür.</p>
         <p>Hesabatdakı hər rəqəm sizin fayllarınızdan gəlir. Nəticələr və tövsiyə olunan tədbirlər bu rəqəmlər əsasında yazılır, çatışmayan tarixlər, icra faizləri və ya əlaqələr isə məlumat keyfiyyəti bölməsində göstərilir.</p>
         <p>Hesabat Azərbaycan və ingilis dillərində, PDF və Excel formatında hazırlanır: obyekt iclasları, aylıq hesabatlar və gecikmə iddialarının hazırlanması üçün.</p>
       </article>
@@ -159,7 +159,7 @@
         <h2>Fayllarınızla necə işləyirik</h2>
         <ol class="about-steps">
           <li><strong>Qapalı yükləmə.</strong> Fayllar qısa müddətdən sonra etibarsız olan imzalı keçid vasitəsilə qapalı yaddaş bölməsinə yüklənir. Onlar heç vaxt ictimai keçiddə yerləşdirilmir.</li>
-          <li><strong>Oxunmazdan əvvəl yoxlama.</strong> Yalnız müqavilə, qrafik və F2 fayl növləri qəbul edilir (PDF, Word, şəkil, Excel, CSV, Primavera XER və MS Project). İcra olunan fayllar rədd edilir və hər faylın məzmunu öz növünə uyğunluğu baxımından yoxlanılır.</li>
+          <li><strong>Oxunmazdan əvvəl yoxlama.</strong> Yalnız planlama, F2 və F3 aktları və müqavilə fayl növləri qəbul edilir (PDF, Word, şəkil, Excel, CSV, Primavera XER və MS Project). İcra olunan fayllar rədd edilir və hər faylın məzmunu öz növünə uyğunluğu baxımından yoxlanılır.</li>
           <li><strong>Nəyin oxunduğunu görürsünüz.</strong> DevBareun hər faylda hansı vərəqləri, işləri və gecikmə hadisələrini tapdığını göstərir və hesabatdan əvvəl çatışmayan məlumatı sadalayır.</li>
           <li><strong>Yalnız sizin fayllarınızdan rəqəmlər.</strong> Hesabat yalnız yüklədiyiniz məlumatdan hesablanan dəyərlərdən istifadə edir.</li>
         </ol>
@@ -171,7 +171,7 @@
 
   <footer class="site-footer site-footer-v1">
   <div class="wrap footer-v1-main">
-    <div class="footer-v1-links" aria-label="Footer navigation">
+    <div class="footer-v1-links" aria-label="Footer navigation" data-i18n-aria="ariaFooterNav">
       <div class="footer-col">
         <h2 class="footer-col-title" data-i18n="footerProduct">Product</h2>
         <a href="index.html#platform" data-i18n="navPlatform">Platform</a>
@@ -199,6 +199,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="js/az-glossary.js"></script>
-  <script src="js/app.js?v=14042"></script>
+  <script src="js/app.js?v=14043"></script>
 </body>
 </html>

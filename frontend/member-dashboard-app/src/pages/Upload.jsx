@@ -2,7 +2,7 @@ import { Fragment, useMemo, useState } from "react";
 import { AlertTriangle, CalendarRange, Check, CreditCard, FileSignature, FileSpreadsheet, Receipt, X } from "lucide-react";
 import { uploadBinaryToSignedUrl, workspaceApi } from "../api/client";
 import { analysisPackages } from "../data/packages";
-import { LangToggle, useDelayLang } from "../components/DelayDashboard";
+import { useDelayLang } from "../components/DelayDashboard";
 import { fileSize } from "../lib/format";
 import { PageHeader } from "../components/Shell";
 
@@ -111,7 +111,7 @@ const COPY = {
 };
 
 export function Upload({ onUploaded, credits, onNavigate }) {
-  const [lang, setLang] = useDelayLang();
+  const [lang] = useDelayLang();
   const copy = COPY[lang];
   const [resultProjectId, setResultProjectId] = useState(null);
   const selectedPackage = analysisPackages[0].id;
@@ -253,7 +253,6 @@ export function Upload({ onUploaded, credits, onNavigate }) {
         eyebrow={copy.eyebrow}
         title={copy.title}
         description={copy.description}
-        action={<LangToggle lang={lang} onChange={setLang} />}
         compact
       />
 

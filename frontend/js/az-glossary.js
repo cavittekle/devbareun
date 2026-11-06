@@ -866,10 +866,10 @@
     [/Required\s*([\d.,]+)/i, "Tələb olunan: $1"],
     [/Gap:\s*/i, "Fərq: "],
     [/delay impact/i, "gecikmə təsiri"],
-    [/workers?/i, "işçi"],
-    [/activities?/i, "iş"],
-    [/Baseline/i, "Baza"],
-    [/Actual/i, "Faktiki"]
+    [/\bworkers?\b/i, "işçi"],
+    [/\bactivities?\b/i, "iş"],
+    [/\bBaseline\b/i, "Baza"],
+    [/\bActual\b/i, "Faktiki"]
   ];
 
   function applyRules(str, rules) {

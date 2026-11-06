@@ -2838,3 +2838,11 @@ html[data-theme="light"] .file-chip-v125{background:#fff!important;border-color:
 /* Accessibility review 2026-11-06: footer tap targets, contact note */
 @media (max-width:760px),(pointer:coarse){.footer-col a{margin:0;padding:12px 0;min-height:44px;box-sizing:border-box}}
 .form-note{margin:-4px 0 0;font-size:13px}
+
+/* Bilingual content blocks and helpers (UX copy + a11y pass, 2026-11-06) */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.lang-az{display:none}
+html[lang="az"] .lang-en{display:none}
+html[lang="az"] .lang-az{display:revert}
+html[lang="az"] section.lang-az{display:block}
+.nav-links a{display:inline-flex;align-items:center;min-height:44px}

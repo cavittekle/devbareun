@@ -1,6 +1,5 @@
 import {
   BarChart3,
-  Bell,
   CreditCard,
   FileBarChart,
   FolderKanban,
@@ -17,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { workspaceApi } from "../api/client";
 import { classNames } from "../lib/format";
-import { useDelayLang } from "./DelayDashboard";
+import { LangToggle, useDelayLang } from "./DelayDashboard";
 
 const navItems = [
   { id: "overview", icon: LayoutDashboard },
@@ -85,7 +84,7 @@ export const SHELL_COPY = {
 const allNavItems = [...navItems, ...teamNavItems];
 
 export function Shell({ activeView, onNavigate, user, credits, children }) {
-  const [lang] = useDelayLang();
+  const [lang, setLang] = useDelayLang();
   const t = SHELL_COPY[lang];
   const email = user?.email || (lang === "az" ? "İş sahəsi" : "Workspace");
   const initials = email.slice(0, 1).toUpperCase();
@@ -168,9 +167,7 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
             <span className="workspace-eyebrow">{t.eyebrow}</span>
             <strong>{email}</strong>
           </div>
-          <button type="button" className="workspace-top-button icon-only" aria-label={t.notifications} title={t.notifications}>
-            <Bell size={17} />
-          </button>
+          <LangToggle lang={lang} onChange={setLang} />
           <div className="workspace-account" ref={accountRef}>
             <button
               type="button"
@@ -186,10 +183,10 @@ export function Shell({ activeView, onNavigate, user, credits, children }) {
               <div className="workspace-account-menu" role="menu">
                 <span className="workspace-account-email">{email}</span>
                 <button type="button" role="menuitem" onClick={() => { setAccountOpen(false); selectView("settings"); }}>
-                  <Settings size={16} /> {t.nav.settings}
+                  <Settings size={16} aria-hidden="true" /> {t.nav.settings}
                 </button>
                 <button type="button" role="menuitem" onClick={logout}>
-                  <LogOut size={16} /> {t.logout}
+                  <LogOut size={16} aria-hidden="true" /> {t.logout}
                 </button>
               </div>
             )}
@@ -207,9 +204,10 @@ function NavButton({ item, label, active, onSelect }) {
     <button
       type="button"
       className={classNames("workspace-nav-item", active && "active")}
+      aria-current={active ? "page" : undefined}
       onClick={() => onSelect(item.id)}
     >
-      <Icon size={18} />
+      <Icon size={18} aria-hidden="true" />
       <span>{label}</span>
     </button>
   );

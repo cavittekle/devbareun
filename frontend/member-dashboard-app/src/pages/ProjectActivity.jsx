@@ -2,33 +2,35 @@ import { useEffect, useMemo, useState } from "react";
 import { Activity, RefreshCw, ShieldCheck } from "lucide-react";
 import { workspaceApi } from "../api/client";
 import { EmptyState, PageHeader } from "../components/Shell";
+import { useT } from "../lib/i18n";
 
 const ACTION_LABELS = {
-  "project_access.granted": "Project access granted",
-  "project_access.updated": "Project access updated",
-  "project_access.revoked": "Project access revoked",
-  "upload.prepared": "Upload prepared",
-  "upload.completed": "File uploaded",
-  "upload.deleted": "File removed",
-  "analysis.queued": "Analysis queued",
-  "analysis.completed": "Analysis completed",
-  "analysis.failed": "Analysis failed",
-  "report.generated": "Report generated",
-  "report.downloaded": "Report downloaded"
+  "project_access.granted": ["Access given", "Giriş verildi"],
+  "project_access.updated": ["Access updated", "Giriş yeniləndi"],
+  "project_access.revoked": ["Access removed", "Giriş götürüldü"],
+  "upload.prepared": ["Upload started", "Yükləmə başladı"],
+  "upload.completed": ["File uploaded", "Fayl yükləndi"],
+  "upload.deleted": ["File removed", "Fayl silindi"],
+  "analysis.queued": ["Analysis started", "Analiz başladı"],
+  "analysis.completed": ["Analysis finished", "Analiz bitdi"],
+  "analysis.failed": ["Analysis failed", "Analiz alınmadı"],
+  "report.generated": ["Report ready", "Hesabat hazırdır"],
+  "report.downloaded": ["Report downloaded", "Hesabat yükləndi"]
 };
 
-function displayDate(value) {
-  if (!value) return "Time unavailable";
+function displayDate(value, t) {
+  if (!value) return t("Time unknown", "Vaxt naməlum");
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
 }
 
-function actorLabel(event) {
-  if (event?.actor?.type === "system") return "DevBareun system";
-  return event?.actor?.email || "Project member";
+function actorLabel(event, t) {
+  if (event?.actor?.type === "system") return "DevBareun";
+  return event?.actor?.email || t("Project member", "Layihə üzvü");
 }
 
 export function ProjectActivity() {
+  const t = useT();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [events, setEvents] = useState([]);
@@ -49,7 +51,7 @@ export function ProjectActivity() {
       setProjects(rows);
       setSelectedProjectId((current) => current || String(rows[0]?.project_id || rows[0]?.id || ""));
     } catch (err) {
-      setError(err.message || "Project activity could not be loaded.");
+      setError(err.message || t("We couldn't load project activity. Try Refresh in a minute.", "Layihə fəaliyyətini yükləmək olmadı. Bir dəqiqə sonra Yenilə düyməsini basın."));
     } finally { setLoading(false); }
   }
 
@@ -60,7 +62,7 @@ export function ProjectActivity() {
       const result = await workspaceApi.projectActivity(projectId);
       setEvents(result?.events || []);
     } catch (err) {
-      setError(err.message || "Project activity could not be loaded.");
+      setError(err.message || t("We couldn't load project activity. Try Refresh in a minute.", "Layihə fəaliyyətini yükləmək olmadı. Bir dəqiqə sonra Yenilə düyməsini basın."));
     } finally { setTimelineLoading(false); }
   }
 
@@ -70,37 +72,36 @@ export function ProjectActivity() {
   return (
     <>
       <PageHeader
-        eyebrow="Project traceability"
-        title="Project activity"
-        description="A collaboration-safe timeline of uploads, analyses, reports and project access changes."
-        action={<button className="secondary-button" onClick={() => loadTimeline()} disabled={timelineLoading || !selectedProjectId}><RefreshCw size={16} /> Refresh</button>}
+        eyebrow={t("Activity", "Fəaliyyət")}
+        title={t("Project activity", "Layihə fəaliyyəti")}
+        description={t("Who uploaded files, ran analyses, downloaded reports or changed access, and when.", "Kim nə vaxt fayl yükləyib, analiz başladıb, hesabat yükləyib və ya girişi dəyişib.")}
+        action={<button type="button" className="secondary-button" onClick={() => loadTimeline()} disabled={timelineLoading || !selectedProjectId}><RefreshCw size={16} aria-hidden="true" /> {t("Refresh", "Yenilə")}</button>}
       />
-      {error ? <div className="status-box warning">{error}</div> : null}
-      {loading ? <div className="status-box info">Loading accessible projects…</div> : null}
-      {!loading && projects.length === 0 ? <EmptyState title="No accessible projects." description="Project activity appears after you own or receive explicit access to a project." /> : null}
+      {error ? <div className="status-box warning" role="alert">{error}</div> : null}
+      {loading ? <div className="status-box info" role="status">{t("Loading projects…", "Layihələr yüklənir…")}</div> : null}
+      {!loading && projects.length === 0 ? <EmptyState title={t("No project activity yet.", "Hələ layihə fəaliyyəti yoxdur.")} description={t("Activity appears here once you upload a project or someone shares one with you.", "Layihə yüklədikdə və ya kimsə sizinlə layihə paylaşdıqda fəaliyyət burada görünür.")} /> : null}
       {!loading && projects.length > 0 ? <>
         <section className="panel project-activity-scope">
-          <div className="team-section-head"><div><span className="workspace-eyebrow">Project scope</span><h2>Choose a project</h2><p>Only the owner and explicitly shared project roles can view this timeline.</p></div><ShieldCheck size={24} /></div>
-          <select value={selectedProjectId} onChange={(event) => setSelectedProjectId(event.target.value)}>
-            {projects.map((project) => <option key={project.project_id || project.id} value={project.project_id || project.id}>{project.project_name || project.name || "Untitled project"}</option>)}
+          <div className="team-section-head"><div><span className="workspace-eyebrow">{t("Project", "Layihə")}</span><h2>{t("Choose a project", "Layihə seçin")}</h2><p>{t("Only the owner and people the project is shared with see this activity.", "Bu fəaliyyəti yalnız sahib və layihənin paylaşıldığı şəxslər görür.")}</p></div><ShieldCheck size={24} aria-hidden="true" /></div>
+          <select aria-label={t("Project", "Layihə")} value={selectedProjectId} onChange={(event) => setSelectedProjectId(event.target.value)}>
+            {projects.map((project) => <option key={project.project_id || project.id} value={project.project_id || project.id}>{project.project_name || project.name || t("Untitled project", "Adsız layihə")}</option>)}
           </select>
-          {selectedProject ? <small className="project-access-hint">{selectedProject.location || selectedProject.client_name || "Project workspace"}</small> : null}
+          {selectedProject ? <small className="project-access-hint">{selectedProject.location || selectedProject.client_name || ""}</small> : null}
         </section>
         <section className="panel project-activity-panel">
-          <div className="team-section-head"><div><span className="workspace-eyebrow">Recent events</span><h2>Collaboration timeline</h2><p>Events are append-only. Sensitive storage paths, signed URLs and credentials are never shown here.</p></div><Activity size={24} /></div>
-          {timelineLoading ? <p className="team-empty">Loading activity timeline…</p> : null}
-          {!timelineLoading && events.length === 0 ? <p className="team-empty">No project activity has been recorded since timeline tracking was enabled.</p> : null}
+          <div className="team-section-head"><div><span className="workspace-eyebrow">{t("Recent events", "Son hadisələr")}</span><h2>{t("Activity timeline", "Fəaliyyət xronologiyası")}</h2><p>{t("Events can't be edited or deleted. File locations and links are never shown here.", "Hadisələr dəyişdirilə və ya silinə bilməz. Fayl yerləri və keçidlər burada göstərilmir.")}</p></div><Activity size={24} aria-hidden="true" /></div>
+          {timelineLoading ? <p className="team-empty">{t("Loading…", "Yüklənir…")}</p> : null}
+          {!timelineLoading && events.length === 0 ? <p className="team-empty">{t("No activity recorded for this project yet.", "Bu layihə üzrə hələ fəaliyyət qeydə alınmayıb.")}</p> : null}
           {!timelineLoading && events.length > 0 ? (
             <div className="project-activity-list">
               {events.map((event) => (
                 <article className="project-activity-row" key={event.event_id}>
-                  <div className="project-activity-marker"><Activity size={15} /></div>
+                  <div className="project-activity-marker" aria-hidden="true"><Activity size={15} /></div>
                   <div className="project-activity-content">
-                    <strong>{ACTION_LABELS[event.action] || event.action}</strong>
-                    <small>{actorLabel(event)} · {displayDate(event.occurred_at)}</small>
-                    {event.metadata?.risk_count !== undefined ? <span className="project-activity-detail">{event.metadata.risk_count} risk item(s) recorded</span> : null}
-                    {event.metadata?.project_role ? <span className="project-activity-detail">Project role: {event.metadata.project_role}</span> : null}
-                    {event.metadata?.format ? <span className="project-activity-detail">Format: {event.metadata.format}</span> : null}
+                    <strong>{ACTION_LABELS[event.action] ? t(...ACTION_LABELS[event.action]) : event.action}</strong>
+                    <small>{actorLabel(event, t)} · {displayDate(event.occurred_at, t)}</small>
+                    {event.metadata?.project_role ? <span className="project-activity-detail">{t("Project role", "Layihə rolu")}: {event.metadata.project_role}</span> : null}
+                    {event.metadata?.format ? <span className="project-activity-detail">{t("Format", "Format")}: {event.metadata.format}</span> : null}
                   </div>
                 </article>
               ))}
