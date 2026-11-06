@@ -77,6 +77,10 @@ NOTES = {
         "Old Word .doc files cannot be read; save the F2 as .docx or Excel to include its amounts.",
         "Köhnə Word .doc faylı oxunmur; məbləğlərin hesaba alınması üçün F2-ni .docx və ya Excel kimi saxlayın.",
     ),
+    "f2_pdf": (
+        "The F2/F3 PDF was kept with the report as a reference; upload it as Excel or .docx to include its amounts in the calculation.",
+        "F2/F3 PDF faylı hesabata istinad kimi əlavə edildi; məbləğlərin hesaba alınması üçün onu Excel və ya .docx kimi yükləyin.",
+    ),
     "f2_empty": (
         "No F2 total amount was found in this file.",
         "Bu faylda F2 yekun məbləği tapılmadı.",
@@ -141,7 +145,8 @@ def read_documents(paths: Sequence[Path], document_types: Optional[Mapping[str, 
 def _read_f2_document(path: Path) -> DelayInput:
     suffix = path.suffix.lower()
     if suffix not in READABLE_FORMATS[F2]:
-        return DelayInput(documents=[_document(path, F2, "reference", "f2_doc")])
+        note = "f2_pdf" if suffix == ".pdf" else "f2_doc"
+        return DelayInput(documents=[_document(path, F2, "reference", note)])
     if suffix in {".xlsx", ".xlsm"}:
         tables = workbook_tables(path)
     elif suffix == ".xls":

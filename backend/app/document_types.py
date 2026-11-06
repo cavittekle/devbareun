@@ -6,7 +6,7 @@ A delay analysis is built from three kinds of project documents:
 * ``schedule``  - the programme (planlama): Excel/CSV, Primavera XER, MS Project
   XML/MPP, or a PDF print
 * ``f2``        - F2 certificates of completed work (görülmüş işlərin aktı) used
-  for payment: Excel/CSV or Word
+  for payment (current F2 and F3): Excel/CSV, Word or PDF
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ DOCUMENT_TYPES = (CONTRACT, SCHEDULE, F2)
 FORMATS_BY_TYPE: Dict[str, FrozenSet[str]] = {
     CONTRACT: frozenset({".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp"}),
     SCHEDULE: frozenset({".xlsx", ".xls", ".xlsm", ".csv", ".xer", ".xml", ".mpp", ".pdf"}),
-    F2: frozenset({".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc"}),
+    F2: frozenset({".xlsx", ".xls", ".xlsm", ".csv", ".docx", ".doc", ".pdf"}),
 }
 
 ALL_FORMATS: FrozenSet[str] = frozenset().union(*FORMATS_BY_TYPE.values())
