@@ -16,7 +16,7 @@ export const T = {
     spi: "SPI (qrafik göstəricisi)",
     spiNote: "1.00 = plan sürəti",
     scheduleDelay: "Qrafikdən geri qalma",
-    scheduleDelayNote: "Earned schedule üzrə",
+    scheduleDelayNote: "Qazanılmış qrafik üzrə",
     forecastFinish: "Proqnoz bitmə",
     plannedFinish: "Plan bitmə",
     days: "gün",
@@ -36,7 +36,7 @@ export const T = {
     employer: "Sifarişçi",
     contractorParty: "Podratçı",
     neutral: "Neytral",
-    concurrent: "Eyni vaxtda",
+    concurrent: "Eyni vaxtlı",
     unassigned: "Təyin edilməyib",
     excusable: "Üzrlü (EOT)",
     compensable: "Kompensasiyalı",
@@ -532,7 +532,7 @@ export function DelayDashboard({ result, lang, onLangChange, downloads, isExampl
           </dl>
         </div>
         <div className="delay-head-actions">
-          <LangToggle lang={lang} onChange={onLangChange} />
+          {onLangChange && <LangToggle lang={lang} onChange={onLangChange} />}
           <span className={`status-pill ${statusTone(k.status)}`}>
             {k.status === "on_track" ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />} {statusLabel}
           </span>

@@ -84,7 +84,7 @@ a {
   display: none;
   align-items: center;
   gap: 10px;
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--border-cyan);
   border-radius: 14px;
   padding: 8px 12px;
@@ -139,7 +139,7 @@ a {
 }
 
 .workspace-nav-secondary .workspace-nav-item {
-  min-height: 38px;
+  min-height: 44px;
   padding: 7px 12px;
   font-size: 13px;
   font-weight: 650;
@@ -211,7 +211,7 @@ a {
 .workspace-top-button,
 .primary-button,
 .secondary-button {
-  min-height: 42px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -246,8 +246,8 @@ a {
 }
 
 .workspace-avatar {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   border: 1px solid var(--border-cyan);
@@ -475,7 +475,7 @@ a {
 
 .plan-select-option {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1427,7 +1427,7 @@ a {
 
 .settings-privacy-card input {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   margin-top: 12px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
@@ -1546,7 +1546,7 @@ a {
 .team-invite-form input,
 .team-invite-form select,
 .team-member-actions select {
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px 12px;
@@ -1678,7 +1678,7 @@ a {
 }
 
 .project-activity-scope select {
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px 12px;
@@ -1822,7 +1822,7 @@ a {
 
 .delay-lang button {
   min-width: 44px;
-  min-height: 40px;
+  min-height: 44px;
   border: 0;
   background: transparent;
   color: var(--text-muted);
@@ -1864,7 +1864,7 @@ a {
 
 .delay-section-nav a {
   flex: none;
-  min-height: 36px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   border-radius: 10px;
@@ -2507,7 +2507,7 @@ a {
    Design critique follow-up: plan notice, account menu, text buttons
 --------------------------------------------------------------------------- */
 .text-button {
-  min-height: 42px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2677,4 +2677,17 @@ button.workspace-avatar {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+/* Login/register intro: logo on its own line, eyebrow below it (was wrapping beside the logo on phones). */
+.auth-intro img {
+  display: block;
+}
+
+.auth-intro > .workspace-eyebrow {
+  display: block;
+}
+
+.workspace-topbar .delay-lang {
+  flex: none;
 }

@@ -2,17 +2,17 @@
   const faqText = {
     en: {
       faqQ1:'How does DevBareun work?',
-      faqA1:'You upload the baseline schedule, actual progress at the data date and, if you keep them, delay events. DevBareun runs the construction execution and delay analysis and returns a delay dashboard plus the execution report: progress, SPI, schedule delay in days, forecast completion, critical path and delay responsibility.',
+      faqA1:'You upload three documents: the planning (baseline schedule and actual progress at the data date), the current F2 and F3 certificates and the contract. DevBareun runs the construction execution and delay analysis and returns a delay dashboard plus the execution report: progress, SPI, schedule delay in days, forecast completion, critical path and delay responsibility.',
       faqQ2:'Which project files can I upload?',
-      faqA2:'Three kinds of documents: the contract (PDF, Word, JPEG or PNG), the planning (Excel/CSV plan-actual tables, Primavera P6 XER, MS Project XML or .mpp, PDF) and F2 certificates (Excel or Word). Delay is calculated from the Excel, CSV, XER or MS Project XML schedule; F2 amounts are compared with physical progress; the contract, PDF schedules and .mpp files are kept with the report as references. Column headers in English, Azerbaijani, Turkish and Russian are recognised.',
+      faqA2:'Three kinds of documents: the contract (PDF, Word, JPEG or PNG), the planning (Excel/CSV plan-actual tables, Primavera P6 XER, MS Project XML or .mpp, PDF) and the current F2 and F3 certificates (Excel, Word or PDF). All three are required. Delay is calculated from the Excel, CSV, XER or MS Project XML schedule; F2 amounts are compared with physical progress; the contract, PDF schedules and .mpp files are kept with the report as references. Column headers in English, Azerbaijani, Turkish and Russian are recognised.',
       faqQ3:'How is the delay calculated?',
       faqA3:'Planned progress at the data date comes from the baseline. SPI is actual % divided by planned %. Schedule delay is the number of days between the data date and the date on which the baseline reached today\'s actual progress (earned schedule). Forecast completion uses actual finishes, reported forecasts, production rates and predecessor logic, and the critical path comes from total float.',
       faqQ4:'How does payment work?',
-      faqA4:'DevBareun offers both a one-time and a subscription model. Single Project ($29) is a one-time payment for one analysis. Plus ($49/month) and Pro ($89/month) plans provide monthly analysis credits for teams with recurring project needs. In all cases, you upload files, review the preview, and unlock the dashboard once payment is confirmed.',
+      faqA4:'DevBareun offers both a one-time and a subscription model. Single Project ($29) is a one-time payment for one analysis. Plus ($49/month) and Pro ($89/month) plans provide monthly analysis credits for teams with recurring project needs. Plus gives 5 analysis credits a month and Pro gives 20. One credit runs one analysis.',
       faqQ5:'Which report formats will be available?',
       faqA5:'A delay dashboard in the workspace, and the execution and delay analysis report as PDF and Excel, in Azerbaijani or English.',
       faqQ6:'Is my project data secure?',
-      faqA6:'Project data security is a core requirement for the platform. Uploaded files are protected with access control, secure authentication and controlled retention rules.',
+      faqA6:'Yes. Files are sent over encrypted connections, kept in private storage behind account-level access rules and opened only by you and the colleagues you share a project with. You can ask for them to be deleted at any time.',
       faqQ7:'Which payment options are available?',
       faqA7:'Single Project is a one-time $29 checkout. Plus is $49/month for 5 analysis credits, and Pro is $89/month for 20 analysis credits.',
       faqQ8:'How is responsibility for delay decided?',
@@ -41,12 +41,12 @@
     faqA5:'Workspace-də gecikmə dashboardu və Azərbaycan və ya ingilis dilində PDF və Excel formatında icra və gecikmə analizi hesabatı.',
     faqA3:'Hesabat tarixinə plan icra baza qrafikdən hesablanır. SPI faktiki faizin plan faizə nisbətidir. Qrafik gecikməsi hesabat tarixi ilə baza qrafikin bugünkü faktiki icraya çatdığı tarix arasındakı gün sayıdır (qazanılmış qrafik). Proqnoz bitmə faktiki bitmə tarixləri, bildirilmiş proqnozlar, iş tempi və əlaqə məntiqi ilə, kritik yol isə ümumi ehtiyat vaxtla müəyyən edilir.',
     faqQ3:'Gecikmə necə hesablanır?',
-    faqA2:'Üç növ sənəd: müqavilə (PDF, Word, JPEG və ya PNG), planlama (Excel/CSV plan-fakt cədvəlləri, Primavera P6 XER, MS Project XML və ya .mpp, PDF) və F2 aktları (Excel və ya Word). Gecikmə Excel, CSV, XER və ya MS Project XML qrafikindən hesablanır; F2 məbləğləri fiziki icra ilə müqayisə olunur; müqavilə, PDF qrafiklər və .mpp faylları hesabata istinad kimi əlavə edilir. İngilis, Azərbaycan, türk və rus dillərində sütun başlıqları tanınır.',
-    faqA1:'Baza qrafikini, hesabat tarixinə faktiki icranı və varsa gecikmə hadisələrini yükləyirsiniz. DevBareun tikinti layihəsinin icra və gecikmə analizini aparır və gecikmə dashboardu ilə icra hesabatını qaytarır: icra faizi, SPI, gün ilə qrafik gecikməsi, proqnoz bitmə tarixi, kritik yol və gecikmə məsuliyyəti.',
+    faqA2:'Üç növ sənəd: müqavilə (PDF, Word, JPEG və ya PNG), planlama (Excel/CSV plan-fakt cədvəlləri, Primavera P6 XER, MS Project XML və ya .mpp, PDF) və cari F2 və F3 aktları (Excel, Word və ya PDF). Hər üçü tələb olunur. Gecikmə Excel, CSV, XER və ya MS Project XML qrafikindən hesablanır; F2 məbləğləri fiziki icra ilə müqayisə olunur; müqavilə, PDF qrafiklər və .mpp faylları hesabata istinad kimi əlavə edilir. İngilis, Azərbaycan, türk və rus dillərində sütun başlıqları tanınır.',
+    faqA1:'Üç sənəd yükləyirsiniz: planlama (baza qrafiki və hesabat tarixinə faktiki icra), cari F2 və F3 aktları və müqavilə. DevBareun tikinti layihəsinin icra və gecikmə analizini aparır və gecikmə dashboardu ilə icra hesabatını qaytarır: icra faizi, SPI, gün ilə qrafik gecikməsi, proqnoz bitmə tarixi, kritik yol və gecikmə məsuliyyəti.',
     faqQ4:'Ödəniş necə edilir?',
-    faqA4:'DevBareun həm birdəfəlik, həm də abunəlik modeli təklif edir. Single Project ($29) bir analiz üçün birdəfəlik ödənişdir. Plus ($49/ay) və Pro ($89/ay) paketləri davamlı layihə ehtiyacı olan komandalar üçün aylıq analiz kreditləri verir. Bütün hallarda faylları yükləyir, önbaxışı yoxlayır və ödəniş təsdiqləndikdən sonra dashboardu açırsınız.',
+    faqA4:'DevBareun həm birdəfəlik, həm də abunəlik modeli təklif edir. Single Project ($29) bir analiz üçün birdəfəlik ödənişdir. Plus ($49/ay) və Pro ($89/ay) paketləri davamlı layihə ehtiyacı olan komandalar üçün aylıq analiz kreditləri verir. Plus ayda 5, Pro isə ayda 20 analiz krediti verir. Bir kredit bir analiz üçündür.',
     faqQ6:'Layihə məlumatlarım təhlükəsiz saxlanılırmı?',
-    faqA6:'Layihə məlumatlarının təhlükəsizliyi platformanın əsas tələblərindən biridir. Yüklənmiş fayllar giriş nəzarəti, təhlükəsiz autentifikasiya və idarə olunan saxlanma qaydaları ilə qorunur.',
+    faqA6:'Bəli. Fayllar şifrələnmiş bağlantı ilə göndərilir, hesab səviyyəli giriş qaydaları ilə qapalı yaddaşda saxlanılır və yalnız siz və layihəni paylaşdığınız həmkarlar tərəfindən açılır. Faylların silinməsini istənilən vaxt istəyə bilərsiniz.',
     faqQ7:'Hansı ödəniş seçimləri mövcuddur?',
     faqA7:'Single Project $29 birdəfəlik checkout-dur. Plus $49/ay üçün 5 analiz krediti, Pro isə $89/ay üçün 20 analiz krediti verir.',
     faqQ8:'Gecikməyə görə məsuliyyət necə müəyyən edilir?',
@@ -75,7 +75,7 @@
       btn.dataset.bound = 'true';
       btn.addEventListener('click', function(){
         const item = btn.closest('.faq-item');
-        if(item) item.classList.toggle('open');
+        if(item){ const open = item.classList.toggle('open'); btn.setAttribute('aria-expanded', String(open)); }
       });
     });
   }
