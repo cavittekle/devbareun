@@ -87,9 +87,6 @@ def readiness_findings(readiness: Dict[str, Any], strict: bool) -> Tuple[List[st
     if readiness.get("supabase_private") != "configured":
         message = "supabase_private is not configured"
         (errors if strict else warnings).append(message)
-    if readiness.get("lemonsqueezy") != "configured":
-        message = "lemonsqueezy is not configured"
-        (errors if strict else warnings).append(message)
     return errors, warnings
 
 

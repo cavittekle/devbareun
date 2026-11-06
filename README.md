@@ -8,7 +8,7 @@ DevBareun is a construction analytics and project control SaaS platform.
 - Customer workspace: React/Vite in `frontend/member-dashboard-app/`
 - Backend API: FastAPI in `backend/`
 - Database, auth, and private file storage: Supabase
-- Checkout and billing webhooks: Lemon Squeezy
+- Payments: no online provider connected; plans are activated manually
 
 | Target   | Root directory | Notes                              |
 | -------- | -------------- | ---------------------------------- |
@@ -73,13 +73,7 @@ Uploads use private Supabase Storage signed URLs; Railway's filesystem is epheme
 
 ## Payments
 
-Production uses Lemon Squeezy. Railway variables:
-
-- `DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy`
-- `LEMON_SQUEEZY_API_KEY`, `LEMON_SQUEEZY_STORE_ID`, `LEMON_SQUEEZY_WEBHOOK_SECRET`
-- `LEMON_SQUEEZY_SINGLE_VARIANT_ID`, `LEMON_SQUEEZY_PLUS_VARIANT_ID`, `LEMON_SQUEEZY_PRO_VARIANT_ID`
-
-Webhook URL: `https://devbareun-production.up.railway.app/api/billing/webhook`
+No online payment provider is connected (Lemon Squeezy was removed). Checkout requests return HTTP 503 `payments_unavailable` with a message to email info@devbareun.com, and plans are activated manually. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 Mock payment, pilot checkout, local storage, and development auth must stay disabled in production.
 

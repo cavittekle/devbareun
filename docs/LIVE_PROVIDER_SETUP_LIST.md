@@ -20,7 +20,7 @@ VITE_SUPABASE_URL=<supabase project url>
 VITE_SUPABASE_ANON_KEY=<supabase anon key>
 ```
 
-Do not add service role keys, JWT secrets, Lemon Squeezy API keys, webhook secrets, Redis tokens, or database passwords to Vercel.
+Do not add service role keys, JWT secrets, webhook secrets, Redis tokens, or database passwords to Vercel.
 
 ## Railway
 
@@ -53,13 +53,6 @@ SUPABASE_JWT_SECRET=<supabase jwt secret if required>
 SUPABASE_STORAGE_BUCKET=project-files
 SUPABASE_REPORTS_BUCKET=reports
 
-DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
-LEMON_SQUEEZY_API_KEY=<live api key>
-LEMON_SQUEEZY_STORE_ID=396148
-LEMON_SQUEEZY_SINGLE_VARIANT_ID=1741208
-LEMON_SQUEEZY_PLUS_VARIANT_ID=1741246
-LEMON_SQUEEZY_PRO_VARIANT_ID=1741254
-LEMON_SQUEEZY_WEBHOOK_SECRET=<live webhook signing secret>
 
 UPSTASH_REDIS_REST_URL=<upstash redis rest url>
 UPSTASH_REDIS_REST_TOKEN=<upstash redis rest token>
@@ -79,15 +72,9 @@ role=owner
 status=active
 ```
 
-## Lemon Squeezy
+## Payments
 
-- Store must be active for live payments.
-- Webhook URL: `https://devbareun-production.up.railway.app/api/billing/webhook`
-- Webhook signing secret must match `LEMON_SQUEEZY_WEBHOOK_SECRET` in Railway.
-- Test live checkout for:
-  - Single Project: `1741208`
-  - Plus: `1741246`
-  - Pro: `1741254`
+No online payment provider is connected. Checkout requests return `payments_unavailable`, and plans are activated manually. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 ## Live Verification
 

@@ -218,15 +218,6 @@ def runtime_readiness() -> Dict[str, Any]:
     from .telemetry import error_telemetry_status
     from .services.data_lifecycle_service import policy_from_env
     upstash_ready = bool(os.getenv("UPSTASH_REDIS_REST_URL") and os.getenv("UPSTASH_REDIS_REST_TOKEN"))
-    lemon_required = (
-        "LEMON_SQUEEZY_API_KEY",
-        "LEMON_SQUEEZY_STORE_ID",
-        "LEMON_SQUEEZY_WEBHOOK_SECRET",
-        "LEMON_SQUEEZY_SINGLE_VARIANT_ID",
-        "LEMON_SQUEEZY_PLUS_VARIANT_ID",
-        "LEMON_SQUEEZY_PRO_VARIANT_ID",
-    )
-    lemon_ready = all(_env_status(name) == "configured" for name in lemon_required)
     supabase_public_ready = _env_status("SUPABASE_URL") == "configured" and _env_status("SUPABASE_ANON_KEY") == "configured"
     supabase_private_ready = _env_status("SUPABASE_URL") == "configured" and _env_status("SUPABASE_SERVICE_ROLE_KEY") == "configured"
     telemetry = error_telemetry_status()
@@ -255,8 +246,8 @@ def runtime_readiness() -> Dict[str, Any]:
         "supabase_public": "configured" if supabase_public_ready else "missing",
         "supabase_private": "configured" if supabase_private_ready else "missing",
         "supabase_storage_bucket": os.getenv("SUPABASE_STORAGE_BUCKET") or "project-files",
-        "payment_provider": os.getenv("DEVBAREUN_PAYMENT_PROVIDER") or "lemonsqueezy",
-        "lemonsqueezy": "configured" if lemon_ready else "missing",
+        # No online payment provider is connected; plans are activated manually.
+        "payment_provider": "none",
         "rate_limit": "upstash" if upstash_ready else ("in_memory_allowed" if in_memory_rate_limit_allowed() else "missing_upstash"),
         "error_telemetry": telemetry.get("mode"),
         "error_telemetry_required": telemetry.get("required") is True,
@@ -287,8 +278,6 @@ def runtime_readiness_issues() -> Dict[str, List[str]]:
             errors.append("Upstash rate limiting must be configured or explicitly accepted for pilot operation.")
         if readiness.get("supabase_private") != "configured":
             errors.append("Supabase private/service configuration is missing.")
-        if readiness.get("lemonsqueezy") != "configured":
-            errors.append("Lemon Squeezy production configuration is incomplete.")
         if readiness.get("analysis_job_mode") != "worker":
             warnings.append("DEVBAREUN_ANALYSIS_JOB_MODE=worker is recommended for production.")
         if readiness.get("data_lifecycle") != "configured":

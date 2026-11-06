@@ -145,19 +145,7 @@ DEVBAREUN_AUTO_PURGE_ENABLED=false
 
 ## Billing webhook lifecycle integrity
 
-After v1.4.31, apply `2026_06_21_v1431_billing_lifecycle_integrity.sql` after
-v1.4.30. It adds a bounded, retry-safe payment webhook event state machine and
-persists the DevBareun checkout ID in Lemon Squeezy custom metadata. Set the
-same value on every Railway service:
-
-```text
-DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS=5
-```
-
-Use `GET /api/billing/checkouts/{checkout_id}` only through an authenticated
-customer or staff session. The endpoint does not disclose payment URLs, raw
-provider payloads or customer data.
-
+`2026_06_21_v1431_billing_lifecycle_integrity.sql` is applied after v1.4.30 and stays in the deploy order as history. No payment provider is connected now, so its webhook functions are not called. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 ## Project activity timeline
 

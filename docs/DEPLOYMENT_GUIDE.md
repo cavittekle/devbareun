@@ -44,8 +44,6 @@ Backend secrets must stay in Railway only:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_JWT_SECRET`
-- `LEMON_SQUEEZY_API_KEY`
-- `LEMON_SQUEEZY_WEBHOOK_SECRET`
 
 Frontend may only use public Supabase values.
 

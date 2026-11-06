@@ -68,20 +68,9 @@ Provider-specific live values are listed in `docs/LIVE_PROVIDER_SETUP_LIST.md`.
 - [ ] Upload test reaches Supabase Storage.
 - [ ] No service role key exists in frontend files, Vercel vars, browser code, or screenshots.
 
-## 6. Lemon Squeezy
+## 6. Payments
 
-- [ ] Store is active for live payments.
-- [ ] `DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy`.
-- [ ] `LEMON_SQUEEZY_STORE_ID=396148`.
-- [ ] `LEMON_SQUEEZY_SINGLE_VARIANT_ID=1741208`.
-- [ ] `LEMON_SQUEEZY_PLUS_VARIANT_ID=1741246`.
-- [ ] `LEMON_SQUEEZY_PRO_VARIANT_ID=1741254`.
-- [ ] `LEMON_SQUEEZY_API_KEY` is set only in Railway.
-- [ ] `LEMON_SQUEEZY_WEBHOOK_SECRET` is set only in Railway.
-- [ ] Webhook endpoint is `/api/billing/webhook`.
-- [ ] Test checkout succeeds.
-- [ ] Webhook signature verification succeeds.
-- [ ] Billing status updates after webhook delivery.
+- [ ] No online payment provider is connected. Checkout requests return `payments_unavailable`, and plans are activated manually. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 ## 7. Final QA
 

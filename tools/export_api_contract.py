@@ -51,7 +51,6 @@ REQUIRED_ROUTES: Tuple[Tuple[str, str], ...] = (
     ("GET", "/api/billing/checkouts/{checkout_id}"),
     ("POST", "/api/billing/create-one-time-checkout"),
     ("POST", "/api/billing/create-subscription-checkout"),
-    ("POST", "/api/billing/webhook"),
     ("GET", "/api/guest-result/{token}"),
     ("GET", "/api/privacy/policy"),
     ("GET", "/api/privacy/requests"),

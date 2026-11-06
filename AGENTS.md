@@ -11,7 +11,7 @@ Current production model:
 - Database/Auth/Storage: Supabase
 - Frontend deploy: Vercel with Root Directory `frontend`
 - Backend deploy: Railway with Root Directory `backend`
-- Payment direction: Lemon Squeezy
+- Payments: no online provider connected (Lemon Squeezy removed); plans activated manually
 - Repository root is not a deploy target and should not contain a production `index.html`
 
 Default public language is English. Azerbaijani is the secondary language.
@@ -123,7 +123,7 @@ When changing frontend:
 - Keep button, card, upload, loader, header, and footer styling consistent with `modern-landing.css`.
 - Do not add social icons or placeholder social links.
 - Do not add Stripe wording to public UI.
-- Use Lemon Squeezy wording for checkout/payment references.
+- Do not name a payment provider in public UI; plans are activated by email (info@devbareun.com).
 
 ## Logo Rules
 
@@ -267,15 +267,9 @@ Current SaaS direction:
 - admin panel
 - payment provider abstraction
 
-Production checkout uses Lemon Squeezy.
+No online payment provider is connected. Lemon Squeezy was removed at the owner's request. Checkout endpoints return `payments_unavailable` and plans are activated manually. Do not re-add a provider unless the user asks.
 
-Known variant IDs:
-
-- Single Project: `1741208`
-- Plus: `1741246`
-- Pro: `1741254`
-
-Do not hardcode secrets. Do not put Lemon Squeezy API keys or webhook secrets into frontend files.
+Do not hardcode secrets. Do not put payment API keys or webhook secrets into frontend files.
 
 Stripe-related public website files or references should not be added. If old Stripe references exist, remove them only when they are truly unused or the user asks for cleanup.
 

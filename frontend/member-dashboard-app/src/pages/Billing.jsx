@@ -27,6 +27,10 @@ export function Billing({ user, credits }) {
       if (checkoutUrl) location.href = checkoutUrl;
       else setStatus({ type: "error", text: t("The payment page didn't open. Try again, or write to info@devbareun.com.", "Ödəniş səhifəsi açılmadı. Yenidən cəhd edin və ya info@devbareun.com ünvanına yazın.") });
     } catch (error) {
+      if (error.code === "payments_unavailable") {
+        setStatus({ type: "info", text: t("Online payment is not available yet. Email info@devbareun.com and we will activate this plan for you.", "Onlayn ödəniş hələ mümkün deyil. info@devbareun.com ünvanına yazın, bu planı sizin üçün aktivləşdirək.") });
+        return;
+      }
       setStatus({ type: "error", text: error.message || t("The payment page didn't open. Try again in a minute.", "Ödəniş səhifəsi açılmadı. Bir dəqiqə sonra yenidən cəhd edin.") });
     }
   }

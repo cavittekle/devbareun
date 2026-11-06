@@ -78,8 +78,7 @@ Database/Auth/Storage:
 Payments:
 
 - Payment provider abstraction
-- Lemon Squeezy is the current checkout provider
-- Lemon Squeezy is the active payment provider
+- No online payment provider is connected; Lemon Squeezy was removed and plans are activated manually
 - Do not hardcode payment business logic only to one provider
 
 Repository:

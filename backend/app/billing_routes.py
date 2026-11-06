@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from .auth_dependencies import CurrentUser, get_current_user
@@ -13,7 +13,6 @@ from .services.billing_service import (
     get_billing_status,
     get_checkout_status,
     get_usage,
-    handle_webhook,
 )
 
 
@@ -69,12 +68,6 @@ async def subscription_checkout(payload: CheckoutRequest, current_user: Optional
 @router.post("/create-one-time-checkout")
 async def one_time_checkout(payload: CheckoutRequest, current_user: Optional[CurrentUser] = Depends(get_optional_current_user)) -> Dict[str, Any]:
     return create_one_time_checkout(_checkout_user(payload, current_user), payload.project_id, payload.success_url, payload.cancel_url)
-
-
-@router.post("/webhook")
-async def billing_webhook(request: Request) -> Dict[str, Any]:
-    body = await request.body()
-    return handle_webhook(body, request.headers.get("x-signature"), provider_hint="lemonsqueezy")
 
 
 @router.get("/status")

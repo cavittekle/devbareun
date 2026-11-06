@@ -1,44 +1,22 @@
-# v1.4.31 — Billing Lifecycle Integrity
+# Billing Lifecycle
 
-## Scope
+## Current state: no online payment provider
 
-This release makes Lemon Squeezy checkout handling replay-safe and observable without storing raw provider payloads in the application database. It does not create invoices, change product prices or call the Lemon Squeezy API beyond the existing checkout creation request.
+Lemon Squeezy was removed from DevBareun. No online payment provider is connected, and the platform does not create checkouts or receive payment webhooks.
 
-## Checkout lifecycle
+- `POST /api/billing/create-checkout`, `/create-subscription-checkout` and `/create-one-time-checkout` validate the plan, then return HTTP 503 with `error: payments_unavailable` and a message asking the customer to email info@devbareun.com.
+- There is no payment webhook route. `/api/billing/webhook` and `/api/payments/webhook` were removed.
+- Plan limits, subscriptions, analysis credits and usage counting are provider-agnostic and still work from existing database rows.
+- `GET /api/billing/checkouts/{checkout_id}` still returns an owner-scoped summary of any existing checkout record. It does not expose provider URLs, customer emails or raw payloads.
 
-Each new checkout now has a DevBareun-generated `checkout_id`. The backend persists a `checkout_sessions` record, sends that ID in Lemon Squeezy custom metadata and appends it to the verified success/cancel return URL. The customer workspace reads only:
+## Activating a plan manually
 
-```text
-GET /api/billing/checkouts/{checkout_id}
-```
+Until a new provider is chosen, an owner or finance admin activates a plan by inserting the matching `subscriptions` or `analysis_credits` row in Supabase for the customer.
 
-The response excludes provider checkout URLs, customer emails, raw webhook payloads and payment-event metadata. It is owner-scoped; finance/owner staff can use it through the payment capability.
+## Database
 
-## Payment webhook state machine
+The v1.4.31 migration (`database/2026_06_21_v1431_billing_lifecycle_integrity.sql`) is already applied history and is not edited. Its webhook claim functions remain in the database but are not called by the backend.
 
-`claim_payment_webhook_event` atomically claims a verified event. A duplicate is ignored only after `processing_status=processed`. A failed attempt remains retryable until `DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS`; then it becomes `dead_lettered`. `complete_payment_webhook_event` marks success only after subscription/credit side effects complete.
+## Adding a provider later
 
-The persisted payload is a privacy-safe summary and SHA-256 fingerprint. Do not store raw provider payloads, tokens or customer email in `payment_events`.
-
-## Subscription periods and credits
-
-Subscription period end dates use provider `renews_at`, `ends_at` or trial fields where present. `used_project_count` resets only when the provider period advances. One-time credits are keyed by the provider event ID and are therefore idempotent under delivery retries. A refund revokes only an unused credit; a used credit becomes `refund_review_required` for manual finance review.
-
-## Production configuration
-
-Set the same bounded retry policy on Railway web, analysis worker and audit archive worker:
-
-```env
-DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS=5
-```
-
-Allowed range: `1–20`. Production webhooks must continue to use `LEMON_SQUEEZY_WEBHOOK_SECRET`. Do not put payment secrets in Vercel.
-
-## Deployment
-
-1. Apply `database/2026_06_21_v1431_billing_lifecycle_integrity.sql` after v1.4.30.
-2. Set the retry env on all Railway services.
-3. Deploy the web backend before testing checkout status polling.
-4. Perform a real Lemon Squeezy test purchase and confirm: checkout record, pending status, webhook processing, entitlement grant and duplicate webhook no-op.
-5. Test a provider retry by replaying the same signed event in the provider test environment; it must not issue an extra credit.
-
+Add the provider's checkout and signed-webhook handling in `backend/app/services/billing_service.py`, keep provider logic separate from plan, credit and usage logic, and add its backend-only env vars to the Railway templates. Do not put payment secrets in Vercel.

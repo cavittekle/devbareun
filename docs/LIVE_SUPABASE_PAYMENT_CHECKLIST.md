@@ -20,22 +20,9 @@ Use this before switching DevBareun to live traffic.
 - [ ] Upload a test file and confirm it reaches the private Supabase bucket.
 - [ ] Confirm no service role key exists in frontend files, Vercel variables, browser source, screenshots, or docs.
 
-## Lemon Squeezy
+## Payments
 
-- [ ] Store is in live mode and identity/payout requirements are completed.
-- [ ] `LEMON_SQUEEZY_STORE_ID=396148` is set in Railway.
-- [ ] `LEMON_SQUEEZY_SINGLE_VARIANT_ID=1741208` is set in Railway.
-- [ ] `LEMON_SQUEEZY_PLUS_VARIANT_ID=1741246` is set in Railway.
-- [ ] `LEMON_SQUEEZY_PRO_VARIANT_ID=1741254` is set in Railway.
-- [ ] `LEMON_SQUEEZY_API_KEY` is set only in Railway.
-- [ ] `LEMON_SQUEEZY_WEBHOOK_SECRET` is set only in Railway.
-- [ ] `DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy`.
-- [ ] Webhook callback URL is `https://devbareun-production.up.railway.app/api/billing/webhook`.
-- [ ] Webhook events include order/subscription creation and subscription updates.
-- [ ] Webhook signature verification succeeds with the `X-Signature` header.
-- [ ] Single Project checkout creates one project credit.
-- [ ] Plus checkout creates Plus workspace access.
-- [ ] Pro checkout creates Pro workspace access.
+- [ ] No online payment provider is connected. Checkout requests return `payments_unavailable`, and plans are activated manually. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 ## Production Flags
 

@@ -82,13 +82,13 @@ DEVBAREUN_RATE_LIMIT_ENABLED=true
 DEVBAREUN_ALLOW_IN_MEMORY_RATE_LIMIT=false
 ```
 
-Railway backend must also receive Supabase private values, Lemon Squeezy private values and Upstash Redis values listed in `docs/DEPLOYMENT_ENV_MATRIX_V1414.md`.
+Railway backend must also receive Supabase private values and Upstash Redis values listed in `docs/DEPLOYMENT_ENV_MATRIX_V1414.md`.
 
-Do not place Supabase service role, Supabase JWT secret, Lemon Squeezy API key, Lemon Squeezy webhook secret, Upstash token or database passwords in Vercel/frontend env values.
+Do not place Supabase service role, Supabase JWT secret, Upstash token or database passwords in Vercel/frontend env values.
 
 ## 3. Railway worker service
 
-Create a second Railway service from the same backend root for analysis jobs. This service must use the same backend environment variables as the web service, especially Supabase service role, storage bucket names and Lemon Squeezy settings.
+Create a second Railway service from the same backend root for analysis jobs. This service must use the same backend environment variables as the web service, especially Supabase service role, and storage bucket names.
 
 Required service settings:
 
@@ -154,27 +154,9 @@ python tools/check_frontend_deploy_surface.py --root . --strict
 
 Frontend env values are public only. Vercel may receive `VITE_API_BASE_URL`, `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`; it must not receive backend secrets.
 
-## 5. Lemon Squeezy
+## 5. Payments
 
-Configure Lemon Squeezy with the production backend webhook URL:
-
-```text
-https://<railway-backend-domain>/api/billing/webhook
-```
-
-Backend env must include:
-
-```text
-DEVBAREUN_PAYMENT_PROVIDER=lemonsqueezy
-LEMON_SQUEEZY_API_KEY=<backend only>
-LEMON_SQUEEZY_STORE_ID=<store id>
-LEMON_SQUEEZY_WEBHOOK_SECRET=<backend only>
-LEMON_SQUEEZY_SINGLE_VARIANT_ID=<variant id>
-LEMON_SQUEEZY_PLUS_VARIANT_ID=<variant id>
-LEMON_SQUEEZY_PRO_VARIANT_ID=<variant id>
-```
-
-Webhook signature validation is fail-closed in production; do not enable mock payment in production.
+No online payment provider is connected. Checkout requests return `payments_unavailable`, and plans are activated manually. See `docs/BILLING_LIFECYCLE_V1431.md`.
 
 ## 6. Production env validation
 
@@ -207,7 +189,7 @@ python tools/check_provider_config.py \
   --vercel-env /secure/path/vercel.env
 ```
 
-The Railway worker must match the Railway web service for shared Supabase, Redis, Lemon Squeezy, origin and production-security configuration. Vercel must match the public site/API/Supabase browser values and must not contain backend-only secrets. Details: `docs/PRODUCTION_CONFIG_PREFLIGHT_V1415.md`.
+The Railway worker must match the Railway web service for shared Supabase, Redis, origin and production-security configuration. Vercel must match the public site/API/Supabase browser values and must not contain backend-only secrets. Details: `docs/PRODUCTION_CONFIG_PREFLIGHT_V1415.md`.
 
 For CI/template validation only, placeholders are allowed:
 
@@ -245,7 +227,7 @@ Use this order to avoid broken frontend/API interactions:
 3. Railway analysis worker service with production env.
 4. Railway audit archive worker service with production env.
 5. Vercel frontend with public env.
-6. Lemon Squeezy webhook test event.
+6. Checkout request returns `payments_unavailable`.
 7. Deployed smoke test.
 
 ## 8. Smoke test
@@ -270,7 +252,7 @@ csrf_token = required
 analysis_job_mode = worker
 rate_limit = upstash
 supabase_private = configured
-lemonsqueezy = configured
+payment_provider = none
 docs = disabled
 legacy_project_routes = disabled
 ```
@@ -288,7 +270,7 @@ Run these manually after smoke test:
 7. Confirm the Railway worker completes the job and writes `analysis_results`.
 8. Confirm result dashboard renders KPI/data-quality/risk panels without raw JSON as the primary view.
 9. Generate or download a report if the plan allows it.
-10. Test Lemon Squeezy checkout in the configured mode.
+10. Confirm a checkout request shows the manual activation message.
 
 ## 9A. Guarded pilot acceptance
 
@@ -501,7 +483,8 @@ DEVBAREUN_AUTO_PURGE_ENABLED=false
 
 ## v1.4.31 billing lifecycle
 
-Set `DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS=5` on Railway web, analysis worker and audit archive worker. Apply `2026_06_21_v1431_billing_lifecycle_integrity.sql` after v1.4.30, then verify an authenticated `GET /api/billing/checkouts/{checkout_id}` result after a Lemon Squeezy test checkout. Keep `LEMON_SQUEEZY_WEBHOOK_SECRET` backend-only.
+Apply `2026_06_21_v1431_billing_lifecycle_integrity.sql` after v1.4.30. No payment provider is connected, so checkout requests return `payments_unavailable`. `GET /api/billing/checkouts/{checkout_id}` still returns an owner-scoped summary of existing checkout records.
+
 
 ## v1.4.33 Project Sharing
 

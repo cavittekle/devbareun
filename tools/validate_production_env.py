@@ -28,14 +28,6 @@ BACKEND_REQUIRED = [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_STORAGE_BUCKET",
     "SUPABASE_REPORTS_BUCKET",
-    "DEVBAREUN_PAYMENT_PROVIDER",
-    "LEMON_SQUEEZY_API_KEY",
-    "LEMON_SQUEEZY_STORE_ID",
-    "LEMON_SQUEEZY_WEBHOOK_SECRET",
-    "LEMON_SQUEEZY_SINGLE_VARIANT_ID",
-    "LEMON_SQUEEZY_PLUS_VARIANT_ID",
-    "LEMON_SQUEEZY_PRO_VARIANT_ID",
-    "DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS",
     "UPSTASH_REDIS_REST_URL",
     "UPSTASH_REDIS_REST_TOKEN",
     "DEVBAREUN_REQUIRE_CSRF_TOKEN",
@@ -100,8 +92,6 @@ FRONTEND_REQUIRED = [
 FRONTEND_FORBIDDEN = [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_JWT_SECRET",
-    "LEMON_SQUEEZY_API_KEY",
-    "LEMON_SQUEEZY_WEBHOOK_SECRET",
     "UPSTASH_REDIS_REST_TOKEN",
     "DATABASE_URL",
     "DEVBAREUN_AUDIT_ARCHIVE_WEBHOOK_URL",
@@ -224,17 +214,6 @@ def validate_backend(values: Dict[str, str], allow_placeholders: bool) -> Tuple[
         value = values.get(name, "")
         if value and not is_https_url(value):
             errors.append(f"backend: {name} must be an HTTPS URL")
-
-    if values.get("DEVBAREUN_PAYMENT_PROVIDER", "").lower() != "lemonsqueezy":
-        errors.append("backend: DEVBAREUN_PAYMENT_PROVIDER must be lemonsqueezy")
-
-    try:
-        payment_event_attempts = int(values.get("DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS", ""))
-    except (TypeError, ValueError):
-        errors.append("backend: DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS must be an integer between 1 and 20")
-    else:
-        if not 1 <= payment_event_attempts <= 20:
-            errors.append("backend: DEVBAREUN_PAYMENT_WEBHOOK_MAX_ATTEMPTS must be between 1 and 20")
 
     try:
         team_invite_ttl = int(values.get("DEVBAREUN_TEAM_INVITE_TTL_HOURS", ""))
