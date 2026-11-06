@@ -2846,3 +2846,8 @@ html[lang="az"] .lang-en{display:none}
 html[lang="az"] .lang-az{display:revert}
 html[lang="az"] section.lang-az{display:block}
 .nav-links a{display:inline-flex;align-items:center;min-height:44px}
+
+/* Accessibility: visible skip-link ring and 44px touch targets on small screens */
+.skip-link:focus-visible{outline:3px solid #0A1228;outline-offset:-6px;box-shadow:0 0 0 3px var(--brand)}
+.faq-status:empty{display:none}.faq-status{margin:12px 0 0}
+@media(max-width:980px){.brand{min-height:44px}.btn{min-height:44px}.skip-link{min-height:44px;display:inline-flex;align-items:center}}

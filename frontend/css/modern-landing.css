@@ -951,3 +951,13 @@ h3 { margin: 0; font-size: 22px; line-height: 1.15; }
 }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* Accessibility: visible skip-link ring and 44px touch targets on small screens */
+.skip-link:focus-visible { outline: 3px solid #0A1228; outline-offset: -6px; box-shadow: 0 0 0 3px var(--accent); }
+@media (max-width: 1080px) {
+  .brand { min-height: 44px; }
+  .lang-toggle { height: 44px; }
+  .mobile-menu-btn { height: 44px; }
+  .billing-toggle button { min-height: 44px; }
+  .skip-link { min-height: 44px; display: inline-flex; align-items: center; }
+}
